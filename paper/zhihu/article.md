@@ -206,3 +206,52 @@ D_λ = λ · d^{π_q(φ)}  +  (1−λ) · d_demo        # λ=0 → QAD；λ=1 �
 - **DAgger**（Ross et al. 2011）：借其复合误差理论框架，把"量化"实例化为误差源；
   我们的 OPD 即以 BF16 策略为专家的 DAgger，并首次给出量化场景的分解与噪声下界。
 - **STEP**（ICML 2026 warm-start）：H5 把它与量化误差耦合，解释一步生成的额外收益。
+
+
+# 4. 相关工作
+
+## 4.1 VLA 模型与部署压力
+
+视觉-语言-动作（VLA）模型将预训练 VLM backbone 与动作生成头结合：π0/π0.5
+（Physical Intelligence，flow-matching action expert）、NVIDIA Isaac GR00T 系列
+（N1/N1.5 用 Eagle-2 backbone，N1.6/N1.7 换用 Cosmos-Reason2-2B/Qwen3-VL 架构并
+倍增 DiT action head）、WALL-OSS、SmolVLA、OpenVLA 等。部署侧的共同约束是本体
+推理：10-100W 功耗预算内以 10-50 Hz 闭环，模型 3-4B 参数在边缘设备上逼近显存与
+带宽极限。NVIDIA 为 GR00T 提供 Jetson Thor 上的 TensorRT 部署路径，但消费级
+GeForce 与量化格式的组合此前没有公开数据——本工作填补该空白。
+
+## 4.2 LLM 量化与 NVFP4 恢复
+
+4-bit 权重量化（GPTQ 的 Hessian 逐列舍入、AWQ 的激活感知缩放、SmoothQuant 的
+难度迁移）已是 LLM 标配；块缩放格式（NVFP4：E2M1 + per-16 E4M3 scale + per-tensor
+FP32 二级 scale，对照 MXFP4 的 per-32 UE8M0）随 Blackwell 硬件成为新的最低精度档。
+恢复方面，NVIDIA 的 QAD 技术报告（arXiv:2601.20088）确立 PTQ→QAD（QAT 模拟 +
+冻结 BF16 teacher 的 KL 蒸馏、冻结 scale 更新权重）→ 在策蒸馏的阶梯；GKD
+（Agarwal et al., ICLR 2024）与后续 OPD 实践给出 λ 混合广义目标与 reverse-KL 的
+论证。这些方法恢复的都是**开环指标**（perplexity/benchmark）；闭环控制下量化误差的
+复合与恢复是本工作的核心增量。
+
+## 4.3 协变量漂移与模仿学习的复合误差
+
+DAgger（Ross et al., 2011）证明：固定数据集上训练的策略在闭环执行中误差随视界
+平方级复合 O(T²ε)，而在策纠正训练将其降为线性 O(Tε)。量化策略天然构成这一框架中
+"带扰动学习器"的实例：NVFP4 引入的每步动作偏差 ε_q 正是 DAgger 误差分析中的 ε。
+我们将此理论实例化到 VLA 量化恢复（第 3 章），并给出 Δ_floor/Δ_shift/Δ_opt 分解
+与相应的实验设计——该连接在量化文献与机器人学习文献中均未被建立过。
+
+## 4.4 具身推理引擎
+
+通用 LLM 引擎（vLLM/TensorRT-LLM）面向 token 吞吐，不处理 VLA 的观测预处理、
+flow-matching 采样循环与动作后处理；Embodied.cpp（arXiv:2607.02501）提出可移植
+C++ 具身运行时；ApxInf（Infinigence/RLinf，Rust + 自研 CUDA kernel）以三层 API
+服务 VLA 并在 Jetson Thor/Orin 上验证 BF16/FP8/INT8。本工作在 GeForce Blackwell
+(sm_120) 上适配并扩展 ApxInf：修复其 FP8 路径在 sm_120 的不可用问题（E4M3 GEMM
+输出不被 cuBLASLt 支持，改为 F16 输出），并新增 NVFP4 精度路径。与之互补的
+单卡训练侧使能技术（FSDP2 CPUOffload 流水线）见姊妹工作，二者共享同一 checkpoint
+与评测协议。
+
+## 4.5 一步动作生成
+
+STEP（ICML 2026）的 warm-start 将 flow-matching 采样从 10 步压到 1 步。我们的
+Gronwall 分析（3.2 节）预言量化动作偏差随积分步数线性放大，因此一步生成与量化
+存在正向耦合（H5，R7 检验）——这是系统方法与量化精度在 VLA 上的首次交互研究。
