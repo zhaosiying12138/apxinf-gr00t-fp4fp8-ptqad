@@ -82,15 +82,17 @@ def decode_e4m3(b: np.ndarray) -> np.ndarray:
     return out.astype(np.float32)
 
 # ---------------- NVFP4 tensor quantization ----------------
-def nvfp4_quantize(W: np.ndarray, block: int = 16):
-    """W: (rows, K) float. Returns packed (rows,K//2) uint8, scales (rows,KB) uint8, tscale float32."""
+def nvfp4_quantize(W: np.ndarray, block: int = 16, tscale: float | None = None):
+    """W: (rows, K) float. Returns packed (rows,K//2) uint8, scales (rows,KB) uint8, tscale float32.
+    tscale: optional precomputed per-tensor scale (chunked conversion must share one)."""
     W = np.asarray(W, dtype=np.float64)
     rows, K = W.shape
     assert K % block == 0, f"K={K} must be divisible by {block}"
     KB = K // block
     wblk = W.reshape(rows, KB, block)
     amax = np.abs(wblk).max(axis=2)                          # (rows, KB)
-    tscale = float(np.float32(amax.max() / 448.0)) if amax.max() > 0 else 1.0
+    if tscale is None:
+        tscale = float(np.float32(amax.max() / 448.0)) if amax.max() > 0 else 1.0
     scale_f = amax / 6.0 / tscale                            # leave E4M3 headroom for global scale
     scales = encode_e4m3(scale_f)
     sd = decode_e4m3(scales).astype(np.float64) * tscale     # exact dequantized scale

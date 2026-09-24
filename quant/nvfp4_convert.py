@@ -20,22 +20,35 @@ import numpy as np
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from fp4_quant import nvfp4_quantize, nvfp4_dequantize, swizzle_scales
 
-def load_safetensors(path: pathlib.Path) -> dict[str, np.ndarray]:
-    from safetensors.numpy import load_file
-    return load_file(str(path))
+def iter_safetensors(path: pathlib.Path):
+    """Lazy per-tensor iterator (name, np.ndarray) — never holds the whole ckpt."""
+    from safetensors import safe_open
+    with safe_open(str(path), framework="numpy") as f:
+        for name in sorted(f.keys()):
+            yield name, f.get_tensor(name)
 
-def convert_one(W: np.ndarray):
+def convert_one(W: np.ndarray, chunk_rows: int = 8192):
+    """Chunked float32 quantization: keeps peak RSS ~O(chunk) instead of the
+    whole tensor in float64 (the paligemma embed alone is >0.5B params)."""
     W = np.ascontiguousarray(W, dtype=np.float32)
     if W.ndim != 2:
         raise ValueError("2-D only")
     rows, K = W.shape
     if K % 16 != 0:
         raise ValueError(f"K={K} not multiple of 16 (pad upstream or skip)")
-    packed, scales, tscale = nvfp4_quantize(W.astype(np.float64), block=16)
-    phys = swizzle_scales(scales)
-    Wq = nvfp4_dequantize(packed, scales, tscale)
-    rel = float(np.linalg.norm(Wq - W) / (np.linalg.norm(W) + 1e-12))
-    return packed, phys, tscale, rel
+    packed = np.empty((rows, K // 2), dtype=np.uint8)
+    KB = K // 16
+    scales = np.empty((rows, KB), dtype=np.uint8)
+    sq_sum_w = 0.0; sq_sum_d = 0.0
+    tscale = np.float32(np.abs(W).max() / 448.0) or np.float32(1.0)
+    for r0 in range(0, rows, chunk_rows):
+        w = W[r0:r0 + chunk_rows].astype(np.float64)
+        p, s, _ = nvfp4_quantize(w, block=16, tscale=tscale)
+        packed[r0:r0 + chunk_rows] = p; scales[r0:r0 + chunk_rows] = s
+        d = nvfp4_dequantize(p, s, tscale)
+        sq_sum_w += float((w * w).sum()); sq_sum_d += float(((d - w) ** 2).sum())
+    rel = float(np.sqrt(sq_sum_d) / (np.sqrt(sq_sum_w) + 1e-12))
+    return packed, swizzle_scales(scales), tscale, rel
 
 def main():
     ap = argparse.ArgumentParser()
@@ -46,11 +59,11 @@ def main():
     ap.add_argument("--exclude", default=None, help="exclude substring (e.g. norm/embed)")
     args = ap.parse_args()
 
-    tensors = load_safetensors(args.ckpt)
+    tensors = None  # lazy iteration below
     args.out.mkdir(parents=True, exist_ok=True)
     manifest, done = [], 0
     total_rel, n_ok = [], 0
-    for name, W in sorted(tensors.items()):
+    for name, W in iter_safetensors(args.ckpt):
         if W.ndim != 2: continue
         if W.shape[-1] % 16: continue
         if args.only and args.only not in name: continue
