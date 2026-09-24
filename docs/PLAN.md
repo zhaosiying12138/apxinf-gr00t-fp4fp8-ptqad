@@ -69,3 +69,17 @@ GR00T 路线在拿到 HF_TOKEN 后立即恢复（权重本体已就绪，只差 
 - 引擎在 sm_120 编译失败/跑不动 → 只修到 BF16 可用；FP4 走"离线量化 + cuBLASLt standalone 推理原型"（spike 已验证全部算子）
 - L2 RL 恢复超预算 → 论文重心移到 M5/M6（敏感性 + 系统），L2 只报趋势
 - 官方抢先发 FP4 → 我们的 swizzle 解码 + GeForce 数据 + 传播链分析仍有独立价值
+
+### 2026-09-25 发现：引擎 FP8 路径在 sm_120 损坏（新贡献点）
+
+- fp8_static 加载成功（calibration.json 约定：放模型根目录），前向触发
+  `cuBLAS error: status 15`（NOT_SUPPORTED），graph capture 降级 eager 后仍失败
+- 对照：spike/fp4_gemm_bench.cu 里同机器 cuBLASLt FP8 E4M3 GEMM 稳定 268 TFLOPS
+  → 引擎 fp8 GEMM 的 tactic/算法选择（kernels/gemm/fp8.rs 2211 行，硬编码 algo）
+  在 sm_120 上选到了不支持的组合
+- 修复路径已知：把 fp8 GEMM 路由到 spike 验证过的 cuBLASLt provider 模式
+  （scale-pointer + heuristic），本身就是给上游的第二个 sm_120 修复 PR
+- 论文含义：E1 表 sm_120 行 BF16 ✓ / FP8 ✗(修复中) / NVFP4(ours) ✓ —— 差异化更强
+- FP8 校准管线已全通：calibrate_pi05.py (--libero-suite, 32 obs/10 tasks,
+  256 scales, results/calib/pi05_fp8_libero10.json)；patches: precision→
+  model_variant, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1（LIBERO 元数据加载）

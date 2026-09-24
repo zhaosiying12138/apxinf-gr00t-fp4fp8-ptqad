@@ -1,0 +1,1573 @@
+{
+  "calibration_data": {
+    "identity": "sha256:e363ff27562b69273fbb411cd09a7a8f367213c615afec7d7352a84fef874f0d",
+    "kind": "representative",
+    "production": true,
+    "sample_count": 32
+  },
+  "device": {
+    "host": "Linux-6.18.40.1-aenv-ublk-6.18.40.1-x86_64-with-glibc2.43",
+    "requested": "cuda:0"
+  },
+  "model": {
+    "checkpoint": "sha256:4921697db4ea79a782660308b5275f10224dc5ce1af031f950d42bcb423fb6a2",
+    "family": "pi05"
+  },
+  "observed_sites": [
+    "action.conditioning",
+    "action.final_norm",
+    "action.input",
+    "action.layers.0.attention_norm",
+    "action.layers.0.attention_output",
+    "action.layers.0.mlp_activation",
+    "action.layers.0.mlp_norm",
+    "action.layers.1.attention_norm",
+    "action.layers.1.attention_output",
+    "action.layers.1.mlp_activation",
+    "action.layers.1.mlp_norm",
+    "action.layers.10.attention_norm",
+    "action.layers.10.attention_output",
+    "action.layers.10.mlp_activation",
+    "action.layers.10.mlp_norm",
+    "action.layers.11.attention_norm",
+    "action.layers.11.attention_output",
+    "action.layers.11.mlp_activation",
+    "action.layers.11.mlp_norm",
+    "action.layers.12.attention_norm",
+    "action.layers.12.attention_output",
+    "action.layers.12.mlp_activation",
+    "action.layers.12.mlp_norm",
+    "action.layers.13.attention_norm",
+    "action.layers.13.attention_output",
+    "action.layers.13.mlp_activation",
+    "action.layers.13.mlp_norm",
+    "action.layers.14.attention_norm",
+    "action.layers.14.attention_output",
+    "action.layers.14.mlp_activation",
+    "action.layers.14.mlp_norm",
+    "action.layers.15.attention_norm",
+    "action.layers.15.attention_output",
+    "action.layers.15.mlp_activation",
+    "action.layers.15.mlp_norm",
+    "action.layers.16.attention_norm",
+    "action.layers.16.attention_output",
+    "action.layers.16.mlp_activation",
+    "action.layers.16.mlp_norm",
+    "action.layers.17.attention_norm",
+    "action.layers.17.attention_output",
+    "action.layers.17.mlp_activation",
+    "action.layers.17.mlp_norm",
+    "action.layers.2.attention_norm",
+    "action.layers.2.attention_output",
+    "action.layers.2.mlp_activation",
+    "action.layers.2.mlp_norm",
+    "action.layers.3.attention_norm",
+    "action.layers.3.attention_output",
+    "action.layers.3.mlp_activation",
+    "action.layers.3.mlp_norm",
+    "action.layers.4.attention_norm",
+    "action.layers.4.attention_output",
+    "action.layers.4.mlp_activation",
+    "action.layers.4.mlp_norm",
+    "action.layers.5.attention_norm",
+    "action.layers.5.attention_output",
+    "action.layers.5.mlp_activation",
+    "action.layers.5.mlp_norm",
+    "action.layers.6.attention_norm",
+    "action.layers.6.attention_output",
+    "action.layers.6.mlp_activation",
+    "action.layers.6.mlp_norm",
+    "action.layers.7.attention_norm",
+    "action.layers.7.attention_output",
+    "action.layers.7.mlp_activation",
+    "action.layers.7.mlp_norm",
+    "action.layers.8.attention_norm",
+    "action.layers.8.attention_output",
+    "action.layers.8.mlp_activation",
+    "action.layers.8.mlp_norm",
+    "action.layers.9.attention_norm",
+    "action.layers.9.attention_output",
+    "action.layers.9.mlp_activation",
+    "action.layers.9.mlp_norm",
+    "language.layers.0.attention_norm",
+    "language.layers.0.attention_output",
+    "language.layers.0.mlp_activation",
+    "language.layers.0.mlp_norm",
+    "language.layers.1.attention_norm",
+    "language.layers.1.attention_output",
+    "language.layers.1.mlp_activation",
+    "language.layers.1.mlp_norm",
+    "language.layers.10.attention_norm",
+    "language.layers.10.attention_output",
+    "language.layers.10.mlp_activation",
+    "language.layers.10.mlp_norm",
+    "language.layers.11.attention_norm",
+    "language.layers.11.attention_output",
+    "language.layers.11.mlp_activation",
+    "language.layers.11.mlp_norm",
+    "language.layers.12.attention_norm",
+    "language.layers.12.attention_output",
+    "language.layers.12.mlp_activation",
+    "language.layers.12.mlp_norm",
+    "language.layers.13.attention_norm",
+    "language.layers.13.attention_output",
+    "language.layers.13.mlp_activation",
+    "language.layers.13.mlp_norm",
+    "language.layers.14.attention_norm",
+    "language.layers.14.attention_output",
+    "language.layers.14.mlp_activation",
+    "language.layers.14.mlp_norm",
+    "language.layers.15.attention_norm",
+    "language.layers.15.attention_output",
+    "language.layers.15.mlp_activation",
+    "language.layers.15.mlp_norm",
+    "language.layers.16.attention_norm",
+    "language.layers.16.attention_output",
+    "language.layers.16.mlp_activation",
+    "language.layers.16.mlp_norm",
+    "language.layers.17.attention_norm",
+    "language.layers.2.attention_norm",
+    "language.layers.2.attention_output",
+    "language.layers.2.mlp_activation",
+    "language.layers.2.mlp_norm",
+    "language.layers.3.attention_norm",
+    "language.layers.3.attention_output",
+    "language.layers.3.mlp_activation",
+    "language.layers.3.mlp_norm",
+    "language.layers.4.attention_norm",
+    "language.layers.4.attention_output",
+    "language.layers.4.mlp_activation",
+    "language.layers.4.mlp_norm",
+    "language.layers.5.attention_norm",
+    "language.layers.5.attention_output",
+    "language.layers.5.mlp_activation",
+    "language.layers.5.mlp_norm",
+    "language.layers.6.attention_norm",
+    "language.layers.6.attention_output",
+    "language.layers.6.mlp_activation",
+    "language.layers.6.mlp_norm",
+    "language.layers.7.attention_norm",
+    "language.layers.7.attention_output",
+    "language.layers.7.mlp_activation",
+    "language.layers.7.mlp_norm",
+    "language.layers.8.attention_norm",
+    "language.layers.8.attention_output",
+    "language.layers.8.mlp_activation",
+    "language.layers.8.mlp_norm",
+    "language.layers.9.attention_norm",
+    "language.layers.9.attention_output",
+    "language.layers.9.mlp_activation",
+    "language.layers.9.mlp_norm",
+    "time.hidden",
+    "time.input",
+    "vision.layers.0.attention_norm",
+    "vision.layers.0.attention_output",
+    "vision.layers.0.mlp_activation",
+    "vision.layers.0.mlp_norm",
+    "vision.layers.1.attention_norm",
+    "vision.layers.1.attention_output",
+    "vision.layers.1.mlp_activation",
+    "vision.layers.1.mlp_norm",
+    "vision.layers.10.attention_norm",
+    "vision.layers.10.attention_output",
+    "vision.layers.10.mlp_activation",
+    "vision.layers.10.mlp_norm",
+    "vision.layers.11.attention_norm",
+    "vision.layers.11.attention_output",
+    "vision.layers.11.mlp_activation",
+    "vision.layers.11.mlp_norm",
+    "vision.layers.12.attention_norm",
+    "vision.layers.12.attention_output",
+    "vision.layers.12.mlp_activation",
+    "vision.layers.12.mlp_norm",
+    "vision.layers.13.attention_norm",
+    "vision.layers.13.attention_output",
+    "vision.layers.13.mlp_activation",
+    "vision.layers.13.mlp_norm",
+    "vision.layers.14.attention_norm",
+    "vision.layers.14.attention_output",
+    "vision.layers.14.mlp_activation",
+    "vision.layers.14.mlp_norm",
+    "vision.layers.15.attention_norm",
+    "vision.layers.15.attention_output",
+    "vision.layers.15.mlp_activation",
+    "vision.layers.15.mlp_norm",
+    "vision.layers.16.attention_norm",
+    "vision.layers.16.attention_output",
+    "vision.layers.16.mlp_activation",
+    "vision.layers.16.mlp_norm",
+    "vision.layers.17.attention_norm",
+    "vision.layers.17.attention_output",
+    "vision.layers.17.mlp_activation",
+    "vision.layers.17.mlp_norm",
+    "vision.layers.18.attention_norm",
+    "vision.layers.18.attention_output",
+    "vision.layers.18.mlp_activation",
+    "vision.layers.18.mlp_norm",
+    "vision.layers.19.attention_norm",
+    "vision.layers.19.attention_output",
+    "vision.layers.19.mlp_activation",
+    "vision.layers.19.mlp_norm",
+    "vision.layers.2.attention_norm",
+    "vision.layers.2.attention_output",
+    "vision.layers.2.mlp_activation",
+    "vision.layers.2.mlp_norm",
+    "vision.layers.20.attention_norm",
+    "vision.layers.20.attention_output",
+    "vision.layers.20.mlp_activation",
+    "vision.layers.20.mlp_norm",
+    "vision.layers.21.attention_norm",
+    "vision.layers.21.attention_output",
+    "vision.layers.21.mlp_activation",
+    "vision.layers.21.mlp_norm",
+    "vision.layers.22.attention_norm",
+    "vision.layers.22.attention_output",
+    "vision.layers.22.mlp_activation",
+    "vision.layers.22.mlp_norm",
+    "vision.layers.23.attention_norm",
+    "vision.layers.23.attention_output",
+    "vision.layers.23.mlp_activation",
+    "vision.layers.23.mlp_norm",
+    "vision.layers.24.attention_norm",
+    "vision.layers.24.attention_output",
+    "vision.layers.24.mlp_activation",
+    "vision.layers.24.mlp_norm",
+    "vision.layers.25.attention_norm",
+    "vision.layers.25.attention_output",
+    "vision.layers.25.mlp_activation",
+    "vision.layers.25.mlp_norm",
+    "vision.layers.26.attention_norm",
+    "vision.layers.26.attention_output",
+    "vision.layers.26.mlp_activation",
+    "vision.layers.26.mlp_norm",
+    "vision.layers.3.attention_norm",
+    "vision.layers.3.attention_output",
+    "vision.layers.3.mlp_activation",
+    "vision.layers.3.mlp_norm",
+    "vision.layers.4.attention_norm",
+    "vision.layers.4.attention_output",
+    "vision.layers.4.mlp_activation",
+    "vision.layers.4.mlp_norm",
+    "vision.layers.5.attention_norm",
+    "vision.layers.5.attention_output",
+    "vision.layers.5.mlp_activation",
+    "vision.layers.5.mlp_norm",
+    "vision.layers.6.attention_norm",
+    "vision.layers.6.attention_output",
+    "vision.layers.6.mlp_activation",
+    "vision.layers.6.mlp_norm",
+    "vision.layers.7.attention_norm",
+    "vision.layers.7.attention_output",
+    "vision.layers.7.mlp_activation",
+    "vision.layers.7.mlp_norm",
+    "vision.layers.8.attention_norm",
+    "vision.layers.8.attention_output",
+    "vision.layers.8.mlp_activation",
+    "vision.layers.8.mlp_norm",
+    "vision.layers.9.attention_norm",
+    "vision.layers.9.attention_output",
+    "vision.layers.9.mlp_activation",
+    "vision.layers.9.mlp_norm",
+    "vision.patch_input",
+    "vision.post_norm"
+  ],
+  "plan": {
+    "sites": [
+      "vision.patch_input",
+      "vision.layers.0.attention_norm",
+      "vision.layers.0.attention_output",
+      "vision.layers.0.mlp_norm",
+      "vision.layers.0.mlp_activation",
+      "vision.layers.1.attention_norm",
+      "vision.layers.1.attention_output",
+      "vision.layers.1.mlp_norm",
+      "vision.layers.1.mlp_activation",
+      "vision.layers.2.attention_norm",
+      "vision.layers.2.attention_output",
+      "vision.layers.2.mlp_norm",
+      "vision.layers.2.mlp_activation",
+      "vision.layers.3.attention_norm",
+      "vision.layers.3.attention_output",
+      "vision.layers.3.mlp_norm",
+      "vision.layers.3.mlp_activation",
+      "vision.layers.4.attention_norm",
+      "vision.layers.4.attention_output",
+      "vision.layers.4.mlp_norm",
+      "vision.layers.4.mlp_activation",
+      "vision.layers.5.attention_norm",
+      "vision.layers.5.attention_output",
+      "vision.layers.5.mlp_norm",
+      "vision.layers.5.mlp_activation",
+      "vision.layers.6.attention_norm",
+      "vision.layers.6.attention_output",
+      "vision.layers.6.mlp_norm",
+      "vision.layers.6.mlp_activation",
+      "vision.layers.7.attention_norm",
+      "vision.layers.7.attention_output",
+      "vision.layers.7.mlp_norm",
+      "vision.layers.7.mlp_activation",
+      "vision.layers.8.attention_norm",
+      "vision.layers.8.attention_output",
+      "vision.layers.8.mlp_norm",
+      "vision.layers.8.mlp_activation",
+      "vision.layers.9.attention_norm",
+      "vision.layers.9.attention_output",
+      "vision.layers.9.mlp_norm",
+      "vision.layers.9.mlp_activation",
+      "vision.layers.10.attention_norm",
+      "vision.layers.10.attention_output",
+      "vision.layers.10.mlp_norm",
+      "vision.layers.10.mlp_activation",
+      "vision.layers.11.attention_norm",
+      "vision.layers.11.attention_output",
+      "vision.layers.11.mlp_norm",
+      "vision.layers.11.mlp_activation",
+      "vision.layers.12.attention_norm",
+      "vision.layers.12.attention_output",
+      "vision.layers.12.mlp_norm",
+      "vision.layers.12.mlp_activation",
+      "vision.layers.13.attention_norm",
+      "vision.layers.13.attention_output",
+      "vision.layers.13.mlp_norm",
+      "vision.layers.13.mlp_activation",
+      "vision.layers.14.attention_norm",
+      "vision.layers.14.attention_output",
+      "vision.layers.14.mlp_norm",
+      "vision.layers.14.mlp_activation",
+      "vision.layers.15.attention_norm",
+      "vision.layers.15.attention_output",
+      "vision.layers.15.mlp_norm",
+      "vision.layers.15.mlp_activation",
+      "vision.layers.16.attention_norm",
+      "vision.layers.16.attention_output",
+      "vision.layers.16.mlp_norm",
+      "vision.layers.16.mlp_activation",
+      "vision.layers.17.attention_norm",
+      "vision.layers.17.attention_output",
+      "vision.layers.17.mlp_norm",
+      "vision.layers.17.mlp_activation",
+      "vision.layers.18.attention_norm",
+      "vision.layers.18.attention_output",
+      "vision.layers.18.mlp_norm",
+      "vision.layers.18.mlp_activation",
+      "vision.layers.19.attention_norm",
+      "vision.layers.19.attention_output",
+      "vision.layers.19.mlp_norm",
+      "vision.layers.19.mlp_activation",
+      "vision.layers.20.attention_norm",
+      "vision.layers.20.attention_output",
+      "vision.layers.20.mlp_norm",
+      "vision.layers.20.mlp_activation",
+      "vision.layers.21.attention_norm",
+      "vision.layers.21.attention_output",
+      "vision.layers.21.mlp_norm",
+      "vision.layers.21.mlp_activation",
+      "vision.layers.22.attention_norm",
+      "vision.layers.22.attention_output",
+      "vision.layers.22.mlp_norm",
+      "vision.layers.22.mlp_activation",
+      "vision.layers.23.attention_norm",
+      "vision.layers.23.attention_output",
+      "vision.layers.23.mlp_norm",
+      "vision.layers.23.mlp_activation",
+      "vision.layers.24.attention_norm",
+      "vision.layers.24.attention_output",
+      "vision.layers.24.mlp_norm",
+      "vision.layers.24.mlp_activation",
+      "vision.layers.25.attention_norm",
+      "vision.layers.25.attention_output",
+      "vision.layers.25.mlp_norm",
+      "vision.layers.25.mlp_activation",
+      "vision.layers.26.attention_norm",
+      "vision.layers.26.attention_output",
+      "vision.layers.26.mlp_norm",
+      "vision.layers.26.mlp_activation",
+      "vision.post_norm",
+      "language.layers.0.attention_norm",
+      "language.layers.0.attention_output",
+      "language.layers.0.mlp_norm",
+      "language.layers.0.mlp_activation",
+      "language.layers.1.attention_norm",
+      "language.layers.1.attention_output",
+      "language.layers.1.mlp_norm",
+      "language.layers.1.mlp_activation",
+      "language.layers.2.attention_norm",
+      "language.layers.2.attention_output",
+      "language.layers.2.mlp_norm",
+      "language.layers.2.mlp_activation",
+      "language.layers.3.attention_norm",
+      "language.layers.3.attention_output",
+      "language.layers.3.mlp_norm",
+      "language.layers.3.mlp_activation",
+      "language.layers.4.attention_norm",
+      "language.layers.4.attention_output",
+      "language.layers.4.mlp_norm",
+      "language.layers.4.mlp_activation",
+      "language.layers.5.attention_norm",
+      "language.layers.5.attention_output",
+      "language.layers.5.mlp_norm",
+      "language.layers.5.mlp_activation",
+      "language.layers.6.attention_norm",
+      "language.layers.6.attention_output",
+      "language.layers.6.mlp_norm",
+      "language.layers.6.mlp_activation",
+      "language.layers.7.attention_norm",
+      "language.layers.7.attention_output",
+      "language.layers.7.mlp_norm",
+      "language.layers.7.mlp_activation",
+      "language.layers.8.attention_norm",
+      "language.layers.8.attention_output",
+      "language.layers.8.mlp_norm",
+      "language.layers.8.mlp_activation",
+      "language.layers.9.attention_norm",
+      "language.layers.9.attention_output",
+      "language.layers.9.mlp_norm",
+      "language.layers.9.mlp_activation",
+      "language.layers.10.attention_norm",
+      "language.layers.10.attention_output",
+      "language.layers.10.mlp_norm",
+      "language.layers.10.mlp_activation",
+      "language.layers.11.attention_norm",
+      "language.layers.11.attention_output",
+      "language.layers.11.mlp_norm",
+      "language.layers.11.mlp_activation",
+      "language.layers.12.attention_norm",
+      "language.layers.12.attention_output",
+      "language.layers.12.mlp_norm",
+      "language.layers.12.mlp_activation",
+      "language.layers.13.attention_norm",
+      "language.layers.13.attention_output",
+      "language.layers.13.mlp_norm",
+      "language.layers.13.mlp_activation",
+      "language.layers.14.attention_norm",
+      "language.layers.14.attention_output",
+      "language.layers.14.mlp_norm",
+      "language.layers.14.mlp_activation",
+      "language.layers.15.attention_norm",
+      "language.layers.15.attention_output",
+      "language.layers.15.mlp_norm",
+      "language.layers.15.mlp_activation",
+      "language.layers.16.attention_norm",
+      "language.layers.16.attention_output",
+      "language.layers.16.mlp_norm",
+      "language.layers.16.mlp_activation",
+      "language.layers.17.attention_norm",
+      "action.input",
+      "time.input",
+      "time.hidden",
+      "action.conditioning",
+      "action.layers.0.attention_norm",
+      "action.layers.0.attention_output",
+      "action.layers.0.mlp_norm",
+      "action.layers.0.mlp_activation",
+      "action.layers.1.attention_norm",
+      "action.layers.1.attention_output",
+      "action.layers.1.mlp_norm",
+      "action.layers.1.mlp_activation",
+      "action.layers.2.attention_norm",
+      "action.layers.2.attention_output",
+      "action.layers.2.mlp_norm",
+      "action.layers.2.mlp_activation",
+      "action.layers.3.attention_norm",
+      "action.layers.3.attention_output",
+      "action.layers.3.mlp_norm",
+      "action.layers.3.mlp_activation",
+      "action.layers.4.attention_norm",
+      "action.layers.4.attention_output",
+      "action.layers.4.mlp_norm",
+      "action.layers.4.mlp_activation",
+      "action.layers.5.attention_norm",
+      "action.layers.5.attention_output",
+      "action.layers.5.mlp_norm",
+      "action.layers.5.mlp_activation",
+      "action.layers.6.attention_norm",
+      "action.layers.6.attention_output",
+      "action.layers.6.mlp_norm",
+      "action.layers.6.mlp_activation",
+      "action.layers.7.attention_norm",
+      "action.layers.7.attention_output",
+      "action.layers.7.mlp_norm",
+      "action.layers.7.mlp_activation",
+      "action.layers.8.attention_norm",
+      "action.layers.8.attention_output",
+      "action.layers.8.mlp_norm",
+      "action.layers.8.mlp_activation",
+      "action.layers.9.attention_norm",
+      "action.layers.9.attention_output",
+      "action.layers.9.mlp_norm",
+      "action.layers.9.mlp_activation",
+      "action.layers.10.attention_norm",
+      "action.layers.10.attention_output",
+      "action.layers.10.mlp_norm",
+      "action.layers.10.mlp_activation",
+      "action.layers.11.attention_norm",
+      "action.layers.11.attention_output",
+      "action.layers.11.mlp_norm",
+      "action.layers.11.mlp_activation",
+      "action.layers.12.attention_norm",
+      "action.layers.12.attention_output",
+      "action.layers.12.mlp_norm",
+      "action.layers.12.mlp_activation",
+      "action.layers.13.attention_norm",
+      "action.layers.13.attention_output",
+      "action.layers.13.mlp_norm",
+      "action.layers.13.mlp_activation",
+      "action.layers.14.attention_norm",
+      "action.layers.14.attention_output",
+      "action.layers.14.mlp_norm",
+      "action.layers.14.mlp_activation",
+      "action.layers.15.attention_norm",
+      "action.layers.15.attention_output",
+      "action.layers.15.mlp_norm",
+      "action.layers.15.mlp_activation",
+      "action.layers.16.attention_norm",
+      "action.layers.16.attention_output",
+      "action.layers.16.mlp_norm",
+      "action.layers.16.mlp_activation",
+      "action.layers.17.attention_norm",
+      "action.layers.17.attention_output",
+      "action.layers.17.mlp_norm",
+      "action.layers.17.mlp_activation",
+      "action.final_norm"
+    ]
+  },
+  "quantization": {
+    "format": "e4m3fn",
+    "margin": 1.1,
+    "scale_rule": "max(amax*margin/448,1e-8)",
+    "statistic": "absmax"
+  },
+  "scales": {
+    "action.conditioning": {
+      "amax": 4.1875,
+      "scale": 0.010281808035714286
+    },
+    "action.final_norm": {
+      "amax": 7.25,
+      "scale": 0.01780133928571429
+    },
+    "action.input": {
+      "amax": 4.25,
+      "scale": 0.010435267857142858
+    },
+    "action.layers.0.attention_norm": {
+      "amax": 1.6171875,
+      "scale": 0.003970772879464286
+    },
+    "action.layers.0.attention_output": {
+      "amax": 5.09375,
+      "scale": 0.012506975446428573
+    },
+    "action.layers.0.mlp_activation": {
+      "amax": 66.5,
+      "scale": 0.16328125000000002
+    },
+    "action.layers.0.mlp_norm": {
+      "amax": 15.4375,
+      "scale": 0.03790457589285715
+    },
+    "action.layers.1.attention_norm": {
+      "amax": 5.9375,
+      "scale": 0.014578683035714288
+    },
+    "action.layers.1.attention_output": {
+      "amax": 1.5390625,
+      "scale": 0.0037789481026785717
+    },
+    "action.layers.1.mlp_activation": {
+      "amax": 34.75,
+      "scale": 0.08532366071428572
+    },
+    "action.layers.1.mlp_norm": {
+      "amax": 6.46875,
+      "scale": 0.015883091517857145
+    },
+    "action.layers.10.attention_norm": {
+      "amax": 8.5,
+      "scale": 0.020870535714285716
+    },
+    "action.layers.10.attention_output": {
+      "amax": 3.4375,
+      "scale": 0.00844029017857143
+    },
+    "action.layers.10.mlp_activation": {
+      "amax": 8.625,
+      "scale": 0.021177455357142858
+    },
+    "action.layers.10.mlp_norm": {
+      "amax": 3.796875,
+      "scale": 0.009322684151785715
+    },
+    "action.layers.11.attention_norm": {
+      "amax": 14.3125,
+      "scale": 0.03514229910714286
+    },
+    "action.layers.11.attention_output": {
+      "amax": 4.5,
+      "scale": 0.011049107142857144
+    },
+    "action.layers.11.mlp_activation": {
+      "amax": 5.90625,
+      "scale": 0.014501953125
+    },
+    "action.layers.11.mlp_norm": {
+      "amax": 3.484375,
+      "scale": 0.008555385044642858
+    },
+    "action.layers.12.attention_norm": {
+      "amax": 4.28125,
+      "scale": 0.010511997767857145
+    },
+    "action.layers.12.attention_output": {
+      "amax": 6.40625,
+      "scale": 0.015729631696428572
+    },
+    "action.layers.12.mlp_activation": {
+      "amax": 6.4375,
+      "scale": 0.015806361607142858
+    },
+    "action.layers.12.mlp_norm": {
+      "amax": 3.90625,
+      "scale": 0.009591238839285714
+    },
+    "action.layers.13.attention_norm": {
+      "amax": 5.375,
+      "scale": 0.013197544642857145
+    },
+    "action.layers.13.attention_output": {
+      "amax": 9.5625,
+      "scale": 0.02347935267857143
+    },
+    "action.layers.13.mlp_activation": {
+      "amax": 13.6875,
+      "scale": 0.03360770089285715
+    },
+    "action.layers.13.mlp_norm": {
+      "amax": 2.71875,
+      "scale": 0.006675502232142858
+    },
+    "action.layers.14.attention_norm": {
+      "amax": 3.21875,
+      "scale": 0.007903180803571429
+    },
+    "action.layers.14.attention_output": {
+      "amax": 17.375,
+      "scale": 0.04266183035714286
+    },
+    "action.layers.14.mlp_activation": {
+      "amax": 22.5,
+      "scale": 0.05524553571428572
+    },
+    "action.layers.14.mlp_norm": {
+      "amax": 2.859375,
+      "scale": 0.0070207868303571435
+    },
+    "action.layers.15.attention_norm": {
+      "amax": 4.90625,
+      "scale": 0.012046595982142859
+    },
+    "action.layers.15.attention_output": {
+      "amax": 8.3125,
+      "scale": 0.020410156250000002
+    },
+    "action.layers.15.mlp_activation": {
+      "amax": 15.875,
+      "scale": 0.03897879464285715
+    },
+    "action.layers.15.mlp_norm": {
+      "amax": 3.34375,
+      "scale": 0.008210100446428571
+    },
+    "action.layers.16.attention_norm": {
+      "amax": 12.75,
+      "scale": 0.03130580357142857
+    },
+    "action.layers.16.attention_output": {
+      "amax": 15.625,
+      "scale": 0.038364955357142856
+    },
+    "action.layers.16.mlp_activation": {
+      "amax": 34.25,
+      "scale": 0.08409598214285716
+    },
+    "action.layers.16.mlp_norm": {
+      "amax": 7.5,
+      "scale": 0.018415178571428572
+    },
+    "action.layers.17.attention_norm": {
+      "amax": 11.125,
+      "scale": 0.027315848214285714
+    },
+    "action.layers.17.attention_output": {
+      "amax": 12.9375,
+      "scale": 0.03176618303571429
+    },
+    "action.layers.17.mlp_activation": {
+      "amax": 79.5,
+      "scale": 0.19520089285714287
+    },
+    "action.layers.17.mlp_norm": {
+      "amax": 19.25,
+      "scale": 0.047265625
+    },
+    "action.layers.2.attention_norm": {
+      "amax": 7.3125,
+      "scale": 0.01795479910714286
+    },
+    "action.layers.2.attention_output": {
+      "amax": 1.8828125,
+      "scale": 0.0046229771205357146
+    },
+    "action.layers.2.mlp_activation": {
+      "amax": 10.5625,
+      "scale": 0.02593470982142857
+    },
+    "action.layers.2.mlp_norm": {
+      "amax": 6.21875,
+      "scale": 0.015269252232142858
+    },
+    "action.layers.3.attention_norm": {
+      "amax": 5.59375,
+      "scale": 0.013734654017857144
+    },
+    "action.layers.3.attention_output": {
+      "amax": 3.1875,
+      "scale": 0.007826450892857143
+    },
+    "action.layers.3.mlp_activation": {
+      "amax": 5.65625,
+      "scale": 0.013888113839285716
+    },
+    "action.layers.3.mlp_norm": {
+      "amax": 4.28125,
+      "scale": 0.010511997767857145
+    },
+    "action.layers.4.attention_norm": {
+      "amax": 8.375,
+      "scale": 0.02056361607142857
+    },
+    "action.layers.4.attention_output": {
+      "amax": 2.9375,
+      "scale": 0.0072126116071428575
+    },
+    "action.layers.4.mlp_activation": {
+      "amax": 8.9375,
+      "scale": 0.021944754464285714
+    },
+    "action.layers.4.mlp_norm": {
+      "amax": 2.828125,
+      "scale": 0.006944056919642858
+    },
+    "action.layers.5.attention_norm": {
+      "amax": 8.875,
+      "scale": 0.021791294642857145
+    },
+    "action.layers.5.attention_output": {
+      "amax": 3.234375,
+      "scale": 0.007941545758928572
+    },
+    "action.layers.5.mlp_activation": {
+      "amax": 14.625,
+      "scale": 0.03590959821428572
+    },
+    "action.layers.5.mlp_norm": {
+      "amax": 3.359375,
+      "scale": 0.008248465401785716
+    },
+    "action.layers.6.attention_norm": {
+      "amax": 3.234375,
+      "scale": 0.007941545758928572
+    },
+    "action.layers.6.attention_output": {
+      "amax": 3.421875,
+      "scale": 0.008401925223214287
+    },
+    "action.layers.6.mlp_activation": {
+      "amax": 6.25,
+      "scale": 0.015345982142857146
+    },
+    "action.layers.6.mlp_norm": {
+      "amax": 2.203125,
+      "scale": 0.005409458705357144
+    },
+    "action.layers.7.attention_norm": {
+      "amax": 5.71875,
+      "scale": 0.014041573660714287
+    },
+    "action.layers.7.attention_output": {
+      "amax": 3.90625,
+      "scale": 0.009591238839285714
+    },
+    "action.layers.7.mlp_activation": {
+      "amax": 12.9375,
+      "scale": 0.03176618303571429
+    },
+    "action.layers.7.mlp_norm": {
+      "amax": 2.46875,
+      "scale": 0.006061662946428572
+    },
+    "action.layers.8.attention_norm": {
+      "amax": 7.75,
+      "scale": 0.01902901785714286
+    },
+    "action.layers.8.attention_output": {
+      "amax": 4.53125,
+      "scale": 0.011125837053571428
+    },
+    "action.layers.8.mlp_activation": {
+      "amax": 11.5,
+      "scale": 0.028236607142857143
+    },
+    "action.layers.8.mlp_norm": {
+      "amax": 2.609375,
+      "scale": 0.006406947544642857
+    },
+    "action.layers.9.attention_norm": {
+      "amax": 3.921875,
+      "scale": 0.009629603794642857
+    },
+    "action.layers.9.attention_output": {
+      "amax": 8.125,
+      "scale": 0.019949776785714284
+    },
+    "action.layers.9.mlp_activation": {
+      "amax": 12.375,
+      "scale": 0.030385044642857146
+    },
+    "action.layers.9.mlp_norm": {
+      "amax": 4.125,
+      "scale": 0.010128348214285715
+    },
+    "language.layers.0.attention_norm": {
+      "amax": 34.25,
+      "scale": 0.08409598214285716
+    },
+    "language.layers.0.attention_output": {
+      "amax": 10.625,
+      "scale": 0.026088169642857147
+    },
+    "language.layers.0.mlp_activation": {
+      "amax": 384.0,
+      "scale": 0.942857142857143
+    },
+    "language.layers.0.mlp_norm": {
+      "amax": 44.25,
+      "scale": 0.10864955357142858
+    },
+    "language.layers.1.attention_norm": {
+      "amax": 44.5,
+      "scale": 0.10926339285714286
+    },
+    "language.layers.1.attention_output": {
+      "amax": 3.515625,
+      "scale": 0.008632114955357144
+    },
+    "language.layers.1.mlp_activation": {
+      "amax": 21.75,
+      "scale": 0.05340401785714286
+    },
+    "language.layers.1.mlp_norm": {
+      "amax": 44.5,
+      "scale": 0.10926339285714286
+    },
+    "language.layers.10.attention_norm": {
+      "amax": 43.5,
+      "scale": 0.10680803571428572
+    },
+    "language.layers.10.attention_output": {
+      "amax": 6.78125,
+      "scale": 0.016650390625
+    },
+    "language.layers.10.mlp_activation": {
+      "amax": 50.25,
+      "scale": 0.12338169642857144
+    },
+    "language.layers.10.mlp_norm": {
+      "amax": 43.5,
+      "scale": 0.10680803571428572
+    },
+    "language.layers.11.attention_norm": {
+      "amax": 43.25,
+      "scale": 0.10619419642857143
+    },
+    "language.layers.11.attention_output": {
+      "amax": 11.625,
+      "scale": 0.02854352678571429
+    },
+    "language.layers.11.mlp_activation": {
+      "amax": 72.0,
+      "scale": 0.1767857142857143
+    },
+    "language.layers.11.mlp_norm": {
+      "amax": 43.25,
+      "scale": 0.10619419642857143
+    },
+    "language.layers.12.attention_norm": {
+      "amax": 42.75,
+      "scale": 0.10496651785714287
+    },
+    "language.layers.12.attention_output": {
+      "amax": 13.75,
+      "scale": 0.03376116071428572
+    },
+    "language.layers.12.mlp_activation": {
+      "amax": 76.5,
+      "scale": 0.18783482142857144
+    },
+    "language.layers.12.mlp_norm": {
+      "amax": 42.75,
+      "scale": 0.10496651785714287
+    },
+    "language.layers.13.attention_norm": {
+      "amax": 42.75,
+      "scale": 0.10496651785714287
+    },
+    "language.layers.13.attention_output": {
+      "amax": 16.875,
+      "scale": 0.04143415178571429
+    },
+    "language.layers.13.mlp_activation": {
+      "amax": 268.0,
+      "scale": 0.6580357142857143
+    },
+    "language.layers.13.mlp_norm": {
+      "amax": 42.75,
+      "scale": 0.10496651785714287
+    },
+    "language.layers.14.attention_norm": {
+      "amax": 42.25,
+      "scale": 0.10373883928571428
+    },
+    "language.layers.14.attention_output": {
+      "amax": 22.625,
+      "scale": 0.055552455357142864
+    },
+    "language.layers.14.mlp_activation": {
+      "amax": 988.0,
+      "scale": 2.4258928571428577
+    },
+    "language.layers.14.mlp_norm": {
+      "amax": 41.5,
+      "scale": 0.10189732142857144
+    },
+    "language.layers.15.attention_norm": {
+      "amax": 41.0,
+      "scale": 0.10066964285714286
+    },
+    "language.layers.15.attention_output": {
+      "amax": 24.75,
+      "scale": 0.06077008928571429
+    },
+    "language.layers.15.mlp_activation": {
+      "amax": 2112.0,
+      "scale": 5.185714285714286
+    },
+    "language.layers.15.mlp_norm": {
+      "amax": 40.75,
+      "scale": 0.10005580357142858
+    },
+    "language.layers.16.attention_norm": {
+      "amax": 40.0,
+      "scale": 0.09821428571428571
+    },
+    "language.layers.16.attention_output": {
+      "amax": 28.0,
+      "scale": 0.06875
+    },
+    "language.layers.16.mlp_activation": {
+      "amax": 12928.0,
+      "scale": 31.742857142857144
+    },
+    "language.layers.16.mlp_norm": {
+      "amax": 41.75,
+      "scale": 0.10251116071428572
+    },
+    "language.layers.17.attention_norm": {
+      "amax": 42.5,
+      "scale": 0.10435267857142859
+    },
+    "language.layers.2.attention_norm": {
+      "amax": 44.5,
+      "scale": 0.10926339285714286
+    },
+    "language.layers.2.attention_output": {
+      "amax": 5.8125,
+      "scale": 0.014271763392857144
+    },
+    "language.layers.2.mlp_activation": {
+      "amax": 23.75,
+      "scale": 0.05831473214285715
+    },
+    "language.layers.2.mlp_norm": {
+      "amax": 44.5,
+      "scale": 0.10926339285714286
+    },
+    "language.layers.3.attention_norm": {
+      "amax": 44.5,
+      "scale": 0.10926339285714286
+    },
+    "language.layers.3.attention_output": {
+      "amax": 5.03125,
+      "scale": 0.012353515625000002
+    },
+    "language.layers.3.mlp_activation": {
+      "amax": 45.25,
+      "scale": 0.11110491071428573
+    },
+    "language.layers.3.mlp_norm": {
+      "amax": 44.25,
+      "scale": 0.10864955357142858
+    },
+    "language.layers.4.attention_norm": {
+      "amax": 44.25,
+      "scale": 0.10864955357142858
+    },
+    "language.layers.4.attention_output": {
+      "amax": 5.46875,
+      "scale": 0.013427734375000002
+    },
+    "language.layers.4.mlp_activation": {
+      "amax": 35.5,
+      "scale": 0.08716517857142858
+    },
+    "language.layers.4.mlp_norm": {
+      "amax": 44.25,
+      "scale": 0.10864955357142858
+    },
+    "language.layers.5.attention_norm": {
+      "amax": 44.25,
+      "scale": 0.10864955357142858
+    },
+    "language.layers.5.attention_output": {
+      "amax": 5.65625,
+      "scale": 0.013888113839285716
+    },
+    "language.layers.5.mlp_activation": {
+      "amax": 47.5,
+      "scale": 0.1166294642857143
+    },
+    "language.layers.5.mlp_norm": {
+      "amax": 44.25,
+      "scale": 0.10864955357142858
+    },
+    "language.layers.6.attention_norm": {
+      "amax": 44.0,
+      "scale": 0.1080357142857143
+    },
+    "language.layers.6.attention_output": {
+      "amax": 6.34375,
+      "scale": 0.015576171875000001
+    },
+    "language.layers.6.mlp_activation": {
+      "amax": 26.875,
+      "scale": 0.06598772321428573
+    },
+    "language.layers.6.mlp_norm": {
+      "amax": 44.0,
+      "scale": 0.1080357142857143
+    },
+    "language.layers.7.attention_norm": {
+      "amax": 44.0,
+      "scale": 0.1080357142857143
+    },
+    "language.layers.7.attention_output": {
+      "amax": 4.90625,
+      "scale": 0.012046595982142859
+    },
+    "language.layers.7.mlp_activation": {
+      "amax": 300.0,
+      "scale": 0.7366071428571429
+    },
+    "language.layers.7.mlp_norm": {
+      "amax": 44.0,
+      "scale": 0.1080357142857143
+    },
+    "language.layers.8.attention_norm": {
+      "amax": 43.75,
+      "scale": 0.10742187500000001
+    },
+    "language.layers.8.attention_output": {
+      "amax": 5.40625,
+      "scale": 0.013274274553571429
+    },
+    "language.layers.8.mlp_activation": {
+      "amax": 40.75,
+      "scale": 0.10005580357142858
+    },
+    "language.layers.8.mlp_norm": {
+      "amax": 43.75,
+      "scale": 0.10742187500000001
+    },
+    "language.layers.9.attention_norm": {
+      "amax": 43.75,
+      "scale": 0.10742187500000001
+    },
+    "language.layers.9.attention_output": {
+      "amax": 8.125,
+      "scale": 0.019949776785714284
+    },
+    "language.layers.9.mlp_activation": {
+      "amax": 36.0,
+      "scale": 0.08839285714285715
+    },
+    "language.layers.9.mlp_norm": {
+      "amax": 43.75,
+      "scale": 0.10742187500000001
+    },
+    "time.hidden": {
+      "amax": 4.90625,
+      "scale": 0.012046595982142859
+    },
+    "time.input": {
+      "amax": 1.0,
+      "scale": 0.0024553571428571432
+    },
+    "vision.layers.0.attention_norm": {
+      "amax": 10.5,
+      "scale": 0.025781250000000002
+    },
+    "vision.layers.0.attention_output": {
+      "amax": 4.09375,
+      "scale": 0.01005161830357143
+    },
+    "vision.layers.0.mlp_activation": {
+      "amax": 16.0,
+      "scale": 0.03928571428571429
+    },
+    "vision.layers.0.mlp_norm": {
+      "amax": 15.0625,
+      "scale": 0.036983816964285716
+    },
+    "vision.layers.1.attention_norm": {
+      "amax": 9.625,
+      "scale": 0.0236328125
+    },
+    "vision.layers.1.attention_output": {
+      "amax": 2.515625,
+      "scale": 0.006176757812500001
+    },
+    "vision.layers.1.mlp_activation": {
+      "amax": 5.5,
+      "scale": 0.013504464285714288
+    },
+    "vision.layers.1.mlp_norm": {
+      "amax": 19.5,
+      "scale": 0.04787946428571429
+    },
+    "vision.layers.10.attention_norm": {
+      "amax": 21.125,
+      "scale": 0.05186941964285714
+    },
+    "vision.layers.10.attention_output": {
+      "amax": 6.59375,
+      "scale": 0.016190011160714286
+    },
+    "vision.layers.10.mlp_activation": {
+      "amax": 9.0,
+      "scale": 0.022098214285714287
+    },
+    "vision.layers.10.mlp_norm": {
+      "amax": 35.75,
+      "scale": 0.08777901785714286
+    },
+    "vision.layers.11.attention_norm": {
+      "amax": 19.625,
+      "scale": 0.048186383928571434
+    },
+    "vision.layers.11.attention_output": {
+      "amax": 5.90625,
+      "scale": 0.014501953125
+    },
+    "vision.layers.11.mlp_activation": {
+      "amax": 8.6875,
+      "scale": 0.02133091517857143
+    },
+    "vision.layers.11.mlp_norm": {
+      "amax": 47.25,
+      "scale": 0.116015625
+    },
+    "vision.layers.12.attention_norm": {
+      "amax": 20.625,
+      "scale": 0.05064174107142858
+    },
+    "vision.layers.12.attention_output": {
+      "amax": 7.65625,
+      "scale": 0.018798828125
+    },
+    "vision.layers.12.mlp_activation": {
+      "amax": 10.375,
+      "scale": 0.02547433035714286
+    },
+    "vision.layers.12.mlp_norm": {
+      "amax": 25.25,
+      "scale": 0.06199776785714286
+    },
+    "vision.layers.13.attention_norm": {
+      "amax": 22.875,
+      "scale": 0.05616629464285715
+    },
+    "vision.layers.13.attention_output": {
+      "amax": 11.5625,
+      "scale": 0.02839006696428572
+    },
+    "vision.layers.13.mlp_activation": {
+      "amax": 10.75,
+      "scale": 0.02639508928571429
+    },
+    "vision.layers.13.mlp_norm": {
+      "amax": 75.0,
+      "scale": 0.18415178571428573
+    },
+    "vision.layers.14.attention_norm": {
+      "amax": 20.875,
+      "scale": 0.05125558035714286
+    },
+    "vision.layers.14.attention_output": {
+      "amax": 7.8125,
+      "scale": 0.019182477678571428
+    },
+    "vision.layers.14.mlp_activation": {
+      "amax": 17.0,
+      "scale": 0.04174107142857143
+    },
+    "vision.layers.14.mlp_norm": {
+      "amax": 73.5,
+      "scale": 0.18046875
+    },
+    "vision.layers.15.attention_norm": {
+      "amax": 22.125,
+      "scale": 0.05432477678571429
+    },
+    "vision.layers.15.attention_output": {
+      "amax": 8.6875,
+      "scale": 0.02133091517857143
+    },
+    "vision.layers.15.mlp_activation": {
+      "amax": 28.25,
+      "scale": 0.0693638392857143
+    },
+    "vision.layers.15.mlp_norm": {
+      "amax": 28.875,
+      "scale": 0.07089843750000001
+    },
+    "vision.layers.16.attention_norm": {
+      "amax": 21.5,
+      "scale": 0.05279017857142858
+    },
+    "vision.layers.16.attention_output": {
+      "amax": 9.25,
+      "scale": 0.022712053571428574
+    },
+    "vision.layers.16.mlp_activation": {
+      "amax": 24.375,
+      "scale": 0.05984933035714286
+    },
+    "vision.layers.16.mlp_norm": {
+      "amax": 37.5,
+      "scale": 0.09207589285714286
+    },
+    "vision.layers.17.attention_norm": {
+      "amax": 23.25,
+      "scale": 0.05708705357142858
+    },
+    "vision.layers.17.attention_output": {
+      "amax": 7.8125,
+      "scale": 0.019182477678571428
+    },
+    "vision.layers.17.mlp_activation": {
+      "amax": 54.0,
+      "scale": 0.13258928571428572
+    },
+    "vision.layers.17.mlp_norm": {
+      "amax": 60.5,
+      "scale": 0.14854910714285716
+    },
+    "vision.layers.18.attention_norm": {
+      "amax": 24.5,
+      "scale": 0.06015625000000001
+    },
+    "vision.layers.18.attention_output": {
+      "amax": 8.625,
+      "scale": 0.021177455357142858
+    },
+    "vision.layers.18.mlp_activation": {
+      "amax": 15.8125,
+      "scale": 0.038825334821428574
+    },
+    "vision.layers.18.mlp_norm": {
+      "amax": 65.5,
+      "scale": 0.16082589285714288
+    },
+    "vision.layers.19.attention_norm": {
+      "amax": 22.25,
+      "scale": 0.05463169642857143
+    },
+    "vision.layers.19.attention_output": {
+      "amax": 8.875,
+      "scale": 0.021791294642857145
+    },
+    "vision.layers.19.mlp_activation": {
+      "amax": 21.875,
+      "scale": 0.05371093750000001
+    },
+    "vision.layers.19.mlp_norm": {
+      "amax": 72.0,
+      "scale": 0.1767857142857143
+    },
+    "vision.layers.2.attention_norm": {
+      "amax": 11.5625,
+      "scale": 0.02839006696428572
+    },
+    "vision.layers.2.attention_output": {
+      "amax": 4.40625,
+      "scale": 0.010818917410714288
+    },
+    "vision.layers.2.mlp_activation": {
+      "amax": 8.4375,
+      "scale": 0.020717075892857144
+    },
+    "vision.layers.2.mlp_norm": {
+      "amax": 12.1875,
+      "scale": 0.02992466517857143
+    },
+    "vision.layers.20.attention_norm": {
+      "amax": 20.125,
+      "scale": 0.04941406250000001
+    },
+    "vision.layers.20.attention_output": {
+      "amax": 8.125,
+      "scale": 0.019949776785714284
+    },
+    "vision.layers.20.mlp_activation": {
+      "amax": 26.625,
+      "scale": 0.06537388392857144
+    },
+    "vision.layers.20.mlp_norm": {
+      "amax": 56.75,
+      "scale": 0.13934151785714285
+    },
+    "vision.layers.21.attention_norm": {
+      "amax": 20.125,
+      "scale": 0.04941406250000001
+    },
+    "vision.layers.21.attention_output": {
+      "amax": 7.96875,
+      "scale": 0.019566127232142856
+    },
+    "vision.layers.21.mlp_activation": {
+      "amax": 44.75,
+      "scale": 0.10987723214285715
+    },
+    "vision.layers.21.mlp_norm": {
+      "amax": 136.0,
+      "scale": 0.33392857142857146
+    },
+    "vision.layers.22.attention_norm": {
+      "amax": 19.75,
+      "scale": 0.04849330357142857
+    },
+    "vision.layers.22.attention_output": {
+      "amax": 9.3125,
+      "scale": 0.022865513392857143
+    },
+    "vision.layers.22.mlp_activation": {
+      "amax": 54.25,
+      "scale": 0.133203125
+    },
+    "vision.layers.22.mlp_norm": {
+      "amax": 108.5,
+      "scale": 0.26640625
+    },
+    "vision.layers.23.attention_norm": {
+      "amax": 21.75,
+      "scale": 0.05340401785714286
+    },
+    "vision.layers.23.attention_output": {
+      "amax": 10.0625,
+      "scale": 0.024707031250000004
+    },
+    "vision.layers.23.mlp_activation": {
+      "amax": 54.25,
+      "scale": 0.133203125
+    },
+    "vision.layers.23.mlp_norm": {
+      "amax": 189.0,
+      "scale": 0.4640625
+    },
+    "vision.layers.24.attention_norm": {
+      "amax": 25.375,
+      "scale": 0.062304687500000004
+    },
+    "vision.layers.24.attention_output": {
+      "amax": 8.8125,
+      "scale": 0.021637834821428576
+    },
+    "vision.layers.24.mlp_activation": {
+      "amax": 105.5,
+      "scale": 0.2590401785714286
+    },
+    "vision.layers.24.mlp_norm": {
+      "amax": 189.0,
+      "scale": 0.4640625
+    },
+    "vision.layers.25.attention_norm": {
+      "amax": 32.5,
+      "scale": 0.07979910714285714
+    },
+    "vision.layers.25.attention_output": {
+      "amax": 7.3125,
+      "scale": 0.01795479910714286
+    },
+    "vision.layers.25.mlp_activation": {
+      "amax": 54.25,
+      "scale": 0.133203125
+    },
+    "vision.layers.25.mlp_norm": {
+      "amax": 145.0,
+      "scale": 0.3560267857142857
+    },
+    "vision.layers.26.attention_norm": {
+      "amax": 34.0,
+      "scale": 0.08348214285714287
+    },
+    "vision.layers.26.attention_output": {
+      "amax": 5.40625,
+      "scale": 0.013274274553571429
+    },
+    "vision.layers.26.mlp_activation": {
+      "amax": 107.0,
+      "scale": 0.26272321428571427
+    },
+    "vision.layers.26.mlp_norm": {
+      "amax": 123.5,
+      "scale": 0.3032366071428572
+    },
+    "vision.layers.3.attention_norm": {
+      "amax": 15.4375,
+      "scale": 0.03790457589285715
+    },
+    "vision.layers.3.attention_output": {
+      "amax": 4.8125,
+      "scale": 0.01181640625
+    },
+    "vision.layers.3.mlp_activation": {
+      "amax": 6.9375,
+      "scale": 0.01703404017857143
+    },
+    "vision.layers.3.mlp_norm": {
+      "amax": 12.75,
+      "scale": 0.03130580357142857
+    },
+    "vision.layers.4.attention_norm": {
+      "amax": 20.125,
+      "scale": 0.04941406250000001
+    },
+    "vision.layers.4.attention_output": {
+      "amax": 4.6875,
+      "scale": 0.011509486607142858
+    },
+    "vision.layers.4.mlp_activation": {
+      "amax": 5.625,
+      "scale": 0.01381138392857143
+    },
+    "vision.layers.4.mlp_norm": {
+      "amax": 11.25,
+      "scale": 0.02762276785714286
+    },
+    "vision.layers.5.attention_norm": {
+      "amax": 18.375,
+      "scale": 0.0451171875
+    },
+    "vision.layers.5.attention_output": {
+      "amax": 4.875,
+      "scale": 0.011969866071428572
+    },
+    "vision.layers.5.mlp_activation": {
+      "amax": 6.90625,
+      "scale": 0.016957310267857146
+    },
+    "vision.layers.5.mlp_norm": {
+      "amax": 12.125,
+      "scale": 0.02977120535714286
+    },
+    "vision.layers.6.attention_norm": {
+      "amax": 22.375,
+      "scale": 0.054938616071428574
+    },
+    "vision.layers.6.attention_output": {
+      "amax": 6.21875,
+      "scale": 0.015269252232142858
+    },
+    "vision.layers.6.mlp_activation": {
+      "amax": 7.1875,
+      "scale": 0.017647879464285716
+    },
+    "vision.layers.6.mlp_norm": {
+      "amax": 14.25,
+      "scale": 0.034988839285714286
+    },
+    "vision.layers.7.attention_norm": {
+      "amax": 28.25,
+      "scale": 0.0693638392857143
+    },
+    "vision.layers.7.attention_output": {
+      "amax": 5.09375,
+      "scale": 0.012506975446428573
+    },
+    "vision.layers.7.mlp_activation": {
+      "amax": 9.8125,
+      "scale": 0.024093191964285717
+    },
+    "vision.layers.7.mlp_norm": {
+      "amax": 12.9375,
+      "scale": 0.03176618303571429
+    },
+    "vision.layers.8.attention_norm": {
+      "amax": 20.375,
+      "scale": 0.05002790178571429
+    },
+    "vision.layers.8.attention_output": {
+      "amax": 4.71875,
+      "scale": 0.011586216517857144
+    },
+    "vision.layers.8.mlp_activation": {
+      "amax": 8.25,
+      "scale": 0.02025669642857143
+    },
+    "vision.layers.8.mlp_norm": {
+      "amax": 22.0,
+      "scale": 0.05401785714285715
+    },
+    "vision.layers.9.attention_norm": {
+      "amax": 21.875,
+      "scale": 0.05371093750000001
+    },
+    "vision.layers.9.attention_output": {
+      "amax": 5.84375,
+      "scale": 0.01434849330357143
+    },
+    "vision.layers.9.mlp_activation": {
+      "amax": 8.0625,
+      "scale": 0.019796316964285715
+    },
+    "vision.layers.9.mlp_norm": {
+      "amax": 25.125,
+      "scale": 0.06169084821428572
+    },
+    "vision.patch_input": {
+      "amax": 1.0,
+      "scale": 0.0024553571428571432
+    },
+    "vision.post_norm": {
+      "amax": 74.5,
+      "scale": 0.18292410714285715
+    }
+  },
+  "schema": "apxinf.pi05.fp8-calibration.v1",
+  "seed_policy": {
+    "algorithm": "numpy-pcg64-seed-sequence-v1",
+    "base_seed": 0,
+    "sample_sequence": "[base_seed,sample_index]"
+  },
+  "source_revision": "e07dbe98da914bc0a3df8c4bb4b7251c2a726f69"
+}
