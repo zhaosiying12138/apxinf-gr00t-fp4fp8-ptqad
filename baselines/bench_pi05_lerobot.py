@@ -43,20 +43,29 @@ def main():
     # keys/shapes from policy.config.input_features of pi05_libero_base
     def img(hw):
         return torch.from_numpy(rng.integers(0, 255, (1, 3, hw, hw))).to("cuda", torch.float32) / 255.0
+    # pi05 model expects pre-tokenized language (normally done by lerobot dataset
+    # pipeline); tokenize with the same paligemma SentencePiece model the engine uses
+    import sentencepiece as spm
+    sp = spm.SentencePieceProcessor(model_file=str(CKPT / "paligemma_tokenizer.model"))
+    ids = [2] + sp.encode("put the moka pot on the stove") + [1]   # BOS ... EOS
+    print("prompt tokens:", len(ids))
     batch = {
         "observation.images.image": img(256),
         "observation.images.image2": img(256),
         "observation.images.empty_camera_0": img(224),
         "observation.state": torch.from_numpy(rng.uniform(-0.3, 0.3, (1, 8))).to("cuda", torch.float32),
-        "task": ["put the moka pot on the stove"],
+        "observation.language.tokens": torch.tensor([ids], device="cuda"),
+        "observation.language.attention_mask": torch.ones((1, len(ids)), dtype=torch.bool, device="cuda"),
     }
     b = batch
     with torch.no_grad():
-        a = policy.select_action(b)
-        print("first action:", tuple(a.shape))
+        # IMPORTANT: measure predict_action_chunk (full inference per call).
+        # select_action pops an action queue (1 inference per n_action_steps calls).
+        a = policy.predict_action_chunk(b)
+        print("first chunk:", tuple(a.shape))
 
         for _ in range(10):
-            policy.select_action(b)
+            policy.predict_action_chunk(b)
         torch.cuda.synchronize()
 
         N = 30
@@ -65,7 +74,7 @@ def main():
             for i in range(N):
                 b["observation.images.image"] = img(256)
                 torch.cuda.synchronize(); t1 = time.perf_counter()
-                policy.select_action(b)
+                policy.predict_action_chunk(b)
                 torch.cuda.synchronize(); lat.append((time.perf_counter() - t1) * 1e3)
 
     lat.sort()
