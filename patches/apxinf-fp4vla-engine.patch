@@ -162,10 +162,10 @@ index 0849388..4f07924 100644
  }
 diff --git a/crates/apxinf-model/src/pi05/fp4_weights.rs b/crates/apxinf-model/src/pi05/fp4_weights.rs
 new file mode 100644
-index 0000000..a0f4196
+index 0000000..6e44c26
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/fp4_weights.rs
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,141 @@
 +//! NVFP4 device weights loaded from fp4vla offline artifacts (step 2 of the
 +//! fp4 engine path; see fp4vla docs/fp4-engine-design.md).
 +//!
@@ -300,6 +300,72 @@ index 0000000..a0f4196
 +
 +    pub fn len(&self) -> usize { self.tensors.len() }
 +    pub fn is_empty(&self) -> bool { self.tensors.is_empty() }
++}
++
++#[cfg(all(test, feature = "cuda"))]
++mod fp4_tests {
++    use super::*;
++    include!("fp4_weights_tests.rs");
++}
+diff --git a/crates/apxinf-model/src/pi05/fp4_weights_tests.rs b/crates/apxinf-model/src/pi05/fp4_weights_tests.rs
+new file mode 100644
+index 0000000..61f61c1
+--- /dev/null
++++ b/crates/apxinf-model/src/pi05/fp4_weights_tests.rs
+@@ -0,0 +1,54 @@
++// Tests for fp4_weights (included from fp4_weights.rs under cfg(test)).
++
++// Integrity slice: load a real fp4vla artifact, read buffers back from the
++// device, and byte-compare against the artifact files + manifest fields.
++// Validates loader I/O (parse, sizes, upload, tscale) end to end.
++// Set FP4_ARTIFACT_DIR to run; skipped otherwise.
++#[test]
++fn fp4_artifact_integrity() {
++    let dir = match std::env::var("FP4_ARTIFACT_DIR") {
++        Ok(d) => std::path::PathBuf::from(d),
++        Err(_) => {
++            eprintln!("skip: FP4_ARTIFACT_DIR unset");
++            return;
++        }
++    };
++    let weights = Fp4DeviceWeights::from_artifact_dir(&dir, 0).expect("artifact load");
++    assert!(!weights.is_empty(), "loaded zero tensors");
++
++    let manifest: Fp4Manifest = serde_json::from_slice(
++        &std::fs::read(dir.join("manifest.json")).unwrap(),
++    )
++    .unwrap();
++    let mut checked = 0usize;
++    for meta in &manifest.tensors {
++        let stem = meta.name.replace('/', ".");
++        let packed_path = dir.join(format!("{stem}.packed.u8"));
++        let scale_path = dir.join(format!("{stem}.scale.u8"));
++        if !packed_path.is_file() {
++            continue;
++        }
++        let w = weights.get(&meta.name).unwrap_or_else(|| {
++            panic!("manifest tensor {} missing from loader", meta.name)
++        });
++        assert_eq!((w.rows, w.k), (meta.shape[0], meta.shape[1]));
++        assert_eq!(w.tscale.to_bits(), meta.tscale.to_bits(), "tscale {}", meta.name);
++
++        let want_packed = std::fs::read(&packed_path).unwrap();
++        assert_eq!(w.packed.len(), want_packed.len());
++        let mut got = vec![0u8; want_packed.len()];
++        w.packed.copy_to_host(&mut got).map_err(Error::Cuda).unwrap();
++        assert_eq!(got, want_packed, "packed roundtrip {}", meta.name);
++
++        let want_scale = std::fs::read(&scale_path).unwrap();
++        let mut got_s = vec![0u8; want_scale.len()];
++        w.scale.copy_to_host(&mut got_s).map_err(Error::Cuda).unwrap();
++        assert_eq!(got_s, want_scale, "scale roundtrip {}", meta.name);
++        checked += 1;
++        if checked >= 12 {
++            break; // sample the first dozen tensors: enough for I/O proof
++        }
++    }
++    assert!(checked > 0, "artifact had no loadable tensors");
++    eprintln!("fp4 artifact integrity: {checked} tensors byte-exact after device roundtrip");
 +}
 diff --git a/crates/apxinf-model/src/pi05/mod.rs b/crates/apxinf-model/src/pi05/mod.rs
 index efa9a5f..a5bd644 100644
