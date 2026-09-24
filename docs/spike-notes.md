@@ -53,3 +53,17 @@ offset = PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%4)
 | 1×8192×2048 | 530 | 1490 | 521 |
 
 注意：笔记本 TGP 波动，正式论文测量需分块跑+记录功耗（见 docs/PLAN.md 测量协议）。
+
+## FP8 输出 dtype 探针（2026-09-25，spike/fp8_probe.cu）
+
+引擎 pi05 fp8_static 在 sm_120 报 cuBLAS status 15 的根因：
+
+| GEMM 配置（E4M3×E4M3） | heuristic | matmul |
+|---|---|---|
+| → F32 / BF16 / F16 输出 | 4 algos | ✓ 成功 |
+| → **E4M3 输出**（± D-scale） | **status 15, 0 algos** | ✗ |
+
+引擎 tuning key 把 fp8 GEMM 的 output_dtype 设为 F8E4M3（激活也走 FP8 存储省带宽，
+Thor sm_110 验证过）；GeForce sm_120 的 cuBLASLt 不提供该组合。
+**修复**：fp8 GEMM 输出 dtype 改 BF16（probe 已验证可用），代价是激活带宽 ×2；
+对应上游 PR：sm≠110 时强制 BF16 输出。
