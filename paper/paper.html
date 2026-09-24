@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FP4-VLA：面向视觉-语言-动作模型的 NVFP4 量化与混合精度部署</title><style>
+:root{--ink:#1a1a2e;--accent:#0f6db3;--soft:#5b6b7d;--bg:#ffffff;--band:#f4f7fa}
+*{box-sizing:border-box}
+body{font-family:"Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
+     color:var(--ink);background:var(--bg);margin:0;line-height:1.75;font-size:16px}
+.page{max-width:860px;margin:0 auto;padding:48px 28px 96px}
+header{border-bottom:3px solid var(--accent);padding-bottom:20px;margin-bottom:32px}
+h1{font-size:28px;line-height:1.35;margin:0 0 8px}
+.meta{color:var(--soft);font-size:14px}
+h2{font-size:21px;margin-top:44px;border-left:4px solid var(--accent);padding-left:10px}
+h3{font-size:17px;margin-top:28px}
+table{border-collapse:collapse;margin:18px 0;font-size:14px;width:100%}
+th,td{border:1px solid #d5dde5;padding:6px 10px;text-align:center}
+th{background:var(--band)}
+tr:nth-child(even) td{background:#fafcfe}
+figure{margin:24px 0;text-align:center}
+figure svg{max-width:100%;height:auto}
+figcaption{font-size:13px;color:var(--soft);margin-top:6px}
+code,pre{font-family:"JetBrains Mono",Consolas,monospace;font-size:13.5px}
+pre{background:#0f172a;color:#dbe7f3;padding:14px 16px;border-radius:8px;overflow-x:auto}
+code{background:#eef2f6;padding:1px 5px;border-radius:4px}
+pre code{background:none;padding:0}
+blockquote{border-left:3px solid var(--soft);margin:16px 0;padding:2px 16px;color:#3c4a58;background:var(--band)}
+.kv{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.kv span{background:var(--band);border-radius:6px;padding:2px 10px;font-size:13px}
+</style></head>
+<body><div class="page">
+<header><h1>FP4-VLA：面向视觉-语言-动作模型的 NVFP4 量化与混合精度部署</h1>
+<div class="meta">RTX 5090 Laptop (Blackwell sm_120) · GR00T N1.7 / π0.5 · ApxInf 推理引擎 · 工作进行中（spike 已完成）</div></header>
+<h2>摘要（草稿，随实验更新）</h2>
+<p>视觉-语言-动作（VLA）模型要在机器人本体上闭环运行，推理引擎的算力与显存预算是硬约束。</p>
+<p>NVIDIA Blackwell 架构把 FP4 tensor core 带到了消费级 GPU（RTX 50 系列），但截至目前</p>
+<p>没有任何公开工作回答：<b>VLA 模型能否在 FP4 精度下保持任务成功率？</b></p>
+<p>本文在 RTX 5090 Laptop（sm_120）上对 GR00T N1.7（Cosmos-Reason2-2B backbone + DiT</p>
+<p>flow-matching action head）与 π0.5 进行首个系统性的 NVFP4 量化研究：</p>
+<ul><li><b>算子层（已完成）</b>：block-scaled NVFP4 GEMM 在 GeForce sm_120 上可用且数值精确；</li></ul>
+<p>  我们逆向并验证了 cuBLASLt 的 128×4 tile 行交错 scale 布局，计算受限形状下 NVFP4</p>
+<p>  达到 506 TFLOPS（1.8× FP8、5.5× BF16），而 batch-1 GEMV 形状下 FP4 路径反而慢于 FP8——</p>
+<p>  这一非对称性直接导出混合精度准则。</p>
+<ul><li><b>模型层（进行中）</b>：逐模块敏感性分析（VLM backbone vs action head）、闭环失效模式</li></ul>
+<p>  刻画、量化误差→动作误差→成功率传播链。</p>
+<ul><li><b>恢复阶梯</b>：PTQ → 校准式 scale 学习 → 蒸馏 + 一天预算小规模 PPO（LoRA 仅作用</li></ul>
+<p>  于 action head），全部闭环于 ApxInf 推理引擎与 RLinf 训练框架。</p>
+<h2>1. 引言</h2>
+<p>机器人策略模型正在从&quot;云端大脑&quot;走向本体推理：GR00T、π0.5、WALL-OSS 等 VLA 模型</p>
+<p>需要在 10-100W 的边缘设备上以 10-50 Hz 的频率完成&quot;感知→决策→行动&quot;闭环。</p>
+<p>现有量化工作集中在 LLM（GPTQ/AWQ/SmoothQuant 等 4-bit 权重量化），但 VLA 有两点</p>
+<p>本质不同：其一，action head 的输出直接驱动闭环控制，量化误差会在数百步的 rollout</p>
+<p>中复合，而非体现在 perplexity 上；其二，VLA 推理同时包含自回归 VLM 解码与</p>
+<p>flow-matching 多步采样两类截然不同的算子负载 profile。</p>
+<p>Blackwell 消费级 GPU 的 FP4 tensor core（NVFP4：E2M1 数据 + 每 16 元素 E4M3 block</p>
+<p>scale + 每 tensor FP32 二级 scale）提供了一个此前不存在的选项……（继续）</p>
+<h2>2. 算子层结果（已完成 ✅）</h2>
+<p>在 RTX 5090 Laptop、CUDA 13.3、cuBLASLt 13.6 上（spike/fp4_gemm_bench.cu）：</p>
+<table><tr><th>GEMM 形状</th><th>BF16 TFLOPS</th><th>FP8</th><th>NVFP4</th><th>NVFP4/FP8</th></tr><tr><td>2048³</td><td>90.7</td><td>268.6</td><td>417.2</td><td>1.55×</td></tr><tr><td>4096×8192×2048</td><td>98.8</td><td>267.8</td><td>464.1</td><td>1.73×</td></tr><tr><td>8192×2048×4096</td><td>88.9</td><td>276.3</td><td>503.9</td><td>1.82×</td></tr><tr><td>4096³</td><td>92.5</td><td>281.2</td><td>506.2</td><td>1.80×</td></tr></table>
+<table><tr><th>batch-1 形状</th><th>FP8 GB/s</th><th>NVFP4 GB/s</th></tr><tr><td>1×4096×4096</td><td>1253</td><td>428</td></tr><tr><td>1×8192×2048</td><td>1490</td><td>521</td></tr></table>
+<p>MXFP4（VEC32_UE8M0）在 sm_120 上不被 cuBLASLt 支持（heuristic 0 算法）。</p>
+<p>scale 张量的物理布局（128×4 tile、行按 32 分块交错）由单字节探针扫描逆向得到，</p>
+<p>公式与验证见仓库 docs/spike-notes.md：</p>
+<pre><code>PS = 512 * ceil(KB/4)
+offset(row r, block b) = PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%4)</code></pre>
+<p><svg id="swz" xmlns="http://www.w3.org/2000/svg" width="720" height="240"></svg>
+</p>
+<hr><p class="meta">本页由 paper/build_html.py 生成 · 数据与代码见仓库 · 2026-09-24</p>
+</div><script>
+// animated NVFP4 scale swizzle: logical (row, block) grid -> physical cuBLASLt buffer
+// formula decoded in spike: PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%4)
+(function(){
+const R=8, B=8;                          // demo grid: 8 rows x 8 blocks (formula generalizes)
+const PS = 512*Math.ceil(B/4);
+const off=(r,b)=> PS*Math.floor(r/128) + 512*Math.floor(b/4) + 16*(r%32) + 4*(Math.floor(r/32)%4) + (b%4);
+const svg=document.getElementById('swz'); if(!svg) return;
+const cell=18, pad=26;
+svg.setAttribute('viewBox',`0 0 ${2*B*cell+3*pad+40} ${R*cell+pad+46}`);
+function mk(x,y,w,h,fill,txt,fs=10,stroke='#8fa3b8'){
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);
+  r.setAttribute('rx',3);r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
+  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',x+w/2);t.setAttribute('y',y+h/2+3.5);t.setAttribute('text-anchor','middle');
+  t.setAttribute('font-size',fs);t.setAttribute('font-family','monospace');t.textContent=txt;
+  g.appendChild(r);g.appendChild(t);return g;
+}
+const hue=(r,b)=>`hsl(${(r*47+b*23)%360} 65% 82%)`;
+let t=0, phases=[0,1,2];                 // 0: logical  1: flying  2: physical
+const logical=[]; for(let r=0;r<R;r++)for(let b=0;b<B;b++)logical.push({r,b});
+// physical slots occupied (dedup offsets onto a compact axis)
+const offs=[...new Set(logical.map(c=>off(c.r,c.b)))].sort((a,b)=>a-b);
+const slotX=o=>pad+ (offs.indexOf(o)/offs.length)*B*cell;
+const LX=b=>pad+b*cell, PY=r=>pad+30+r*cell;
+let anim=null;
+function draw(p){                        // p in [0,1]: 0 logical -> 1 physical
+  svg.innerHTML='';
+  svg.appendChild(mk(pad-8,pad+16,B*cell+16,R*cell+8,'none','逻辑布局 (row, block)',11,'none')).lastChild.setAttribute('x',pad+B*cell/2);
+  svg.appendChild(mk(pad+B*cell+pad,pad+16,B*cell+16,R*cell+8,'none','物理缓冲 (swizzle)',11,'none')).lastChild.setAttribute('x',pad+B*cell+pad+B*cell/2);
+  for(const c of logical){
+    const x0=LX(c.b), y=PY(c.r), x1=pad+B*cell+2*pad+slotX(off(c.r,c.b)), y1=PY(c.r);
+    const x=x0+(x1-x0)*p, y=y0(y0=>y0);  // keep row line
+    svg.appendChild(mk(x,PY(c.r)+ (0)*p,cell-2,cell-2,hue(c.r,c.b),'',10));
+  }
+}
+function step(){
+  t+=0.008; const p=(1-Math.cos(Math.min(t,Math.PI)))/2;
+  draw(p); if(t<Math.PI) anim=requestAnimationFrame(step); else {t=0; setTimeout(()=>{anim=requestAnimationFrame(step)},1200);}
+}
+draw(0); setTimeout(()=>anim=requestAnimationFrame(step),800);
+})();
+</script></body></html>
