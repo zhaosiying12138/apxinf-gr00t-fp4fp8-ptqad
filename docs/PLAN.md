@@ -83,3 +83,13 @@ GR00T 路线在拿到 HF_TOKEN 后立即恢复（权重本体已就绪，只差 
 - FP8 校准管线已全通：calibrate_pi05.py (--libero-suite, 32 obs/10 tasks,
   256 scales, results/calib/pi05_fp8_libero10.json)；patches: precision→
   model_variant, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1（LIBERO 元数据加载）
+
+### FP8 sm_120 修复补丁方案（待 GPU 空闲验证，~30min）
+
+根因（spike/fp8_probe 铁证）：sm_120 cuBLASLt 无 E4M3 输出的 GEMM。
+引擎唯一无条件 F8E4M3 输出点：`apxinf-cuda/src/kernels/gemm/fp8.rs:460`
+`geglu_tuning_key()`（Thor 定制 tactic 遗产）。
+补丁：`key.output_dtype = if sm==110 { F8E4M3 } else { F16 }`；
+重编（cargo 增量 ~10min）→ fp8_static bench 复测 → 若过则 E1 表 FP8 行补齐 +
+上游 PR。注意 autotune 失败时的 vendor fallback（cublaslt_fp8_gemm_f16）为何没接住
+——重编后若仍挂，在 fallback 处加日志。
