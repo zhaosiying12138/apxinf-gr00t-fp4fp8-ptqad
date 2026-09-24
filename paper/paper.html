@@ -63,6 +63,84 @@ blockquote{border-left:3px solid var(--soft);margin:16px 0;padding:2px 16px;colo
 offset(row r, block b) = PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%4)</code></pre>
 <p><svg id="swz" xmlns="http://www.w3.org/2000/svg" width="720" height="240"></svg>
 </p>
+<h2>3. 恢复的理论：量化误差、协变量漂移与策略恢复</h2>
+<p>本章回答两个问题：(i) 为什么量化会让闭环任务成功率下降得比开环指标预测的更多；</p>
+<p>(ii) 为什么蒸馏（QAD）、在策蒸馏（OPD）与强化学习（PPO）能够、以及各自能恢复哪一部分损失。</p>
+<p>我们把三者统一到同一个数学框架下，并给出可检验的预测与实验设计。</p>
+<h3>3.1 记号与设定</h3>
+<ul><li>环境：LIBERO 操作任务，有限视界 MDP，视界 T ≤ 720 步，每 κ=8 步重规划（~90 次决策）。</li><li>教师策略 π*（BF16 引擎执行），NVFP4 量化后学生策略 π_q = Q_φ(θ)，其中 Q 为块量化算子，</li></ul>
+<p>  φ 为可训练补偿参数（LoRA 增量、可选 scale 修正）。我们要求部署时真实执行 Q(θ)（引擎</p>
+<p>  kernel），训练时用 fake-quant 模拟，二者通过 E0 parity 对齐。</p>
+<ul><li>动作生成：flow-matching，动作 a 由积分向量场 v_θ(x_t, t; s) 的 ODE 得到，</li></ul>
+<p>  离散 K 步（K=10 或 STEP 一步）。</p>
+<ul><li>任务成功率 p(π) = E_τ~π[1{任务达成}]。</li></ul>
+<h3>3.2 每步量化扰动有界（开环视角）</h3>
+<p><b>权重扰动</b>：NVFP4 每块（16 元素）误差由 E2M1 网格（相对步长 1/4~1/2）与 E4M3 scale</p>
+<p>舍入共同决定。逐层测量相对扰动 ε_W = ‖ΔW‖_F/‖W‖_F（E2 实测）。</p>
+<p><b>动作扰动</b>：一阶线性化下，单步决策的动作为状态的函数，量化扰动满足</p>
+<pre><code>‖a_q(s) − a*(s)‖ ≤ ‖J_θ(s)‖ · ‖Δθ_eff‖ + O(‖Δθ‖²)</code></pre>
+<p>其中 J_θ 是动作对权重的雅可比，‖Δθ_eff‖ 由逐层 ε_W 累积。关键在于该界只在</p>
+<p><b>训练分布内</b>的 s 上小；分布外无保证（3.3 节正是利用这一点）。</p>
+<p><b>Flow ODE 的误差放大</b>：动作由 ODE 积分产生，向量场受扰 δv 时，轨迹端点误差满足</p>
+<p>Gronwall 型界：</p>
+<pre><code>‖δx_T‖ ≤ ∫₀ᵀ e^{∫ₜᵀ L_v ds} · ‖δv_s‖ ds   ⇒   离散 K 步 Euler 下近似 O(K · δv)</code></pre>
+<p><b>预测 H5</b>：步数 K 越少（如 STEP 一步生成），量化带来的动作偏差越小——一步生成与量化</p>
+<p>存在正向耦合（实验 R7 检验）。</p>
+<h3>3.3 闭环复合：协变量漂移使损失超线性（DAgger 论证）</h3>
+<p>量化策略在环境里闭环执行时，每步动作偏差把状态推离教师的数据分布；在漂移后的状态上</p>
+<p>策略误差进一步放大。记 d_π 为策略 π 的状态访问分布，ε_a = E_{s~d_*}‖π_q(s)−π*(s)‖ 为</p>
+<p>教师分布上的单步误差。由 Ross &amp; Bagnell (2011) 的复合误差分析：</p>
+<pre><code>开环/模仿式训练（只在固定数据 d_demo 上最小化 ε_a）：
+    J(π_q) − J(π*) = O(T² · ε_a)        # 误差沿视界平方级复合
+在策纠正训练（在 d_{π_q} 上获得教师标签）：
+    J(π_q) − J(π*) = O(T · ε_a&#x27;)        # 线性，且 ε_a&#x27; 是可在学生分布上继续压小的残差</code></pre>
+<p><b>这正是&quot;量化在闭环里比开环指标伤得更重&quot;的数学解释</b>，也是三段恢复配方分工的依据：</p>
+<p>QAD 在 d_demo 上优化（λ=0 的离线蒸馏），<b>不改变漂移项</b>；OPD 在学生自己的</p>
+<p>rollout 分布 d^{π_q} 上用教师标签优化，等价于以 π* 为专家的 DAgger，把平方复合降为线性；</p>
+<p>PPO 直接在环境奖励上优化闭环回报，理论上还能修正教师本身的部分次优（超越教师上限）。</p>
+<h3>3.4 三个恢复目标的统一形式（flow-matching 上实现）</h3>
+<p>GKD（Agarwal et al., ICLR 2024）的广义目标在 VLA 上的对应实现：</p>
+<p>取教师与学生共享的加噪路径 x_t = α_t a + σ_t ϵ，t~U(0,1)，损失为向量场匹配：</p>
+<pre><code>L_λ(φ) = E_{s~D_λ, t, x_t} [ w(t) · ‖ v_{Q(θ,φ)}(x_t,t;s) − v_{θ*}(x_t,t;s) ‖² ]
+
+D_λ = λ · d^{π_q(φ)}  +  (1−λ) · d_demo        # λ=0 → QAD；λ=1 → OPD（纯在策）</code></pre>
+<ul><li>选 <b>向量场匹配</b> 而非端点动作 MSE：与训练目标同构、每步稠密监督，且 reverse-KL 的</li></ul>
+<p>  mode-seeking 性质在 ODE 端点分布上同样成立（学生支撑集上匹配教师）。</p>
+<ul><li><b>PPO 臂</b>：J(φ)=E_τ~π_q[Σ min(r_t Â_t, clip)]，Â 由 GAE。注意当奖励取</li></ul>
+<p>  r_t = −‖a_t − π*(s_t)‖²（教师塑形）时，PPO 退化为 OPD 的加权形式——</p>
+<p>  OPD 可理解为&quot;以教师为势函数做 potential-based reward shaping 的 RL&quot;，</p>
+<p>  该统一视角在 R4b 消融中实证检验（RL 与蒸馏不是两件事，是同一谱系的两端）。</p>
+<h3>3.5 成功率损失的分解（论文叙事主定理）</h3>
+<p>把量化造成的成功率损失分解为三个可分别观测的部分：</p>
+<pre><code>Δ = p(π*) − p(π_q)
+  = Δ_floor    # 噪声下界：量化噪声下最优补偿也补不回的部分（由 R5d 噪声匹配实验估计）
+  + Δ_shift    # 协变量漂移损失：QAD 补不动、OPD 主补（H1）
+  + Δ_opt      # 学生在自身分布上的次优：OPD/PPO 皆可补，PPO 唯一可能越过 p(π*)（H4）</code></pre>
+<p>各 Δ 通过&quot;恢复曲线 + 残差分解&quot;实验联合估计（R5e oracle 上界 + R5d 噪声下界夹逼）。</p>
+<h3>3.6 可检验假设</h3>
+<ul><li><b>H1（漂移主因）</b>：QAD 显著降低教师分布上的动作误差，但对闭环成功率提升有限；</li></ul>
+<p>  OPD 在同等 GPU 预算下成功率恢复显著更高。</p>
+<ul><li><b>H2（数据混合谱系）</b>：成功率随 λ 单调不减（GKD 在 LLM 上的结论迁移到 VLA）。</li><li><b>H3（访问分布收敛）</b>：OPD 训练中 d^{π_q} 与 d_{π*} 的距离（状态访问分布 TV 距离）</li></ul>
+<p>  单调下降，且其下降幅度中介（mediate）成功率恢复。</p>
+<ul><li><b>H4（超越教师）</b>：OPD 后接 PPO 可超过 p(π*)（教师自身在 LIBERO 并非最优）；</li></ul>
+<p>  若不成立，Δ_opt≈0 的证据同样有价值。</p>
+<ul><li><b>H5（步数耦合）</b>：量化损失与 OPD 增益均随 flow 步数 K 减小而减小（Gronwall 预测）。</li></ul>
+<h3>3.7 实验矩阵与指标（对照 GKD/DAgger/PPO 顶会惯例）</h3>
+<table><tr><th>编号</th><th>实验</th><th>设计要点</th><th>关键指标</th></tr><tr><td>R0</td><td>漂移动机</td><td>PTQ 后按视界截断评测（T=90/180/360/720）；on/off-policy 动作误差对比</td><td>成功率-T 曲线斜率；ε_a(d*) vs ε_a(d^{π_q}) 差距；状态访问分布 TV 距离</td></tr><tr><td>R1</td><td>PTQ 基线</td><td>L0，多精度（BF16/FP8/NVFP4 混合/NVFP4 全量）</td><td>成功率±Wilson 95% CI、延迟、显存</td></tr><tr><td>R2</td><td>QAD</td><td>λ=0，冻结 backbone+scale，action-head LoRA；~2 GPU·h</td><td>教师分布动作 MSE ↓、成功率（预期有限提升）</td></tr><tr><td>R3</td><td>OPD</td><td>λ∈{0.25,0.5,1}，学生 rollout + 引擎 BF16 teacher 逐步纠偏；~8 GPU·h</td><td>恢复曲线（episodes→成功率）、成功率 AUC、episodes-to-90% gap</td></tr><tr><td>R4</td><td>PPO 对照</td><td>RLinf 同预算；R4b=教师塑形奖励（OPD 等价形式）</td><td>同预算成功率、样本效率、是否超 p(π*)</td></tr><tr><td>R5</td><td>机制消融</td><td>(a) λ 谱系 (b) 冻结策略{scale-only/head-LoRA/+backbone} (c) teacher=BF16 vs FP8 (d) <b>等范数高斯噪声 vs NVFP4 结构性误差</b>（区分&quot;学鲁棒&quot;与&quot;修结构误差&quot;） (e) oracle=BF16+LoRA 同预算</td><td>各臂成功率；Δ_floor/Δ_shift/Δ_opt 分解饼图</td></tr><tr><td>R6</td><td>恢复-精度前沿</td><td>精度×{PTQ,+QAD,+OPD} 网格</td><td>&quot;恢复移动精度-成功率前沿&quot;主图</td></tr><tr><td>R7</td><td>步数耦合</td><td>K∈{1,4,10} × {PTQ,OPD}</td><td>量化损失、OPD 增益 vs K</td></tr><tr><td>R8</td><td>泛化</td><td>仅在 2-3 个掉点最重任务上恢复，全 10 任务评测</td><td>恢复的跨任务迁移（过拟合检查）</td></tr></table>
+<p>指标口径统一：成功率报 Wilson 95% CI（每任务 ≥50 episodes）；动作误差/MSE 在</p>
+<p><b>学生自身 rollout 状态上</b>计算（on-policy，R0 专门对比 off-policy 口径的差异）；</p>
+<p>状态访问分布距离用 8 维本体状态直方图 TV 距离 + VLM 嵌入 Wasserstein 双口径；</p>
+<p>训练效率报 GPU·h 与环境交互步数（OPD 的 teacher 查询由 ApxInf BF16 服务，</p>
+<p>本身即系统贡献）。所有恢复实验种子 ≥3。</p>
+<h3>3.8 与相关工作的关系（引用与差异）</h3>
+<ul><li><b>GKD/OPD</b>（Agarwal et al. ICLR 2024；2025 OPD 实践）：借其 λ 混合目标、reverse-KL</li></ul>
+<p>  论证与 on/off-policy 对照实验设计；差异：我们作用于 flow-matching 动作分布与闭环控制，</p>
+<p>  且 teacher 由量化引擎高速服务。</p>
+<ul><li><b>QAD for NVFP4</b>（NVIDIA, arXiv:2601.20088）：借其&quot;冻结 scale、更新权重&quot;实践与</li></ul>
+<p>  PTQ→QAD 阶梯；差异：其恢复开环 benchmark 指标，我们证明并利用&quot;闭环需要 on-policy&quot;。</p>
+<ul><li><b>DAgger</b>（Ross et al. 2011）：借其复合误差理论框架，把&quot;量化&quot;实例化为误差源；</li></ul>
+<p>  我们的 OPD 即以 BF16 策略为专家的 DAgger，并首次给出量化场景的分解与噪声下界。</p>
+<ul><li><b>STEP</b>（ICML 2026 warm-start）：H5 把它与量化误差耦合，解释一步生成的额外收益。</li></ul>
 <hr><p class="meta">本页由 paper/build_html.py 生成 · 数据与代码见仓库 · 2026-09-24</p>
 </div><script>
 // animated NVFP4 scale swizzle: logical (row, block) grid -> physical cuBLASLt buffer

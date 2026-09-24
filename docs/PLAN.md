@@ -14,20 +14,28 @@
 | M4 | NVFP4 引擎路径 | ⏳ | quant/：权重转换、swizzle 打包、激活校准（挂到引擎 FP8 校准框架）、E0 parity |
 | M5 | 敏感性分析 + 混合精度 | ⏳ | exp/：两阶段协议（筛查 3任务×20eps → 决赛 10×50），失效模式分类，误差-成功率传播链 |
 | M6 | 系统测量 | ⏳ | 延迟分解、batch 1/4/8/16 吞吐、功耗/能耗、显存 |
-| M7 | 恢复阶梯 L1/L2 | ⏳ | L1 校准式 scale 学习（天级）；L2 蒸馏+PPO 一天预算闭环（rl/） |
+| M7 | 恢复阶梯 PTQ→QAD→OPD(+PPO 对照) | ⏳ | 见 docs/ADVICE-AUDIT.md 与 paper/sections/02-*；QAD ~2h / OPD ~8h / PPO ~8h（一天预算）；实验矩阵 R0-R8 |
 | M8 | 论文 + 发布 | ⏳ | paper/paper.html + paper/zhihu/；数据恢复脚本；上传 |
 
-## 关键技术决策（已定）
+## 关键技术决策（已定；2026-09-24 按顾问建议审计修订，见 docs/ADVICE-AUDIT.md）
 
-1. **量化方法 = PTQ**：权重 block scale 直接转换（免数据），激活 scale 用 LIBERO 数据校准；
-   恢复阶梯 L1（scale 学习）/ L2（蒸馏 + 小规模 PPO, LoRA r8 仅 action head）。
-2. **NVFP4 落点 = 引擎新精度模式**：模仿现有 bf16/fp8/int8 的 runtime/executor/weight 三元组
+1. **量化方法 = PTQ**：权重 block scale 直接转换（免数据），激活 scale 用 LIBERO 数据校准。
+2. **恢复阶梯 = PTQ → QAD → OPD（+PPO 对照臂）**：
+   - QAD（teacher-forced 蒸馏，λ=0）：冻结 VLM backbone 与量化 scale，只训 action-head LoRA
+     （稠密 VLA 无 MoE，"冻结 MoE 之外权重"按敏感性结果移植为"冻结 backbone"）；
+   - OPD（在策蒸馏，λ>0）：fake-quant 学生 rollout + ApxInf BF16 teacher 逐步纠偏，
+     向量场匹配损失（GKD 的 λ 混合 + reverse-KL 论证迁移到 flow-matching 动作分布）；
+   - PPO 对照臂（RLinf）：检验稠密监督 vs 稀疏奖励样本效率、以及"超越教师上限"（H4）。
+   数学原理、假设 H1-H5 与实验矩阵 R0-R8 见 paper/sections/02-恢复理论与实验设计.md。
+3. **NVFP4 落点 = 引擎新精度模式**：模仿现有 bf16/fp8/int8 的 runtime/executor/weight 三元组
    （monomorphized，见 apxinf/doc/gr00t-n1.7.md），GEMM 走 cuBLASLt block-scaled，
    scale 上传用已解码的 swizzle 公式（docs/spike-notes.md）。
-3. **混合精度假说（M5 验证）**：backbone NVFP4 + action head FP8/BF16。
+4. **混合精度假说（M5 验证）**：backbone NVFP4 + action head FP8/BF16。
    spike 证据：计算受限形状 FP4 1.8× FP8；batch-1 GEMV FP4 反而慢于 FP8。
-4. **评测协议**：LIBERO-10，双视角，与引擎 PR #42 对齐（GR00T 状态约定 8 维含双 gripper）。
-5. **测量协议**：分块跑（每块 ≤2h），全程 nvidia-smi 功耗采样，报持续性能并注明 TGP。
+5. **评测协议**：LIBERO-10，双视角，与引擎 PR #42 对齐（GR00T 状态约定 8 维含双 gripper）。
+   成功率报 Wilson 95% CI；动作误差统一 on-policy 口径；状态访问分布 TV 距离双口径
+   （本体直方图 + VLM 嵌入 Wasserstein）。
+6. **测量协议**：分块跑（每块 ≤2h），全程 nvidia-smi 功耗采样，报持续性能并注明 TGP。
 
 ## 权重与数据（weights/，gitignore，setup/03 恢复）
 
@@ -42,7 +50,7 @@
 2. 相关工作：VLA 模型；LLM 量化（GPTQ/AWQ/SmoothQuant）；FP4 格式（NVFP4/TRT-LLM/torchao）；具身推理引擎（ApxInf/Embodied.cpp/vla-perf）
 3. 背景：NVFP4 格式；GR00T N1.7（Cosmos-Reason2-2B + DiT action head）；ApxInf 引擎
 4. 方法：PTQ recipe（含 swizzle 打包细节——spike 的逆向解码本身是贡献）；混合精度准则；恢复阶梯；引擎集成
-5. 实验：E0 parity / E1 主表 / E2 敏感性 / E3 恢复 / E4 系统
+5. 实验：E0 parity / E1 主表 / E2 敏感性 / E3 恢复（= R0-R8 矩阵，理论见第 3 章草稿）/ E4 系统
 6. 讨论与局限
 - 图表计划：架构图（HTML/SVG）、swizzle 布局可视化（动画：逻辑→物理重排）、
   精度-延迟-成功率三元组图、batch 吞吐曲线、失败模式截图拼图、（动画）rollout 对比
