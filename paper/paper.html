@@ -189,6 +189,29 @@ D_λ = λ · d^{π_q(φ)}  +  (1−λ) · d_demo        # λ=0 → QAD；λ=1 �
 <p>STEP（ICML 2026）的 warm-start 将 flow-matching 采样从 10 步压到 1 步。我们的</p>
 <p>Gronwall 分析（3.2 节）预言量化动作偏差随积分步数线性放大，因此一步生成与量化</p>
 <p>存在正向耦合（H5，R7 检验）——这是系统方法与量化精度在 VLA 上的首次交互研究。</p>
+<h2>5. 实验设置与初步结果</h2>
+<h3>5.1 硬件与软件配置（全部实测）</h3>
+<table><tr><th>项</th><th>值</th><th>备注</th></tr><tr><td>GPU</td><td>NVIDIA GeForce RTX 5090 Laptop（Blackwell sm_120，82 SM，24GB GDDR7）</td><td>消费级移动 Blackwell；FP4/FP8 tensor core</td></tr><tr><td>整机</td><td>Intel Ultra 9 275HX（24 核）+ 58GB RAM（WSL2 动态调整中 43GB）</td><td>单机训练+推理+仿真同载</td></tr><tr><td>CUDA / cuBLASLt</td><td>13.3 / 13.6</td><td>CUDA 13 API 变化（layout 无 ORDER、handle 必传）均已适配</td></tr><tr><td>推理引擎</td><td>ApxInf main @ e07dbe9（自编译 sm_120，wheel cp312）</td><td>含我们两处 sm_120 修复</td></tr><tr><td>PyTorch 基线</td><td>2.9.0+cu128 / transformers 4.57.3</td><td>lerobot（π0.5）与 NVIDIA 官方 gr00t（N1.7）各自默认路径</td></tr><tr><td>仿真</td><td>LIBERO（robosuite 1.4.1 + MuJoCo 3.1.6 + EGL mesa headless）</td><td>WSL2 无 NVIDIA EGL，走 mesa surfaceless</td></tr><tr><td>对照训练基建</td><td>FSDP2 CPUOffload（姊妹项目管线，交叉引用）</td><td>full-head 恢复臂专用</td></tr></table>
+<h3>5.2 测量协议</h3>
+<ul><li>延迟：batch-1 端到端（含预处理/tokenize/动作解码），30 样本，报 P50/P99；</li></ul>
+<p>  引擎走 CUDA Graph 稳态（首帧捕获开销单列），PyTorch 为 eager。</p>
+<ul><li>功耗：0.2s 间隔 nvidia-smi 采样全程，报均值/峰值；笔记本 TGP 波动如实注明。</li><li>显存：进程峰值（nvidia-smi）+ 分配器口径（torch）双报。</li><li>成功率（后续）：LIBERO-10 ×50 episodes/任务，Wilson 95% CI，断点续跑。</li><li>NVFP4 数值验证：CPU fp64 反量化参考为金标准，GPU kernel 输出</li></ul>
+<p>  maxrel &lt; 5e-4（fp16 输出舍入级）为 PASS（已达成，见 §5.3）。</p>
+<h3>5.3 已完成结果速览</h3>
+<p><b>算子层</b>（§2.2）：NVFP4 GEMM 计算受限 506 TFLOPS（1.8× FP8）；MXFP4 sm_120 不支持；</p>
+<p>swizzle 布局逆向解码并三向验证（平 scale 探针/单字节扫描/全随机数据）。</p>
+<p><b>端到端 E1</b>（§2.1）：π0.5 引擎 7.3×、GR00T N1.7 引擎 3.2× 于各自 PyTorch 默认引擎；</p>
+<p>GR00T 为首批 GeForce 引擎数据，且约为 Jetson Thor 引擎延迟的 1/2。</p>
+<p><b>FP8 缺陷与根因</b>（§2.1 脚注）：ApxInf fp8_static 在 sm_120 因 E4M3 GEMM 输出</p>
+<p>不可用（cuBLASLt heuristic 状态 15，探针铁证）；我们的 NVFP4 路径设计上即规避</p>
+<p>（F16 输出），fp4 GEMM adapter 已在引擎 adapter 目录落地并通过功能验证</p>
+<p>（maxrel 4.84e-4）。</p>
+<p><b>离线量化工件</b>：π0.5 全部 459 个 eligible 张量 NVFP4 化，14.46GB→2.03GB</p>
+<p>（7.11×），rel-Frob 均值 9.5%、最大 10.2%（无异常张量）；GR00T 侧同管线待跑。</p>
+<h3>5.4 进行中</h3>
+<p>fp4 引擎路径（adapter ✓ → Rust 接线 → fp4_weights/executor/runtime → bench）；</p>
+<p>R0 漂移动机实验；QAD/OPD 恢复流水线（LoRA 主线不等外部，full-head 臂 E4 后接入）；</p>
+<p>系统测量（延迟分解/batch 吞吐/能耗）。</p>
 <hr><p class="meta">本页由 paper/build_html.py 生成 · 数据与代码见仓库 · 2026-09-24</p>
 </div><script>
 // animated NVFP4 scale swizzle: logical (row, block) grid -> physical cuBLASLt buffer
