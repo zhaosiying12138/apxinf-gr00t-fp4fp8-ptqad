@@ -45,11 +45,14 @@ def main():
 
     from apxinf import AutoPolicy
     kw = dict(kv.split("=", 1) for kv in args.extra_kwarg)
+    variant_kw = {"model_variant": args.variant}
+    if "precision" in kw:          # Gr00tPolicy family uses precision=, not model_variant=
+        variant_kw = {"precision": kw.pop("precision")}
     for k, v in kw.items():
         if v.isdigit(): kw[k] = int(v)
         elif v.replace(".", "", 1).isdigit(): kw[k] = float(v)
     t0 = time.time()
-    policy = AutoPolicy.from_pretrained(args.model_dir, model_variant=args.variant, **kw)
+    policy = AutoPolicy.from_pretrained(args.model_dir, **variant_kw, **kw)
     load_s = time.time() - t0
     md = policy.metadata
     print(f"loaded {load_s:.1f}s | type={md.get('model_type')} action_dim={md.get('action_dim')} "

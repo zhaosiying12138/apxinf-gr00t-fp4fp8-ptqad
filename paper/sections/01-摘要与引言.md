@@ -36,12 +36,14 @@ scale + 每 tensor FP32 二级 scale）提供了一个此前不存在的选项�
 |---|---|---|---|---|
 | π0.5 · lerobot PyTorch（默认引擎） | 361.7 ms | 2.8 Hz | 16.7 GB | 160.8 / 201 W |
 | π0.5 · ApxInf BF16 | **49.6 ms** | **19.7 Hz** | 16.3 GB | 140.2 / 165.5 W |
-| GR00T N1.7 · NVIDIA PyTorch | 待 HF_TOKEN（Cosmos gated） | | | |
-| GR00T N1.7 · ApxInf BF16 | 待同上 | | | |
+| GR00T N1.7 · NVIDIA PyTorch（官方） | 106.9 ms | 9.4 Hz | 6.0 GB | 97.5 / 127 W |
+| GR00T N1.7 · ApxInf BF16 | **33.7 ms** | **29.7 Hz** | 10.4 GB | 107.0 / 124 W |
 
-**ApxInf BF16 相对默认 PyTorch 引擎 = 7.3× 加速、功耗降 13%**（同 batch-1 端到端口径，
-含预处理；PyTorch 为 eager 无 CUDA Graph；30 样本 P50，80W TGP 档笔记本）。
-NVFP4 路径在此之上继续压（算子层已验证，见 2.2）。
+**ApxInf 相对各自默认 PyTorch 引擎：π0.5 = 7.3×、GR00T N1.7 = 3.2× 加速**（batch-1
+端到端口径含预处理，PyTorch 为 eager 无 CUDA Graph，引擎走 CUDA Graph，30 样本 P50）。
+**这些是首批 GeForce（sm_120）上的 GR00T N1.7 引擎数据**；另一发现：5090 Laptop 引擎延迟
+约为 Jetson AGX Thor（58–60 ms）的 1/2——消费级 Blackwell 对具身部署的性价比信号。
+NVFP4 路径在此之上继续压（算子层已验证 506 TFLOPS，见 2.2）。
 
 ## 2.2 算子层 NVFP4（已完成 ✅）
 

@@ -48,48 +48,42 @@ def main():
         device="cuda:0",
         strict=False,           # we feed synthetic obs; validation strictness off
     )
-    policy.eval()
+    policy.model.eval()   # Gr00tPolicy wraps model; .eval lives on the module
     load_s = time.time() - t0
     print(f"loaded in {load_s:.1f}s")
 
     rng = np.random.default_rng(7)
-    obs = {
-        "observation.image": (rng.integers(0, 255, (224, 224, 3))).astype(np.uint8),
-        "observation.wrist_image": (rng.integers(0, 255, (224, 224, 3))).astype(np.uint8),
-        "observation.state": rng.uniform(-0.5, 0.5, 8).astype(np.float32),
-        "prompt": "put the moka pot on the stove",
-        "composite_instruction": "put the moka pot on the stove",
-    }
-
-    # discover accepted keys on first call; try common LIBERO key sets
-    keysets = [
-        {"observation.image", "observation.wrist_image", "observation.state", "prompt"},
-        {"observation.image", "observation.wrist_image", "observation.state", "composite_instruction"},
-        {"image", "wrist_image", "state", "prompt"},
-    ]
-    act = None
-    for ks in keysets:
-        try:
-            o = {k: obs[k] for k in ks}
-            with torch.no_grad():
-                act = policy.get_action(o)
-            print("accepted keys:", sorted(ks)); break
-        except Exception as e:
-            print("keys", sorted(ks), "->", str(e)[:160])
-    assert act is not None, "no working observation key set found"
+    # Gr00tPolicy batched observation contract (see gr00t_policy.py docstring):
+    #   video: {key: uint8 (B,T,H,W,C)}, state: {key: f32 (B,T,D)},
+    #   language: {key: [[str]] (B,T)}
+    def make_obs():
+        s = rng.uniform(-0.5, 0.5, 8).astype(np.float32)   # LIBERO 8-dim state order:
+        groups = {"x": s[0:1], "y": s[1:2], "z": s[2:3],   # x y z roll pitch yaw gripper(2)
+                  "roll": s[3:4], "pitch": s[4:5], "yaw": s[5:6], "gripper": s[6:8]}
+        return {
+            "video": {
+                "image": rng.integers(0, 255, (1, 1, 224, 224, 3)).astype(np.uint8),
+                "wrist_image": rng.integers(0, 255, (1, 1, 224, 224, 3)).astype(np.uint8),
+            },
+            "state": {k: v.reshape(1, 1, -1) for k, v in groups.items()},
+            "language": {"annotation.human.action.task_description":
+                         [["put the moka pot on the stove"]]},
+        }
+    obs = make_obs()
+    with torch.no_grad():
+        act = policy.get_action(obs)
+    print("first action:", {k: np.asarray(v).shape for k, v in act.items()} if isinstance(act, dict) else np.asarray(act).shape)
 
     with torch.no_grad():
         for _ in range(10):
-            policy.get_action({k: obs[k] for k in ks})
+            policy.get_action(obs)
         torch.cuda.synchronize()
 
     N = 50
     lat = []
     with PowerSampler() as ps, torch.no_grad():
         for i in range(N):
-            o = {k: obs[k] for k in ks}
-            if "observation.image" in ks:  # vary input slightly to avoid pure caching
-                o["observation.image"] = (rng.integers(0, 255, (224, 224, 3))).astype(np.uint8)
+            o = make_obs()
             torch.cuda.synchronize(); t1 = time.perf_counter()
             policy.get_action(o)
             torch.cuda.synchronize(); lat.append((time.perf_counter() - t1) * 1e3)
