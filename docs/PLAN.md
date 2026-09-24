@@ -40,9 +40,16 @@
 
 ## 权重与数据（weights/，gitignore，setup/03 恢复）
 
-- `nvidia/GR00T-N1.7-LIBERO`（主模型，LIBERO 微调版）+ `nvidia/Cosmos-Reason2-2B`（backbone processor 快照，加载必需）
-- `lerobot/pi05_libero_base` + openpi norm_stats.json（第二模型）
+- `nvidia/GR00T-N1.7-LIBERO`（主模型，LIBERO 微调版，libero_10/ 已就绪 6.5GB 精简版）
+  + `nvidia/Cosmos-Reason2-2B`（backbone，**gated 仓库——需要用户接受许可并提供 HF_TOKEN，当前硬阻塞 GR00T 全线**）
+- `lerobot/pi05_libero_base` + openpi norm_stats.json（第二模型，ungated ✓）
 - LIBERO 数据集：评测时经 apxinf-robo CLI 拉取（EGL headless 渲染）
+
+### 2026-09-24 执行顺序调整（Cosmos gated 阻塞）
+
+π0.5 路线前置（ungated）：引擎冒烟 → bench → PyTorch 基线 → NVFP4 转换全在 π0.5 上先做通；
+GR00T 路线在拿到 HF_TOKEN 后立即恢复（权重本体已就绪，只差 backbone 快照）。
+论文双模型结构不变，仅执行顺序对调。
 
 ## 论文骨架（中文，单 HTML + 知乎包）
 

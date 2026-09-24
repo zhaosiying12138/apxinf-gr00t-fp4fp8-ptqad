@@ -13,7 +13,7 @@ import numpy as np
 import torch
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-CKPT = ROOT / "weights" / "GR00T-N1.7-LIBERO"
+CKPT = ROOT / "weights" / "GR00T-N1.7-LIBERO" / "libero_10"
 
 class PowerSampler:
     def __init__(self, interval=0.2):

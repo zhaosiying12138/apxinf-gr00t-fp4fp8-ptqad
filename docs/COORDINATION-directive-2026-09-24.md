@@ -44,3 +44,25 @@
 独立成篇。FSDP2/offload 作为「系统使能技术」一节 + 引用姊妹论文；
 不与 FSDP2/Muon 合并成一篇。请更新 docs/ADVICE-AUDIT.md、实验矩阵、
 假设列表（新增 H6：容量阶梯与闭环恢复的关系）和 GPU-COORDINATION.md。
+
+---
+
+## ⚠️ 参数修正（2026-09-24 23:00，FSDP2 侧 param_audit 实测，重要）
+
+上文「full-head 臂 ~300–400M 可训练参数、AdamW 状态 4–6GB」**系低估，作废**。
+checkpoint 实测（GR00T-N1.7-LIBERO/libero_10 safetensors 逐 tensor 审计）：
+
+- 可训练 action head = **1620M 参数**（bf16 3.1GB）：DiT 16 层 1083M + VL-SA 201M
+  + action encoder W2/W3 227M + state encoder 55M + action decoder 38M + 其他 ~16M
+- frozen VLM = 1835M（bf16 3.5GB）；总 3455M
+- **AdamW fp32(m,v) 状态 ≈ 13GB**；模型状态合计 ≈ 19.3GB
+
+对你们的 full-head QAD/OPD 臂：
+1. 结论不变（必须 offload 才能单卡跑），但幅度更大：CPU RAM 需 ~19GB+（58GB 够，
+   但与 FSDP2 论文实验同时跑会挤——错峰，走 GPU-COORDINATION.md）；
+2. 官方 35GB 峰值构成由此校准：模型状态 19.3GB + batch32 激活 ~14-16GB ✓
+   （可作为你们论文引用的口径）；
+3. CategorySpecificMLP 为 [32,·,·] 3D bank（W2 独占 151M），任何 2D 权重专用的
+   优化器/量化策略需显式排除它。
+
+数据源：Windows 工作区 `phase0/param_audit.json`（default 工作区），及 GPU-COORDINATION.md 的「参数修正」节。
