@@ -1,3 +1,102 @@
+diff --git a/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
+new file mode 100644
+index 0000000..0cfa834
+--- /dev/null
++++ b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
+@@ -0,0 +1,93 @@
++// cublaslt_fp4_adapter.cu — NVFP4 block-scaled GEMM adapter (FP4-VLA).
++//
++// Layout/semantics verified bit-exact against CPU reference on sm_120
++// (RTX 5090 Laptop) by fp4vla spike/fp4_gemm_bench.cu:
++//   A stored MxK K-major (col-major KxM, opA=T), B stored NxK K-major
++//   (col-major KxN, opB=N), C F16 col-major MxN.
++//   Scales: E4M3 per-16 along K, physical swizzle
++//     PS = 512*ceil(KB/4);  off(r,b) = PS*(r/128) + 512*(b/4) + 16*(r%32)
++//                              + 4*((r/32)%4) + (b%4)
++//   Scale mode: CUBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3.
++// E2M1 data packing: 2 values/byte, even k in low nibble.
++// CUDA 13: layouts are column-major only; matmul takes handle+algo ptr.
++
++#include <cstdint>
++#include <cuda_fp16.h>
++#include <cuda_fp8.h>
++#include <cuda_fp4.h>
++#include <cublasLt.h>
++
++extern "C" cublasStatus_t apxinf_fp4_gemm_f16(
++    cublasLtHandle_t lt,
++    int m, int n, int k,
++    const void* a_packed,        // M*K/2 bytes, E2M1 pairs
++    const void* b_packed,        // N*K/2 bytes
++    const void* a_scale_swz,     // physical swizzle buffer (A rows)
++    const void* b_scale_swz,     // physical swizzle buffer (B rows)
++    __half* c,                   // MxN col-major, may alias across calls
++    void* workspace, size_t workspace_bytes,
++    cudaStream_t stream)
++{
++    cublasLtMatmulDesc_t op = nullptr;
++    cublasLtMatrixLayout_t la = nullptr, lb = nullptr, lc = nullptr;
++    cublasLtMatmulPreference_t pref = nullptr;
++    cublasLtMatmulHeuristicResult_t heur{};
++    int nres = 0;
++    cublasStatus_t st;
++
++    auto cleanup = [&]() {
++        if (pref) cublasLtMatmulPreferenceDestroy(pref);
++        if (lc) cublasLtMatrixLayoutDestroy(lc);
++        if (lb) cublasLtMatrixLayoutDestroy(lb);
++        if (la) cublasLtMatrixLayoutDestroy(la);
++        if (op) cublasLtMatmulDescDestroy(op);
++    };
++
++    st = cublasLtMatmulDescCreate(&op, CUBLAS_COMPUTE_32F, CUDA_R_32F);
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    cublasOperation_t t = CUBLAS_OP_T, nn = CUBLAS_OP_N;
++    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_TRANSA, &t, sizeof(t));
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_TRANSB, &nn, sizeof(nn));
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++
++    cublasLtMatmulMatrixScale_t mode = CUBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3;
++    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_A_SCALE_MODE, &mode, sizeof(mode));
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_B_SCALE_MODE, &mode, sizeof(mode));
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_A_SCALE_POINTER, &a_scale_swz, sizeof(a_scale_swz));
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_B_SCALE_POINTER, &b_scale_swz, sizeof(b_scale_swz));
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++
++    // col-major-only API (CUDA 13): A=KxM ld=K opT -> MxK; B=KxN ld=K; C=MxN
++    st = cublasLtMatrixLayoutCreate(&la, CUDA_R_4F_E2M1, k, m, k);
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    st = cublasLtMatrixLayoutCreate(&lb, CUDA_R_4F_E2M1, k, n, k);
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    st = cublasLtMatrixLayoutCreate(&lc, CUDA_R_16F, m, n, m);
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++
++    st = cublasLtMatmulPreferenceCreate(&pref);
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++    st = cublasLtMatmulPreferenceSetAttribute(pref, CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
++                                              &workspace_bytes, sizeof(workspace_bytes));
++    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
++
++    st = cublasLtMatmulAlgoGetHeuristic(lt, op, la, lb, lc, lc, pref, 1, &heur, &nres);
++    if (st != CUBLAS_STATUS_SUCCESS || nres == 0) { cleanup(); return CUBLAS_STATUS_NOT_SUPPORTED; }
++
++    const float one = 1.0f, zero = 0.0f;
++    st = cublasLtMatmul(lt, op, &one, a_packed, la, b_packed, lb, &zero,
++                        c, lc, c, lc, &heur.algo, workspace, workspace_bytes, stream);
++    cleanup();
++    return st;
++}
++
++// Swizzled-scale buffer size helper (matches fp4vla fp4_quant.swizzle_scales).
++extern "C" size_t apxinf_fp4_scale_buffer_bytes(int rows, int k) {
++    int kb = (k + 15) / 16;
++    size_t ps = 512u * ((kb + 3) / 4);
++    return ps * ((rows + 127) / 128);
++}
 diff --git a/crates/apxinf-cuda/build.rs b/crates/apxinf-cuda/build.rs
 index a45e955..cbe6478 100644
 --- a/crates/apxinf-cuda/build.rs
@@ -61,6 +160,147 @@ index 0849388..4f07924 100644
      key.epilogue = Epilogue::GeGlu;
      key
  }
+diff --git a/crates/apxinf-model/src/pi05/fp4_weights.rs b/crates/apxinf-model/src/pi05/fp4_weights.rs
+new file mode 100644
+index 0000000..a0f4196
+--- /dev/null
++++ b/crates/apxinf-model/src/pi05/fp4_weights.rs
+@@ -0,0 +1,135 @@
++//! NVFP4 device weights loaded from fp4vla offline artifacts (step 2 of the
++//! fp4 engine path; see fp4vla docs/fp4-engine-design.md).
++//!
++//! Artifact contract (produced by fp4vla quant/nvfp4_convert.py):
++//!   <dir>/<stem>.packed.u8   rows x K/2 bytes, E2M1 pairs (low nibble = even k)
++//!   <dir>/<stem>.scale.u8    cuBLASLt VEC16_UE4M3 physical swizzle layout
++//!   <dir>/manifest.json      summary + per-tensor {shape, block=16, tscale}
++//!
++//! The artifacts are immutable by construction (QAD freezes scales), so this
++//! loader only uploads bytes; it never re-quantizes.
++
++use std::collections::HashMap;
++use std::path::Path;
++
++use apxinf_cuda::CudaBuffer;
++use apxinf_core::{Error, Result};
++
++#[derive(Debug, Clone, serde::Deserialize)]
++pub struct Fp4TensorMeta {
++    pub name: String,
++    pub shape: Vec<usize>,
++    pub block: usize,
++    pub tscale: f32,
++    #[serde(default)]
++    pub rel_frob: Option<f64>,
++}
++
++#[derive(Debug, Clone, serde::Deserialize)]
++pub struct Fp4Manifest {
++    #[serde(default)]
++    pub summary: Option<serde_json::Value>,
++    pub tensors: Vec<Fp4TensorMeta>,
++}
++
++/// One quantized weight matrix resident on the device.
++pub struct Fp4DeviceWeight {
++    pub packed: CudaBuffer,   // E2M1 pairs, rows x K/2 bytes
++    pub scale: CudaBuffer,    // physical swizzle bytes
++    pub tscale: f32,          // per-tensor FP32 secondary scale
++    pub rows: usize,
++    pub k: usize,
++}
++
++impl Fp4DeviceWeight {
++    pub fn m(&self) -> usize { self.rows }
++    pub fn n_from(&self, other_rows: usize) -> usize { other_rows }
++    pub fn k(&self) -> usize { self.k }
++}
++
++/// The full set of NVFP4 tensors for a model shard, keyed by checkpoint name
++/// (dots replace path separators, matching fp4vla's stem convention).
++pub struct Fp4DeviceWeights {
++    pub tensors: HashMap<String, Fp4DeviceWeight>,
++}
++
++fn read_exact(path: &Path) -> Result<Vec<u8>> {
++    std::fs::read(path).map_err(|e| {
++        Error::Other(format!("fp4 artifact read {}: {e}", path.display()))
++    })
++}
++
++impl Fp4DeviceWeights {
++    /// Load every artifact tensor in `dir` onto `device`.
++    pub fn from_artifact_dir(dir: &Path, device: usize) -> Result<Self> {
++        let manifest_path = dir.join("manifest.json");
++        let manifest: Fp4Manifest = serde_json::from_slice(&read_exact(&manifest_path)?)
++            .map_err(|e| Error::Other(format!("fp4 manifest parse: {e}")))?;
++        let mut tensors = HashMap::with_capacity(manifest.tensors.len());
++        for meta in &manifest.tensors {
++            let stem = meta.name.replace('/', ".");
++            let packed_path = dir.join(format!("{stem}.packed.u8"));
++            let scale_path = dir.join(format!("{stem}.scale.u8"));
++            if !packed_path.is_file() || !scale_path.is_file() {
++                // Partial artifacts are legal: the exemption table decides
++                // which tensors a model keeps in BF16; missing files here
++                // simply mean "not quantized in this artifact".
++                continue;
++            }
++            let rows = meta.shape.first().copied().unwrap_or(0);
++            let k = meta.shape.get(1).copied().unwrap_or(0);
++            if rows == 0 || k == 0 || k % 16 != 0 {
++                return Err(Error::Other(format!(
++                    "fp4 artifact bad shape for {}: {rows}x{k}",
++                    meta.name
++                )));
++            }
++            let packed_bytes = read_exact(&packed_path)?;
++            if packed_bytes.len() != rows * k / 2 {
++                return Err(Error::Other(format!(
++                    "fp4 packed size mismatch {}: file {} expected {}",
++                    meta.name,
++                    packed_bytes.len(),
++                    rows * k / 2
++                )));
++            }
++            let scale_bytes = read_exact(&scale_path)?;
++            // swizzle buffer size (mirrors adapters/cublaslt_fp4_adapter.cu
++            // apxinf_fp4_scale_buffer_bytes; kept inline because apxinf-cuda
++            // keeps its ffi module private)
++            let kb = (k + 15) / 16;
++            let expected_scale = 512 * ((kb + 3) / 4) * ((rows + 127) / 128);
++            if scale_bytes.len() != expected_scale {
++                return Err(Error::Other(format!(
++                    "fp4 scale size mismatch {}: file {} expected {expected_scale}",
++                    meta.name,
++                    scale_bytes.len()
++                )));
++            }
++            let mut packed = CudaBuffer::alloc(packed_bytes.len(), device)
++                .map_err(Error::Cuda)?;
++            packed.copy_from_host(&packed_bytes).map_err(Error::Cuda)?;
++            let mut scale = CudaBuffer::alloc(scale_bytes.len(), device)
++                .map_err(Error::Cuda)?;
++            scale.copy_from_host(&scale_bytes).map_err(Error::Cuda)?;
++            tensors.insert(
++                meta.name.clone(),
++                Fp4DeviceWeight { packed, scale, tscale: meta.tscale, rows, k },
++            );
++        }
++        if tensors.is_empty() {
++            return Err(Error::Other(format!(
++                "fp4 artifact dir {} loaded zero tensors",
++                dir.display()
++            )));
++        }
++        Ok(Self { tensors })
++    }
++
++    pub fn get(&self, name: &str) -> Option<&Fp4DeviceWeight> {
++        self.tensors.get(name)
++    }
++
++    pub fn len(&self) -> usize { self.tensors.len() }
++    pub fn is_empty(&self) -> bool { self.tensors.is_empty() }
++}
 diff --git a/crates/apxinf-model/src/pi05/mod.rs b/crates/apxinf-model/src/pi05/mod.rs
 index efa9a5f..a5bd644 100644
 --- a/crates/apxinf-model/src/pi05/mod.rs
