@@ -35,3 +35,9 @@ cd "$HOME"
 python -c 'import apxinf_py; print("apxinf_py", apxinf_py.__version__)'
 python -c 'import apxinf, apxinf_robo; print("apxinf_robo ok")'
 echo "ENGINE BUILD DONE"
+
+# apply fp4vla engine patches (fp4 path, fp8 sm_120 fix, instrumentation)
+cd "$REPO/apxinf"
+git apply --check "$ROOT/patches/apxinf-fp4vla-engine.patch" 2>/dev/null \
+  && git apply "$ROOT/patches/apxinf-fp4vla-engine.patch" && echo "engine patches applied" \
+  || echo "engine patches: already applied or failed (check manually)"
