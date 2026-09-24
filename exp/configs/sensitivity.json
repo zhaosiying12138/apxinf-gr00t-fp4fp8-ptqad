@@ -1,0 +1,31 @@
+{
+  "_comment": "M5 两阶段敏感性协议。stage=screen: 3任务x20episodes 粗筛 (~16 配置, ~8h); stage=final: 10任务x50episodes 决赛 (~10 配置, ~20h)。quant_target 支持 nvfp4|mxfp4(不支持,仅记录)|fp8|bf16|mixed。",
+  "screening_protocol": { "tasks": 3, "episodes_per_task": 20, "tasks_selected_by": "PT4-full 掉点最重的 3 个 LIBERO-10 任务" },
+  "final_protocol":     { "tasks": 10, "episodes_per_task": 50, "seeds": 1, "ci": "wilson95" },
+  "grid": [
+    { "id": "bf16",        "backbone": "bf16",  "action_head": "bf16",  "note": "上界" },
+    { "id": "fp8",         "backbone": "fp8",   "action_head": "fp8",   "note": "引擎现有路径" },
+    { "id": "int8",        "backbone": "int8",  "action_head": "int8",  "note": "W8A8, Orin/Ada 路径, sm_120 若不支持则记录" },
+    { "id": "pt4-full",    "backbone": "nvfp4", "action_head": "nvfp4", "note": "最激进; 预期 screen 掉点最大 -> 选任务" },
+    { "id": "pt4-bb-only", "backbone": "nvfp4", "action_head": "bf16",  "note": "隔离 backbone 容差" },
+    { "id": "pt4-ah-only", "backbone": "bf16",  "action_head": "nvfp4", "note": "隔离 action head 容差" },
+    { "id": "pt4-bb-fp8ah","backbone": "nvfp4", "action_head": "fp8",   "note": "主混合精度候选" },
+    { "id": "pt4-attn",    "backbone": "nvfp4", "action_head": "bf16",  "quantize": "attention_only", "note": "backbone 内部: 仅 attention 投影" },
+    { "id": "pt4-mlp",     "backbone": "nvfp4", "action_head": "bf16",  "quantize": "mlp_only",      "note": "backbone 内部: 仅 MLP" },
+    { "id": "pt4-firstN",  "backbone": "nvfp4", "action_head": "bf16",  "quantize": "skip_first_last", "note": "跳过首末层" },
+    { "id": "pt4-emb",     "backbone": "nvfp4", "action_head": "bf16",  "quantize": "skip_embeddings", "note": "跳过 embedding/lm_head" },
+    { "id": "block32",     "backbone": "nvfp4", "action_head": "nvfp4", "block_size": 32, "note": "块大小消融 (需 kernel 支持或仅精度模拟)" },
+    { "id": "block64",     "backbone": "nvfp4", "action_head": "nvfp4", "block_size": 64, "note": "同上" },
+    { "id": "mxfp4",       "backbone": "mxfp4", "action_head": "mxfp4", "note": "sm_120 cuBLASLt 不支持; 精度模拟仅供参考" },
+    { "id": "calib-abl",   "backbone": "nvfp4", "action_head": "fp8",   "calib_samples": [16, 64, 256, 1024], "note": "校准数据量" },
+    { "id": "rand-noise",  "backbone": "bf16",  "action_head": "bf16",  "perturb": "matched_norm_gaussian", "note": "R5d 噪声对照: 等范数随机扰动" }
+  ],
+  "final_configs": ["bf16", "fp8", "int8", "pt4-full", "pt4-bb-only", "pt4-ah-only", "pt4-bb-fp8ah", "pt4-firstN", "calib-abl-best", "rand-noise"],
+  "metrics": {
+    "success_rate": "wilson95, per-task + macro",
+    "action_mse_on_policy": "学生 rollout 状态上的逐步动作 MSE (R0 口径)",
+    "state_visitation_tv": "8 维本体状态直方图 TV + VLM 嵌入 Wasserstein",
+    "weight_perturbation": "逐层 ||dW||_F/||W||_F",
+    "failure_taxonomy": "接近目标震荡/抓取偏移/中途漂移/指令误解, 人工+启发式分类"
+  }
+}

@@ -5,6 +5,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 REPO="$ROOT/third_party/apxinf-robo"
 export PATH="$HOME/.cargo/bin:$HOME/.local/bin:/usr/local/cuda/bin:$PATH"
+# WSL: linker cannot find -lcuda (only libcuda.so.1 in /usr/lib/wsl/lib); provide a stub
+mkdir -p "$HOME/.cuda-stubs"
+ln -sf /usr/lib/wsl/lib/libcuda.so.1 "$HOME/.cuda-stubs/libcuda.so"
+export LIBRARY_PATH="$HOME/.cuda-stubs:${LIBRARY_PATH:-}"
 
 [ -d "$REPO/apxinf" ] || { echo "missing $REPO (run git clone --recursive first)"; exit 1; }
 
@@ -25,6 +29,9 @@ uv pip install -e "python/apxinf[serving]"
 cd "$REPO"
 uv pip install -e ".[libero,serve,dev]"
 
+# NOTE: run import checks from outside the repo: the apxinf/ submodule directory
+# shadows the installed `apxinf` python package when CWD is the repo root.
+cd "$HOME"
 python -c 'import apxinf_py; print("apxinf_py", apxinf_py.__version__)'
-python -c 'import apxinf_robo; print("apxinf_robo ok")'
+python -c 'import apxinf, apxinf_robo; print("apxinf_robo ok")'
 echo "ENGINE BUILD DONE"
