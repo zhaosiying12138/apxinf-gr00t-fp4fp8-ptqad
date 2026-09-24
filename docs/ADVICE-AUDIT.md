@@ -62,10 +62,16 @@ L3 PPO(对照) RLinf 任务奖励微调，同预算                             
 
 1. **Phase 1（立即，不阻塞）**：head-LoRA(r8) 主线跑通 R0–R8（PTQ→QAD→OPD），
    保持论文最小可发表单元。
-2. **Phase 2（等待门控）**：新增 full-weight action head 训练臂（~300–400M 可训练参数，
-   AdamW 状态 4–6GB，需 FSDP2+CPUOffload，基建来自姊妹项目 groot-fsdp2）。
+2. **Phase 2（等待门控）**：新增 full-weight action head 训练臂。**参数量实测修正
+   （姊妹项目 Phase 0 param_audit，2026-09-24）：可训练 action head = 1.62B**
+   （DiT 1083M + VL-SA 201M + action_encoder 227M + state_encoder 55M + action_decoder 38M），
+   非早期估计的 300–400M；AdamW fp32 m+v ~13GB（bf16-state 路径 ~6.5GB），
+   offload 后 CPU RAM 需求 ~20–26GB（本机可用 47GB）。需 FSDP2+CPUOffload，
+   基建来自姊妹项目 groot-fsdp2。
    门控：姊妹项目 E2 完成 → 10-min 冒烟（fake_quant fwd + 1 step bwd）；
    E4 完成 → 正式实验。**R0–R8 的 LoRA 路线不等待。**
+   另：姊妹项目实测本机 PCIe pinned H2D 38.2 / D2H 23.7 GB/s，unpinned 仅 3.5–4.5 GB/s
+   （10× 惩罚）——teacher serving 数据通路若涉及 host staging，pinned memory 为硬前提。
 3. **R5b 扩展为容量阶梯**：仅 scale 修正 → head-LoRA(r8) → full head。
    full-head 显著胜出则主路径切换，R5b 升级为主结果之一。
 4. **优化器锁定 AdamW**：Muon 禁入本论文全部主表/消融（优化器变更污染

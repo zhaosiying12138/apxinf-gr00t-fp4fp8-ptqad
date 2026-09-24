@@ -15,7 +15,7 @@
 | M5 | 敏感性分析 + 混合精度 | ⏳ | exp/：两阶段协议（筛查 3任务×20eps → 决赛 10×50），失效模式分类，误差-成功率传播链 |
 | M6 | 系统测量 | ⏳ | 延迟分解、batch 1/4/8/16 吞吐、功耗/能耗、显存 |
 | M7a | 恢复阶梯 PTQ→QAD→OPD(+PPO 对照)，head-LoRA 主线 | ⏳ | QAD ~2h / OPD ~8h / PPO ~8h；实验矩阵 R0-R8；**不等待任何外部依赖** |
-| M7b | full-weight action head 臂（FSDP2+CPUOffload，~300-400M 参数） | ⏳⏸ | **门控**：姊妹项目(groot-fsdp2) E2 完成→10-min 冒烟；E4 完成→正式实验；R5b 扩为容量阶梯（scale-only/LoRA-r8/full-head）；优化器锁 AdamW（Muon 禁入，归因隔离）；交付纯 NVFP4 权重（训 W+STE 直接导出） |
+| M7b | full-weight action head 臂（FSDP2+CPUOffload，**实测 1.62B 可训练参数**：DiT 1083M+VL-SA 201M+act_enc 227M+state_enc 55M+act_dec 38M） | ⏳⏸ | **门控**：姊妹项目(groot-fsdp2) E2 完成→10-min 冒烟；E4 完成→正式实验；R5b 扩为容量阶梯（scale-only/LoRA-r8/full-head）；优化器锁 AdamW（Muon 禁入，归因隔离）；交付纯 NVFP4 权重（训 W+STE 直接导出）。**显存修正（2026-09-24 param_audit 实测）**：AdamW fp32 m+v ~13GB（bf16-state 路径 ~6.5GB），offload 后 CPU RAM 需求 ~20-26GB（本机可用 47GB，注意与数据预载叠加）；frozen backbone+lm_head 1835M（bf16 3.5GB 常驻） |
 | M8 | 论文 + 发布 | ⏳ | paper/paper.html + paper/zhihu/；数据恢复脚本；上传 |
 
 ## 关键技术决策（已定；2026-09-24 按顾问建议审计修订，见 docs/ADVICE-AUDIT.md）
