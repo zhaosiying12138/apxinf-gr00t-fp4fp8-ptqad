@@ -45,7 +45,7 @@ sys.argv = ["launch_finetune.py",
 
 sys.path.insert(0, os.getcwd())
 import runpy
-print(f"[smoke] launching finetune (1 step, bs=2); Linears so far={n_linear[0]}", flush=True)
+print(f"[smoke] launching finetune (1 step, bs=1); Linears so far={n_linear[0]}", flush=True)
 try:
     runpy.run_path("gr00t/experiment/launch_finetune.py", run_name="__main__")
     print(f"[smoke] COMPLETED in {time.time()-T0:.0f}s (fwd+bwd under fake-quant OK)")
