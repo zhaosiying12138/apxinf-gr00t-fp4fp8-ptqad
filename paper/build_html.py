@@ -44,45 +44,50 @@ SWIZZLE_DEMO_JS = r"""
 // animated NVFP4 scale swizzle: logical (row, block) grid -> physical cuBLASLt buffer
 // formula decoded in spike: PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%4)
 (function(){
-const R=8, B=8;                          // demo grid: 8 rows x 8 blocks (formula generalizes)
-const PS = 512*Math.ceil(B/4);
-const off=(r,b)=> PS*Math.floor(r/128) + 512*Math.floor(b/4) + 16*(r%32) + 4*(Math.floor(r/32)%4) + (b%4);
 const svg=document.getElementById('swz'); if(!svg) return;
-const cell=18, pad=26;
-svg.setAttribute('viewBox',`0 0 ${2*B*cell+3*pad+40} ${R*cell+pad+46}`);
-function mk(x,y,w,h,fill,txt,fs=10,stroke='#8fa3b8'){
-  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
-  const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
-  r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);
-  r.setAttribute('rx',3);r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
-  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-  t.setAttribute('x',x+w/2);t.setAttribute('y',y+h/2+3.5);t.setAttribute('text-anchor','middle');
-  t.setAttribute('font-size',fs);t.setAttribute('font-family','monospace');t.textContent=txt;
-  g.appendChild(r);g.appendChild(t);return g;
-}
-const hue=(r,b)=>`hsl(${(r*47+b*23)%360} 65% 82%)`;
-let t=0, phases=[0,1,2];                 // 0: logical  1: flying  2: physical
-const logical=[]; for(let r=0;r<R;r++)for(let b=0;b<B;b++)logical.push({r,b});
-// physical slots occupied (dedup offsets onto a compact axis)
-const offs=[...new Set(logical.map(c=>off(c.r,c.b)))].sort((a,b)=>a-b);
-const slotX=o=>pad+ (offs.indexOf(o)/offs.length)*B*cell;
-const LX=b=>pad+b*cell, PY=r=>pad+30+r*cell;
-let anim=null;
-function draw(p){                        // p in [0,1]: 0 logical -> 1 physical
-  svg.innerHTML='';
-  svg.appendChild(mk(pad-8,pad+16,B*cell+16,R*cell+8,'none','逻辑布局 (row, block)',11,'none')).lastChild.setAttribute('x',pad+B*cell/2);
-  svg.appendChild(mk(pad+B*cell+pad,pad+16,B*cell+16,R*cell+8,'none','物理缓冲 (swizzle)',11,'none')).lastChild.setAttribute('x',pad+B*cell+pad+B*cell/2);
-  for(const c of logical){
-    const x0=LX(c.b), y=PY(c.r), x1=pad+B*cell+2*pad+slotX(off(c.r,c.b)), y1=PY(c.r);
-    const x=x0+(x1-x0)*p, y=y0(y0=>y0);  // keep row line
-    svg.appendChild(mk(x,PY(c.r)+ (0)*p,cell-2,cell-2,hue(c.r,c.b),'',10));
+const R=8, B=8;                                // demo grid 8x8 (formula generalizes)
+const PS=512*Math.ceil(B/4);
+const off=(r,b)=> PS*Math.floor(r/128) + 512*Math.floor(b/4) + 16*(r%32) + 4*(Math.floor(r/32)%4) + (b%4);
+const cell=19, gap=3, pad=30, midGap=70;
+const cells=[]; for(let r=0;r<R;r++)for(let b=0;b<B;b++)cells.push({r,b});
+const offs=[...new Set(cells.map(c=>off(c.r,c.b)))].sort((a,b)=>a-b);   // compact physical axis
+const W = pad + B*(cell+gap) + midGap + offs.length*(cell+gap) + pad;
+const H = pad + R*(cell+gap) + 34;
+svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+svg.setAttribute('width', W);
+const NS='http://www.w3.org/2000/svg';
+const hue=(r,b)=>`hsl(${(r*47+b*23)%360} 62% 80%)`;
+function el(tag,attrs,txt){const e=document.createElementNS(NS,tag);
+  for(const k in attrs)e.setAttribute(k,attrs[k]); if(txt!=null)e.textContent=txt; return e;}
+function label(x,y,txt,anchor){svg.appendChild(el('text',{x,y,'font-size':11,fill:'#5b6b7d',
+  'text-anchor':anchor||'start','font-family':'system-ui'},txt));}
+// frame titles
+label(pad, 20, '逻辑布局 scale(row, block)');
+label(pad + B*(cell+gap) + midGap, 20, '物理缓冲（swizzle 后字节偏移紧凑排列）');
+// logical position of cell (r,b): column b, row r
+const LX=b=>pad + b*(cell+gap), LY=r=>pad+12 + r*(cell+gap);
+// physical position: sorted offset index -> column; row = index of this cell among same-offset? offsets unique per (r,b) in this demo
+const colOf={}; offs.forEach((o,i)=>colOf[o]=i);
+const PX=c=>pad + B*(cell+gap) + midGap + colOf[off(c.r,c.b)]*(cell+gap);
+const PY=c=>LY(c.r);
+function draw(p){
+  [...svg.querySelectorAll('.anim')].forEach(e=>e.remove());
+  for(const c of cells){
+    const x0=LX(c.b), y0=LY(c.r), x1=PX(c), y1=PY(c);
+    const x=x0+(x1-x0)*p, y=y0+(y1-y0)*p;
+    svg.appendChild(el('rect',{x:x,y:y,width:cell,height:cell,rx:3,
+      fill:hue(c.r,c.b),stroke:'#8fa3b8','class':'anim'}));
   }
 }
+let t=0, raf=null;
 function step(){
-  t+=0.008; const p=(1-Math.cos(Math.min(t,Math.PI)))/2;
-  draw(p); if(t<Math.PI) anim=requestAnimationFrame(step); else {t=0; setTimeout(()=>{anim=requestAnimationFrame(step)},1200);}
+  t+=0.012;
+  const cycle = t % (Math.PI+1.2);
+  const p = cycle<Math.PI ? (1-Math.cos(cycle))/2 : 1;
+  draw(p);
+  raf=requestAnimationFrame(step);
 }
-draw(0); setTimeout(()=>anim=requestAnimationFrame(step),800);
+draw(0); setTimeout(()=>{raf=requestAnimationFrame(step)}, 700);
 })();
 """
 
