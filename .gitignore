@@ -1,0 +1,28 @@
+# ---- heavy artifacts (restorable via scripts in setup/) ----
+weights/
+data/
+third_party/
+results/**/*.bin
+results/**/*.pt
+results/**/*.npz
+results/**/rollouts/
+results/**/videos/
+
+# ---- python ----
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# ---- rust / build ----
+target/
+build/
+*.so
+
+# ---- editors / os ----
+.vscode/
+.idea/
+.DS_Store
+
+# ---- paper build intermediates (keep final html + zhihu pkg) ----
+paper/_build/
