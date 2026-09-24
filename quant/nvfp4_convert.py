@@ -21,11 +21,19 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from fp4_quant import nvfp4_quantize, nvfp4_dequantize, swizzle_scales
 
 def iter_safetensors(path: pathlib.Path):
-    """Lazy per-tensor iterator (name, np.ndarray) — never holds the whole ckpt."""
+    """Lazy per-tensor iterator (name, np.ndarray) — never holds the whole ckpt.
+    bf16 checkpoints (GR00T) need the torch backend; numpy has no bfloat16."""
     from safetensors import safe_open
-    with safe_open(str(path), framework="numpy") as f:
-        for name in sorted(f.keys()):
-            yield name, f.get_tensor(name)
+    try:
+        with safe_open(str(path), framework="numpy") as f:
+            for name in sorted(f.keys()):
+                yield name, f.get_tensor(name)
+    except TypeError:
+        import torch
+        with safe_open(str(path), framework="pt") as f:
+            for name in sorted(f.keys()):
+                t = f.get_tensor(name)
+                yield name, t.float().numpy()
 
 def convert_one(W: np.ndarray, chunk_rows: int = 8192):
     """Chunked float32 quantization: keeps peak RSS ~O(chunk) instead of the
