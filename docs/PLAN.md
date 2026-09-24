@@ -93,3 +93,14 @@ GR00T 路线在拿到 HF_TOKEN 后立即恢复（权重本体已就绪，只差 
 重编（cargo 增量 ~10min）→ fp8_static bench 复测 → 若过则 E1 表 FP8 行补齐 +
 上游 PR。注意 autotune 失败时的 vendor fallback（cublaslt_fp8_gemm_f16）为何没接住
 ——重编后若仍挂，在 fallback 处加日志。
+
+### FP8 修复进展（2026-09-25 03:0x）：一处已修，Vendor 默认路径仍 status 15
+
+- geglu_tuning_key E4M3→F16 条件化补丁已编入并验证：**未修复主故障**
+- fp8_emulation_required 只救 <sm_89；sm_120 走原生 Vendor 默认路径
+  （resolve_fused_plan default=TacticBackend::Vendor）直接 cuBLAS status 15，
+  且无 "tactic failed" 日志 → 故障在 vendor 直调的布局/算法配置，需运行时
+  GEMM-key 日志定位（下一步：fp8.rs vendor 调用处加 eprintln 打印 key）
+- 论文口径：FP8@sm_120 标"引擎原生不支持（根因已定位：E4M3 GEMM 输出，
+  probe 铁证），我们的 NVFP4 路径从设计上规避该限制（输出 F16）"
+- 优先级下调至 fp4 GEMM provider 之后
