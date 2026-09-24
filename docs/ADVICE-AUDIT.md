@@ -53,3 +53,27 @@ L3 PPO(对照) RLinf 任务奖励微调，同预算                             
 ```
 
 详细数学原理与实验矩阵见 `paper/sections/02-恢复理论与实验设计.md` 与 `docs/PLAN.md`（已更新）。
+
+---
+
+## 附：2026-09-24 晚间补充决策——两阶段容量策略（跨会话协调，用户已确认）
+
+来源：docs/COORDINATION-directive-2026-09-24.md（协调会话决策记录）。要点与审计意见：
+
+1. **Phase 1（立即，不阻塞）**：head-LoRA(r8) 主线跑通 R0–R8（PTQ→QAD→OPD），
+   保持论文最小可发表单元。
+2. **Phase 2（等待门控）**：新增 full-weight action head 训练臂（~300–400M 可训练参数，
+   AdamW 状态 4–6GB，需 FSDP2+CPUOffload，基建来自姊妹项目 groot-fsdp2）。
+   门控：姊妹项目 E2 完成 → 10-min 冒烟（fake_quant fwd + 1 step bwd）；
+   E4 完成 → 正式实验。**R0–R8 的 LoRA 路线不等待。**
+3. **R5b 扩展为容量阶梯**：仅 scale 修正 → head-LoRA(r8) → full head。
+   full-head 显著胜出则主路径切换，R5b 升级为主结果之一。
+4. **优化器锁定 AdamW**：Muon 禁入本论文全部主表/消融（优化器变更污染
+   "恢复增益来自流水线"的归因）。Muon 只属于姊妹论文。
+5. **交付物（full-head 情形）**：直接训 W + STE，导出即纯 NVFP4 权重，无 LoRA 旁路
+   张量，引擎直接部署——比 LoRA 的 Q(W+BA) 折叠重量化方案（保留作对照）干净。
+6. **新增假设 H6**：补偿容量（scale-only / LoRA-r8 / full-head）与闭环恢复上限的关系。
+7. **审计意见（本会话补充）**：同意该决策；附加理由——NVFP4 误差全局散布、修正未必
+   低秩，r8 低秩约束可能系统性低估可恢复量，full-head 臂正好检验这一点（H6 的机制
+   解释）；单卡 FSDP2 实质是 CPUOffloadPolicy+prefetch（sharding 维度用不上），够用。
+   风险：wall-clock +20–50%、时序依赖姊妹项目 Phase 进度、π0.5 侧无现成 patches。
