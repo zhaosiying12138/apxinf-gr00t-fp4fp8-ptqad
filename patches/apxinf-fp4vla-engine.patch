@@ -312,10 +312,10 @@ index b95ae95..8e0741c 100644
 +}
 diff --git a/crates/apxinf-cuda/src/kernels/fp4.rs b/crates/apxinf-cuda/src/kernels/fp4.rs
 new file mode 100644
-index 0000000..ae23fd0
+index 0000000..05911d9
 --- /dev/null
 +++ b/crates/apxinf-cuda/src/kernels/fp4.rs
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,105 @@
 +//! NVFP4 linear operator: online-quantize an F16 activation to E2M1+swizzled
 +//! E4M3 scales, then run the block-scaled GEMM against an fp4 weight
 +//! (packed + physical-swizzle scales, from fp4vla offline artifacts).
@@ -415,6 +415,11 @@ index 0000000..ae23fd0
 +        }
 +    }
 +    Ok(out.into_tensor(Shape::new(vec![m, w.rows]), DType::F16))
++}
++
++#[cfg(test)]
++mod fp4_tests {
++    include!("fp4_tests.rs");
 +}
 diff --git a/crates/apxinf-cuda/src/kernels/gemm/fp8.rs b/crates/apxinf-cuda/src/kernels/gemm/fp8.rs
 index 0849388..4f07924 100644
@@ -792,10 +797,10 @@ index 5ed7d05..30fa3f2 100644
  
 diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
 new file mode 100644
-index 0000000..1ffcad6
+index 0000000..fbc7cf2
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
-@@ -0,0 +1,446 @@
+@@ -0,0 +1,460 @@
 +//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
 +//!
 +//! Design: keep the BF16 executor's weight layout and free-function topology;
@@ -860,6 +865,14 @@ index 0000000..1ffcad6
 +    let Some(w4) = fp4 else {
 +        return kernels::gemm::bf16(ctx, x_bf16, weight_bf16);
 +    };
++    use std::sync::atomic::{AtomicUsize, Ordering};
++    static PROBE: AtomicUsize = AtomicUsize::new(0);
++    if PROBE.fetch_add(1, Ordering::Relaxed) < 4 {
++        eprintln!(
++            "[fp4-route] hit: x={:?} w_bf16={:?} w4={}x{} routed=fp4",
++            x_bf16.shape().dims(), weight_bf16.shape().dims(), w4.rows, w4.k
++        );
++    }
 +    let x_f16 = bf16_to_f16(ctx, x_bf16)?;
 +    let view = apxinf_cuda::kernels::fp4::Fp4WeightView {
 +        packed: &w4.packed,
@@ -991,14 +1004,17 @@ index 0000000..1ffcad6
 +    // gate_up: fp4 route = plain GEMM + separate geglu (fused BF16 path only
 +    // for BF16 weights); BF16 fallback keeps the fused kernel.
 +    let activated = match fp4.get(&format!("{prefix}.gate_up.weight")) {
-+        Some(_) => {
++        // plain-layout authority only: interleaved mode stores an interleaved
++        // buffer that plain GEMM cannot consume (root cause of 2026-09-25
++        // action decorrelation; interleaved fp4 artifact is future work)
++        Some(_) if !weights.gate_up.bf16_dual_geglu_interleaved => {
 +            let gu = gemm_maybe_fp4(
 +                ctx, &fused.normalized, &weights.gate_up.weight,
 +                fp4.get(&format!("{prefix}.gate_up.weight")),
 +            )?;
 +            kernels::activation::geglu_bf16(ctx, &gu)?
 +        }
-+        None => kernels::gemm::bf16_geglu_fused(
++        _ => kernels::gemm::bf16_geglu_fused(
 +            ctx, &fused.normalized, &weights.gate_up.weight,
 +            weights.gate_up.bf16_dual_geglu_interleaved,
 +            weights.gate_up.bf16_dual_geglu_auto_interleaved.as_ref(),
@@ -1068,14 +1084,17 @@ index 0000000..1ffcad6
 +        ctx, &projected, input, attention_modulation, mlp_modulation, rms_eps,
 +    )?;
 +    let activated = match fp4.get(&format!("{prefix}.gate_up.weight")) {
-+        Some(_) => {
++        // plain-layout authority only: interleaved mode stores an interleaved
++        // buffer that plain GEMM cannot consume (root cause of 2026-09-25
++        // action decorrelation; interleaved fp4 artifact is future work)
++        Some(_) if !weights.gate_up.bf16_dual_geglu_interleaved => {
 +            let gu = gemm_maybe_fp4(
 +                ctx, &fused.normalized, &weights.gate_up.weight,
 +                fp4.get(&format!("{prefix}.gate_up.weight")),
 +            )?;
 +            kernels::activation::geglu_bf16(ctx, &gu)?
 +        }
-+        None => kernels::gemm::bf16_geglu_fused(
++        _ => kernels::gemm::bf16_geglu_fused(
 +            ctx, &fused.normalized, &weights.gate_up.weight,
 +            weights.gate_up.bf16_dual_geglu_interleaved,
 +            weights.gate_up.bf16_dual_geglu_auto_interleaved.as_ref(),
