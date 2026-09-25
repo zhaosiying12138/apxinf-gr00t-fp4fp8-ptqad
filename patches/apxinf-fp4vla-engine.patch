@@ -241,6 +241,31 @@ index a45e955..cbe6478 100644
              ];
              assert!(
                  kernel_files.iter().all(|path| path.is_file()),
+diff --git a/crates/apxinf-cuda/src/buffer.rs b/crates/apxinf-cuda/src/buffer.rs
+index a730bf0..a115d04 100644
+--- a/crates/apxinf-cuda/src/buffer.rs
++++ b/crates/apxinf-cuda/src/buffer.rs
+@@ -376,6 +376,11 @@ impl CudaBuffer {
+     }
+ 
+     /// Raw device pointer for crate-internal launch code.
++    /// Raw device pointer for FFI interop from other crates.
++    pub fn as_ptr(&self) -> *mut c_void {
++        self.ptr
++    }
++
+     pub(crate) fn ptr(&self) -> *mut c_void {
+         self.ptr
+     }
+@@ -444,7 +449,7 @@ impl CudaBuffer {
+     }
+ 
+     /// Turn an owned CUDA allocation into a Tensor while preserving ownership.
+-    pub(crate) fn into_tensor(self, shape: Shape, dtype: DType) -> Tensor {
++    pub fn into_tensor(self, shape: Shape, dtype: DType) -> Tensor {
+         let device = Device::Cuda(self.device);
+         let handle = GpuStorageHandle {
+             ptr: self.ptr as usize,
 diff --git a/crates/apxinf-cuda/src/ffi/cublaslt.rs b/crates/apxinf-cuda/src/ffi/cublaslt.rs
 index b95ae95..8e0741c 100644
 --- a/crates/apxinf-cuda/src/ffi/cublaslt.rs
@@ -287,10 +312,10 @@ index b95ae95..8e0741c 100644
 +}
 diff --git a/crates/apxinf-cuda/src/kernels/fp4.rs b/crates/apxinf-cuda/src/kernels/fp4.rs
 new file mode 100644
-index 0000000..0ddbccb
+index 0000000..ae23fd0
 --- /dev/null
 +++ b/crates/apxinf-cuda/src/kernels/fp4.rs
-@@ -0,0 +1,89 @@
+@@ -0,0 +1,100 @@
 +//! NVFP4 linear operator: online-quantize an F16 activation to E2M1+swizzled
 +//! E4M3 scales, then run the block-scaled GEMM against an fp4 weight
 +//! (packed + physical-swizzle scales, from fp4vla offline artifacts).
@@ -301,6 +326,17 @@ index 0000000..0ddbccb
 +use crate::buffer::CudaBuffer;
 +use crate::context::CudaContext;
 +use crate::ffi;
++use crate::ffi::cudaStream_t;
++
++// public thin wrappers so model crates can reach the private ffi module casts
++pub fn bf16_to_f16_ffi(x: *const core::ffi::c_void, y: *mut core::ffi::c_void,
++                       n: usize, stream: cudaStream_t) -> i32 {
++    unsafe { ffi::apxinf_bf16_to_f16(x, y, n, stream) }
++}
++pub fn f16_to_bf16_ffi(x: *const core::ffi::c_void, y: *mut core::ffi::c_void,
++                       n: usize, stream: cudaStream_t) -> i32 {
++    unsafe { ffi::apxinf_f16_to_bf16(x, y, n, stream) }
++}
 +use apxinf_core::{DType, Error, Result, Shape, Tensor};
 +
 +/// A single NVFP4 weight matrix resident on device (borrowed views into the
@@ -412,6 +448,49 @@ index 603455e..4f6ee2e 100644
  pub mod embedding;
  pub mod fused;
  pub mod gdn_policy;
+diff --git a/crates/apxinf-model/src/auto.rs b/crates/apxinf-model/src/auto.rs
+index d453a05..5f56a42 100644
+--- a/crates/apxinf-model/src/auto.rs
++++ b/crates/apxinf-model/src/auto.rs
+@@ -64,6 +64,8 @@ pub struct LoadOptions {
+     pub synthetic: Option<SyntheticWeights>,
+     /// Uniform FP8 activation scale, replacing a calibration file (synthetic use).
+     pub uniform_fp8_scale: Option<f32>,
++    /// Directory of NVFP4 packed artifacts (nvfp4_static variant, fp4vla).
++    pub fp4_artifact: Option<PathBuf>,
+     /// Source for autoregressive text/VLM generation defaults.
+     pub generation_config: GenerationConfigSource,
+     /// Deployment-level settings applied over model defaults and under each
+diff --git a/crates/apxinf-model/src/pi05/config.rs b/crates/apxinf-model/src/pi05/config.rs
+index 0261c6e..3e917e8 100644
+--- a/crates/apxinf-model/src/pi05/config.rs
++++ b/crates/apxinf-model/src/pi05/config.rs
+@@ -641,6 +641,7 @@ pub enum ModelVariantChoice {
+     Bf16,
+     Fp8Static,
+     Int8Dynamic,
++    Nvfp4Static,
+ }
+ impl ModelVariantChoice {
+     pub fn as_str(self) -> &'static str {
+@@ -649,6 +650,7 @@ impl ModelVariantChoice {
+             Self::Bf16 => "bf16",
+             Self::Fp8Static => "fp8_static",
+             Self::Int8Dynamic => "int8_dynamic",
++            Self::Nvfp4Static => "nvfp4_static",
+         }
+     }
+     pub fn resolve(self, sm: u32, has_fp8_scales: bool) -> Self {
+@@ -666,7 +668,8 @@ impl std::str::FromStr for ModelVariantChoice {
+         match value {
+             "auto" => Ok(Self::Auto), "bf16" => Ok(Self::Bf16),
+             "fp8_static" => Ok(Self::Fp8Static), "int8_dynamic" => Ok(Self::Int8Dynamic),
+-            _ => Err(apxinf_core::Error::Other(format!("unknown PI0.5 model_variant {value:?}; expected auto, bf16, fp8_static or int8_dynamic"))),
++            "nvfp4_static" => Ok(Self::Nvfp4Static),
++            _ => Err(apxinf_core::Error::Other(format!("unknown PI0.5 model_variant {value:?}; expected auto, bf16, fp8_static, int8_dynamic or nvfp4_static"))),
+         }
+     }
+ }
 diff --git a/crates/apxinf-model/src/pi05/fp4_weights.rs b/crates/apxinf-model/src/pi05/fp4_weights.rs
 new file mode 100644
 index 0000000..6e44c26
@@ -619,8 +698,44 @@ index 0000000..61f61c1
 +    assert!(checked > 0, "artifact had no loadable tensors");
 +    eprintln!("fp4 artifact integrity: {checked} tensors byte-exact after device roundtrip");
 +}
+diff --git a/crates/apxinf-model/src/pi05/load.rs b/crates/apxinf-model/src/pi05/load.rs
+index 2535650..3539f85 100644
+--- a/crates/apxinf-model/src/pi05/load.rs
++++ b/crates/apxinf-model/src/pi05/load.rs
+@@ -63,6 +63,31 @@ pub(super) fn load_model_runner(
+     eprintln!("[apxinf] PI0.5 model_variant={}", model_variant.as_str());
+ 
+     let model = match model_variant {
++        ModelVariantChoice::Nvfp4Static => {
++            // NVFP4 hybrid: BF16 base weights + packed fp4 artifact
++            // (root/fp4/ convention or explicit fp4_artifact option)
++            let artifact_dir = options
++                .fp4_artifact
++                .clone()
++                .unwrap_or_else(|| root.join("fp4"));
++            let fp4 = std::sync::Arc::new(
++                crate::pi05::fp4_weights::Fp4DeviceWeights::from_artifact_dir(
++                    &artifact_dir,
++                    cuda.device_id(),
++                )?,
++            );
++            let weights = Arc::new(Bf16Weights::from_host(
++                &host_weights,
++                &*backend,
++                config.language_dual_geglu_shape_possible(),
++            )?);
++            let model = crate::pi05::build_nvfp4_static_model(
++                backend.clone(), config.clone(), weights, fp4,
++            )?;
++            let time_embeddings = Arc::new(upload_time_embeddings_bf16(&config, &*backend)?);
++            ModelVariant::Nvfp4Static { model, time_embeddings }
++        }
++
+         ModelVariantChoice::Fp8Static => {
+             let scales = if let Some(scale) = options.uniform_fp8_scale {
+                 Arc::new(Fp8StaticActivationScales::uniform(&config, scale)?)
 diff --git a/crates/apxinf-model/src/pi05/mod.rs b/crates/apxinf-model/src/pi05/mod.rs
-index efa9a5f..a5bd644 100644
+index efa9a5f..aced0e0 100644
 --- a/crates/apxinf-model/src/pi05/mod.rs
 +++ b/crates/apxinf-model/src/pi05/mod.rs
 @@ -14,6 +14,8 @@ mod math;
@@ -632,12 +747,55 @@ index efa9a5f..a5bd644 100644
  mod model_runner;
  mod weights;
  
+@@ -51,6 +53,7 @@ pub use backend::ImageLayout as Pi05ImageLayout;
+ #[cfg(feature = "cuda")]
+ pub use model::{
+     build_bf16_model, build_fp8_static_model, build_int8_dynamic_model,
++    build_nvfp4_static_model, Nvfp4StaticModel,
+     upload_time_embeddings_bf16, upload_time_embeddings_fp8_static,
+     upload_time_embeddings_int8_dynamic,
+ };
+diff --git a/crates/apxinf-model/src/pi05/model/blocks/bf16.rs b/crates/apxinf-model/src/pi05/model/blocks/bf16.rs
+index 5ed7d05..30fa3f2 100644
+--- a/crates/apxinf-model/src/pi05/model/blocks/bf16.rs
++++ b/crates/apxinf-model/src/pi05/model/blocks/bf16.rs
+@@ -212,7 +212,7 @@ pub fn vision_layer_bf16(
+     fused::bias_residual_bf16(ctx, &projection, weights.fc2.bias.as_ref(), &fused.hidden)
+ }
+ 
+-trait QkvViews {
++pub(in crate::pi05::model::blocks) trait QkvViews {
+     fn key_2d(&self, tokens: usize, head_dim: usize) -> Result<Tensor>;
+     fn value_2d(&self, tokens: usize, head_dim: usize) -> Result<Tensor>;
+ }
+@@ -243,9 +243,9 @@ pub(in crate::pi05::model) mod backbone {
+     }
+ 
+     pub struct Bf16StepModulation {
+-        attention: Vec<Tensor>,
+-        mlp: Vec<Tensor>,
+-        final_norm: Tensor,
++        pub(in crate::pi05::model::blocks) attention: Vec<Tensor>,
++        pub(in crate::pi05::model::blocks) mlp: Vec<Tensor>,
++        pub(in crate::pi05::model::blocks) final_norm: Tensor,
+     }
+     pub struct Bf16Blocks {
+         pub(in crate::pi05::model) backend: Arc<RuntimeBackend>,
+@@ -274,7 +274,7 @@ pub(in crate::pi05::model) mod backbone {
+             })
+         }
+ 
+-        fn ctx(&self) -> &Context {
++        pub(in crate::pi05::model) fn ctx(&self) -> &Context {
+             self.backend.context()
+         }
+ 
 diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
 new file mode 100644
-index 0000000..e86c65e
+index 0000000..1ffcad6
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
-@@ -0,0 +1,445 @@
+@@ -0,0 +1,446 @@
 +//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
 +//!
 +//! Design: keep the BF16 executor's weight layout and free-function topology;
@@ -678,9 +836,9 @@ index 0000000..e86c65e
 +    let dst = CudaBuffer::alloc_on(ctx, n * 2).map_err(Error::Cuda)?;
 +    let src = CudaBuffer::from_tensor(x).map_err(Error::Cuda)?;
 +    unsafe {
-+        let e = apxinf_cuda::ffi::apxinf_bf16_to_f16(
-+            src.ptr() as *const _,
-+            dst.ptr() as *mut _,
++        let e = apxinf_cuda::kernels::fp4::bf16_to_f16_ffi(
++            src.as_ptr() as *const _,
++            dst.as_ptr() as *mut _,
 +            n,
 +            ctx.stream().handle() as *mut _,
 +        );
@@ -688,7 +846,7 @@ index 0000000..e86c65e
 +            return Err(Error::Other(format!("bf16->f16 cast cudaError {e}")));
 +        }
 +    }
-+    dst.into_tensor(Shape::new(dims.to_vec()), DType::F16)
++    Ok(dst.into_tensor(Shape::new(dims.to_vec()), DType::F16))
 +}
 +
 +/// The routing heart of the hybrid topology: fp4 GEMM when the weight has an
@@ -716,9 +874,9 @@ index 0000000..e86c65e
 +    let src = CudaBuffer::from_tensor(&out_f16).map_err(Error::Cuda)?;
 +    unsafe {
 +        // f16->bf16: reuse the byte-symmetric path via a second kernel entry
-+        let e = apxinf_cuda::ffi::apxinf_f16_to_bf16(
-+            src.ptr() as *const _,
-+            dst.ptr() as *mut _,
++        let e = apxinf_cuda::kernels::fp4::f16_to_bf16_ffi(
++            src.as_ptr() as *const _,
++            dst.as_ptr() as *mut _,
 +            n,
 +            ctx.stream().handle() as *mut _,
 +        );
@@ -937,13 +1095,14 @@ index 0000000..e86c65e
 +    })
 +}
 +
-+use crate::pi05::model::blocks::bf16::{Bf16Blocks, Bf16PrefixKvCache, Bf16StepModulation};
-+use crate::pi05::model::blocks::{Blocks, PrepareBlocks, WorkspaceRequirements};
-+use crate::pi05::Pi05Config;
-+use crate::pi05::backend::{DeviceBuffer, RuntimeBackend};
++use crate::pi05::model::{Blocks, PrepareBlocks, WorkspaceRequirements};
++use crate::pi05::model::blocks::bf16::backbone::{
++    Bf16Blocks, Bf16PrefixKvCache, Bf16StepModulation,
++};
++use crate::pi05::model::blocks::bf16::QkvViews;
++use crate::pi05::backend::DeviceBuffer;
 +use crate::pi05::Pi05ImageLayout;
-+use crate::pi05::fp4_weights::Fp4DeviceWeights;
-+use kernels::{cache, elementwise, gemm};
++use kernels::{cache, elementwise};
 +
 +const LANG_TREE: &str = "paligemma_with_expert.paligemma.model.language_model.layers";
 +const ACT_TREE: &str = "paligemma_with_expert.gemma_expert.model.layers";
@@ -1083,3 +1242,127 @@ index 0000000..e86c65e
 +        self.inner.preprocess(images, patches, layout)
 +    }
 +}
+diff --git a/crates/apxinf-model/src/pi05/model/blocks/mod.rs b/crates/apxinf-model/src/pi05/model/blocks/mod.rs
+index b407d88..dbaaeaf 100644
+--- a/crates/apxinf-model/src/pi05/model/blocks/mod.rs
++++ b/crates/apxinf-model/src/pi05/model/blocks/mod.rs
+@@ -3,10 +3,12 @@
+ //! capture graphs, cache requests, or run the complete model schedule.
+ 
+ pub(super) mod bf16;
++pub(super) mod fp4;
+ pub(super) mod fp8_static;
+ pub(super) mod int8_dynamic;
+ 
+ pub(super) use bf16::backbone::Bf16Blocks;
++pub(in crate::pi05::model) use fp4::Fp4Blocks;
+ pub use bf16::backbone::Bf16PrefixKvCache;
+ pub(super) use fp8_static::backbone::Fp8StaticBlocks;
+ pub use fp8_static::backbone::Fp8StaticPrefixKvCache;
+diff --git a/crates/apxinf-model/src/pi05/model/mod.rs b/crates/apxinf-model/src/pi05/model/mod.rs
+index ccada7c..8be8805 100644
+--- a/crates/apxinf-model/src/pi05/model/mod.rs
++++ b/crates/apxinf-model/src/pi05/model/mod.rs
+@@ -12,6 +12,7 @@ mod model;
+ pub use calibration::Pi05CalibrationObserver;
+ pub use model::{
+     build_bf16_model, build_fp8_static_model, build_int8_dynamic_model,
++    build_nvfp4_static_model,
+     upload_time_embeddings_bf16, upload_time_embeddings_fp8_static,
+     upload_time_embeddings_int8_dynamic,
+ };
+@@ -71,6 +72,7 @@ pub use blocks::{Bf16PrefixKvCache, Fp8StaticPrefixKvCache, Int8DynamicPrefixKvC
+ pub type Bf16Model = std::sync::Arc<Pi05Model<blocks::Bf16Blocks>>;
+ pub type Fp8StaticModel = std::sync::Arc<Pi05Model<blocks::Fp8StaticBlocks>>;
+ pub type Int8DynamicModel = std::sync::Arc<Pi05Model<blocks::Int8DynamicBlocks>>;
++pub type Nvfp4StaticModel = std::sync::Arc<Pi05Model<blocks::Fp4Blocks>>;
+ 
+ impl<B: PrepareBlocks> Pi05Model<B> {
+     pub(in crate::pi05) fn preprocess(
+diff --git a/crates/apxinf-model/src/pi05/model/model.rs b/crates/apxinf-model/src/pi05/model/model.rs
+index e61bb5e..6f6c257 100644
+--- a/crates/apxinf-model/src/pi05/model/model.rs
++++ b/crates/apxinf-model/src/pi05/model/model.rs
+@@ -28,6 +28,18 @@ pub fn build_fp8_static_model(
+         backend, config, weights, scales,
+     )?)))
+ }
++pub fn build_nvfp4_static_model(
++    backend: Arc<RuntimeBackend>,
++    config: Arc<Pi05Config>,
++    weights: Arc<Bf16Weights>,
++    fp4: Arc<crate::pi05::fp4_weights::Fp4DeviceWeights>,
++) -> Result<crate::pi05::Nvfp4StaticModel> {
++    use crate::pi05::model::blocks::fp4::Fp4Blocks;
++    Ok(std::sync::Arc::new(Pi05Model::from_blocks(Fp4Blocks::new(
++        backend, config, weights, fp4,
++    )?)))
++}
++
+ pub fn build_int8_dynamic_model(
+     backend: Arc<RuntimeBackend>,
+     config: Arc<Pi05Config>,
+@@ -100,6 +112,10 @@ pub(in crate::pi05) enum ModelVariant {
+         model: Int8DynamicModel,
+         time_embeddings: Arc<Vec<Tensor>>,
+     },
++    Nvfp4Static {
++        model: crate::pi05::Nvfp4StaticModel,
++        time_embeddings: Arc<Vec<Tensor>>,
++    },
+ }
+ 
+ impl ModelVariant {
+@@ -108,19 +124,21 @@ impl ModelVariant {
+             Self::Bf16 { .. } => "bf16",
+             Self::Fp8Static { .. } => "fp8_static",
+             Self::Int8Dynamic { .. } => "int8_dynamic",
++            Self::Nvfp4Static { .. } => "nvfp4_static",
+         }
+     }
+ 
+     pub(in crate::pi05) fn input_dtype(&self) -> DType {
+         match self {
+             Self::Fp8Static { .. } => DType::F16,
+-            Self::Bf16 { .. } | Self::Int8Dynamic { .. } => DType::BF16,
++            Self::Bf16 { .. } | Self::Int8Dynamic { .. } | Self::Nvfp4Static { .. } => DType::BF16,
+         }
+     }
+ 
+     pub(in crate::pi05) fn captured_patch_dtype(&self, raw_rgb: bool) -> DType {
+         match (self, raw_rgb) {
+             (Self::Fp8Static { .. }, true) => DType::F8E4M3,
++            (Self::Nvfp4Static { .. }, true) => DType::BF16,
+             _ => self.input_dtype(),
+         }
+     }
+@@ -154,6 +172,10 @@ impl ModelVariant {
+                 model,
+                 time_embeddings,
+             } => model.infer(patches, token_ids, token_count, noise, time_embeddings),
++            Self::Nvfp4Static {
++                model,
++                time_embeddings,
++            } => model.infer(patches, token_ids, token_count, noise, time_embeddings),
+         }
+     }
+ 
+@@ -171,6 +193,10 @@ impl ModelVariant {
+                 model,
+                 time_embeddings,
+             } => operation.run(model, time_embeddings),
++            Self::Nvfp4Static {
++                model,
++                time_embeddings,
++            } => operation.run(model, time_embeddings),
+         }
+     }
+ }
+@@ -187,6 +213,7 @@ impl ModelVariant {
+             Self::Bf16 { model, .. } => model.blocks.preprocess(images, patches, layout),
+             Self::Fp8Static { model, .. } => model.blocks.preprocess(images, patches, layout),
+             Self::Int8Dynamic { model, .. } => model.blocks.preprocess(images, patches, layout),
++            Self::Nvfp4Static { model, .. } => model.blocks.preprocess(images, patches, layout),
+         }
+     }
+     pub(in crate::pi05) fn calibrate(
