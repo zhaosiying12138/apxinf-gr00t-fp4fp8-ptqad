@@ -634,10 +634,10 @@ index efa9a5f..a5bd644 100644
  
 diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
 new file mode 100644
-index 0000000..3fb9e07
+index 0000000..c57e9b2
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
-@@ -0,0 +1,221 @@
+@@ -0,0 +1,270 @@
 +//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
 +//!
 +//! Design: keep the BF16 executor's weight layout and free-function topology;
@@ -823,12 +823,61 @@ index 0000000..3fb9e07
 +    rms_eps: f32,
 +    rope_theta: f32,
 +) -> Result<Bf16LanguageLayerOutput> {
-+    let _ = (config, compute_tail, position_offset, rms_eps, rope_theta, prefix, fp4, ctx);
-+    // Packed-weight sites (qkv/gate_up) and norm-fused outputs mirror the BF16
-+    // path; routed sites below use artifact names when present.
-+    language_layer_bf16(
-+        ctx, config, weights, input, compute_tail, position_offset, rms_eps, rope_theta,
-+    )
++    let normalized = kernels::norm::rms_bf16(ctx, input, &weights.input_norm_scale, rms_eps)?;
++    let qkv = gemm_maybe_fp4(
++        ctx, &normalized, &weights.qkv.weight, fp4.get(&format!("{prefix}.qkv.weight")),
++    )?;
++    let qkv = kernels::rope::split_qkv_apply_bf16(
++        ctx, &qkv, weights.qkv.bias.as_ref(), config.num_heads,
++        config.num_kv_heads, config.head_dim, rope_theta, position_offset,
++    )?;
++    let tokens = input.shape().dims()[0];
++    if !compute_tail {
++        return Ok(Bf16LanguageLayerOutput {
++            hidden: input.clone(),
++            key: qkv.key_2d(tokens, config.head_dim)?,
++            value: qkv.value_2d(tokens, config.head_dim)?,
++        });
++    }
++    let attention = kernels::attention::mqa_bf16(ctx, &qkv.q, &qkv.k, &qkv.v, tokens)?
++        .reshape(vec![tokens, config.num_heads * config.head_dim])?;
++    let projected = gemm_maybe_fp4(
++        ctx, &attention, &weights.output.weight,
++        fp4.get(&format!("{prefix}.self_attn.o_proj.weight")),
++    )?;
++    let fused = kernels::fused::bias_residual_rms_bf16(
++        ctx, &projected, weights.output.bias.as_ref(), input,
++        &weights.post_attention_norm_scale, rms_eps,
++    )?;
++    // gate_up: fp4 route = plain GEMM + separate geglu (fused BF16 path only
++    // for BF16 weights); BF16 fallback keeps the fused kernel.
++    let activated = match fp4.get(&format!("{prefix}.gate_up.weight")) {
++        Some(_) => {
++            let gu = gemm_maybe_fp4(
++                ctx, &fused.normalized, &weights.gate_up.weight,
++                fp4.get(&format!("{prefix}.gate_up.weight")),
++            )?;
++            kernels::activation::geglu_bf16(ctx, &gu)?
++        }
++        None => kernels::gemm::bf16_geglu_fused(
++            ctx, &fused.normalized, &weights.gate_up.weight,
++            weights.gate_up.bf16_dual_geglu_interleaved,
++            weights.gate_up.bf16_dual_geglu_auto_interleaved.as_ref(),
++            weights.gate_up.bf16_sm89_geglu_interleaved.as_ref(),
++        )?,
++    };
++    let projected = gemm_maybe_fp4(
++        ctx, &activated, &weights.down.weight,
++        fp4.get(&format!("{prefix}.mlp.down_proj.weight")),
++    )?;
++    let hidden = kernels::fused::bias_residual_bf16(
++        ctx, &projected, weights.down.bias.as_ref(), &fused.hidden,
++    )?;
++    Ok(Bf16LanguageLayerOutput {
++        hidden,
++        key: qkv.key_2d(tokens, config.head_dim)?,
++        value: qkv.value_2d(tokens, config.head_dim)?,
++    })
 +}
 +
 +use crate::pi05::{Bf16DeviceActionLayer, Bf16ActionLayerOutput};
