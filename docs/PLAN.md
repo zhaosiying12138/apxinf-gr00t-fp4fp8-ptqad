@@ -139,3 +139,17 @@ interleaved），而离线工件按 checkpoint 原始名（k_proj/gate_proj...�
 量化中间产物正常），C++ 同形状同 dtype 通过。嫌疑：CudaBuffer 内存池
 （cudaMallocAsync stream-ordered）与 cublasLt 的交互 / 流句柄 / 懒建句柄。
 下一步：fp4_linear 内改用非池化 CudaBuffer::alloc 二分验证。
+
+### fp4 调试结案（2026-09-25 17:4x）：组合路径无 bug，测试参照有 bug
+
+gold_check4 铁证：以反量化 A×反量化 B 为参照，硬件 GEMM(A_fp4,B_fp4) 的
+corr=1.000000、maxrel=4.83e-4（f16 舍入级）。此前全部"失败"为测试参照错误：
+1. gold_check2/Rust gold 单测用原始激活做参照（混入 9% 激活量化噪声+小分母
+   → 假 maxrel 1508）；
+2. Rust 自写编解码器测试另有 codec bug（假 maxrel=inf）。
+含 10× 逐块 scale 变化的四象限实验全部 PASS（VAR×VAR 等）——逐块 scale 语义
+正确。C++/Python/kernel 编码仅 33/16384 tie 舍入差（无害）。
+
+**引擎 corr=0.11 的重新解读：真实的 fp4 噪声复合**——36 层 × (权重+激活) 双
+9% 噪声逐层复合。这正是论文的动机数据点（R0/敏感性分析的 PTQ 基线）：全量
+fp4 PTQ 去相关 → 恢复流水线（QAD/OPD）的价值主张。nvfp4_static 引擎正确。
