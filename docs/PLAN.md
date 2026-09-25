@@ -111,3 +111,16 @@ batch=1、1/1 step @91.7s：模型加载+可训练 1.62B(51.54%)+FSDP2(37 fully_
 单元, pin=True, reshard=True)+NVFP4 fake-quant 前向/反向+checkpoint-1 保存全链
 路通过（日志 ~/fq_smoke4.log，产物 ~/fq_smoke_out/checkpoint-1）。正式 QAD
 （b32+AC，~1000 steps）已在协调表申请窗口。
+
+### fp4 3b 关键发现（2026-09-25 11:2x）：打包名工件需求
+
+引擎 Gemma 执行器的 qkv/gate_up 是 PACKED 权重（k+q+v 拼接 / dual-geglu
+interleaved），而离线工件按 checkpoint 原始名（k_proj/gate_proj...）量化——
+语言层核心 GEMM 站点无法直接路由。行动项：
+1. nvfp4_convert.py 加 --packed 模式：读引擎 Bf16Weights 的加载代码确定
+   packing 布局（weights.rs 的 qkv 拼接序 + geglu interleave 序），
+   在量化前先做同样的拼接，工件名用引擎内存名。
+2. action head（DiT）无打包（action_in_proj 等独立名）→ 可先路由，
+   3b 的 action 分支先行。
+3. 已入库：language_layer_fp4（BF16 镜像，等打包工件）、
+   action_layer_fp4（stub）、Fp4Blocks 视觉路径路由（编译通过）。

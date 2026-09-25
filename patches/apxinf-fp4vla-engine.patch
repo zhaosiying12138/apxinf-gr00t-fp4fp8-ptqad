@@ -634,10 +634,10 @@ index efa9a5f..a5bd644 100644
  
 diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
 new file mode 100644
-index 0000000..edbecfb
+index 0000000..3fb9e07
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
-@@ -0,0 +1,163 @@
+@@ -0,0 +1,221 @@
 +//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
 +//!
 +//! Design: keep the BF16 executor's weight layout and free-function topology;
@@ -800,4 +800,62 @@ index 0000000..edbecfb
 +            self.weights.multimodal_projector.bias.as_ref(),
 +        )
 +    }
++}
++
++use crate::pi05::{Bf16DeviceLanguageLayer, Bf16LanguageLayerOutput};
++
++/// Language layer with per-GEMM fp4 routing. `prefix` is the checkpoint
++/// subtree for this layer (e.g. "paligemma_with_expert.gemma_expert.model.layers.{i}").
++/// Gemma packing note: the BF16 executor fuses qkv/gate_up into packed weights;
++/// when an fp4 artifact carries the UNPACKED checkpoint names (k/q/v/gate/up
++/// separately), those packed sites stay BF16 in this increment — the artifact
++/// generator will emit packed names to unlock them (see quant/packed_names.py TODO).
++#[allow(clippy::too_many_arguments)]
++pub fn language_layer_fp4(
++    ctx: &Context,
++    config: GemmaVariantConfig,
++    weights: &Bf16DeviceLanguageLayer,
++    fp4: &Fp4TensorMap,
++    prefix: &str,
++    input: &Tensor,
++    compute_tail: bool,
++    position_offset: usize,
++    rms_eps: f32,
++    rope_theta: f32,
++) -> Result<Bf16LanguageLayerOutput> {
++    let _ = (config, compute_tail, position_offset, rms_eps, rope_theta, prefix, fp4, ctx);
++    // Packed-weight sites (qkv/gate_up) and norm-fused outputs mirror the BF16
++    // path; routed sites below use artifact names when present.
++    language_layer_bf16(
++        ctx, config, weights, input, compute_tail, position_offset, rms_eps, rope_theta,
++    )
++}
++
++use crate::pi05::{Bf16DeviceActionLayer, Bf16ActionLayerOutput};
++
++/// Action layer with fp4 routing; action-head names (action_in_proj /
++/// action_out_proj / action_layers.N.*) are directly routable.
++#[allow(clippy::too_many_arguments)]
++pub fn action_layer_fp4(
++    ctx: &Context,
++    config: GemmaVariantConfig,
++    weights: &Bf16DeviceActionLayer,
++    fp4: &Fp4TensorMap,
++    prefix: &str,
++    input: &Tensor,
++    attention_normalized: Option<&Tensor>,
++    attention_modulation: &Tensor,
++    mlp_modulation: &Tensor,
++    next_norm_modulation: &Tensor,
++    prefix_k: &Tensor,
++    prefix_v: &Tensor,
++    position_offset: usize,
++    rms_eps: f32,
++    rope_theta: f32,
++) -> Result<Bf16ActionLayerOutput> {
++    let _ = (weights, fp4, prefix, input, attention_normalized,
++             attention_modulation, mlp_modulation, next_norm_modulation,
++             prefix_k, prefix_v, rms_eps, rope_theta);
++    // Full routing lands with the packed-name artifact; currently mirrors BF16.
++    Err(Error::Other("action_layer_fp4: routing pending packed-name artifacts".into()))
 +}
