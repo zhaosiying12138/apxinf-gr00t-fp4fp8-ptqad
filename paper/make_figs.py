@@ -43,7 +43,7 @@ def e1_chart():
         ("π0.5 · ApxInf BF16", 49.6, "#2f7fd1"),
         ("GR00T N1.7 · PyTorch", 106.9, "#c9d6e3"),
         ("GR00T N1.7 · ApxInf BF16", 33.7, "#2f7fd1"),
-        ("π0.5 · ApxInf NVFP4", 3340.3, "#e8b7b7"),  # degraded window, placeholder pending clean rebench
+        ("π0.5 · NVFP4 v1", 1048.8, "#e8b7b7"),  # unfused routing, no graph (fusion headroom: 1.3-5.3x)
     ]
     hbar_chart(rows, "端到端延迟（batch-1, P50, ms）", " ms", "e1_latency.svg")
 
