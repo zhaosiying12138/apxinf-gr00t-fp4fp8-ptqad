@@ -11,7 +11,7 @@
 #include <cublasLt.h>
 
 extern "C" cublasStatus_t apxinf_fp4_gemm_f16(
-    cublasLtHandle_t, int, int, int,
+    int, int, int,
     const void*, const void*, const void*, const void*, __half*,
     void*, size_t, cudaStream_t);
 extern "C" size_t apxinf_fp4_scale_buffer_bytes(int rows, int k);
@@ -62,7 +62,7 @@ int main(){
   cudaMemcpy(dBS,bsc.data(),bsc.size(),cudaMemcpyHostToDevice);
 
   printf("stage3-copies-done\n");
-  cublasStatus_t st=apxinf_fp4_gemm_f16(lt,M,N,K,dA,dB,dAS,dBS,(__half*)dC,ws,wsB,0);
+  cublasStatus_t st=apxinf_fp4_gemm_f16(M,N,K,dA,dB,dAS,dBS,(__half*)dC,ws,wsB,0);
   printf("gemm status=%d\n",(int)st); if(st)return 2;
   std::vector<__half> C((size_t)M*N);
   cudaMemcpy(C.data(),dC,C.size()*2,cudaMemcpyDeviceToHost);
