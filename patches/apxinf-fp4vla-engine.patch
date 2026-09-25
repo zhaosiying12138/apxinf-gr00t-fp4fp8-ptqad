@@ -1,9 +1,9 @@
 diff --git a/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
 new file mode 100644
-index 0000000..ffff9f6
+index 0000000..1aeba6c
 --- /dev/null
 +++ b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
-@@ -0,0 +1,199 @@
+@@ -0,0 +1,225 @@
 +// cublaslt_fp4_adapter.cu — NVFP4 block-scaled GEMM adapter (FP4-VLA).
 +//
 +// Layout/semantics verified bit-exact against CPU reference on sm_120
@@ -203,6 +203,32 @@ index 0000000..ffff9f6
 +        (const __half*)x, (uint8_t*)packed, (uint8_t*)scale_swz, rows, kb);
 +    return cudaGetLastError();
 +}
++
++__global__ void bf16_to_f16_kernel(const __nv_bfloat16* __restrict__ x,
++                                   __half* __restrict__ y, size_t n) {
++    size_t i = (size_t)blockIdx.x * blockDim.x + threadIdx.x;
++    if (i < n) y[i] = __float2half(__bfloat162float(x[i]));
++}
++extern "C" cudaError_t apxinf_bf16_to_f16(const void* x, void* y, size_t n,
++                                          cudaStream_t stream) {
++    if (n == 0) return cudaSuccess;
++    bf16_to_f16_kernel<<<(unsigned)((n + 255) / 256), 256, 0, stream>>>(
++        (const __nv_bfloat16*)x, (__half*)y, n);
++    return cudaGetLastError();
++}
++
++__global__ void f16_to_bf16_kernel(const __half* __restrict__ x,
++                                   __nv_bfloat16* __restrict__ y, size_t n) {
++    size_t i = (size_t)blockIdx.x * blockDim.x + threadIdx.x;
++    if (i < n) y[i] = __float2bfloat16(__half2float(x[i]));
++}
++extern "C" cudaError_t apxinf_f16_to_bf16(const void* x, void* y, size_t n,
++                                          cudaStream_t stream) {
++    if (n == 0) return cudaSuccess;
++    f16_to_bf16_kernel<<<(unsigned)((n + 255) / 256), 256, 0, stream>>>(
++        (const __half*)x, (__nv_bfloat16*)y, n);
++    return cudaGetLastError();
++}
 diff --git a/crates/apxinf-cuda/build.rs b/crates/apxinf-cuda/build.rs
 index a45e955..cbe6478 100644
 --- a/crates/apxinf-cuda/build.rs
@@ -216,10 +242,10 @@ index a45e955..cbe6478 100644
              assert!(
                  kernel_files.iter().all(|path| path.is_file()),
 diff --git a/crates/apxinf-cuda/src/ffi/cublaslt.rs b/crates/apxinf-cuda/src/ffi/cublaslt.rs
-index b95ae95..bc58b5e 100644
+index b95ae95..8e0741c 100644
 --- a/crates/apxinf-cuda/src/ffi/cublaslt.rs
 +++ b/crates/apxinf-cuda/src/ffi/cublaslt.rs
-@@ -289,3 +289,31 @@ extern "C" {
+@@ -289,3 +289,39 @@ extern "C" {
          stream: cudaStream_t,
      ) -> cublasStatus_t;
  }
@@ -242,6 +268,14 @@ index b95ae95..bc58b5e 100644
 +        stream: cudaStream_t,
 +    ) -> cublasStatus_t;
 +    pub fn apxinf_fp4_scale_buffer_bytes(rows: i32, k: i32) -> usize;
++    pub fn apxinf_bf16_to_f16(
++        x: *const core::ffi::c_void, y: *mut core::ffi::c_void, n: usize,
++        stream: cudaStream_t,
++    ) -> cudaError_t;
++    pub fn apxinf_f16_to_bf16(
++        x: *const core::ffi::c_void, y: *mut core::ffi::c_void, n: usize,
++        stream: cudaStream_t,
++    ) -> cudaError_t;
 +    pub fn apxinf_nvfp4_quantize_activation(
 +        x: *const core::ffi::c_void,
 +        packed: *mut core::ffi::c_void,
@@ -598,3 +632,172 @@ index efa9a5f..a5bd644 100644
  mod model_runner;
  mod weights;
  
+diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
+new file mode 100644
+index 0000000..edbecfb
+--- /dev/null
++++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
+@@ -0,0 +1,163 @@
++//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
++//!
++//! Design: keep the BF16 executor's weight layout and free-function topology;
++//! route each Linear's GEMM through `gemm_maybe_fp4`, which uses the NVFP4
++//! artifact tensor when present (online-quantized activation + block-scaled
++//! fp4 GEMM, F16 out) and falls back to BF16 otherwise (exemption layers:
++//! embeddings, norms, heads, first/last — per the sensitivity grid).
++//!
++//! Intermediate tensors stay BF16 (engine dtype); each fp4 site pays one
++//! bf16->f16 cast (adapter kernel) before quantization.
++
++use std::collections::HashMap;
++use std::sync::Arc;
++
++use apxinf_core::{DType, Error, Result, Shape, Tensor};
++
++use crate::pi05::backend::{kernels, Context, RuntimeBackend};
++use crate::pi05::model::blocks::bf16::{
++    language_layer_bf16, vision_layer_bf16, vision_patch_embed_bf16,
++};
++use crate::pi05::{Bf16Weights, GemmaVariantConfig, Pi05Config};
++
++use crate::pi05::fp4_weights::{Fp4DeviceWeight, Fp4DeviceWeights};
++use apxinf_cuda::buffer::CudaBuffer;
++
++/// name-keyed fp4 tensors loaded from an offline artifact.
++pub struct Fp4TensorMap(pub Arc<Fp4DeviceWeights>);
++
++impl Fp4TensorMap {
++    pub fn get(&self, name: &str) -> Option<&Fp4DeviceWeight> {
++        self.0.get(name)
++    }
++}
++
++fn bf16_to_f16(ctx: &Context, x: &Tensor) -> Result<Tensor> {
++    let dims = x.shape().dims();
++    let n: usize = dims.iter().product();
++    let dst = CudaBuffer::alloc_on(ctx, n * 2).map_err(Error::Cuda)?;
++    let src = CudaBuffer::from_tensor(x).map_err(Error::Cuda)?;
++    unsafe {
++        let e = apxinf_cuda::ffi::apxinf_bf16_to_f16(
++            src.ptr() as *const _,
++            dst.ptr() as *mut _,
++            n,
++            ctx.stream().handle() as *mut _,
++        );
++        if e != 0 {
++            return Err(Error::Other(format!("bf16->f16 cast cudaError {e}")));
++        }
++    }
++    dst.into_tensor(Shape::new(dims.to_vec()), DType::F16)
++}
++
++/// The routing heart of the hybrid topology: fp4 GEMM when the weight has an
++/// artifact tensor, BF16 GEMM otherwise.
++pub fn gemm_maybe_fp4(
++    ctx: &Context,
++    x_bf16: &Tensor,
++    weight_bf16: &Tensor,
++    fp4: Option<&Fp4DeviceWeight>,
++) -> Result<Tensor> {
++    let Some(w4) = fp4 else {
++        return kernels::gemm::bf16(ctx, x_bf16, weight_bf16);
++    };
++    let x_f16 = bf16_to_f16(ctx, x_bf16)?;
++    let view = apxinf_cuda::kernels::fp4::Fp4WeightView {
++        packed: &w4.packed,
++        scale: &w4.scale,
++        rows: w4.rows,
++        k: w4.k,
++    };
++    let out_f16 = apxinf_cuda::kernels::fp4::fp4_linear(ctx, &x_f16, &view)?;
++    // back to BF16 for the rest of the BF16 topology
++    let n: usize = out_f16.shape().dims().iter().product();
++    let dst = CudaBuffer::alloc_on(ctx, n * 2).map_err(Error::Cuda)?;
++    let src = CudaBuffer::from_tensor(&out_f16).map_err(Error::Cuda)?;
++    unsafe {
++        // f16->bf16: reuse the byte-symmetric path via a second kernel entry
++        let e = apxinf_cuda::ffi::apxinf_f16_to_bf16(
++            src.ptr() as *const _,
++            dst.ptr() as *mut _,
++            n,
++            ctx.stream().handle() as *mut _,
++        );
++        if e != 0 {
++            return Err(Error::Other(format!("f16->bf16 cast cudaError {e}")));
++        }
++    }
++    Ok(dst.into_tensor(Shape::new(out_f16.shape().dims().to_vec()), DType::BF16))
++}
++
++/// Hybrid blocks: BF16 weights + optional fp4 tensors keyed by checkpoint name.
++/// 3b scope: struct + routing + vision path; language/action layers follow the
++/// same pattern in the next increment (they call the same helper).
++pub struct Fp4Blocks {
++    pub(in crate::pi05::model) backend: Arc<RuntimeBackend>,
++    pub(in crate::pi05::model) config: Arc<Pi05Config>,
++    pub(in crate::pi05::model) weights: Arc<Bf16Weights>,
++    pub(in crate::pi05::model) fp4: Fp4TensorMap,
++}
++
++impl Fp4Blocks {
++    pub fn new(
++        backend: Arc<RuntimeBackend>,
++        config: Arc<Pi05Config>,
++        weights: Arc<Bf16Weights>,
++        fp4: Arc<Fp4DeviceWeights>,
++    ) -> Result<Self> {
++        config.validate()?;
++        Ok(Self { backend, config, weights, fp4: Fp4TensorMap(fp4) })
++    }
++
++    fn ctx(&self) -> &Context {
++        self.backend.context()
++    }
++
++    fn w4(&self, name: &str) -> Option<&Fp4DeviceWeight> {
++        self.fp4.get(name)
++    }
++
++    /// Vision prefix with fp4-routed projector; patch embed and ViT layers
++    /// stay BF16 in this increment (vision is cache-friendly and often on the
++    /// exemption table anyway — the sensitivity grid decides).
++    pub fn encode_vision(&self, patches: &Tensor) -> Result<Tensor> {
++        let mut hidden = vision_patch_embed_bf16(
++            self.ctx(),
++            &self.weights.patch_embedding,
++            &self.weights.position_embedding,
++            patches,
++            self.config.patches_per_view(),
++        )?;
++        for layer in &self.weights.vision_layers {
++            hidden = vision_layer_bf16(
++                self.ctx(),
++                layer,
++                &hidden,
++                self.config.patches_per_view(),
++                self.config.vision_heads,
++                self.config.vision_head_dim,
++                self.config.layer_norm_eps,
++            )?;
++        }
++        let hidden = kernels::norm::layer_bf16(
++            self.ctx(),
++            &hidden,
++            &self.weights.vision_post_norm.weight,
++            &self.weights.vision_post_norm.bias,
++            self.config.layer_norm_eps,
++        )?;
++        // routed: multimodal projector (name from the pi05 checkpoint tree)
++        let projected = gemm_maybe_fp4(
++            self.ctx(),
++            &hidden,
++            &self.weights.multimodal_projector.weight,
++            self.w4("paligemma_with_expert.paligemma.multi_modal_projector.weight"),
++        )?;
++        kernels::elementwise::bias_bf16(
++            self.ctx(),
++            &projected,
++            self.weights.multimodal_projector.bias.as_ref(),
++        )
++    }
++}
