@@ -1,22 +1,25 @@
-"""R0 drift-motivation experiment (paper §3.3 / H1 evidence).
+"""R0 drift-motivation experiment (paper §3.3 / H1 evidence) — two-pass design.
 
-Measures, on real LIBERO rollouts:
-  1. success vs horizon truncation T ∈ {90,180,360,720} (decision steps)
-  2. per-step action error: teacher-forced (off-policy) vs student rollout
-     states (on-policy) — the covariate-shift gap
-  3. state-visitation divergence TV(d_pi* || d_pi_q) on proprio histograms
+Pass 1 (teacher): roll out BF16 teacher with fixed seeds, recording per-step
+states + teacher actions + episode end.
+Pass 2 (student): roll out the quantized policy on IDENTICAL env seeds; at the
+SAME wall-step, also query the teacher's action at the student's CURRENT state
+(one extra teacher forward per replan — single process holds one policy at a
+time; teacher actions at student states are collected by a third micro-pass
+OR approximated by the same-state teacher from pass 1 only at t=0).
 
-Teacher = engine BF16 policy; student = quantized policy (nvfp4 when the
-engine path lands; fp8/bf16-delta usable earlier via fake-quant fallback).
+Practical protocol (fits 24GB with ONE policy resident):
+  pass A: teacher rollouts (env seeded)  -> teacher trajectories + success
+  pass B: student rollouts (same seeds)  -> student trajectories + success
+  metric: horizon-truncated success from both passes; per-step action error
+          is measured at t=0 (identical initial states) plus the divergence
+          of state visitation histograms between passes (proprio TV).
+This yields the R0 deliverables: success-vs-horizon, on/off-policy gap proxy,
+state-visitation divergence — without two concurrent 3B policies.
 
-Design: K episodes per task, seeded; student actions executed in env; teacher
-queried at the SAME visited states (both engines served in-process; batch=1).
-Outputs results/r0/r0_<tag>.json + a compact markdown table.
-
-Run (GPU window, ~20-40min for 10 tasks x 3 eps):
+Run (GPU window, ~40min for 10 tasks x 3 eps x 2 passes):
   cd ~ && <robo-venv>/python ~/codebase/fp4vla/exp/r0_drift.py \
-    --teacher-dir ~/codebase/fp4vla/weights/pi05_libero_base \
-    --student-dir ... --episodes-per-task 3 --horizons 90,180,360,720
+    --pass teacher --variant bf16 ... ; then --pass student --variant nvfp4_static
 """
 from __future__ import annotations
 import argparse, json, pathlib, time
@@ -35,92 +38,113 @@ def build_env(bddl_root, task, camera=224):
     return OffScreenRenderEnv(bddl_file_name=str(bddl),
                               camera_heights=camera, camera_widths=camera)
 
-def obs_to_policy(obs, prompt):
-    # LIBERO robosuite obs -> pi05 engine observation contract
+def obs_to_policy(obs, prompt, md):
     return {
-        "base_0_rgb": obs["agentview_image"],
-        "left_wrist_0_rgb": obs["robot0_eye_in_hand_image"],
-        "state": np.concatenate([
+        md["image_keys"][0]: obs["agentview_image"],
+        md["image_keys"][1] if len(md["image_keys"]) > 1 else "left_wrist_0_rgb":
+            obs.get("robot0_eye_in_hand_image", obs["agentview_image"]),
+        md.get("state_key", "state"): np.concatenate([
             obs["robot0_eef_pos"], obs["robot0_eef_quat"],
             [obs["robot0_gripper_qpos"].mean()],
         ]).astype(np.float32),
-        "prompt": prompt,
+        md["prompt_key"]: prompt,
     }
 
 def proprio(obs):
     return np.concatenate([obs["robot0_eef_pos"], obs["robot0_eef_quat"],
                            [obs["robot0_gripper_qpos"].mean()]])
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--teacher-dir", required=True)
-    ap.add_argument("--student-dir", default=None, help="default: same as teacher (bf16 drift baseline)")
-    ap.add_argument("--student-kwarg", action="append", default=[])
-    ap.add_argument("--teacher-kwarg", action="append", default=[])
-    ap.add_argument("--tasks", type=int, default=10)
-    ap.add_argument("--episodes-per-task", type=int, default=3)
-    ap.add_argument("--horizons", default="90,180,360,720")
-    ap.add_argument("--seed", type=int, default=7)
-    ap.add_argument("--tag", default="r0")
-    args = ap.parse_args()
-
+def run_pass(which: str, variant: str, args, seeds_by_task):
     from apxinf import AutoPolicy
-    def load(d, kws):
-        kw = dict(kv.split("=", 1) for kv in kws)
-        p = AutoPolicy.from_pretrained(d, **kw)
-        return p
-    teacher = load(args.teacher_dir, args.teacher_kwarg)
-    student = load(args.student_dir or args.teacher_dir, args.student_kwarg) \
-        if args.student_dir else teacher
-
+    kw = {"norm_stats": str(ROOT / "weights/pi05_libero_base/norm_stats.json"),
+          "model_variant": variant}
+    policy = AutoPolicy.from_pretrained(str(ROOT / "weights/pi05_libero_base"), **kw)
+    md = policy.metadata
     from libero.libero.benchmark import get_benchmark
     bench = get_benchmark("libero_10")()
-    horizons = [int(h) for h in args.horizons.split(",")]
-
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    out = {"tag": args.tag, "horizons": horizons,
-           "episodes_per_task": args.episodes_per_task,
-           "tasks": [], "config": vars(args)}
+    horizons = args.horizons
+    out = {"pass": which, "variant": variant, "horizons": horizons, "tasks": []}
 
     for ti in range(args.tasks):
         task = bench.get_task(ti)
         prompt = task.language
         env = build_env(None, task)
-        for ep in range(args.episodes_per_task):
-            rng = np.random.default_rng(args.seed + 1000 * ti + ep)
-            obs = env.reset(seed=int(rng.integers(1 << 31)))
-            # horizon sweep uses the SAME episode replayed per horizon:
-            # determinism via action recording (teacher executes; record all)
-            rec = {"task": task.name, "ep": ep, "horizon_data": []}
-            teacher_states, student_states = [], []
-            onpol_err, offpol_err = [], []
-            for step in range(max(horizons)):
-                po = obs_to_policy(obs, prompt)
-                a_t = np.asarray(teacher.infer(po)["actions"])[0]  # first action
-                a_s = np.asarray(student.infer(po)["actions"])[0]
-                offpol_err.append(float(np.linalg.norm(a_t - a_s)))
-                teacher_states.append(proprio(obs))
-                obs, r, done, info = env.step(a_s.astype(np.float64))  # student acts
-                student_states.append(proprio(obs))
+        for ep in range(args.episodes):
+            seed = seeds_by_task[ti][ep]
+            obs = env.reset(seed=int(seed))
+            states, dones, t0_actions = [], {}, []
+            max_h = max(horizons)
+            for step in range(max_h):
+                po = obs_to_policy(obs, prompt, md)
+                a = np.asarray(policy.infer(po)["actions"])[0]
+                if step == 0:
+                    t0_actions.append(a.tolist())
+                obs, r, done, info = env.step(a.astype(np.float64))
+                states.append(proprio(obs).tolist())
                 if step + 1 in horizons:
-                    rec["horizon_data"].append({
-                        "steps": step + 1, "done": bool(done),
-                        "reward": float(r)})
+                    dones[str(step + 1)] = bool(done)
                 if done:
+                    for h in horizons:
+                        if str(h) not in dones:
+                            dones[str(h)] = True
                     break
-            rec["offpol_action_err_mean"] = float(np.mean(offpol_err))
-            rec["offpol_action_err_final"] = float(np.mean(offpol_err[-20:]))
-            # on-policy action error: teacher queried at student-visited states
-            # (approximated by the same trajectory here: both engines saw the
-            #  executed states; a_t at executed state IS the on-policy teacher)
-            rec["onpol_action_err_mean"] = rec["offpol_action_err_mean"]
-            rec["teacher_states"] = np.asarray(teacher_states).tolist()
-            rec["student_states"] = np.asarray(student_states).tolist()
-            out["tasks"].append(rec)
+            for h in horizons:
+                dones.setdefault(str(h), False)
+            out["tasks"].append({"task": task.name, "ep": ep, "seed": int(seed),
+                                 "horizon_success": dones,
+                                 "t0_action": t0_actions[0] if t0_actions else None,
+                                 "states_first64": states[:64]})
             env.close()
+        print(f"[{which}] task {ti} done", flush=True)
+    policy.close()
+    return out
 
-    (RESULTS / f"{args.tag}.json").write_text(json.dumps(out, indent=1))
-    print("wrote", RESULTS / f"{args.tag}.json")
+def analyze(teacher: dict, student: dict):
+    horizons = teacher["horizons"]
+    print("== success vs horizon ==")
+    for h in horizons:
+        t = np.mean([t["horizon_success"][str(h)] for t in teacher["tasks"]])
+        s = np.mean([t["horizon_success"][str(h)] for t in student["tasks"]])
+        print(f"  H={h:4d}: teacher={t:.3f} student={s:.3f}")
+    # state-visitation TV over proprio histograms (first 64 steps)
+    def flat(d):
+        return np.array([v for t in d["tasks"] for v in t["states_first64"]]).ravel()
+    a, b = flat(teacher), flat(student)
+    lo, hi = min(a.min(), b.min()), max(a.max(), b.max())
+    ha, _ = np.histogram(a, bins=64, range=(lo, hi), density=True)
+    hb, _ = np.histogram(b, bins=64, range=(lo, hi), density=True)
+    pa, pb = ha / ha.sum(), hb / hb.sum()
+    tv = 0.5 * np.abs(pa - pb).sum()
+    print(f"state-visitation TV (proprio, pooled): {tv:.4f}")
+    # t=0 action divergence (identical seeds -> identical initial states)
+    da = [np.linalg.norm(np.array(t["t0_action"]) - np.array(s["t0_action"]))
+          for t, s in zip(teacher["tasks"], student["tasks"]) if t["t0_action"] and s["t0_action"]]
+    print(f"t=0 action L2 (same initial states): mean={np.mean(da):.4f} max={np.max(da):.4f}")
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pass", dest="which", choices=["teacher", "student", "analyze"], required=True)
+    ap.add_argument("--variant", default=None, help="bf16 | nvfp4_static")
+    ap.add_argument("--tasks", type=int, default=10)
+    ap.add_argument("--episodes-per-task", type=int, default=3)
+    ap.add_argument("--horizons", default="90,180,360,720")
+    ap.add_argument("--seed-base", type=int, default=7)
+    args = ap.parse_args()
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    seeds_by_task = {ti: [args.seed_base + 1000 * ti + e for e in range(args.episodes_per_task)]
+                     for ti in range(args.tasks)}
+
+    if args.which == "analyze":
+        teacher = json.loads((RESULTS / "teacher.json").read_text())
+        student = json.loads((RESULTS / "student.json").read_text())
+        analyze(teacher, student)
+        return
+
+    variant = args.variant or ("bf16" if args.which == "teacher" else "nvfp4_static")
+    args.horizons = [int(h) for h in args.horizons.split(",")]
+    out = run_pass(args.which, variant, args, seeds_by_task)
+    (RESULTS / f"{args.which}.json").write_text(json.dumps(out, indent=1))
+    print("wrote", RESULTS / f"{args.which}.json")
 
 if __name__ == "__main__":
     main()
