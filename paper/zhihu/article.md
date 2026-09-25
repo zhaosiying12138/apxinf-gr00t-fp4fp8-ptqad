@@ -331,3 +331,50 @@ GR00T 为首批 GeForce 引擎数据，且约为 Jetson Thor 引擎延迟的 1/2
 fp4 引擎路径（adapter ✓ → Rust 接线 → fp4_weights/executor/runtime → bench）；
 R0 漂移动机实验；QAD/OPD 恢复流水线（LoRA 主线不等外部，full-head 臂 E4 后接入）；
 系统测量（延迟分解/batch 吞吐/能耗）。
+
+
+# 6. 讨论与结论
+
+## 6.1 主要发现
+
+**算子层**：GeForce Blackwell（sm_120）的 cuBLASLt 原生支持 block-scaled NVFP4
+GEMM，我们完整逆向并验证了其 scale 张量的 128×4 tile 行交错物理布局——此前无
+公开文档。计算受限形状下 NVFP4 达 FP8 的 1.8×、BF16 的 5.5×；MXFP4 不被支持。
+
+**引擎层**：在 ApxInf 引擎中交付了完整的 NVFP4 执行路径（adapter→量化 kernel→
+工件加载器→混合拓扑→variant），四层组合正确性验证（算子 corr=1.000000）。
+真实 π0.5 层形状上 fp4 全管线（含在线激活量化）相对 BF16 GEMM 加速 1.3–5.3×。
+
+**实证现象**：全量 fp4 PTQ 的 π0.5 与 BF16 基线动作相关性仅 ~0.11（36 层 × 双
+GEMM × 双 9% 噪声复合）——协变量漂移理论（§3.3）的直接体现，恢复流水线的价值
+主张起点。
+
+**引擎对比**：ApxInf BF16 相对各自 PyTorch 默认引擎 π0.5 = 7.3×、GR00T N1.7 =
+3.2×；后者为首批 GeForce GR00T 引擎数据，且约为 Jetson Thor 引擎延迟的 1/2。
+
+## 6.2 工程贡献（可上游合并）
+
+1. cuBLASLt CUDA 13 API 适配与 NVFP4 swizzle 布局逆向（spike 全套探针工具）；
+2. FP8 在 sm_120 的不可用根因定位（E4M3 GEMM 输出不被支持，probe 铁证）；
+3. 打包名工件管线（RMSNorm 折叠语义 + 引擎布局对齐）与豁免表机制；
+4. 全链 1400+ 行引擎补丁（patches/ 可复现）。
+
+## 6.3 局限
+
+- 单一 GPU 型号（RTX 5090 Laptop）；笔记本 TGP 波动已注明，绝对值为持续值；
+- 闭环成功率实验进行中（敏感性网格与恢复阶梯排队等 GPU 窗口）；
+- nvfp4 的 gate_up 融合 GEMM 未实现（当前朴素 GEMM+独立 geglu，性能次优）；
+- CUDA Graph 捕获与 fp4 路径的兼容性待干净窗口验证；
+- 语言/动作层 PACKED 工件的 vision 部分 qkv 仅 packed 主 GEMM，o_proj 未打包。
+
+## 6.4 结论与展望
+
+NVFP4 在消费级 Blackwell 上的 VLA 部署在算子与引擎层均已打通且收益显著；
+全量 PTQ 的动作去相关（corr 0.11）实证了"闭环控制对量化噪声的复合放大"，
+使 QAD→OPD 恢复流水线（含 full-head 容量阶梯）成为把 FP4 推向可用精度的
+关键路径。未来工作：融合 fp4 GeGLU kernel、CUDA Graph 适配、更多 VLA 家族
+（GR00T N1.7 全管线）与真机部署验证。
+
+---
+*本工作在单张 RTX 5090 Laptop（WSL2）上完成；姊妹工作（FSDP2 CPUOffload 单卡
+全权重训练）共享同卡与 checkpoint，交叉引用。*
