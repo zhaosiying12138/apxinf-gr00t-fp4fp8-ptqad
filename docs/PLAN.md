@@ -124,3 +124,18 @@ interleaved），而离线工件按 checkpoint 原始名（k_proj/gate_proj...�
    3b 的 action 分支先行。
 3. 已入库：language_layer_fp4（BF16 镜像，等打包工件）、
    action_layer_fp4（stub）、Fp4Blocks 视觉路径路由（编译通过）。
+
+### fp4 调试战报（2026-09-25 下午，进行中）
+
+症状：nvfp4_static 前向链路通但动作 vs BF16 完全去相关（corr 0.11）。
+已排除：
+- 工件本身（单层 site-check：numpy GEMM corr 0.9957 = fp4 噪声期望值）
+- tscale 双重量化缺陷（已修：转换器强制 tscale=1，与硬件一致）
+- gate_up interleaved 布局（已加守卫；实测 interleaved=false 无影响）
+- 形状/dtype/algo（C++ spike 64x256x512 F16-out PASS 4.8e-4）
+- 路由命中（探针确认 qkv/gate_up 正确命中，形状 [K,N]vs[N,K] 数学等价）
+- workspace 尺寸（64MB/256MB 无差）
+已锁定：**Rust 侧组合调用**——fp4_linear 单测复现（maxrel=inf，out[0]=-5076，
+量化中间产物正常），C++ 同形状同 dtype 通过。嫌疑：CudaBuffer 内存池
+（cudaMallocAsync stream-ordered）与 cublasLt 的交互 / 流句柄 / 懒建句柄。
+下一步：fp4_linear 内改用非池化 CudaBuffer::alloc 二分验证。

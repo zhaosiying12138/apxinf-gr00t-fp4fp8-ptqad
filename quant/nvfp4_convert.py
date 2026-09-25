@@ -36,8 +36,10 @@ def iter_safetensors(path: pathlib.Path):
                 yield name, t.float().numpy()
 
 def convert_one(W: np.ndarray, chunk_rows: int = 8192):
-    """Chunked float32 quantization: keeps peak RSS ~O(chunk) instead of the
-    whole tensor in float64 (the paligemma embed alone is >0.5B params)."""
+    """Chunked float32 quantization. tscale FORCED to 1.0: the hardware GEMM
+    applies only the per-block E4M3 bytes, so double quantization (encoding
+    amax/6/tscale) loses the tscale factor — root cause of the 2026-09-25
+    action-decorrelation bug. amax/6 fits E4M3 dynamic range for VLA weights."""
     W = np.ascontiguousarray(W, dtype=np.float32)
     if W.ndim != 2:
         raise ValueError("2-D only")
@@ -48,7 +50,7 @@ def convert_one(W: np.ndarray, chunk_rows: int = 8192):
     KB = K // 16
     scales = np.empty((rows, KB), dtype=np.uint8)
     sq_sum_w = 0.0; sq_sum_d = 0.0
-    tscale = np.float32(np.abs(W).max() / 448.0) or np.float32(1.0)
+    tscale = np.float32(1.0)
     for r0 in range(0, rows, chunk_rows):
         w = W[r0:r0 + chunk_rows].astype(np.float64)
         p, s, _ = nvfp4_quantize(w, block=16, tscale=tscale)

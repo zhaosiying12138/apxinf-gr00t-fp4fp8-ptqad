@@ -33,7 +33,8 @@ int main(){
   setvbuf(stdout,NULL,_IONBF,0);
   printf("stage0\n");
   cublasLtHandle_t lt; if(cublasLtCreate(&lt)!=CUBLAS_STATUS_SUCCESS){printf("handle fail\n");return 1;}
-  int M=384,N=256,K=512,bs=16,KB=K/bs;
+  const char* envm = getenv("GM"); const char* envn = getenv("GN"); const char* envk = getenv("GK");
+  int M = envm?atoi(envm):384, N = envn?atoi(envn):256, K = envk?atoi(envk):512, bs=16,KB=K/bs;
   std::vector<float> A((size_t)M*K),B((size_t)N*K);
   srand(7); for(auto&v:A)v=(rand()/(float)RAND_MAX-0.5f)*0.2f; for(auto&v:B)v=(rand()/(float)RAND_MAX-0.5f)*0.2f;
 
