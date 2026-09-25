@@ -1,9 +1,9 @@
 diff --git a/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
 new file mode 100644
-index 0000000..0cfa834
+index 0000000..4fb6a21
 --- /dev/null
 +++ b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,191 @@
 +// cublaslt_fp4_adapter.cu — NVFP4 block-scaled GEMM adapter (FP4-VLA).
 +//
 +// Layout/semantics verified bit-exact against CPU reference on sm_120
@@ -96,6 +96,104 @@ index 0000000..0cfa834
 +    int kb = (k + 15) / 16;
 +    size_t ps = 512u * ((kb + 3) / 4);
 +    return ps * ((rows + 127) / 128);
++}
++
++// ---- online activation quantizer: f16 -> NVFP4 (packed + swizzled scales) ----
++// One thread per 16-element block. E4M3 scale via bit-exact round (RNE on the
++// fp8 log-lattice), E2M1 via midpoint ladder — mirrors fp4vla fp4_quant.py.
++
++__device__ __forceinline__ uint8_t fp4_enc_e4m3(float v) {
++    if (v >= 448.0f) return 0x7E;
++    if (v <= 0.0f)   return 0;
++    float m = v, e = 0;
++    while (m >= 2.0f) { m *= 0.5f; e += 1.0f; }
++    while (m <  1.0f) { m *= 2.0f; e -= 1.0f; }
++    int exp = (int)e + 7;
++    if (exp <= 0) {
++        // RNE ties-to-even on the subnormal integer grid
++        float g = v * 512.0f; int fl = (int)g; float frac = g - fl;
++        int s = frac > 0.5f ? fl + 1 : frac < 0.5f ? fl : (fl % 2 == 0 ? fl : fl + 1);
++        return (uint8_t)min(max(s, 0), 7);
++    }
++    float gm = (m - 1.0f) * 8.0f; int fl = (int)gm; float frac = gm - fl;
++    int man = frac > 0.5f ? fl + 1 : frac < 0.5f ? fl : (fl % 2 == 0 ? fl : fl + 1);
++    if (man > 7) { man = 0; exp += 1; }
++    if (exp > 15) return 0x7E;
++    return (uint8_t)((exp << 3) | man);
++}
++__device__ __forceinline__ float fp4_dec_e4m3(uint8_t b) {
++    int e = (b >> 3) & 0xF, m = b & 0x7;
++    if (e == 0) return m * 0.001953125f;
++    return (1.0f + m * 0.125f) * exp2f((float)(e - 7));
++}
++__device__ __forceinline__ float fp4_e2m1_mag(float a) {
++    // nearest with ties-to-EVEN-code (code order: 0,.5,1,1.5,2,3,4,6);
++    // exact midpoints map to the even code of the bracketing pair.
++    if (a < 0.25f) return 0.0f;
++    if (a == 0.25f) return 0.0f;   // even code 0
++    if (a < 0.75f) return 0.5f;
++    if (a == 0.75f) return 1.0f;   // even code 2 (value 1.0)
++    if (a < 1.25f) return 1.0f;
++    if (a == 1.25f) return 1.0f;   // even code 2
++    if (a < 1.75f) return 1.5f;
++    if (a == 1.75f) return 2.0f;   // even code 4 (value 2.0)
++    if (a < 2.5f)  return 2.0f;
++    if (a == 2.5f)  return 2.0f;   // even code 4
++    if (a < 3.5f)  return 3.0f;
++    if (a == 3.5f)  return 4.0f;   // even code 6 (value 4.0)
++    if (a < 5.0f)  return 4.0f;
++    if (a == 5.0f)  return 4.0f;   // even code 6
++    return 6.0f;
++}
++
++__global__ void nvfp4_quantize_activation_kernel(
++    const __half* __restrict__ x, uint8_t* __restrict__ packed,
++    uint8_t* __restrict__ scale_swz, int rows, int kb)
++{
++    int tid = blockIdx.x * blockDim.x + threadIdx.x;
++    int total = rows * kb;
++    if (tid >= total) return;
++    int r = tid / kb, b = tid - r * kb;
++    int k = kb * 16;
++    const __half* blk = x + (size_t)r * k + b * 16;
++    float vals[16]; float amax = 0.0f;
++    #pragma unroll
++    for (int j = 0; j < 16; ++j) {
++        vals[j] = __half2float(blk[j]);
++        amax = fmaxf(amax, fabsf(vals[j]));
++    }
++    uint8_t sb = fp4_enc_e4m3(amax * (1.0f / 6.0f));
++    float sd = fp4_dec_e4m3(sb);
++    if (sd <= 0.0f) sd = 1.0f;
++    // division (not reciprocal-multiply) to match the CPU fp32 rounding path
++    #pragma unroll
++    for (int j = 0; j < 16; j += 2) {
++        float q0 = min(fp4_e2m1_mag(fabsf(vals[j]) / sd), 6.0f);
++        float q1 = min(fp4_e2m1_mag(fabsf(vals[j+1]) / sd), 6.0f);
++        uint8_t lo = q0 == 0 ? 0 : q0 == 0.5f ? 1 : q0 == 1 ? 2 : q0 == 1.5f ? 3
++                   : q0 == 2 ? 4 : q0 == 3 ? 5 : q0 == 4 ? 6 : 7;
++        uint8_t hi = q1 == 0 ? 0 : q1 == 0.5f ? 1 : q1 == 1 ? 2 : q1 == 1.5f ? 3
++                   : q1 == 2 ? 4 : q1 == 3 ? 5 : q1 == 4 ? 6 : 7;
++        if (vals[j]     < 0.0f) lo |= 0x8;
++        if (vals[j + 1] < 0.0f) hi |= 0x8;
++        packed[(size_t)(r * k + b * 16 + j) / 2] = (uint8_t)(lo | (hi << 4));
++    }
++    size_t ps = 512ull * ((kb + 3) / 4);
++    size_t off = ps * (r / 128) + 512ull * (b / 4) + 16ull * (r % 32)
++               + 4ull * ((r / 32) % 4) + (b % 4);
++    scale_swz[off] = sb;
++}
++
++extern "C" cudaError_t apxinf_nvfp4_quantize_activation(
++    const void* x, void* packed, void* scale_swz,
++    int rows, int k, cudaStream_t stream)
++{
++    if (k % 16 != 0) return cudaErrorInvalidValue;
++    int kb = k / 16;
++    int total = rows * kb;
++    nvfp4_quantize_activation_kernel<<<(total + 255) / 256, 256, 0, stream>>>(
++        (const __half*)x, (uint8_t*)packed, (uint8_t*)scale_swz, rows, kb);
++    return cudaGetLastError();
 +}
 diff --git a/crates/apxinf-cuda/build.rs b/crates/apxinf-cuda/build.rs
 index a45e955..cbe6478 100644
