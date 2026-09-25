@@ -36,6 +36,10 @@ def main():
     ap.add_argument("--lang-depth", type=int, default=27)
     ap.add_argument("--act-depth", type=int, default=32)
     ap.add_argument("--vision-depth", type=int, default=27)
+    ap.add_argument("--scope", choices=["all","lang","act","vision","lang+act"],
+                    default="all", help="sensitivity-grid exemption artifacts: which tree(s) to quantize")
+    ap.add_argument("--skip-first", type=int, default=0, help="skip first N layers of each tree (exemption)")
+    ap.add_argument("--skip-last", type=int, default=0, help="skip last N layers of each tree")
     args = ap.parse_args()
 
     tensors = {}
@@ -54,7 +58,14 @@ def main():
         manifest.append({"name": name, "shape": list(W.shape), "block": 16,
                          "tscale": float(tscale), "rel_frob": round(rel, 5)})
 
+    def in_scope(i, depth):
+        if i < args.skip_first or i >= depth - args.skip_last:
+            return False
+        return args.scope in ("all", "lang", "lang+act")
+
     for i in range(args.lang_depth):
+        if not in_scope(i, args.lang_depth):
+            continue
         p = f"{LANG}.{i}"
         try:
             g_in = tensors[f"{p}.input_layernorm.weight"]
@@ -70,6 +81,8 @@ def main():
             print(f"  lang {i}: stop ({e})", flush=True); break
 
     for i in range(args.act_depth):
+        if args.scope not in ("all", "act", "lang+act") or i < args.skip_first or i >= args.act_depth - args.skip_last:
+            continue
         p = f"{ACT}.{i}"
         try:
             q = tensors[f"{p}.self_attn.q_proj.weight"]; k = tensors[f"{p}.self_attn.k_proj.weight"]; v = tensors[f"{p}.self_attn.v_proj.weight"]
@@ -81,6 +94,8 @@ def main():
             print(f"  act {i}: stop ({e})", flush=True); break
 
     for i in range(args.vision_depth):
+        if args.scope not in ("all", "vision") or i < args.skip_first or i >= args.vision_depth - args.skip_last:
+            continue
         p = f"{VISION}.{i}"
         try:
             q = tensors[f"{p}.self_attn.q_proj.weight"]; k = tensors[f"{p}.self_attn.k_proj.weight"]; v = tensors[f"{p}.self_attn.v_proj.weight"]
