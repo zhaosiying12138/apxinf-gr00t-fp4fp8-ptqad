@@ -55,3 +55,22 @@ load.rs (141 行)
 
 3a/3b 纯写码+cargo check（RAM ~3GB）；4 重编 wheel（RAM ~5GB）；5 需 GPU 窗口
 （bench 10min + LIBERO 评测 2-4h 按网格规模）。
+
+## GR00T packed 转换器布局研究（2026-09-25 20:4x）
+
+GR00T N1.7 的 Qwen3-VL backbone 加载语义（backbone/weights.rs）与 pi05/Gemma
+有三个关键差异：
+
+1. **无 norm 折叠**：attn_norm/ffn_norm 运行时单独应用（Qwen3 的 RMSNorm 不含
+   (1+γ) 变换），packed 工件无需 fold_scale —— 比 pi05 简单。
+2. **存储转置**：loader 对每个投影做 transpose_2d —— 设备权重是 [in, out]；
+   HF checkpoint 是 [out, in]。fused-qkv 在转置后按列拼 = HF 布局按行拼 [q;k;v]
+   （与 pi05 相同的行拼工件即可，转换器在 HF 原始布局上拼接即可匹配）。
+3. **Qwen3 特有**：per-head q_norm/k_norm（加载后单独张量）；fused gate_up 走
+   shared_gate_up + fused_silu_mul（gate/up 在 HF 布局行拼 [gate;up]，同 pi05）。
+
+树名（prefix 处理后）：`model.language_model.layers.{i}`（HF 全名带 backbone
+前缀，loader 从共享 map 里取）；action head 树在 executor 侧另有命名。
+下一步：写 quant/nvfp4_convert_packed_gr00t.py（无折叠 + 行拼 + checkpoint
+两 shard 合并读），然后 GR00T 侧 gemm_maybe_fp4 需在 gr00t executor 里挂
+（另一套 executor，非 pi05 的 Fp4Blocks）——工程量 2-3 周期。
