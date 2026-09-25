@@ -104,3 +104,10 @@ GR00T 路线在拿到 HF_TOKEN 后立即恢复（权重本体已就绪，只差 
 - 论文口径：FP8@sm_120 标"引擎原生不支持（根因已定位：E4M3 GEMM 输出，
   probe 铁证），我们的 NVFP4 路径从设计上规避该限制（输出 F16）"
 - 优先级下调至 fp4 GEMM provider 之后
+
+### 2026-09-25 08:13 full-head 冒烟#4 PASS（M7b 验证环节完成）
+
+batch=1、1/1 step @91.7s：模型加载+可训练 1.62B(51.54%)+FSDP2(37 fully_shard
+单元, pin=True, reshard=True)+NVFP4 fake-quant 前向/反向+checkpoint-1 保存全链
+路通过（日志 ~/fq_smoke4.log，产物 ~/fq_smoke_out/checkpoint-1）。正式 QAD
+（b32+AC，~1000 steps）已在协调表申请窗口。
