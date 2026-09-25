@@ -634,10 +634,10 @@ index efa9a5f..a5bd644 100644
  
 diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
 new file mode 100644
-index 0000000..c57e9b2
+index 0000000..ed582c7
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
-@@ -0,0 +1,270 @@
+@@ -0,0 +1,317 @@
 +//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
 +//!
 +//! Design: keep the BF16 executor's weight layout and free-function topology;
@@ -902,9 +902,56 @@ index 0000000..c57e9b2
 +    rms_eps: f32,
 +    rope_theta: f32,
 +) -> Result<Bf16ActionLayerOutput> {
-+    let _ = (weights, fp4, prefix, input, attention_normalized,
-+             attention_modulation, mlp_modulation, next_norm_modulation,
-+             prefix_k, prefix_v, rms_eps, rope_theta);
-+    // Full routing lands with the packed-name artifact; currently mirrors BF16.
-+    Err(Error::Other("action_layer_fp4: routing pending packed-name artifacts".into()))
++    let normalized = match attention_normalized {
++        Some(value) => value.clone(),
++        None => kernels::norm::adaptive_rms_bf16(ctx, input, attention_modulation, rms_eps)?,
++    };
++    let qkv = gemm_maybe_fp4(
++        ctx, &normalized, &weights.qkv.weight, fp4.get(&format!("{prefix}.qkv.weight")),
++    )?;
++    let q = kernels::rope::apply_q_write_kv_bf16(
++        ctx, &qkv, weights.qkv.bias.as_ref(), config.num_heads,
++        config.num_kv_heads, config.head_dim, rope_theta,
++        position_offset, prefix_k, prefix_v, position_offset,
++    )?;
++    let attention = kernels::attention::mqa_bf16(
++        ctx, &q, prefix_k, prefix_v, position_offset + input.shape().dims()[0],
++    )?
++    .reshape(vec![
++        input.shape().dims()[0],
++        config.num_heads * config.head_dim,
++    ])?;
++    let projected = gemm_maybe_fp4(
++        ctx, &attention, &weights.output.weight,
++        fp4.get(&format!("{prefix}.self_attn.o_proj.weight")),
++    )?;
++    let fused = kernels::fused::adaptive_gate_residual_rms_bf16(
++        ctx, &projected, input, attention_modulation, mlp_modulation, rms_eps,
++    )?;
++    let activated = match fp4.get(&format!("{prefix}.gate_up.weight")) {
++        Some(_) => {
++            let gu = gemm_maybe_fp4(
++                ctx, &fused.normalized, &weights.gate_up.weight,
++                fp4.get(&format!("{prefix}.gate_up.weight")),
++            )?;
++            kernels::activation::geglu_bf16(ctx, &gu)?
++        }
++        None => kernels::gemm::bf16_geglu_fused(
++            ctx, &fused.normalized, &weights.gate_up.weight,
++            weights.gate_up.bf16_dual_geglu_interleaved,
++            weights.gate_up.bf16_dual_geglu_auto_interleaved.as_ref(),
++            weights.gate_up.bf16_sm89_geglu_interleaved.as_ref(),
++        )?,
++    };
++    let projected = gemm_maybe_fp4(
++        ctx, &activated, &weights.down.weight,
++        fp4.get(&format!("{prefix}.mlp.down_proj.weight")),
++    )?;
++    let fused = kernels::fused::adaptive_gate_residual_rms_bf16(
++        ctx, &projected, &fused.hidden, mlp_modulation, next_norm_modulation, rms_eps,
++    )?;
++    Ok(Bf16ActionLayerOutput {
++        hidden: fused.hidden,
++        next_normalized: fused.normalized,
++    })
 +}
