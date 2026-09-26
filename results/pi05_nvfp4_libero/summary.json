@@ -1,592 +1,91 @@
 {
-  "completed_runs": 0,
+  "completed_runs": 100,
   "expected_runs": 100,
-  "missing_runs": [
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 0,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 1,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 2,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 3,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 4,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 5,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 6,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 7,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 8,
-      "trial_id": 9
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 0
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 1
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 2
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 3
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 4
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 5
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 6
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 7
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 8
-    },
-    {
-      "suite": "libero_10",
-      "task_id": 9,
-      "trial_id": 9
-    }
-  ],
+  "missing_runs": [],
   "per_suite": {
     "libero_10": {
-      "completed": 0,
+      "completed": 100,
       "per_task": {
         "0": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "1": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "2": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "3": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "4": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "5": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "6": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "7": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "8": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         },
         "9": {
-          "completed": 0,
-          "success_rate": null,
+          "completed": 10,
+          "success_rate": 0.0,
           "successes": 0
         }
       },
-      "success_rate": null,
+      "success_rate": 0.0,
       "successes": 0
     }
   },
   "precision": "nvfp4_static",
   "schema": "apxinf.libero-eval.v2",
-  "success_rate": null,
+  "success_rate": 0.0,
   "successes": 0,
   "suites": [
     "libero_10"
   ],
   "timing": {
-    "episodes": 0,
+    "episodes": 100,
     "per_call_ms": {
-      "inference_ms": null,
-      "model_ms": null,
-      "preprocess_ms": null,
-      "server_processor_ms": null,
-      "websocket_transport_ms": null
+      "inference_ms": 1184.0457,
+      "model_ms": 1182.715,
+      "preprocess_ms": 0.3634,
+      "server_processor_ms": 1.3053,
+      "websocket_transport_ms": 0.0254
     },
-    "total_inference_calls": 0,
+    "total_inference_calls": 10400,
     "total_seconds": {
-      "inference_seconds": 0,
-      "model_seconds": 0,
-      "preprocess_seconds": 0,
-      "server_processor_seconds": 0,
-      "websocket_transport_seconds": 0
+      "inference_seconds": 12314.07521,
+      "model_seconds": 12300.235923,
+      "preprocess_seconds": 3.77959,
+      "server_processor_seconds": 13.575471,
+      "websocket_transport_seconds": 0.263816
     }
   },
   "transport": "in_process_api",
-  "updated_unix_seconds": 1790438819.1500983
+  "updated_unix_seconds": 1790456080.6655502
 }

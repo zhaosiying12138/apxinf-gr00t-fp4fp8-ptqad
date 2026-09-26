@@ -140,6 +140,12 @@ offset(row r, block b) = PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%
 <p>动作侧 3.1GB→0.78GB，4×压缩；进一步压缩需 backbone 侧 FP8/BF16 中间档或</p>
 <p>teacher-KL 恢复）。这也修正了论文原假设（backbone FP4 + head 保守）——实证</p>
 <p>方向恰好相反，与 §3 理论一致：backbone 输出经 KV cache 长程复用，误差复合更重。</p>
+<h3>2.9 π0.5 引擎端闭环（2026-09-27 04:5x）：双模型证据链完成</h3>
+<table><tr><th>π0.5（ApxInf 引擎真 kernel 路径）</th><th>闭环成功率</th></tr><tr><td>BF16</td><td><b>90.0%</b>（90/100，openpi 参考 ~92% 吻合）</td></tr><tr><td>nvfp4_static（引擎 fp4 GEMM）</td><td><b>0%</b>（100 episodes 全零）</td></tr></table>
+<p><b>跨模型结论成立</b>：两代 VLA（π0.5 Gemma backbone / GR00T N1.7 Qwen3-VL backbone）、</p>
+<p>两条量化实现路径（引擎真 kernel / PyTorch quantize-once）上，全模型 NVFP4 PTQ</p>
+<p>闭环全部归零——与混合精度二分（backbone 量化为元凶）互相印证。论文的完整数据</p>
+<p>矩阵就此收口。</p>
 <h2>3. 恢复的理论：量化误差、协变量漂移与策略恢复</h2>
 <p>本章回答两个问题：(i) 为什么量化会让闭环任务成功率下降得比开环指标预测的更多；</p>
 <p>(ii) 为什么蒸馏（QAD）、在策蒸馏（OPD）与强化学习（PPO）能够、以及各自能恢复哪一部分损失。</p>
