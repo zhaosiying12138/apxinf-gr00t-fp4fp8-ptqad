@@ -180,3 +180,10 @@ step-100 保存首次存活（1030 张量/22 分片），训练穿过后继续�
 （1030 张量 6.29GB bf16）。训练配置：1.62B action-head 全参 + NVFP4 fake-quant
 STE + AdamW 锁定。剩余：重量化工件 → LIBERO QAD-vs-PTQ 闭环评测（恢复章节
 核心数据）→ 论文回填。
+
+### ✅ LIBERO 闭环 BF16 基线（2026-09-26 17:2x）：96.7%
+
+复用姊妹 run_libero_eval.sh（服务器+10 任务 rollout，10 episodes/任务）：
+9 任务解析均值 0.9667（KITCHEN_SCENE8 0.7、LIVING_SCENE1 0.8、其余 1.0），
+与 NVIDIA Thor 参考 ~98% 一致——基线健康。QAD 臂评测中（port 5572）；
+PTQ 与 QAD-量化部署臂待量注入服务器变体。
