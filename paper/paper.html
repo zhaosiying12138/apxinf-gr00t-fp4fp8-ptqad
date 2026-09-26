@@ -117,7 +117,7 @@ offset(row r, block b) = PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%
 <p>恢复效果的决定性指标是闭环任务成功率**（不依赖 teacher 幅值匹配）——LIBERO</p>
 <p>三路评测（BF16/PTQ/QAD）为正式结论，合成观测信号仅作方向性参考。</p>
 <h3>2.7 闭环恢复阶梯首批结果（2026-09-26，LIBERO-10 × 10 episodes/任务）</h3>
-<table><tr><th>臂</th><th>训练配方</th><th>闭环成功率</th></tr><tr><td>BF16 基线</td><td>—</td><td><b>96.7%</b>（与 NVIDIA Thor 参考 ~98% 一致）</td></tr><tr><td>姊妹 E4（同配方 SFT，无量化）</td><td>官方微调配方 1000 步</td><td><b>87.4%</b>（姊妹论文数据，交叉引用）</td></tr><tr><td><b>我方 naive QAT 臂</b></td><td>同配方 + NVFP4 fake-quant（STE）</td><td><b>0%</b>（10 任务全零）</td></tr><tr><td>PTQ 臂（原权重量化部署）</td><td>—</td><td>评测中</td></tr></table>
+<table><tr><th>臂</th><th>训练配方</th><th>闭环成功率</th></tr><tr><td>BF16 基线</td><td>—</td><td><b>96.7%</b>（与 NVIDIA Thor 参考 ~98% 一致）</td></tr><tr><td>姊妹 E4（同配方 SFT，无量化）</td><td>官方微调配方 1000 步</td><td><b>87.4%</b>（姊妹论文数据，交叉引用）</td></tr><tr><td><b>我方 naive QAT 臂</b></td><td>同配方 + NVFP4 fake-quant（STE）</td><td><b>0%</b>（10 任务全零）</td></tr><tr><td>PTQ 臂（原权重量化部署）</td><td>—</td><td><b>0%</b>（10 任务 × 10 eps 全零）</td></tr></table>
 <p><b>核心发现：naive QAT 在训练损失正常下降（1.29→0.33）的同时彻底摧毁闭环能力。</b></p>
 <p>导出完整性三重验证（键名对齐/backbone 位级冻结/head 系统性改变）排除工件错误。</p>
 <p>机制解读（对应 §3 理论）：demo 重建损失 + 量化约束的联合优化把权重推向</p>
