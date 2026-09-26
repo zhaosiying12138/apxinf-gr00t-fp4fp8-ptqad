@@ -153,3 +153,12 @@ corr=1.000000、maxrel=4.83e-4（f16 舍入级）。此前全部"失败"为测�
 **引擎 corr=0.11 的重新解读：真实的 fp4 噪声复合**——36 层 × (权重+激活) 双
 9% 噪声逐层复合。这正是论文的动机数据点（R0/敏感性分析的 PTQ 基线）：全量
 fp4 PTQ 去相关 → 恢复流水线（QAD/OPD）的价值主张。nvfp4_static 引擎正确。
+
+### QAD 保存崩溃根因（2026-09-26 10:10）：脏页累积
+
+6 次保存边界 VM 崩溃的统一解释（b32/b16 × cache-drop × MALLOC 全不中）：
+35GB 匿名 + 7GB FSDP 聚合 + 7GB 脏页（6.9GB checkpoint 写盘在页缓存排队）= 49GB
+> 47GB WSL 上限 → VM 硬重置。脏页非干净页，drop_caches 无法回收；MALLOC 管不到。
+修复：vm.dirty_bytes=256MB / dirty_background_bytes=64MB（强制持续回写，消除
+单次 7GB 脏页尖峰）——WSL2 大 checkpoint 保存崩溃的经典解。已应用并重启循环。
+姊妹项目保存偶发成功 = 回写恰好跑赢聚合的随机时机。
