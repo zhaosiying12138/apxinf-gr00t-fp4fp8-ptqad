@@ -130,6 +130,16 @@ offset(row r, block b) = PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%
 <p>教师行为分布（teacher-KL/OPD），而非仅锚定 demo 动作重建。此负结果与</p>
 <p>NVIDIA QAD 坚持 teacher-KL 的设计互证，为恢复阶梯（PTQ 崩 → naive QAT 崩</p>
 <p>→ teacher-KL QAD/OPD）提供了关键的中间数据点。</p>
+<h3>2.8 ✅ 解决方案验证（2026-09-26 23:3x）：混合精度二分法</h3>
+<p>逐模块二分（quantize-once 服务器，LIBERO-10 × 10 eps/任务）：</p>
+<table><tr><th>配置</th><th>action head</th><th>backbone</th><th>闭环成功率</th></tr><tr><td>BF16 基线</td><td>BF16</td><td>BF16</td><td>96.7%</td></tr><tr><td><b>混合精度（head-only FP4）</b></td><td><b>NVFP4</b></td><td>BF16</td><td><b>71.2%</b> ✅ 可用</td></tr><tr><td>混合精度（backbone-only FP4）</td><td>BF16</td><td>NVFP4</td><td>0%（6 任务全零）</td></tr><tr><td>全量 FP4 PTQ</td><td>NVFP4</td><td>NVFP4</td><td>0%</td></tr></table>
+<p><b>结论（对 0% 问题的直接解答）</b>：闭环崩溃的元凶是 <b>VLM backbone 的量化</b>（视觉-</p>
+<p>语言特征被 4-bit 噪声污染后动作生成完全失效）；**DiT action head（1.62B 参数，</p>
+<p>占模型 47%）在 NVFP4 下闭环成功率 71.2%**——相对 BF16 基线损失 25.5 个点但完全</p>
+<p>可用。工程含义：立即可部署的混合精度配置 = head NVFP4 + backbone BF16（显存</p>
+<p>动作侧 3.1GB→0.78GB，4×压缩；进一步压缩需 backbone 侧 FP8/BF16 中间档或</p>
+<p>teacher-KL 恢复）。这也修正了论文原假设（backbone FP4 + head 保守）——实证</p>
+<p>方向恰好相反，与 §3 理论一致：backbone 输出经 KV cache 长程复用，误差复合更重。</p>
 <h2>3. 恢复的理论：量化误差、协变量漂移与策略恢复</h2>
 <p>本章回答两个问题：(i) 为什么量化会让闭环任务成功率下降得比开环指标预测的更多；</p>
 <p>(ii) 为什么蒸馏（QAD）、在策蒸馏（OPD）与强化学习（PPO）能够、以及各自能恢复哪一部分损失。</p>

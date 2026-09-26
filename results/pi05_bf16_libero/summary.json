@@ -1,0 +1,91 @@
+{
+  "completed_runs": 100,
+  "expected_runs": 100,
+  "missing_runs": [],
+  "per_suite": {
+    "libero_10": {
+      "completed": 100,
+      "per_task": {
+        "0": {
+          "completed": 10,
+          "success_rate": 0.9,
+          "successes": 9
+        },
+        "1": {
+          "completed": 10,
+          "success_rate": 1.0,
+          "successes": 10
+        },
+        "2": {
+          "completed": 10,
+          "success_rate": 1.0,
+          "successes": 10
+        },
+        "3": {
+          "completed": 10,
+          "success_rate": 1.0,
+          "successes": 10
+        },
+        "4": {
+          "completed": 10,
+          "success_rate": 0.9,
+          "successes": 9
+        },
+        "5": {
+          "completed": 10,
+          "success_rate": 1.0,
+          "successes": 10
+        },
+        "6": {
+          "completed": 10,
+          "success_rate": 1.0,
+          "successes": 10
+        },
+        "7": {
+          "completed": 10,
+          "success_rate": 0.9,
+          "successes": 9
+        },
+        "8": {
+          "completed": 10,
+          "success_rate": 0.4,
+          "successes": 4
+        },
+        "9": {
+          "completed": 10,
+          "success_rate": 0.9,
+          "successes": 9
+        }
+      },
+      "success_rate": 0.9,
+      "successes": 90
+    }
+  },
+  "precision": "bf16",
+  "schema": "apxinf.libero-eval.v2",
+  "success_rate": 0.9,
+  "successes": 90,
+  "suites": [
+    "libero_10"
+  ],
+  "timing": {
+    "episodes": 100,
+    "per_call_ms": {
+      "inference_ms": 350.7784,
+      "model_ms": 349.3244,
+      "preprocess_ms": 0.398,
+      "server_processor_ms": 1.4279,
+      "websocket_transport_ms": 0.0261
+    },
+    "total_inference_calls": 5954,
+    "total_seconds": {
+      "inference_seconds": 2088.534527,
+      "model_seconds": 2079.877565,
+      "preprocess_seconds": 2.369499,
+      "server_processor_seconds": 8.501815,
+      "websocket_transport_seconds": 0.155147
+    }
+  },
+  "transport": "in_process_api",
+  "updated_unix_seconds": 1790435692.6818283
+}

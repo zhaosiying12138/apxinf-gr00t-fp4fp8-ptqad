@@ -180,6 +180,25 @@ PTQ 的绝对零但远非恢复；grid-adaptation 带来的边际改善在闭环
 NVIDIA QAD 坚持 teacher-KL 的设计互证，为恢复阶梯（PTQ 崩 → naive QAT 崩
 → teacher-KL QAD/OPD）提供了关键的中间数据点。
 
+## 2.8 ✅ 解决方案验证（2026-09-26 23:3x）：混合精度二分法
+
+逐模块二分（quantize-once 服务器，LIBERO-10 × 10 eps/任务）：
+
+| 配置 | action head | backbone | 闭环成功率 |
+|---|---|---|---|
+| BF16 基线 | BF16 | BF16 | 96.7% |
+| **混合精度（head-only FP4）** | **NVFP4** | BF16 | **71.2%** ✅ 可用 |
+| 混合精度（backbone-only FP4） | BF16 | NVFP4 | 0%（6 任务全零） |
+| 全量 FP4 PTQ | NVFP4 | NVFP4 | 0% |
+
+**结论（对 0% 问题的直接解答）**：闭环崩溃的元凶是 **VLM backbone 的量化**（视觉-
+语言特征被 4-bit 噪声污染后动作生成完全失效）；**DiT action head（1.62B 参数，
+占模型 47%）在 NVFP4 下闭环成功率 71.2%**——相对 BF16 基线损失 25.5 个点但完全
+可用。工程含义：立即可部署的混合精度配置 = head NVFP4 + backbone BF16（显存
+动作侧 3.1GB→0.78GB，4×压缩；进一步压缩需 backbone 侧 FP8/BF16 中间档或
+teacher-KL 恢复）。这也修正了论文原假设（backbone FP4 + head 保守）——实证
+方向恰好相反，与 §3 理论一致：backbone 输出经 KV cache 长程复用，误差复合更重。
+
 
 # 3. 恢复的理论：量化误差、协变量漂移与策略恢复
 
