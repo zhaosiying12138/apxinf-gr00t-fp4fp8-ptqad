@@ -162,3 +162,13 @@ fp4 PTQ 去相关 → 恢复流水线（QAD/OPD）的价值主张。nvfp4_static
 修复：vm.dirty_bytes=256MB / dirty_background_bytes=64MB（强制持续回写，消除
 单次 7GB 脏页尖峰）——WSL2 大 checkpoint 保存崩溃的经典解。已应用并重启循环。
 姊妹项目保存偶发成功 = 回写恰好跑赢聚合的随机时机。
+
+### ✅ QAD 保存战役结案（2026-09-26 11:38）：9 次尝试后流式保存取胜
+
+真相链：save_fsdp2_model 的单体聚合实为 **fp32 精度 12.58GB**（非 bf16 估算的
+6.9GB）——35GB 匿名 + 12.6GB 聚合 = 47.6GB > 47GB WSL 上限 = **每次保存必然爆**
+（姊妹的偶发成功 = 匿名基线恰逢低位的时机）。8 轮环境修复（b16/save-only/
+cache-drop/MALLOC/dirty-bytes/mnt-c）全部无效因为都碰不到聚合本身。
+Plan E 流式分片保存（逐参 full_tensor + 500MB shard）把峰值降到 +0.5GB，
+step-100 保存首次存活（1030 张量/22 分片），训练穿过后继续。后续保存结构性
+安全。教训：跨进程保存路径必须审计精度与峰值，环境调参救不了算法尖峰。
