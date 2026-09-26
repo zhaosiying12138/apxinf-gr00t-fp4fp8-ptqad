@@ -52,59 +52,51 @@ TEACHER_PATH = os.environ.get(
 _state = {"teacher": None, "orig_forward": nn.Linear.forward, "ready": False}
 
 
-def load_teacher():
-    """Frozen BF16 teacher; kept on GPU (7GB — fits beside b16 student)."""
-    if _state["teacher"] is not None:
-        return _state["teacher"]
-    # temporarily restore un-patched forward so the teacher loads/evals clean
-    nn.Linear.forward = _state["orig_forward"]
-    from gr00t.model.gr00t_n1d7.gr00t_n1d7 import Gr00tN1d7
-    from transformers import AutoConfig
-    cfg = AutoConfig.from_pretrained(TEACHER_PATH, trust_remote_code=True)
-    teacher = Gr00tN1d7(cfg).to(torch.bfloat16).cuda().eval()
-    from safetensors.torch import load_model
-    import glob as _g
-    shards = sorted(_g.glob(os.path.join(TEACHER_PATH, "model-*.safetensors")))
-    sd = {}
-    for s in shards:
-        sd.update(load_model(teacher, s, strict=False))
-    print(f"[opd] teacher loaded bf16 from {len(shards)} shards", flush=True)
-    _state["teacher"] = teacher
-    return teacher
-
-
 def install_teacher_kl(trainer_cls):
-    """Patch Gr00tTrainer.compute_loss to add ||a_s - a_teacher|| anchor."""
+    """Patch Gr00tTrainer.compute_loss to add a twin-forward teacher anchor.
+
+    Teacher = the SAME model with original (unquantized) Linear.forward —
+    i.e. the BF16 twin of the fake-quant student. Avoids loading a second
+    3.4B model and reuses the exact batch tensors; the KL term then measures
+    pure quantization-induced behavior drift on each training batch."""
+    from torch_fp4 import fake_quant_nvfp4_torch as _fq
     orig = trainer_cls.compute_loss
+    QUANT_FWD = nn.Linear.forward  # captured AFTER install_global_linear_fakequant
 
     def with_teacher(self, model, inputs, return_outputs=False, **kw):
-        # ground-truth demo loss (original)
-        out = orig(self, model, inputs, return_outputs=True, **kw)
-        loss, outputs = out[0], out[1]
+        loss, outputs = orig(self, model, inputs, return_outputs=True, **kw)
         try:
-            teacher = load_teacher()
-            with torch.no_grad():
-                t_out = teacher(**{k: (v.to(torch.bfloat16).cuda() if torch.is_tensor(v) else v)
-                                   for k, v in inputs.items()
-                                   if k in ("vision", "state", "actions", "prompt")})
-        except Exception as e:
-            print("[opd] teacher fwd skip:", type(e).__name__, str(e)[:120], flush=True)
-            return (loss, outputs) if return_outputs else loss
-        s_pred = getattr(outputs, "pred_actions", None)
-        if s_pred is None and isinstance(outputs, dict):
-            s_pred = outputs.get("pred_actions") or outputs.get("actions")
-        t_pred = getattr(t_out, "pred_actions", None) if not isinstance(t_out, dict) else t_out.get("pred_actions")
-        if s_pred is not None and t_pred is not None:
-            kl = torch.nn.functional.mse_loss(
-                s_pred.float(), t_pred.detach().float().to(s_pred.device))
-            loss = loss + float(os.environ.get("OPD_KL_W", "1.0")) * kl
-            if self.state.global_step % 20 == 0:
-                print(f"[opd] step {self.state.global_step} task={float(loss):.4f} kl={float(kl):.4f}",
+            # student predictions come from the first (already-run) forward
+            s_pred = outputs.get("pred_actions") if hasattr(outputs, "get")                 else getattr(outputs, "pred_actions", None)
+            if s_pred is None:
+                print("[opd] no pred_actions in outputs; keys:",
+                      list(outputs.keys()) if hasattr(outputs, "keys") else type(outputs).__name__,
                       flush=True)
+                return (loss, outputs) if return_outputs else loss
+            # teacher pass: swap to original forward, no grad, same inputs
+            nn.Linear.forward = _state["orig_forward"]
+            model.eval()
+            with torch.no_grad():
+                t_out = model(inputs)
+            model.train()
+            nn.Linear.forward = QUANT_FWD
+            if t_out is None:
+                return (loss, outputs) if return_outputs else loss
+            t_pred = t_out.get("pred_actions") if hasattr(t_out, "get")                 else getattr(t_out, "pred_actions", None)
+            if t_pred is not None and s_pred.shape == t_pred.shape:
+                kl = torch.nn.functional.mse_loss(
+                    s_pred.float(), t_pred.detach().float().to(s_pred.device))
+                loss = loss + float(os.environ.get("OPD_KL_W", "1.0")) * kl
+                if self.state.global_step % 20 == 0:
+                    print(f"[opd] step {self.state.global_step} "
+                          f"task={float(loss):.4f} kl={float(kl):.6f}", flush=True)
+        except Exception as e:
+            nn.Linear.forward = QUANT_FWD
+            print("[opd] teacher twin-fwd skip:", type(e).__name__, str(e)[:120], flush=True)
         return (loss, outputs) if return_outputs else loss
 
     trainer_cls.compute_loss = with_teacher
-    print("[opd] teacher-KL loss hook installed", flush=True)
+    print("[opd] twin-forward teacher-KL hook installed", flush=True)
 
 
 # 3) streaming save (battle-tested from QAD run) + resume arg hook
