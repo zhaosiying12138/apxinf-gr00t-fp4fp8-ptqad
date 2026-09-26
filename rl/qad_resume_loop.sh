@@ -7,6 +7,8 @@ set -u
 LOG=/home/zhaosiying/fq_qad_loop.log
 PY=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
 SCRIPT=/home/zhaosiying/codebase/fp4vla/rl/full_head_qad.py
+export MALLOC_ARENA_MAX=2
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export LD_LIBRARY_PATH="$HOME/miniforge3/envs/media7/lib:${LD_LIBRARY_PATH:-}"
 cd /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
 
