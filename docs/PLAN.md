@@ -187,3 +187,10 @@ STE + AdamW 锁定。剩余：重量化工件 → LIBERO QAD-vs-PTQ 闭环评测
 9 任务解析均值 0.9667（KITCHEN_SCENE8 0.7、LIVING_SCENE1 0.8、其余 1.0），
 与 NVIDIA Thor 参考 ~98% 一致——基线健康。QAD 臂评测中（port 5572）；
 PTQ 与 QAD-量化部署臂待量注入服务器变体。
+
+### 量化评测栈（2026-09-26 17:5x）
+
+- run_gr00t_server_fp4vla.py：FP4VLA_QUANT=1 时全局 nn.Linear NVFP4 fake-quant
+- run_libero_eval_fp4vla.sh：rollout 循环逐字复刻姊妹脚本（libero_uv venv +
+  rollout_policy.py 旗标），透传量化环境变量
+- 支撑 PTQ 臂（原权重量化部署）与 QAD-deployed 臂（训练权重量化部署）
