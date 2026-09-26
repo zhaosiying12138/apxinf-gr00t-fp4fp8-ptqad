@@ -18,6 +18,7 @@ os.environ.setdefault("LD_LIBRARY_PATH",
     os.path.expanduser("~/miniforge3/envs/media7/lib:") + os.environ.get("LD_LIBRARY_PATH", ""))
 
 sys.path.insert(0, "/home/zhaosiying/codebase/fp4vla/quant")
+sys.path.insert(0, "/home/zhaosiying/codebase/fp4vla/rl")
 import torch, torch.nn as nn
 from torch_fp4 import install_global_linear_fakequant
 
@@ -47,6 +48,11 @@ sys.argv = ["launch_finetune.py",
 
 resume = os.environ.get("RESUME", "").split()
 sys.argv += resume
+try:
+    from qad_stream_save import install_streaming_save
+    install_streaming_save()
+except Exception as e:
+    print("[fp4vla-save] stream save install failed:", e, flush=True)
 sys.path.insert(0, os.getcwd())
 import runpy
 print(f"[qad] launching: b32 AC nopin, 1000 steps, save/100 — fake-quant + AdamW", flush=True)
