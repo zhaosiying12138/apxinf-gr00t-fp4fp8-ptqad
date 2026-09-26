@@ -172,3 +172,11 @@ cache-drop/MALLOC/dirty-bytes/mnt-c）全部无效因为都碰不到聚合本身
 Plan E 流式分片保存（逐参 full_tensor + 500MB shard）把峰值降到 +0.5GB，
 step-100 保存首次存活（1030 张量/22 分片），训练穿过后继续。后续保存结构性
 安全。教训：跨进程保存路径必须审计精度与峰值，环境调参救不了算法尖峰。
+
+### ✅ 2026-09-26 15:0x full-head 正式 QAD 完训（M7b 主实验完成）
+
+1000 步 / 3.90h / b16×accum2(等效32) / AC / save-only / 流式分片保存 10/10 成功 /
+零白训（ckpt-100..1000 全在盘）。HF 格式导出 weights/gr00t.qad1000
+（1030 张量 6.29GB bf16）。训练配置：1.62B action-head 全参 + NVFP4 fake-quant
+STE + AdamW 锁定。剩余：重量化工件 → LIBERO QAD-vs-PTQ 闭环评测（恢复章节
+核心数据）→ 论文回填。
