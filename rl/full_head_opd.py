@@ -74,10 +74,12 @@ def install_teacher_kl(trainer_cls):
                       flush=True)
                 return (loss, outputs) if return_outputs else loss
             # teacher pass: swap to original forward, no grad, same inputs
+            # HF collator nests everything under "inputs"; the model wants the inner dict
+            tin = inputs["inputs"] if "inputs" in inputs else inputs
             nn.Linear.forward = _state["orig_forward"]
             model.eval()
             with torch.no_grad():
-                t_out = model(inputs)
+                t_out = model(tin)
             model.train()
             nn.Linear.forward = QUANT_FWD
             if t_out is None:
