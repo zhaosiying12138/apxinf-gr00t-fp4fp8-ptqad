@@ -33,7 +33,7 @@ sys.argv = ["launch_finetune.py",
     "--embodiment-tag", "LIBERO_PANDA",
     "--num-gpus", "1",
     "--output-dir", os.path.expanduser("~/fq_qad_out"),
-    "--save-steps", "1000",
+    "--save-steps", "100",
     "--max-steps", "1000",
     "--global-batch-size", "16",
     "--gradient-accumulation-steps", "2",
@@ -45,6 +45,8 @@ sys.argv = ["launch_finetune.py",
     "--num-shards-per-epoch", "4",
     "--dataloader-num-workers", "1"]
 
+resume = os.environ.get("RESUME", "").split()
+sys.argv += resume
 sys.path.insert(0, os.getcwd())
 import runpy
 print(f"[qad] launching: b32 AC nopin, 1000 steps, save/100 — fake-quant + AdamW", flush=True)
