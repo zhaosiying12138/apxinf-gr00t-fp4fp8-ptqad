@@ -10,18 +10,28 @@
 
 ## 主消融表设计（恢复阶梯，GR00T N1.7 LIBERO-10 × 10 eps）
 
-| 阶梯 | 训练配方 | 量化部署 | 闭环 | 状态 |
-|---|---|---|---|---|
-| BF16 上界 | — | 无 | 96.7% | ✅ |
-| SFT 无量化（姊妹 E4） | 官方配方 1000 步 | 无 | 87.4% | ✅（姊妹数据） |
-| PTQ | — | 全模型 NVFP4 | 0% | ✅ |
-| QAD（demo loss） | +fake-quant SFT | BF16 权重 | 0% | ✅ |
-| QAD-deployed | 同上 | 全模型 NVFP4 | 0.63% | ✅ |
-| **OPD（teacher-KL）** | +fake-quant + KL 锚定 | 全模型 NVFP4 | **?** | 🔄 训练中 |
-| PPO 对照（可选） | 任务奖励微调 | 全模型 | ? | 设计中 |
+**2026-09-28 更新：PTQ 攻坚后阶梯重构**——纯校准（GPTQ/裁剪）救不了全 NVFP4（calib 0%），
+NVIDIA 式混合分配一举回到 93.3%（mini）；恢复训练（QAD/OPD-LoRA）以 aggr（2.88×，仅护
+o/down+解码器）为基座，对标 mixed（2.02×，部署级）与 BF16 上界。新增 §12 PTQ 教程章。
+
+| 阶梯 | 训练配方 | 量化部署 | 压缩 | 闭环 | 状态 |
+|---|---|---|---|---|---|
+| BF16 上界 | — | 无 | 1× | 96.7% | ✅ |
+| SFT 无量化（姊妹 E4） | 官方配方 1000 步 | 无 | 1× | 87.4% | ✅（姊妹数据） |
+| PTQ rtn | — | 全模型 NVFP4 RTN | 3.56× | 0% | ✅ |
+| PTQ calib | — | 全 NVFP4 + GPTQ + MSE 裁剪 | 3.56× | 0%（mini） | ✅ 09-28 |
+| PTQ fp8 | — | backbone FP8 + head NVFP4 | 2.44× | 70.8%（mini） | ✅ 09-28 |
+| **PTQ mixed（部署级）** | — | NVIDIA 分配复刻 | 2.02× | 93.3%（mini）/ [10×10 TBD] | ✅ 09-28 |
+| PTQ aggr（恢复基座） | — | 全 NVFP4 仅护 o/down+解码器 | 2.88× | [TBD-aggr] | 🔄 |
+| QAD-LoRA | demo loss + merged-quant STE | aggr | 2.88×+LoRA | ? | 🔄 就绪待跑 |
+| OPD-LoRA | + probe-cached teacher-KL | aggr | 2.88×+LoRA | ? | 设计就绪 |
+| QAD（旧全量头） | +fake-quant SFT | 全模型 NVFP4 | 3.56× | 0.63% | ✅（历史） |
+| PPO 对照（同预算） | 任务奖励微调（LoRA） | aggr | 2.88×+LoRA | ? | 设计中 |
 
 辅证消融：混合精度二分（head-FP4 71.2 / backbone-FP4 0）、双模型验证（π0.5
-BF16 90% / nvfp4 0%）、离线-闭环脱节（信号扫描）。
+BF16 90% / nvfp4 0%）、离线-闭环脱节（信号扫描 + 09-28 probe 混沌教训：连 FP8/mixed
+都 relMSE≈2 corr≈0 而闭环 93%——闭环是唯一裁判）、AWQ α=0 全站点负结果
+（weight-only NVFP4 块缩放已吸收通道异常值）。
 
 ## 新论文结构（两篇合一的教程型长文）
 

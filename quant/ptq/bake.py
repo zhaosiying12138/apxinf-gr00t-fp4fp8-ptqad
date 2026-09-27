@@ -51,6 +51,25 @@ def alloc_mixed(name, W):
     return "fp8"
 
 
+def alloc_aggr(name, W):
+    """Aggressive: NVFP4 everywhere except the two proven killers
+    (LLM o_proj/down_proj -> FP8; timestep/action-decoder -> BF16)."""
+    if name == "backbone.lm_head":
+        return "nvfp4_gptq"
+    if ".language_model.layers." in name:
+        if name.endswith("self_attn.o_proj") or name.endswith("mlp.down_proj"):
+            return "fp8"
+        return "nvfp4_gptq"
+    if name.startswith("action_head."):
+        base = name.split("action_head.model.")[-1]
+        if base.startswith("ff.net.0.proj") or base == "ff.net.2":
+            return "nvfp4_gptq"
+        if base.startswith("transformer_blocks.") or base == "proj_out_1":
+            return "nvfp4_rtn"
+        return "bf16"
+    return "nvfp4_gptq"   # vision tower
+
+
 def alloc(name, W, recipe):
     if recipe == "rtn" or recipe == "calib":
         return "nvfp4_gptq" if recipe == "calib" else "nvfp4_rtn"
@@ -58,6 +77,8 @@ def alloc(name, W, recipe):
         return "fp8" if "action_head" not in name else "nvfp4_rtn"
     if recipe == "mixed":
         return alloc_mixed(name, W)
+    if recipe == "aggr":
+        return alloc_aggr(name, W)
     raise ValueError(recipe)
 
 
@@ -66,7 +87,7 @@ def main():
     ap.add_argument("--base", default="/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10")
     ap.add_argument("--out", required=True)
     ap.add_argument("--recipe", default="mixed",
-                    choices=["rtn", "calib", "fp8", "mixed"])
+                    choices=["rtn", "calib", "fp8", "mixed", "aggr"])
     ap.add_argument("--calib", default="/mnt/c/fq_ptq_calib/calib.pt")
     ap.add_argument("--gptq-damp", type=float, default=0.01)
     ap.add_argument("--head-bf16", action="store_true",
