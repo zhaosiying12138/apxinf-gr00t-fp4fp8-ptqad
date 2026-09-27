@@ -53,55 +53,57 @@ _state = {"teacher": None, "orig_forward": nn.Linear.forward, "ready": False}
 
 
 def install_teacher_kl(trainer_cls):
-    """Patch Gr00tTrainer.compute_loss to add a twin-forward teacher anchor.
+    """Probe-cached teacher-KL: anchor to PRE-COMPUTED BF16 teacher
+    predictions (rl/opd_probe_cache.py -> /mnt/c/fq_opd_probes/).
 
-    Teacher = the SAME model with original (unquantized) Linear.forward —
-    i.e. the BF16 twin of the fake-quant student. Avoids loading a second
-    3.4B model and reuses the exact batch tensors; the KL term then measures
-    pure quantization-induced behavior drift on each training batch."""
-    from torch_fp4 import fake_quant_nvfp4_torch as _fq
+    The earlier twin-forward variant (eval()/no_grad()/train() swap inside
+    the training loop) crashed the WSL GPU driver deterministically at
+    ~step 12 under FSDP2+AC. This variant runs ONLY the normal grad-enabled
+    student forward on a small cached probe batch — the exact path that
+    completed QAD-1000 stably — and adds KL(student_pred, cached_teacher_pred).
+    """
     orig = trainer_cls.compute_loss
-    QUANT_FWD = nn.Linear.forward  # captured AFTER install_global_linear_fakequant
+    CACHE = "/mnt/c/fq_opd_probes/teacher_probes.pt"
+    _probe = {"loaded": False, "inputs": None, "pred": None}
 
-    def with_teacher(self, model, inputs, return_outputs=False, **kw):
+    def load_probe():
+        if _probe["loaded"]:
+            return
+        d = torch.load(CACHE, map_location="cpu", weights_only=False)
+        _probe["inputs"] = d["inputs"]
+        _probe["pred"] = d["pred"]
+        _probe["loaded"] = True
+        print(f"[opd] probe cache loaded: pred {tuple(d['pred'].shape)}", flush=True)
+
+    def with_probe_kl(self, model, inputs, return_outputs=False, **kw):
         loss, outputs = orig(self, model, inputs, return_outputs=True, **kw)
         try:
-            EVERY = int(os.environ.get("OPD_KL_EVERY", "4"))
+            EVERY = int(os.environ.get('OPD_KL_EVERY', '4'))
             if self.state.global_step % EVERY != 0:
                 return (loss, outputs) if return_outputs else loss
-            # student predictions come from the first (already-run) forward
-            s_pred = outputs.get("pred_actions") if hasattr(outputs, "get")                 else getattr(outputs, "pred_actions", None)
-            if s_pred is None:
-                print("[opd] no pred_actions in outputs; keys:",
-                      list(outputs.keys()) if hasattr(outputs, "keys") else type(outputs).__name__,
-                      flush=True)
-                return (loss, outputs) if return_outputs else loss
-            # teacher pass: swap to original forward, no grad, same inputs
-            # HF collator nests everything under "inputs"; the model wants the inner dict
-            tin = inputs["inputs"] if "inputs" in inputs else inputs
-            nn.Linear.forward = _state["orig_forward"]
-            model.eval()
-            with torch.no_grad():
-                t_out = model(tin)
-            model.train()
-            nn.Linear.forward = QUANT_FWD
-            if t_out is None:
-                return (loss, outputs) if return_outputs else loss
-            t_pred = t_out.get("pred_actions") if hasattr(t_out, "get")                 else getattr(t_out, "pred_actions", None)
-            if t_pred is not None and s_pred.shape == t_pred.shape:
+            load_probe()
+            pin = {k: (v.to(model.device.type, model.device.index
+                            if hasattr(model.device, "index") else None)
+                        if torch.is_tensor(v) else v)
+                   for k, v in _probe["inputs"].items()}
+            torch.manual_seed(20260927)  # replay the pinned (noise, t)
+            p_out = model(pin)           # STUDENT forward, grad on — QAD-stable path
+            s_pred = p_out.get("pred_actions") if hasattr(p_out, "get") \
+                else getattr(p_out, "pred_actions", None)
+            t_pred = _probe["pred"].to(s_pred.device)
+            if s_pred is not None and s_pred.shape == t_pred.shape:
                 kl = torch.nn.functional.mse_loss(
-                    s_pred.float(), t_pred.detach().float().to(s_pred.device))
-                loss = loss + float(os.environ.get("OPD_KL_W", "1.0")) * kl
-                if self.state.global_step % 20 == 0:
+                    s_pred.float(), t_pred.float())
+                loss = loss + float(os.environ.get("OPD_KL_W", "5.0")) * kl
+                if self.state.global_step % 20 < EVERY:
                     print(f"[opd] step {self.state.global_step} "
                           f"task={float(loss):.4f} kl={float(kl):.6f}", flush=True)
         except Exception as e:
-            nn.Linear.forward = QUANT_FWD
-            print("[opd] teacher twin-fwd skip:", type(e).__name__, str(e)[:120], flush=True)
+            print("[opd] probe-kl skip:", type(e).__name__, str(e)[:120], flush=True)
         return (loss, outputs) if return_outputs else loss
 
-    trainer_cls.compute_loss = with_teacher
-    print("[opd] twin-forward teacher-KL hook installed", flush=True)
+    trainer_cls.compute_loss = with_probe_kl
+    print("[opd] probe-cached teacher-KL hook installed", flush=True)
 
 
 # 3) streaming save (battle-tested from QAD run) + resume arg hook
@@ -114,10 +116,10 @@ sys.argv = ["launch_finetune.py",
     "--embodiment-tag", "LIBERO_PANDA",
     "--num-gpus", "1",
     "--output-dir", os.path.expanduser("~/fq_opd_out"),
-    "--save-steps", "100",
+    "--save-steps", "50",
     "--max-steps", os.environ.get("OPD_STEPS", "1000"),
-    "--global-batch-size", "16",
-    "--gradient-accumulation-steps", "2",
+    "--global-batch-size", "8",
+    "--gradient-accumulation-steps", "4",
     "--save-only-model",
     "--no-fsdp2-pin-memory",
     "--fsdp2-activation-checkpointing",

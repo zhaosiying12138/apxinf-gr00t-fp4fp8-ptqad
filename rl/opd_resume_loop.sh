@@ -17,7 +17,20 @@ while [ $attempt -le 15 ]; do
   for ck in $(ls -d /mnt/c/fq_opd_out/checkpoint-* 2>/dev/null | sort -t- -k2 -n | tail -1); do
     [ -f "$ck/fp4vla_shard_index.json" ] && RESUME="--resume-from-checkpoint $(basename $ck)" && break
   done
-  RESUME="$RESUME" $PY $SCRIPT >> /home/zhaosiying/fq_opd_run_a${attempt}.log 2>&1
+  # cache-dropper watchdog for THIS attempt
+  ( while true; do
+      L=$(ls -t /home/zhaosiying/fq_opd_run_a*.log 2>/dev/null | head -1)
+      N=$(grep -oE "[0-9]+/[0-9]+" $L 2>/dev/null | tail -1 | cut -d/ -f1)
+      S=$(( ${N:-0} % 50 ))
+      if [ "${N:-0}" -ge 1 ] && [ $S -ge 40 ]; then
+        echo 511213 | sudo -S sh -c "echo 3 > /proc/sys/vm/drop_caches" 2>/dev/null
+        sleep 120
+      fi
+      sleep 15
+    done ) &
+  WD=$!
+  RESUME="$RESUME" $PY $SCRIPT
+  kill $WD 2>/dev/null >> /home/zhaosiying/fq_opd_run_a${attempt}.log 2>&1
   echo "[opdloop] attempt $attempt rc=$? $(date)" >> $LOG
   grep -q COMPLETED /home/zhaosiying/fq_opd_run_a${attempt}.log && break
   [ -f /mnt/c/fq_opd_out/checkpoint-1000/fp4vla_shard_index.json ] && break
