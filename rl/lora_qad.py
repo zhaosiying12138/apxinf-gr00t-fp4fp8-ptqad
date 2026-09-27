@@ -53,6 +53,10 @@ def in_scope(name):
 
 def install_lora(model):
     import torch.nn.init as init
+    sys.path.insert(0, "/home/zhaosiying/codebase/fp4vla/quant/ptq")
+    from bake import alloc_aggr
+    from torch_fp4 import fake_quant_nvfp4_torch as fq4
+    baked_base = os.path.exists(os.path.join(os.environ["GR00T_BASE_CKPT"], "ptq_recipe.json"))
     frozen = trainable = 0
     for name, mod in model.named_modules():
         if isinstance(mod, nn.Linear) and mod.weight.ndim == 2 and mod.weight.is_cuda:
@@ -70,10 +74,21 @@ def install_lora(model):
                     return fwd
                 mod.forward = make_fwd(mod, scale)
                 _lora_count[0] += 1
+            elif baked_base:
+                pass   # weights already carry the baked PTQ values (incl GPTQ/FP8)
             else:
-                # frozen backbone linears: quantize-once (values never change)
-                with torch.no_grad():
-                    mod.weight.data = fake_quant_nvfp4_torch(mod.weight).to(mod.weight.dtype)
+                kind = alloc_aggr(name, mod.weight)
+                if kind == "bf16":
+                    pass
+                elif kind == "fp8":
+                    with torch.no_grad():
+                        s = mod.weight.abs().amax(dim=1, keepdim=True).clamp_min(1e-12) / 448.0
+                        import torch_fp4 as _tf
+                        mod.weight.data = (_tf._quant_e4m3(mod.weight.float() / s)
+                                           * torch.sign(mod.weight.float()) * s).to(mod.weight.dtype)
+                else:
+                    with torch.no_grad():
+                        mod.weight.data = fq4(mod.weight).to(mod.weight.dtype)
     for pname, p in model.named_parameters():
         p.requires_grad = "lora_" in pname.split(".")[-1]
         if p.requires_grad:
