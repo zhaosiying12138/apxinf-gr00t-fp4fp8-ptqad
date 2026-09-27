@@ -121,7 +121,7 @@ DiT flow-matching head）、同一校准集（libero_demo 16 批×8 窗口，189
 | calib | 全 NVFP4 + GPTQ + 逐层 MSE 裁剪 | 3.56× | **0%** | 纯校准救不了 |
 | fp8 | backbone FP8 + head 全 NVFP4 | 2.44× | 70.8% | head 注意力 NVFP4 是短板 |
 | **mixed** | NVIDIA 分配复刻 | **2.02×** | **93.3%** | ✅ 部署级 |
-| aggr | 全 NVFP4，仅护 o/down（FP8）+解码器（BF16） | 2.88× | [TBD-aggr] | 恢复训练基座 |
+| aggr | 全 NVFP4，仅护 o/down（FP8）+解码器（BF16） | 2.88× | **0%** | 视觉塔 NVFP4 亦致死 |
 
 （mixed 10×10 全量终测：[TBD-full-mixed]；BF16 上界 96.7%。）
 
@@ -131,9 +131,11 @@ DiT flow-matching head）、同一校准集（libero_demo 16 批×8 窗口，189
    仍为 0%——在 4-bit 格式下，逐层最优的误差累计仍会摧毁闭环行为；而 mixed 臂只动精度
    分配（没动校准）就回到 93%。这量化了"PTQ 的瓶颈在误差的**放置位置**而非总量"。
 2. **AWQ α=0 负结果**（12.4）——weight-only NVFP4 的块缩放已吸收通道异常值。
-3. **fp8 臂与旧 head-FP4-only 71.2% 相互印证**：head 注意力投影的 NVFP4 化是微波炉类
-   精细任务（0.125）的元凶，而 FFN 的 NVFP4 化（mixed 保留）几乎无损——模块级敏感度
-   排序与 NVIDIA 配方独立一致。
+3. **模块级敏感度地图**（五臂差分的直接产物）：NVFP4 化致死模块 = 视觉塔 ≈ DiT 注意力
+   投影 ≈ LLM o_proj/down_proj；可幸存模块 = LLM q/k/v/gate/up、DiT FFN（mixed 里 FFN
+   保持 NVFP4 而闭环近乎无损）。fp8 臂（head 全 NVFP4）70.8% 与旧 head-FP4-only 71.2%
+   相互印证；aggr 臂（视觉 NVFP4 + head 注意力 NVFP4）0% 与旧 backbone-FP4-only 0%
+   相互印证——两代实验交叉一致，敏感度排序与 NVIDIA 配方的保护对象独立吻合。
 
 ## 12.8 方法论教训：离线 proxy 的混沌性
 
