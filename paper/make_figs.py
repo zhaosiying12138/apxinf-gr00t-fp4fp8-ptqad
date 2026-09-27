@@ -92,7 +92,24 @@ def opbench_heatmap():
     (FIGS / "opbench_heatmap.svg").write_text("".join(s), encoding="utf-8")
     print("wrote opbench_heatmap.svg")
 
+
+
+def ladder_chart():
+    """09-28 final closed-loop recovery ladder (LIBERO-10)."""
+    rows = [
+        ("BF16 上界", 96.7, "#8aa6c1"),
+        ("PTQ rtn 全NVFP4 (3.56x)", 0.0, "#d9534f"),
+        ("PTQ calib GPTQ (3.56x)", 0.0, "#d9534f"),
+        ("PTQ aggr (2.88x)", 0.0, "#d9534f"),
+        ("PTQ fp8 基座 (2.44x)", 43.4, "#e8a33d"),
+        ("PTQ mixed 部署级 (2.02x)", 95.1, "#5cb85c"),
+        ("QAD-LoRA (2.44x+低秩)", 99.0, "#2f7fd1"),
+        ("OPD-LoRA (2.44x+低秩)", 99.0, "#2f7fd1"),
+    ]
+    hbar_chart(rows, "闭环恢复阶樯：lIBERO-10 成功率（%，10×10 全量）", "%", "ladder.svg")
+
 if __name__ == "__main__":
     e1_chart()
     opbench_heatmap()
+    ladder_chart()
     print("figures done ->", FIGS)
