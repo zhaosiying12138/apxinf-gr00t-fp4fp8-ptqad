@@ -32,7 +32,7 @@ def load_rollout(log_dir, results_glob):
     """Parse ALL task results logs (mtime order) against the sequential server
     step log. Episode k of task t spans ceil(len_k/8) consecutive server calls."""
     import glob as _glob
-    txts = []
+    succ, lens = [], []
     for f in sorted(_glob.glob(results_glob), key=os.path.getmtime):
         txt = open(f, errors="ignore").read()
         m = re.findall(r"results:\s+\('[^']+', \[([^\]]*)\], \{'episode_lengths': \[([^\]]*)\]", txt)

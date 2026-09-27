@@ -20,13 +20,13 @@ o/down+解码器）为基座，对标 mixed（2.02×，部署级）与 BF16 上�
 | SFT 无量化（姊妹 E4） | 官方配方 1000 步 | 无 | 1× | 87.4% | ✅（姊妹数据） |
 | PTQ rtn | — | 全模型 NVFP4 RTN | 3.56× | 0% | ✅ |
 | PTQ calib | — | 全 NVFP4 + GPTQ + MSE 裁剪 | 3.56× | 0%（mini） | ✅ 09-28 |
-| PTQ fp8 | — | backbone FP8 + head NVFP4 | 2.44× | 70.8%（mini） | ✅ 09-28 |
-| **PTQ mixed（部署级）** | — | NVIDIA 分配复刻 | 2.02× | 93.3%（mini）/ [10×10 TBD] | ✅ 09-28 |
-| PTQ aggr（恢复基座） | — | 全 NVFP4 仅护 o/down+解码器 | 2.88× | [TBD-aggr] | 🔄 |
-| QAD-LoRA | demo loss + merged-quant STE | aggr | 2.88×+LoRA | ? | 🔄 就绪待跑 |
-| OPD-LoRA | + probe-cached teacher-KL | aggr | 2.88×+LoRA | ? | 设计就绪 |
+| PTQ fp8（恢复基座） | — | backbone FP8 + head NVFP4 | 2.44× | 70.8%（mini） | ✅ 09-28 |
+| **PTQ mixed（部署级）** | — | NVIDIA 分配复刻 | 2.02× | **95.1%（10×10 全量）** | ✅ 09-28 |
+| PTQ aggr | — | 全 NVFP4 仅护 o/down+解码器 | 2.88× | 0%（mini） | ✅ 09-28 |
+| **QAD-LoRA** | demo loss + 加性 LoRA | fp8 基座 + BF16 低秩残差 | 2.44×+ | **99.0%（10×10）** | ✅ 09-28 |
+| **OPD-LoRA** | + probe-cached teacher-KL | 同上 | 2.44×+ | **99.0%（10×10）** | ✅ 09-28 |
+| RWR-LoRA（PPO 家族对照） | 成功加权自模仿 | 同上 | 2.44×+ | 🔄 | 采集中 |
 | QAD（旧全量头） | +fake-quant SFT | 全模型 NVFP4 | 3.56× | 0.63% | ✅（历史） |
-| PPO 对照（同预算） | 任务奖励微调（LoRA） | aggr | 2.88×+LoRA | ? | 设计中 |
 
 辅证消融：混合精度二分（head-FP4 71.2 / backbone-FP4 0）、双模型验证（π0.5
 BF16 90% / nvfp4 0%）、离线-闭环脱节（信号扫描 + 09-28 probe 混沌教训：连 FP8/mixed
