@@ -20,7 +20,7 @@ o/down+解码器）为基座，对标 mixed（2.02×，部署级）与 BF16 上�
 | SFT 无量化（姊妹 E4） | 官方配方 1000 步 | 无 | 1× | 87.4% | ✅（姊妹数据） |
 | PTQ rtn | — | 全模型 NVFP4 RTN | 3.56× | 0% | ✅ |
 | PTQ calib | — | 全 NVFP4 + GPTQ + MSE 裁剪 | 3.56× | 0%（mini） | ✅ 09-28 |
-| PTQ fp8（恢复基座） | — | backbone FP8 + head NVFP4 | 2.44× | 70.8%（mini） | ✅ 09-28 |
+| PTQ fp8（恢复基座） | — | backbone FP8 + head NVFP4 | 2.44× | 70.8%（mini）/ **43.4%（10×10）** | ✅ 09-28 |
 | **PTQ mixed（部署级）** | — | NVIDIA 分配复刻 | 2.02× | **95.1%（10×10 全量）** | ✅ 09-28 |
 | PTQ aggr | — | 全 NVFP4 仅护 o/down+解码器 | 2.88× | 0%（mini） | ✅ 09-28 |
 | **QAD-LoRA** | demo loss + 加性 LoRA | fp8 基座 + BF16 低秩残差 | 2.44×+ | **99.0%（10×10）** | ✅ 09-28 |
