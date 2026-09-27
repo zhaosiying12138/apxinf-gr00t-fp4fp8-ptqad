@@ -134,7 +134,7 @@ def install_trainer_hooks():
                            for k, v in _probe["inputs"].items()}
                     tin.pop("labels", None)
                     torch.manual_seed(20260927)
-                    s_pred = model(**tin, output_hidden_states=False).get("pred_actions")
+                    s_pred = model(tin).get("pred_actions")
                     if s_pred is not None:
                         t_pred = _probe["pred"].to(s_pred.device)
                         kl = torch.nn.functional.mse_loss(s_pred.float(), t_pred.float())
@@ -165,6 +165,7 @@ sys.argv = ["launch_finetune.py",
     "--max-steps", STEPS,
     "--global-batch-size", BSZ,
     "--gradient-accumulation-steps", ACC,
+    "--learning-rate", os.environ.get("QAD_LR", "1e-4"),
     "--save-only-model",
     "--num-shards-per-epoch", "4",
     "--dataloader-num-workers", "1"]
