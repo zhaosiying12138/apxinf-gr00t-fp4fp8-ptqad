@@ -66,6 +66,9 @@ def install_teacher_kl(trainer_cls):
     def with_teacher(self, model, inputs, return_outputs=False, **kw):
         loss, outputs = orig(self, model, inputs, return_outputs=True, **kw)
         try:
+            EVERY = int(os.environ.get("OPD_KL_EVERY", "4"))
+            if self.state.global_step % EVERY != 0:
+                return (loss, outputs) if return_outputs else loss
             # student predictions come from the first (already-run) forward
             s_pred = outputs.get("pred_actions") if hasattr(outputs, "get")                 else getattr(outputs, "pred_actions", None)
             if s_pred is None:

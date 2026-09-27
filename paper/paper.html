@@ -316,6 +316,127 @@ D_λ = λ · d^{π_q(φ)}  +  (1−λ) · d_demo        # λ=0 → QAD；λ=1 �
 <p>---</p>
 <p>*本工作在单张 RTX 5090 Laptop（WSL2）上完成；姊妹工作（FSDP2 CPUOffload 单卡</p>
 <p>全权重训练）共享同卡与 checkpoint，交叉引用。*</p>
+<h2>§3 数值格式与量化基础（教程章）</h2>
+<p>本章为零基础读者完整介绍本文用到的全部数值格式与量化概念。我们不假设读者</p>
+<p>具有低精度计算背景；所有格式都给出位级布局、值域表、舍入规则与代码级示例。</p>
+<h3>3.1 从 FP32 到低精度：为什么以及代价</h3>
+<p>深度学习权重传统上以 FP32（1 符号 + 8 指数 + 23 尾数）或 BF16（1+8+7）存储。</p>
+<p>推理的算力与访存瓶颈随精度下降而缓解：NVFP4 相对 BF16 理论访存减半（权重</p>
+<p>0.5 字节/元素 vs 2 字节）、tensor core 吞吐升 4×（本文实测 sm_120 上 NVFP4</p>
+<p>GEMM 峰值 506 TFLOPS vs BF16 98.5 TFLOPS，§7）。代价是表示误差：4-bit 格式</p>
+<p>每个元素只有 16 个可表示值。量化研究的全部主题即：**如何选择这 16 个值</p>
+<p>（缩放），以及如何让模型在误差下仍然工作（恢复）**。</p>
+<h3>3.2 E2M1：NVFP4 的数据格式</h3>
+<p>E2M1 是 4-bit 浮点：1 符号位、2 指数位、1 尾数位。非零正值共 15 个——等等，</p>
+<p>实际是 8 个正幅值（含两个子normal）：</p>
+<table><tr><th>位模式 s eem</th><th>值</th><th>说明</th></tr><tr><td>0 000</td><td>+0</td><td>零</td></tr><tr><td>0 001</td><td>+0.5</td><td>子normal：0.5×2⁻¹×1</td></tr><tr><td>0 010</td><td>+1.0</td><td>normal：2⁰×1.0</td></tr><tr><td>0 011</td><td>+1.5</td><td>2⁰×1.5</td></tr><tr><td>0 100</td><td>+2.0</td><td>2¹×1.0</td></tr><tr><td>0 101</td><td>+3.0</td><td>2¹×1.5</td></tr><tr><td>0 110</td><td>+4.0</td><td>2²×1.0</td></tr><tr><td>0 111</td><td>+6.0</td><td>2²×1.5（最大有限值）</td></tr></table>
+<p>加上符号位取负，E2M1 的完整值域是</p>
+<p><b>{0, ±0.5, ±1, ±1.5, ±2, ±3, ±4, ±6}</b>。注意两个特点：(i) 相邻值间距</p>
+<p>不均匀（0.5 与 6 之间呈 2 的幂档）；(ii) 最大值 6，超出即饱和（satfinite）。</p>
+<p><b>舍入</b>：将实数 v 映射到最近的 E2M1 值。中点（如 0.25 在 0 与 0.5 之间）</p>
+<p>采用 round-to-nearest-even（RNE, ties-to-even）：优先落到二进制表示最低</p>
+<p>位为 0 的那侧。本文第 7 章的 kernel 调试记录了一个真实案例：GPU kernel 用</p>
+<p>&quot;+0.5 截断&quot;（ties-away）而 CPU 参考用 RNE，导致 0.74% 字节不一致——这类</p>
+<p>细节在教程文献中很少提及，但在工程上决定逐位对错的成败。</p>
+<p><b>打包</b>：两个 E2M1 值打包进 1 字节（低 4 位 = 偶数位置元素，高 4 位 = 奇数</p>
+<p>位置元素）。</p>
+<h3>3.3 E4M3 与 UE8M0：两种缩放格式</h3>
+<p><b>E4M3</b>（8-bit）：1+4+3，用于 NVFP4 的块缩放。值域 ±448，比标准 FP8 E4M3</p>
+<p>（±464，无穷/NaN 保留）略窄——cuBLASLt 生态采用 ±448 变体（satfinite 到</p>
+<p>0x7E）。块缩放用 E4M3 而非 FP32 的理由：硬件在 GEMM 累加时以 8-bit 解码</p>
+<p>scale，带宽与寄存器成本远低于 FP32。</p>
+<p><b>UE8M0</b>（8-bit 无符号纯指数）：值为 2^(b−127)，无尾数。用于 MXFP4（microscaling，</p>
+<p>per-32 块）。本文实测 sm_120 的 cuBLASLt 不支持 MXFP4 GEMM（heuristic 返回</p>
+<p>状态 7、零算法，§7.2），因此全文聚焦 NVFP4。</p>
+<h3>3.4 缩放粒度与双重量化</h3>
+<ul><li><b>per-tensor</b>：整个矩阵一个 FP32 scale。FP8 时代主流；对权重分布跨度大</li></ul>
+<p>  的矩阵浪费严重。</p>
+<ul><li><b>per-channel</b>：每输出通道一个 scale（权重的行方向）。LLM 常用。</li><li><b>per-block(16)</b>：每 16 个连续输入元素一组 scale——NVFP4 的选择。粒度</li></ul>
+<p>  细到能跟踪局部动态范围，粗到 scale 开销可控（每 16 元素 1 字节 E4M3，</p>
+<p>  额外 6.25% 存储）。</p>
+<ul><li><b>双重量化（double quantization）</b>：块 scale 本身再除以一个 per-tensor</li></ul>
+<p>  FP32 scale（&quot;global scale&quot;），使 E4M3 编码只需覆盖 amax/6/global_scale</p>
+<p>  的动态范围。部署时三层数值：E2M1 数据 × E4M3 块 scale × FP32 tensor scale。</p>
+<p>  注意（本文 §8 的一个工程发现）：若 fake-quant 模拟器按双重结构编码而硬件</p>
+<p>  GEMM 只应用两层，将引入系统性常数因子误差——务必核对模拟器与 kernel 的</p>
+<p>  scale 语义一致。</p>
+<h3>3.5 权重量化的数学</h3>
+<p>给定权重矩阵 W ∈ R^{m×n}、块大小 B=16，第 j 块的量化为：</p>
+<pre><code>s_j = E4M3(amax(W_j) / 6 / g)          # 块 scale，g = per-tensor scale
+Q(W) = E2M1(W / s_j)                    # 逐元素
+W ≈ Q(W) × s_j × g                       # 反量化（部署读取的就是它）</code></pre>
+<p>本文 §2.5 的实测：双模型 1036 个张量上 rel-Frobenius 误差高度均匀</p>
+<p>（0.095±0.001）——NVFP4 的 per-16 缩放足够自适应，**权重&quot;可量化性&quot;不是</p>
+<p>闭环失败的瓶颈**（连向 §9 的机制分析）。</p>
+<h3>3.6 fake-quant：训练与评测中的模拟</h3>
+<p>真实 FP4 GEMM 需要硬件路径（§4）；训练与快速评测用 **fake-quant 模拟：前向</p>
+<p>时将权重（或激活）量化再立即反量化**（即 W → W ≈ Q(W)×s×g 的浮点近似），</p>
+<p>反向用 <b>直通估计器（STE, straight-through estimator）</b>：把量化视为恒等，</p>
+<p>梯度 ∂L/∂W 直接穿过量化节点。这是所有 QAT/QAD 方法的基础设施。</p>
+<p>两种实现：(i) 逐前向重算（训练时正确——权重在变）；(ii) <b>quantize-once</b></p>
+<p>（评测时把权重一次性替换为反量化值，之后按原生精度前向——数值等价、快约</p>
+<p>50×，本文闭环评测即用此法，§8）。</p>
+<p>---</p>
+<h2>§5 量化恢复方法论（教程章，论文核心）</h2>
+<p>本章完整讲解 PTQ → QAD → OPD 三级恢复阶梯的原理、设计决策与我们的实证</p>
+<p>教训。每级回答同一个问题：<b>量化把闭环成功率砸掉之后，拿什么把它救回来？</b></p>
+<h3>5.1 PTQ（后训练量化）：直接操作权重，不训练</h3>
+<p><b>流程</b>：(1) 加载 BF16 checkpoint；(2) 逐张量按 §3.4 公式离线转换</p>
+<p>（权重侧无需数据）；(3) 激活侧需要校准数据估计 scale（跑少量前向收集</p>
+<p>统计）；(4) 量化后的权重直接部署。</p>
+<p><b>为什么它先失败</b>：单层权重误差均匀（0.095）不是问题；问题是 VLA 前向</p>
+<p>有 36 层 × 每层多 GEMM，动作输出与 BF16 教师去相关（我们的实测：GR00T</p>
+<p>池化 corr −0.015，π0.5 0.11）。机制上，backbone 的 KV-cache 让每步的</p>
+<p>特征误差在序列维度复用复合（§2 理论），flow-matching ODE 的 Gronwall</p>
+<p>放大再乘一层。**结论：全模型 NVFP4 PTQ 在两个模型、两条实现路径上闭环</p>
+<p>全部归零（0%）——这不是实现 bug，是复合放大的结构性结果。**</p>
+<h3>5.2 QAD（Quantization-Aware Distillation）：训练权重适应量化网格</h3>
+<p><b>核心思想</b>：与其量化后承受误差，不如训练时就把量化&quot;放进&quot;前向——让权重</p>
+<p>主动移到&quot;量化后仍然正确&quot;的位置。两个组件：</p>
+<p><b>(a) QAT（量化感知训练）</b>：前向插入 §3.6 的 fake-quant + STE。梯度告诉</p>
+<p>每个权重&quot;你被量化后输出了多少误差&quot;，训练把它拉回网格上的正确格点。权重</p>
+<p>在量化网格上移动的直观图像：W 的每个 16-元素块由 (Q, s, g) 描述，训练改变</p>
+<p>的是 Q 的选择与 s 的取值。</p>
+<p><b>(b) 蒸馏损失</b>：NVIDIA 的 QAD 技术报告（arXiv:2601.20088）的关键贡献是</p>
+<p>用 <b>冻结 BF16 teacher 的 KL 损失替换任务损失</b>：学生不再拟合 demo 标签，</p>
+<p>而是拟合 teacher 的行为分布——保持&quot;和 teacher 一样做事&quot;，只把行为搬到</p>
+<p>量化网格上。配套实践：<b>scale 冻结、权重更新</b>（避免 scale-权重联合优化的</p>
+<p>不稳定）。</p>
+<p><b>我们的实证教训（重要负结果）</b>：我们第一版 QAD 用的是官方微调配方的</p>
+<p>demo 任务损失（MSE 于 demo 动作）+ fake-quant——<b>没有 teacher-KL 锚定</b>。</p>
+<p>结果：训练损失正常下降（1.29→0.33）但闭环 0%。诊断：demo 损失优化的是</p>
+<p>&quot;在量化约束下重建 demo 轨迹&quot;，牺牲的恰是闭环行为（探索/恢复能力）。</p>
+<p>另外发现 <b>grid-adaptation 现象</b>：QAD 权重不量化直跑（corr 0.21）反而差于</p>
+<p>量化部署（0.74）——权重已内化网格，离开网格反而错位。这从反面印证 teacher</p>
+<p>锚定的必要性：<b>恢复必须锚定行为分布，而非动作重建</b>。</p>
+<h3>5.3 OPD（On-Policy Distillation）：在学生自己的轨迹上纠偏</h3>
+<p><b>理论起点（DAgger，Ross &amp; Bagnell 2011）</b>：闭环执行中，策略每步的小误差</p>
+<p>把状态推离训练分布；在漂移后的状态上误差进一步放大。固定数据集训练的复合</p>
+<p>误差是 O(T²ε)；<b>在学生自己访问的状态上获得教师标签</b>（在策纠正）降为</p>
+<p>O(Tε)。量化策略正是&quot;带扰动学习器&quot;的典型实例。</p>
+<p><b>目标函数</b>（GKD, Agarwal et al. ICLR 2024 的 λ 混合形式迁移到</p>
+<p>flow-matching）：</p>
+<pre><code>L_λ(φ) = E_{s~D_λ, t, x_t} [ w(t)·‖ v_{Q(θ,φ)}(x_t,t;s) − v_{θ*}(x_t,t;s) ‖² ]
+D_λ = λ·d^{π_q(φ)} + (1−λ)·d_demo</code></pre>
+<p>λ=0 即 QAD（teacher-forced）；λ=1 即纯在策。reverse-KL 的 mode-seeking</p>
+<p>性质在 ODE 端点分布上同样成立。</p>
+<p><b>我们的 twin-forward 实现</b>（工程贡献）：不加载第二个 3.4B teacher——同一</p>
+<p>模型、同批数据，交换 nn.Linear.forward（fake-quant ↔ 原始）跑两遍，KL 项</p>
+<p>直接度量&quot;量化引起的当步行为漂移&quot;。显存省一半、batch 完全对齐。代价：每步</p>
+<p>双前向（我们以 OPD_KL_EVERY=4 节流）。</p>
+<p><b>成功率损失分解</b>（本文理论框架）：</p>
+<p>Δ = Δ_floor（量化噪声下界，R5d 噪声匹配实验估计）</p>
+<p>  + Δ_shift（协变量漂移损失，OPD 主补）</p>
+<p>  + Δ_opt（次优残差，PPO 唯一可能超越教师）。</p>
+<h3>5.4 OPD 与 PPO 的关系（对比讨论 + 可选对照臂）</h3>
+<p>教师塑形奖励 r = −‖a − π*(s)‖² 下的 PPO 在期望上退化为 OPD 的加权形式</p>
+<p>——两者是同一谱系的两端：稠密行为监督（OPD，样本高效、上限=教师）vs 稀疏</p>
+<p>任务奖励（PPO，样本低效、可超越教师）。我们的实验矩阵把 PPO 设计为**同预算</p>
+<p>对照臂**（同 1000 步、同 batch、同 fake-quant 前向、LIBERO 任务奖励），</p>
+<p>回答审稿人必问的&quot;为什么不用 RL&quot;：(i) 同预算下蒸馏的样本效率优势（预期</p>
+<p>数量级）；(ii) H4：RL 能否越过教师 87.4%（姊妹 E4 数据）的局部最优。</p>
+<p>若工程时间不足，本节以理论对比 + 引用姊妹论文 E5 Muon 长跑数据作为</p>
+<p>RL-相邻证据，PPO 臂列为 future work。</p>
 <hr><p class="meta">本页由 paper/build_html.py 生成 · 数据与代码见仓库 · 2026-09-24</p>
 </div><script>
 // animated NVFP4 scale swizzle: logical (row, block) grid -> physical cuBLASLt buffer
