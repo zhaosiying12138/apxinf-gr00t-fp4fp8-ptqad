@@ -120,10 +120,12 @@ DiT flow-matching head）、同一校准集（libero_demo 16 批×8 窗口，189
 | rtn | 全 NVFP4，max 校准 | 3.56× | **0%**（基线复现） | 格式上限之外 |
 | calib | 全 NVFP4 + GPTQ + 逐层 MSE 裁剪 | 3.56× | **0%** | 纯校准救不了 |
 | fp8 | backbone FP8 + head 全 NVFP4 | 2.44× | 70.8% | head 注意力 NVFP4 是短板 |
-| **mixed** | NVIDIA 分配复刻 | **2.02×** | **93.3%** | ✅ 部署级 |
+| **mixed** | NVIDIA 分配复刻 | **2.02×** | **93.3%（mini）/ 95.1%（10×10 全量）** | ✅ 部署级 |
 | aggr | 全 NVFP4，仅护 o/down（FP8）+解码器（BF16） | 2.88× | **0%** | 视觉塔 NVFP4 亦致死 |
 
-（mixed 10×10 全量终测：[TBD-full-mixed]；BF16 上界 96.7%。）
+（mixed 10×10 全量终测：**97/102 = 95.1%**，BF16 上界 96.7%——2.02× 压缩下仅丢
+1.6 个百分点，且 10 任务中 8 个满分；与 NVIDIA 官方 LIBERO Spatial 97.5→97.3 的近无损
+结论同向。）
 
 三个可写进论文的贡献点：
 

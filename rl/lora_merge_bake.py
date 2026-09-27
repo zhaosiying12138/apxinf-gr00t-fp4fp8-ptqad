@@ -42,31 +42,44 @@ def main():
         if not os.path.exists(dst):
             shutil.copy(src, dst)
 
-    merged = skipped = 0
+    # load ALL shards first: lora_A and its base weight may live in different
+    # shards — merge globally, then write shards back per the original index.
+    sd = {}
+    shard_keys = {}
     for shard in shards:
         tensors = load_file(f"{args.ckpt}/{shard}")
-        keys = list(tensors.keys())
-        for k in keys:
-            if not k.endswith(".lora_A"):
-                continue
-            base = k[: -len(".lora_A")]
-            kb = f"{base}.lora_B"
-            assert kb in tensors, f"lora_B missing for {base}"
-            W = tensors[base].float().cuda()
-            A = tensors[k].float().cuda()
-            B = tensors[kb].float().cuda()
-            Wq = fake_quant_nvfp4_torch(W + (args.alpha / args.rank) * (B @ A))
-            tensors[base] = Wq.to(tensors[base].dtype).cpu()
-            del tensors[k], tensors[kb]
-            merged += 1
-        # drop any straggler lora keys
-        for k in list(tensors.keys()):
-            if ".lora_" in k:
-                del tensors[k]
-                skipped += 1
+        shard_keys[shard] = list(tensors.keys())
+        sd.update(tensors)
+
+    merged = skipped = 0
+    for k in list(sd.keys()):
+        if not k.endswith(".lora_A"):
+            continue
+        base = k[: -len(".lora_A")] + ".weight"
+        kb = k[: -len(".lora_A")] + ".lora_B"
+        assert kb in sd and base in sd, f"lora_B/base missing for {base}"
+        # v2 additive merge: saved base weight already carries the baked
+        # quantization values; the low-rank residual is added in BF16 and
+        # NOT requantized (deploy = quantized base + BF16 low-rank branch).
+        W = sd[base].float()
+        A = sd[k].float()
+        B = sd[kb].float()
+        sd[base] = (W + (args.alpha / args.rank) * (B @ A)).to(sd[base].dtype)
+        del sd[k], sd[kb]
+        merged += 1
+    for k in list(sd.keys()):
+        if ".lora_" in k:
+            del sd[k]
+            skipped += 1
+
+    for shard in shards:
+        tensors = {}
+        for k in shard_keys[shard]:
+            if k in sd:
+                tensors[k] = sd[k]
         save_file(tensors, f"{args.out}/{shard}", metadata={"format": "pt"})
-    print(f"[merge] {merged} LoRA layers merged+requantized, {skipped} stragglers dropped "
-          f"-> {args.out}", flush=True)
+    print(f"[merge] {merged} LoRA layers merged (additive, no requant), "
+          f"{skipped} stragglers dropped -> {args.out}", flush=True)
 
 
 if __name__ == "__main__":

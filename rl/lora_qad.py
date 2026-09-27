@@ -1,10 +1,13 @@
 """LoRA QAD / OPD: quantization-aware (optionally teacher-KL) LoRA recovery
 training for GR00T N1.7 — the 24GB-safe successor to full_head_qad.py.
 
-Semantics: every in-scope Linear computes  y = x @ Q(W + (alpha/r) B A)^T
-per forward, with NVFP4 fake-quant STE through the merged weight. Base weights
-frozen; only LoRA A/B train. Deploy = bake quant(W + delta) — training and
-deployment see the SAME quantized function (no merge mismatch).
+v2 additive semantics: every in-scope Linear computes
+    y = x @ W_baked^T + (x @ A^T @ B^T) * (alpha/r)
+where W_baked are the PTQ-baked quantization values (frozen, never
+requantized) and the low-rank residual is an exact-gradient BF16 branch
+(SVDQuant/EoRA family: quantized base + full-precision low-rank correction).
+Deploy (rl/lora_merge_bake.py) = W_baked + (B@A)*s added in BF16, no
+requantization — training and deployment evaluate the identical function.
 
 Env knobs:
   QAD_LORA_R (32)  rank; QAD_LORA_ALPHA (64); QAD_LORA_SCOPE
@@ -68,9 +71,14 @@ def install_lora(model):
                 scale = ALPHA / R
 
                 def make_fwd(m, s):
+                    # v2 additive semantics: quantized base (baked in m.weight,
+                    # values never change) + exact-grad low-rank BF16 residual.
+                    # Deploy = lora_merge_bake (W_saved + (B@A)*s, no requant).
                     def fwd(x):
-                        Wq = fake_quant_nvfp4_torch(m.weight.float() + (m.lora_B.float() @ m.lora_A.float()) * s)
-                        return torch.nn.functional.linear(x, Wq.to(x.dtype), m.bias)
+                        y = torch.nn.functional.linear(x, m.weight, m.bias)
+                        z = torch.nn.functional.linear(x, m.lora_A)
+                        z = torch.nn.functional.linear(z, m.lora_B)
+                        return y + (z * s).to(y.dtype)
                     return fwd
                 mod.forward = make_fwd(mod, scale)
                 _lora_count[0] += 1

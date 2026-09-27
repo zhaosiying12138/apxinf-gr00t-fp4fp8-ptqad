@@ -28,16 +28,21 @@ os.environ.setdefault("LD_LIBRARY_PATH",
     os.path.expanduser("~/miniforge3/envs/media7/lib:") + os.environ.get("LD_LIBRARY_PATH", ""))
 
 
-def load_rollout(log_dir, results_log):
-    """Return list of episodes: {success, calls: [file paths in order]}."""
-    txt = open(results_log, errors="ignore").read()
-    m = re.findall(r"results:\s+\('[^']+', \[([^\]]*)\], \{'episode_lengths': \[([^\]]*)\]",
-                   txt)
-    assert m, "no results line in rollout log"
-    succ = [s.strip() == "True" for s in m[-1][0].split(",")]
-    lens = [int(x) for x in m[-1][1].split(",")]
+def load_rollout(log_dir, results_glob):
+    """Parse ALL task results logs (mtime order) against the sequential server
+    step log. Episode k of task t spans ceil(len_k/8) consecutive server calls."""
+    import glob as _glob
+    txts = []
+    for f in sorted(_glob.glob(results_glob), key=os.path.getmtime):
+        txt = open(f, errors="ignore").read()
+        m = re.findall(r"results:\s+\('[^']+', \[([^\]]*)\], \{'episode_lengths': \[([^\]]*)\]", txt)
+        if not m:
+            continue   # server.log etc.
+        succ += [s.strip() == "True" for s in m[-1][0].split(",")]
+        lens += [int(x) for x in m[-1][1].split(",")]
+    assert lens, f"no results lines in {results_glob}"
     files = sorted(glob.glob(f"{log_dir}/step_*.pkl.gz"))
-    n_calls = [ (L + 7) // 8 for L in lens ]
+    n_calls = [(L + 7) // 8 for L in lens]
     assert sum(n_calls) == len(files), f"calls {sum(n_calls)} != files {len(files)}"
     episodes, i = [], 0
     for s, c in zip(succ, n_calls):
@@ -61,7 +66,8 @@ def stitch_target(ep, t, horizon_chunks=8, exec_steps=8):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rollout-dir", required=True)
-    ap.add_argument("--results-log", required=True)
+    ap.add_argument("--results-glob", required=True,
+                    help="glob of per-task rollout logs (mtime order)")
     ap.add_argument("--base", required=True, help="merged deploy ckpt (fp8 arm or qad-lora)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--steps", type=int, default=200)
@@ -76,7 +82,7 @@ def main():
     import numpy as np
     import torch
 
-    episodes = load_rollout(args.rollout_dir, args.results_log)
+    episodes = load_rollout(args.rollout_dir, args.results_glob)
     wins = [e for e in episodes if e["success"]]
     print(f"[rwr] episodes={len(episodes)} success={len(wins)} ({time.time()-t0:.0f}s)", flush=True)
     assert wins, "no successful episodes — nothing to imitate"
@@ -168,11 +174,22 @@ def main():
         if step % 10 == 0:
             print(f"[rwr] step {step} loss={float(loss):.5f} ({time.time()-t0:.0f}s)", flush=True)
 
-    # save: strip to state dict with LoRA merged via lora_merge_bake semantics
+    # in-memory additive merge + HF save (eval-ready checkpoint)
+    with torch.no_grad():
+        for name, mod in model.named_modules():
+            if hasattr(mod, "lora_A") and isinstance(getattr(mod, "lora_A", None), torch.nn.Parameter):
+                mod.weight.data += ((mod.lora_B.data.float() @ mod.lora_A.data.float())
+                                    * (args.alpha / args.rank)).to(mod.weight.dtype)
+                del mod.lora_A, mod.lora_B
+                mod.forward = torch.nn.Linear.forward
     os.makedirs(args.out, exist_ok=True)
-    sd = {k: v.cpu() for k, v in model.state_dict().items()}
-    torch.save(sd, f"{args.out}/rwr_state.pt")
-    print(f"[rwr] DONE saved {args.out}/rwr_state.pt ({time.time()-t0:.0f}s)", flush=True)
+    model.save_pretrained(args.out, safe_serialization=True)
+    import shutil
+    for f in ["config.json", "embodiment_id.json", "processor_config.json", "statistics.json"]:
+        src = f"{args.base}/{f}"
+        if os.path.exists(src):
+            shutil.copy(src, f"{args.out}/{f}")
+    print(f"[rwr] DONE saved {args.out} ({time.time()-t0:.0f}s)", flush=True)
 
 
 if __name__ == "__main__":
