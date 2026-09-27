@@ -163,29 +163,32 @@ def install_trainer_hooks():
 
 install_trainer_hooks()
 
-sys.argv = ["launch_finetune.py",
-    "--base-model-path", os.environ["GR00T_BASE_CKPT"],
-    "--dataset-path", "./demo_data/libero_demo",
-    "--embodiment-tag", "LIBERO_PANDA",
-    "--num-gpus", "1",
-    "--output-dir", OUT,
-    "--save-steps", "100",
-    "--max-steps", STEPS,
-    "--global-batch-size", BSZ,
-    "--gradient-accumulation-steps", ACC,
-    "--learning-rate", os.environ.get("QAD_LR", "1e-4"),
-    "--save-only-model",
-    "--num-shards-per-epoch", "4",
-    "--dataloader-num-workers", "1"]
+install_trainer_hooks()
 
-import runpy
-print(f"[lora-qad] launching: r={R} scope={SCOPE} steps={STEPS} kl_w={KL_W}", flush=True)
-try:
-    runpy.run_path("gr00t/experiment/launch_finetune.py", run_name="__main__")
-    print(f"[lora-qad] COMPLETED in {(time.time()-T0)/3600:.2f}h")
-except SystemExit as e:
-    print(f"[lora-qad] exit {e} after {(time.time()-T0)/3600:.2f}h")
-except Exception as e:
-    import traceback; traceback.print_exc()
-    print(f"[lora-qad] FAILED after {(time.time()-T0)/3600:.2f}h: {type(e).__name__}: {e}")
-    sys.exit(1)
+if __name__ == "__main__":
+    sys.argv = ["launch_finetune.py",
+        "--base-model-path", os.environ["GR00T_BASE_CKPT"],
+        "--dataset-path", "./demo_data/libero_demo",
+        "--embodiment-tag", "LIBERO_PANDA",
+        "--num-gpus", "1",
+        "--output-dir", OUT,
+        "--save-steps", "100",
+        "--max-steps", STEPS,
+        "--global-batch-size", BSZ,
+        "--gradient-accumulation-steps", ACC,
+        "--learning-rate", os.environ.get("QAD_LR", "1e-4"),
+        "--save-only-model",
+        "--num-shards-per-epoch", "4",
+        "--dataloader-num-workers", "1"]
+
+    import runpy
+    print(f"[lora-qad] launching: r={R} scope={SCOPE} steps={STEPS} kl_w={KL_W}", flush=True)
+    try:
+        runpy.run_path("gr00t/experiment/launch_finetune.py", run_name="__main__")
+        print(f"[lora-qad] COMPLETED in {(time.time()-T0)/3600:.2f}h")
+    except SystemExit as e:
+        print(f"[lora-qad] exit {e} after {(time.time()-T0)/3600:.2f}h")
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        print(f"[lora-qad] FAILED after {(time.time()-T0)/3600:.2f}h: {type(e).__name__}: {e}")
+        sys.exit(1)

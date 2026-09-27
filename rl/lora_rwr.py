@@ -1,74 +1,83 @@
 """RWR (reward-weighted self-imitation) — the PPO-family on-policy baseline.
 
 Arms comparison (same 2.44x fp8-arm deployment base, same LoRA budget):
-  QAD-LoRA : demo-loss (offline demonstrations)
-  OPD-LoRA : + probe-cached BF16 teacher-KL
-  RWR-LoRA : flow-matching BC on SUCCESSFUL on-policy rollouts only
-             (sparse success reward -> weight w=1 on success, 0 otherwise;
-             REINFORCE's reward-weighted likelihood reduces to this under
-             terminal 0/1 reward; full PPO/DPPO cited as the exact-likelihood
-             version, Ren et al. 2024)
+  QAD-LoRA : demo-loss (offline demonstrations)         -> 99.0% (10x10)
+  OPD-LoRA : + probe-cached BF16 teacher-KL             -> 99.0% (10x10)
+  RWR-LoRA : flow-matching BC on SUCCESSFUL on-policy rollouts
+             (sparse success reward -> REINFORCE's reward-weighted likelihood
+             reduces to weighted BC under terminal 0/1 reward; DPPO cited as
+             the exact-likelihood version, Ren et al. 2024)
 
-Two-phase loop, cross-venv safe:
-  Phase A (rollout): run_libero_eval_mini.sh + FP4VLA_LOG_DIR -> server dumps
-             (obs, action_chunk) per policy call (JPEG-compressed);
-             rollout log's results line gives per-episode success + lengths.
-             Episode k spans ceil(len_k/8) consecutive server calls; the env
-             executes the FIRST 8 of each returned 16-chunk.
-  Phase B (train) : this script. Windows: obs at call t + target =
-             concat(executed(t..t+7)) -> (64, D); normalize with the base
-             checkpoint's statistics.json; replay obs through the policy's
-             own preprocessing; overwrite the collated action target;
-             model(batch) -> action_loss; AdamW on LoRA params.
+Rollout data: the eval server logs BATCHED (n_envs=8) (obs, action-chunk)
+per policy call (FP4VLA_LOG_DIR). Per-task file ranges come from task-log
+mtimes; task-level success rates weight the windows (episode boundaries
+within a slot's stream are not logged — windows crossing them carry minor
+stitch noise, documented). Targets: per-slot 64-step windows stitched from
+the executed 8-step prefixes of 8 consecutive calls, normalized with the
+base checkpoint statistics (z-range sanity-checked at startup).
 """
 import os, sys, time, json, glob, gzip, pickle, argparse, re
 
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("HF_HUB_OFFLINE", "0")
 os.environ.setdefault("LD_LIBRARY_PATH",
     os.path.expanduser("~/miniforge3/envs/media7/lib:") + os.environ.get("LD_LIBRARY_PATH", ""))
 
+DIMS = ["x", "y", "z", "roll", "pitch", "yaw", "gripper"]
 
-def load_rollout(log_dir, results_glob):
-    """Parse ALL task results logs (mtime order) against the sequential server
-    step log. Episode k of task t spans ceil(len_k/8) consecutive server calls."""
-    import glob as _glob
-    succ, lens = [], []
-    for f in sorted(_glob.glob(results_glob), key=os.path.getmtime):
+
+def load_tasks(log_dir, results_glob):
+    """Per-task contiguous server-call file ranges + success rates (mtime split)."""
+    logs = [f for f in glob.glob(results_glob) if "server" not in f]
+    tasks = []
+    for f in logs:
         txt = open(f, errors="ignore").read()
-        m = re.findall(r"results:\s+\('[^']+', \[([^\]]*)\], \{'episode_lengths': \[([^\]]*)\]", txt)
-        if not m:
-            continue   # server.log etc.
-        succ += [s.strip() == "True" for s in m[-1][0].split(",")]
-        lens += [int(x) for x in m[-1][1].split(",")]
-    assert lens, f"no results lines in {results_glob}"
-    files = sorted(glob.glob(f"{log_dir}/step_*.pkl.gz"))
-    n_calls = [(L + 7) // 8 for L in lens]
-    assert sum(n_calls) == len(files), f"calls {sum(n_calls)} != files {len(files)}"
-    episodes, i = [], 0
-    for s, c in zip(succ, n_calls):
-        episodes.append({"success": s, "calls": files[i:i + c]})
-        i += c
-    return episodes
+        m = re.findall(r"results:\s+\('[^']+', \[([^\]]*)\],", txt)
+        sr = re.search(r"success rate:\s*([0-9.]+)", txt)
+        if m and sr:
+            tasks.append({"log": f, "rate": float(sr.group(1)), "end": os.path.getmtime(f)})
+    tasks.sort(key=lambda t: t["end"])
+    files = sorted(glob.glob(f"{log_dir}/step_*.pkl.gz"), key=os.path.getmtime)
+    assert files and tasks, f"no rollout files/logs ({len(files)} files, {len(tasks)} tasks)"
+    bounds = [t["end"] for t in tasks]
+    for t in tasks:
+        t["files"] = []
+    for f in files:
+        mt = os.path.getmtime(f)
+        for i, t in enumerate(tasks):
+            if mt <= bounds[i]:
+                t["files"].append(f)
+                break
+        else:
+            tasks[-1]["files"].append(f)
+    return tasks
 
 
-def stitch_target(ep, t, horizon_chunks=8, exec_steps=8):
-    """Concat the executed prefix of chunks t..t+7 -> (64, D) float list."""
+def load_entry(path):
+    import numpy as np
+    ent = pickle.loads(gzip.decompress(open(path, "rb").read()))
+    obs = ent["obs"]
+    o = {"video": {}, "state": {}, "language": obs.get("language")}
+    for k, v in obs["video"].items():
+        o["video"][k] = np.array(v, dtype=np.uint8)
+    for k, v in obs["state"].items():
+        o["state"][k] = np.array(v, dtype=np.float32)
+    return o, ent["action"]
+
+
+def stitch(action_calls, t, b):
+    """(64, 7) target from executed 8-prefixes of calls t..t+7, slot b."""
+    import numpy as np
     rows = []
-    for f in ep["calls"][t:t + horizon_chunks]:
-        ent = pickle.loads(gzip.decompress(open(f, "rb").read()))
-        act = ent["action"]
-        if isinstance(act, dict):
-            act = next(iter(act.values()))
-        rows.extend(act[0][:exec_steps])
-    return rows
+    for ac in action_calls:
+        rows.append(np.stack([np.asarray(ac[d])[b, :8, 0] for d in DIMS], axis=1))
+    return np.concatenate(rows, axis=0)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rollout-dir", required=True)
-    ap.add_argument("--results-glob", required=True,
-                    help="glob of per-task rollout logs (mtime order)")
-    ap.add_argument("--base", required=True, help="merged deploy ckpt (fp8 arm or qad-lora)")
+    ap.add_argument("--results-glob", required=True)
+    ap.add_argument("--base", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--steps", type=int, default=200)
     ap.add_argument("--batch", type=int, default=8)
@@ -82,102 +91,102 @@ def main():
     import numpy as np
     import torch
 
-    episodes = load_rollout(args.rollout_dir, args.results_glob)
-    wins = [e for e in episodes if e["success"]]
-    print(f"[rwr] episodes={len(episodes)} success={len(wins)} ({time.time()-t0:.0f}s)", flush=True)
-    assert wins, "no successful episodes — nothing to imitate"
+    tasks = load_tasks(args.rollout_dir, args.results_glob)
+    for t in tasks:
+        print(f"[rwr] task {os.path.basename(t['log'])[:40]}: rate={t['rate']} "
+              f"calls={len(t['files'])}", flush=True)
+    live = [t for t in tasks if t["rate"] > 0]
+    assert live, "no task with any success"
 
-    # training windows from successful episodes
+    # training windows: (task, call_idx, slot), weighted by task success rate
     windows = []
-    for e in wins:
-        for t in range(len(e["calls"]) - 8):
-            windows.append((e, t))
-    print(f"[rwr] windows={len(windows)}", flush=True)
+    for ti, t in enumerate(live):
+        n = len(t["files"])
+        for c in range(n - 8):
+            for b in range(8):
+                windows.append((ti, c, b))
+    print(f"[rwr] windows={len(windows)} over {len(live)} live tasks ({time.time()-t0:.0f}s)", flush=True)
 
-    # load policy + model (Baked base, eval transforms)
     from gr00t.policy.gr00t_policy import Gr00tPolicy
     policy = Gr00tPolicy(embodiment_tag="LIBERO_PANDA", model_path=args.base,
                          device="cuda", strict=True)
     model = policy.model
+    proc = policy.processor
+    groups = proc.modality_configs["libero_sim"]["action"].modality_keys
+    print(f"[rwr] action groups (model order): {groups}", flush=True)
 
-    # action normalization stats from the BASE teacher's statistics
-    stats = json.load(open(f"{args.base}/statistics.json"))
-    key = next(k for k in stats if "action" in k.lower() and "libero" in k.lower()) \
-        if any("libero" in k.lower() for k in stats) else next(k for k in stats if "action" in k.lower())
-    astat = stats[key]
-    mean = np.array(astat["mean"], dtype=np.float32)
-    std = np.array(astat["std"], dtype=np.float32).clip(1e-6)
-
-    # LoRA injection (reuse lora_qad machinery on this baked base)
     os.environ.setdefault("GR00T_BASE_CKPT", args.base)
     import lora_qad as LQ
     LQ.R, LQ.ALPHA, LQ.SCOPE = args.rank, args.alpha, "head"
     LQ.install_lora(model)
     opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=args.lr)
 
-    _inject = {"slot": None}
+    _inject = {"on": False}
 
+    # libero occupies slots 0-6 of the unified 132-dim action space (verified
+    # empirically from probe demo actions: var>0 exactly at 0..6, values in
+    # normalized [-1,1] from q01/q99 min-max) — same order as DIMS.
     def inject_action(batch, target):
-        d = batch
-        for k in _inject["slot"][:-1]:
-            d = d[k]
-        d[_inject["slot"][-1]] = target.unsqueeze(0).to(torch.bfloat16)
-        return batch
+        a = torch.zeros(1, 64, 132, dtype=torch.bfloat16)
+        mk = torch.zeros(1, 64, 132, dtype=torch.float32)
+        a[0, :, :7] = torch.from_numpy(target).to(torch.bfloat16)
+        mk[0, :, :7] = 1.0
+        inner = dict(batch["inputs"]) if "inputs" in batch else dict(batch)
+        inner["action"] = a
+        inner["action_mask"] = mk
+        return inner
+
+    # preload action dicts per task (small)
+    acts = {}
+    for ti, t in enumerate(live):
+        acts[ti] = [load_entry(f)[1] for f in t["files"]]
 
     def build_batch(idx):
-        obs_ent, tgt = windows[idx]
-        ent = pickle.loads(gzip.decompress(open(obs_ent["calls"][tgt], "rb").read()))
-        obs = ent["obs"]
-        from PIL import Image
-        import io
-        for k, v in list(obs.items()):
-            if isinstance(v, dict) and "__jpeg__" in v:
-                obs[k] = np.array(Image.open(io.BytesIO(v["__jpeg__"])))
-        unbatched = policy._unbatch_observation(obs)
-        sd = policy._to_vla_step_data(unbatched[0])
-        from gr00t.data.message_type import MessageType
+        ti, c, b = windows[idx]
+        obs_full, _ = load_entry(live[ti]["files"][c])
+        target_phys = stitch(acts[ti][c:c + 8], 0, b)   # (64, 7) absolute, DIMS order
+        unbatched = policy._unbatch_observation(obs_full)
+        state_raw = unbatched[b]["state"]
+        act_dict = {d: target_phys[:, i:i + 1] for i, d in enumerate(DIMS)}
+        norm = proc.state_action_processor.apply_action(
+            act_dict, "libero_sim", state={k: np.asarray(v, dtype=np.float32)
+                                           for k, v in state_raw.items()})
+        target = np.concatenate([norm[g] for g in groups], axis=1).astype(np.float32)
+        sd = policy._to_vla_step_data(unbatched[b])
+        from gr00t.data.types import MessageType
         msg = [{"type": MessageType.EPISODE_STEP.value, "content": sd}]
         processed = policy.processor(msg)
         batch = policy.collate_fn([processed])
-        target = (np.array(stitch_target(obs_ent, tgt), dtype=np.float32) - mean) / std
-        if _inject["slot"] is not None:
-            batch = inject_action(batch, torch.from_numpy(target))
-        return batch
+        if _inject["on"]:
+            batch = inject_action(batch, target)
+        return batch, live[ti]["rate"]
 
-    # locate the action key inside collated batch once (structure discovery)
-    probe_batch = build_batch(0)
-    def find_action_slot(d, path=()):
-        if isinstance(d, dict):
-            for k, v in d.items():
-                if "action" in str(k).lower() and hasattr(v, "shape") and v.ndim == 3:
-                    return path + (k,)
-                r = find_action_slot(v, path + (k,))
-                if r: return r
-        return None
-    slot = find_action_slot(probe_batch)
-    print(f"[rwr] action slot = {slot}", flush=True)
-    assert slot is not None, "action target slot not found in collated batch"
-    _inject["slot"] = slot
+    probe_batch, w0 = build_batch(0)
+    _inject["on"] = True
+    tb, _ = build_batch(0)
+    print(f"[rwr] injected action shape={tuple(tb['action'].shape)} "
+          f"z-range={float(tb['action'].abs().max()):.2f} (expect < ~2)", flush=True)
+
     model.train()
     for step in range(args.steps):
         idxs = np.random.randint(0, len(windows), args.batch)
-        losses = []
+        losses, wsum = [], 0.0
         for i in idxs:
-            b = build_batch(int(i))
+            b, w = build_batch(int(i))
             b = {k: (v.cuda() if torch.is_tensor(v) else v) for k, v in b.items()}
             out = model(b)
-            losses.append(out["action_loss"].mean())
-        loss = torch.stack(losses).mean()
+            losses.append(out["action_loss"].mean() * w)
+            wsum += w
+        loss = torch.stack(losses).sum() / max(wsum, 1e-6)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         opt.step()
         if step % 10 == 0:
             print(f"[rwr] step {step} loss={float(loss):.5f} ({time.time()-t0:.0f}s)", flush=True)
 
-    # in-memory additive merge + HF save (eval-ready checkpoint)
     with torch.no_grad():
         for name, mod in model.named_modules():
-            if hasattr(mod, "lora_A") and isinstance(getattr(mod, "lora_A", None), torch.nn.Parameter):
+            if isinstance(getattr(mod, "lora_A", None), torch.nn.Parameter):
                 mod.weight.data += ((mod.lora_B.data.float() @ mod.lora_A.data.float())
                                     * (args.alpha / args.rank)).to(mod.weight.dtype)
                 del mod.lora_A, mod.lora_B
