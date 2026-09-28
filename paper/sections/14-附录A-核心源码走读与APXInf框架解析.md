@@ -158,7 +158,11 @@ pub fn fp4_linear(ctx: &CudaContext, x: &Tensor, w: &Fp4WeightView<'_>) -> Resul
 }
 ```
 
-`pi05/fp4_weights.rs` 加载器只做三件事：解析 manifest、按 stem 约定定位文件、`CudaBuffer` 上传——**注释里写明"产物不可变（QAD 冻结 scale），本加载器永不重量化"**，这是引擎"离线产物/在线执行"哲学的贯彻。它还带真实产物的设备往返回归测试（逐字节比对，环境变量门控），以及前述"部分产物合法"的豁免表语义。
+`pi05/fp4_weights.rs` 加载器只做三件事：解析 manifest、按 stem 约定定位文件、`CudaBuffer` 上传——**注释里写明"产物不可变（QAD 冻结 scale），本加载器永不重量化"**，
+
+离线产物的实物见下图（π0.5 全部受量化线性层的 .packed.u8 权重与 swizzled .scale.u8 块缩放，共 245 个文件、约 2.4 GB；manifest 记录每个张量的布局元数据，加载器按 stem 约定直连这些文件）：
+
+{{fig:shot_packed}}这是引擎"离线产物/在线执行"哲学的贯彻。它还带真实产物的设备往返回归测试（逐字节比对，环境变量门控），以及前述"部分产物合法"的豁免表语义。
 
 ## A.2.4 混合拓扑执行器：组合式 Fp4Blocks 与逐站路由
 

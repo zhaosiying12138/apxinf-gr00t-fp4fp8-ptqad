@@ -123,10 +123,19 @@ def md_to_html(md: str) -> str:
 def main():
     sections = sorted((PAPER / "sections").glob("*.md"))
     body = "\n".join(md_to_html(p.read_text(encoding="utf-8")) for p in sections)
-    # inline figures: replace {{fig:NAME}} with the svg file content
+    # inline figures: replace {{fig:NAME}} with svg content, or embedded png (screenshots)
+    import base64
     def fig(m):
-        f = PAPER / "figs" / (m.group(1) + ".svg")
-        return f.read_text(encoding="utf-8") if f.exists() else f"<figure><figcaption>[缺图 {m.group(1)}]</figcaption></figure>"
+        name = m.group(1)
+        f = PAPER / "figs" / (name + ".svg")
+        if f.exists():
+            return f.read_text(encoding="utf-8")
+        p = PAPER / "figs" / (name + ".png")
+        if p.exists():
+            b64 = base64.b64encode(p.read_bytes()).decode("ascii")
+            return (f'<figure><img src="data:image/png;base64,{b64}" alt="{name}" '
+                    f'style="max-width:100%;border:1px solid #d5dde5;border-radius:6px"/></figure>')
+        return f"<figure><figcaption>[缺图 {name}]</figcaption></figure>"
     body = re.sub(r"\{\{fig:([\w.-]+)\}\}", fig, body)
     title = (PAPER / "meta.json").exists() and json.loads((PAPER / "meta.json").read_text()) or {}
     html_doc = f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">

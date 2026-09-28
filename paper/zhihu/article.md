@@ -80,7 +80,9 @@ NVFP4 由三层结构组成：4-bit E2M1 数据格（值域 {0, ±0.5, ±1, ±1.
 
 这套"平探针定位消费字节 → 单字节扫描建映射 → 随机数据验公式"的三层流程对任何黑箱布局问题可复用。
 
-**引擎集成**。在测得布局后，NVFP4 GEMM 以 CUDA 适配器形式接入 APXInf（extern "C" 的 cuBLASLt 封装 + 在线激活量化核，CUDA 13 列主序适配；E2M1×E2M1→F16，scale 模式 VEC16_UE4M3），其上是 Rust 算子 fp4_linear、产物加载器（离线量化产物只上传不重量化）与组合式混合拓扑执行器 Fp4Blocks——每个线性层经 gemm_maybe_fp4 路由：有权重产物则"激活在线量化 + 块缩放 GEMM"，无则 BF16 直通，混合精度部署因此零代码改动（§A.2）。量化核手写位级 E4M3/E2M1 编码器而非调用硬件内建转换，以保证与离线参考逐位一致——四层验证（算子 corr=1.000000、逐块 scale 语义、产物级、kernel 级）收敛后才进入闭环实验。
+**引擎集成**。在测得布局后，NVFP4 GEMM 以 CUDA 适配器形式接入 APXInf（extern "C" 的 cuBLASLt 封装 + 在线激活量化核，CUDA 13 列主序适配；E2M1×E2M1→F16，scale 模式 VEC16_UE4M3），其上是 Rust 算子 fp4_linear、产物加载器（离线量化产物只上传不重量化）与组合式混合拓扑执行器 Fp4Blocks——每个线性层经 gemm_maybe_fp4 路由：有权重产物则"激活在线量化 + 块缩放 GEMM"，无则 BF16 直通，混合精度部署因此零代码改动（§A.2）。量化核手写位级 E4M3/E2M1 编码器而非调用硬件内建转换，以保证与离线参考逐位一致——四层验证（算子 corr=1.000000、逐块 scale 语义、产物级、kernel 级）收敛后才进入闭环实验。该验证的算子层实跑记录见下图（最大化 WSL 终端内运行 spike/fp4_gemm_bench --verify，对 CPU fp64 参考逐元素核对）：nvfp4 的 verify_maxrel = 0.000000——GPU kernel 与参考实现在该测试形状下位级一致；同屏可见 mxfp4 的 ok=0、algos=0（heuristic 返回零算法），即 §2.2 所述格式硬约束的直接证据。
+
+![](images/shot_verify.png)
 
 **算子特性与混合准则**。计算受限形状下 NVFP4 达 506 TFLOPS（1.8× FP8、5.5× BF16）；但 batch-1 访存受限形状下 FP4 反而慢于 FP8（428 vs 1253 GB/s）——小投影进 FP4 无收益。这一非对称性与 §3.2 的精度分配共同决定"哪些层值得 4-bit"。
 
@@ -145,7 +147,15 @@ PTQ 侧的排障（§4.3）从全量 NVFP4 的 0% 出发，在一次次失败中
 
 ![](images/e1_latency.png)
 
-**结果二（GEMM 形状谱）**：计算受限形状上 NVFP4 峰值 506 TFLOPS（2048³ 417、8192×2048×4096 504、4096³ 506；为 FP8 的 1.55–1.82×、BF16 的 4.6–5.5×）；但 batch-1 访存受限形状上 FP4 反而慢于 FP8（428 vs 1253 GB/s）——小投影进 FP4 只有开销没有收益。
+表中两行引擎数据的实拍复现如下（最大化 WSL 终端，同一命令仅换 --model-dir）：π0.5 侧 APXInf AutoPolicy 加载 226.8 秒后 batch-1 延迟稳定在约 50 ms（model_ms_p50，与表中 49.6 ms 同源同协议）；GR00T N1.7 侧得 28.8 ms / 29.7 Hz。截图里跑的就是引擎的 serving API 本身——"评测即部署形态"在此是字面事实。
+
+![](images/shot_pi05.png)
+
+![](images/shot_gr00t.png)
+
+**结果二（GEMM 形状谱）**：计算受限形状上 NVFP4 峰值 506 TFLOPS（2048³ 417、8192×2048×4096 504、4096³ 506；为 FP8 的 1.55–1.82×、BF16 的 4.6–5.5×）；但 batch-1 访存受限形状上 FP4 反而慢于 FP8（428 vs 1253 GB/s）——小投影进 FP4 只有开销没有收益。该基准的实跑截图如下（nvfp4 行在计算受限形状 417–506 TFLOPS，mxfp4 全部 ok=0）：
+
+![](images/shot_gemm.png)
 
 **结果三（真实层形状，含在线量化开销的全管线，p50/30 次）**：
 
@@ -157,6 +167,10 @@ PTQ 侧的排障（§4.3）从全量 NVFP4 的 0% 出发，在一次次失败中
 | embed 16384×2048 | 4.45× | 4.80× | **5.30×** |
 | attn 2048×2048 | 1.94× | 2.45× | 3.06× |
 | GeGLU 4304×1152 | 2.20× | 2.17× | 3.57× |
+
+该表的实跑入口是 spike/fp4_opbench（下图为终端实拍，输出逐形状的 bf16/fp4 耗时与加速比）：
+
+![](images/shot_opbench.png)
 
 
 **解读**：三组测量拼出同一个结论的两面——NVFP4 的收益集中于大 K 的计算受限投影（嵌入层最高 5.3×），小形状（gemma 1.15K 宽度、batch-1）收益趋零甚至为负。这为后续的精度分配划定了算子层边界：性能不敏感的层可以按闭环敏感性自由分配精度，而性能敏感的大投影恰好也是 NVFP4 的受益者。
@@ -349,7 +363,11 @@ pub struct Fp4WeightView<'a> {pub packed: &'a CudaBuffer,   // E2M1 对pub scale
 pub fn fp4_linear(ctx: &CudaContext, x: &Tensor, w: &Fp4WeightView<'_>) -> Result<Tensor> {let (m, k) = (dims[0], dims[1]);let packed_bytes = CudaBuffer::alloc_on(ctx, m * k / 2)?;let kb = k / 16;// 物理布局的缓冲尺寸公式：512*ceil(kb/4) * ceil(m/128)let scale_bytes = 512 * ((kb + 3) / 4) * ((m + 127) / 128);let scale_buf = CudaBuffer::alloc_on(ctx, scale_bytes)?;unsafe { ffi::apxinf_nvfp4_quantize_activation(x_buf.ptr(), packed_bytes.ptr(),scale_buf.ptr(), m as i32, k as i32, stream) };unsafe { ffi::apxinf_fp4_gemm_f16(m, w.rows, k, packed_bytes.ptr(), w.packed.ptr(),scale_buf.ptr(), w.scale.ptr(), out.ptr(), ws.ptr(), ws.len(), stream) };Ok(out.into_tensor(Shape::new(vec![m, w.rows]), DType::F16))}
 ```
 
-`pi05/fp4_weights.rs` 加载器只做三件事：解析 manifest、按 stem 约定定位文件、`CudaBuffer` 上传——**注释里写明"产物不可变（QAD 冻结 scale），本加载器永不重量化"**，这是引擎"离线产物/在线执行"哲学的贯彻。它还带真实产物的设备往返回归测试（逐字节比对，环境变量门控），以及前述"部分产物合法"的豁免表语义。
+`pi05/fp4_weights.rs` 加载器只做三件事：解析 manifest、按 stem 约定定位文件、`CudaBuffer` 上传——**注释里写明"产物不可变（QAD 冻结 scale），本加载器永不重量化"**，
+
+离线产物的实物见下图（π0.5 全部受量化线性层的 .packed.u8 权重与 swizzled .scale.u8 块缩放，共 245 个文件、约 2.4 GB；manifest 记录每个张量的布局元数据，加载器按 stem 约定直连这些文件）：
+
+![](images/shot_packed.png)这是引擎"离线产物/在线执行"哲学的贯彻。它还带真实产物的设备往返回归测试（逐字节比对，环境变量门控），以及前述"部分产物合法"的豁免表语义。
 
 ## A.2.4 混合拓扑执行器：组合式 Fp4Blocks 与逐站路由
 
