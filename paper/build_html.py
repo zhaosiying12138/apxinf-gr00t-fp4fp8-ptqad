@@ -17,8 +17,9 @@ CSS = """
 :root{--ink:#1a1a2e;--accent:#0f6db3;--soft:#5b6b7d;--bg:#ffffff;--band:#f4f7fa}
 *{box-sizing:border-box}
 body{font-family:"Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
-     color:var(--ink);background:var(--bg);margin:0;line-height:1.75;font-size:16px}
-.page{max-width:860px;margin:0 auto;padding:48px 28px 96px}
+     color:var(--ink);background:var(--bg);margin:0;line-height:1.7;font-size:16px}
+.page{max-width:880px;margin:0 auto;padding:48px 28px 96px}
+p{margin:9px 0;text-align:justify}
 header{border-bottom:3px solid var(--accent);padding-bottom:20px;margin-bottom:32px}
 h1{font-size:28px;line-height:1.35;margin:0 0 8px}
 .meta{color:var(--soft);font-size:14px}
@@ -122,8 +123,22 @@ def md_to_html(md: str) -> str:
             while j < len(lines) and re.match(r"^[-*]\s+", lines[j]):
                 items.append(f"<li>{inline(re.sub(r'^[-*]\s+','',lines[j]))}</li>"); j += 1
             out.append("<ul>" + "".join(items) + "</ul>"); i = j; continue
+        if ln.startswith(">"):
+            j = i; buf = []
+            while j < len(lines) and lines[j].startswith(">"):
+                buf.append(lines[j].lstrip("> ").strip()); j += 1
+            out.append(f"<blockquote><p>{inline(''.join(buf))}</p></blockquote>"); i = j; continue
+        if ln.startswith("{{fig:"):
+            out.append(inline(ln)); i += 1; continue
         if not ln.strip(): i += 1; continue
-        out.append(f"<p>{inline(ln)}</p>"); i += 1
+        # merge consecutive plain lines into ONE dense paragraph (standard MD)
+        j = i; buf = []
+        while j < len(lines) and lines[j].strip() \
+                and not lines[j].startswith(("```", "|", "#", ">")) \
+                and not lines[j].startswith("{{fig:") \
+                and not re.match(r"^[-*]\s+", lines[j]):
+            buf.append(lines[j].strip()); j += 1
+        out.append(f"<p>{inline(''.join(buf))}</p>"); i = j; continue
     return "\n".join(out)
 
 def main():
