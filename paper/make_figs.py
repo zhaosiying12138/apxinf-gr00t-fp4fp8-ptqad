@@ -203,9 +203,86 @@ def swizzle_layout():
     (FIGS / "swizzle_layout.svg").write_text("".join(s), encoding="utf-8")
     print("wrote swizzle_layout.svg")
 
+def gptq_block():
+    """GPTQ NVFP4 block-adaptation principle diagram (static).
+    Top: weight-matrix strip (quantized | current 16-col block | pending) with
+    error feed-forward arc; middle: the three formulas; bottom: clip search
+    chips +示意 MSE U-curve bars."""
+    W, H = 940, 560
+    F = "Noto Sans CJK SC,system-ui,sans-serif"
+    M = "Noto Sans Mono CJK SC,Consolas,monospace"
+    cell, gap = 14, 2
+    pitch = cell + gap
+    rows, cols = 5, 36
+    lx, ly = 70, 150
+    s = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
+         f'viewBox="0 0 {W} {H}" font-family="{F}">',
+         f'<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">'
+         f'<path d="M0,0 L8,4 L0,8 z" fill="#c05621"/></marker></defs>',
+         f'<rect width="{W}" height="{H}" fill="white"/>',
+         f'<text x="20" y="30" font-size="15" font-weight="600" fill="#1a1a2e">'
+         f'GPTQ 的 NVFP4 块适配：块界重定标 + 逐列误差前馈（静态示意）</text>']
+
+    def x(c): return lx + c * pitch
+
+    # matrix cells: cols 0-15 quantized, 16-31 current block, 32-35 pending
+    for r in range(rows):
+        for c in range(cols):
+            fill = "#c7d0da" if c <= 15 else ("#d8e7f7" if c <= 31 else "#ffffff")
+            s.append(f'<rect x="{x(c)}" y="{ly + r*pitch}" width="{cell}" height="{cell}" rx="2" fill="{fill}" stroke="#8fa3b8"/>')
+    # current column i = col 20
+    ci = 20
+    for r in range(rows):
+        s.append(f'<rect x="{x(ci)}" y="{ly + r*pitch}" width="{cell}" height="{cell}" rx="2" fill="#2f7fd1" stroke="#173a5e"/>')
+    # current block outer frame (cols 16..31)
+    s.append(f'<rect x="{lx + 16*pitch - 4}" y="{ly - 4}" width="{16*pitch + 8}" height="{rows*pitch + 8}" fill="none" stroke="#0f6db3" rx="5"/>')
+    # zone labels
+    s.append(f'<text x="{lx + 128}" y="126" font-size="11" text-anchor="middle" fill="#3c4a58">已量化 · 块 0…m−1（E2M1 格点已定格）</text>')
+    s.append(f'<text x="{lx + 384}" y="126" font-size="11" text-anchor="middle" fill="#0f6db3" font-weight="600">当前块 m（16 列）：入口重算逐行 s_r</text>')
+    s.append(f'<text x="{lx + 576 + 10}" y="126" font-size="11" fill="#3c4a58">未量化</text>')
+    # error feed-forward arc: from current column top to pending zone top
+    cx, tx = x(ci) + cell/2, lx + 544
+    s.append(f'<path d="M {cx},{ly-4} C {cx},96 {tx},96 {tx},{ly-6}" fill="none" stroke="#c05621" stroke-width="1.6" marker-end="url(#ah)"/>')
+    s.append(f'<text x="556" y="102" font-size="11" text-anchor="middle" fill="#c05621">误差前馈：δ_i 摊到未量化列</text>')
+    # row / column annotations
+    s.append(f'<text x="{lx-14}" y="{ly+40}" font-size="10.5" text-anchor="middle" fill="#5b6b7d" transform="rotate(-90 {lx-14} {ly+40})">行 r（每行独立 s_r）</text>')
+    s.append(f'<text x="{cx}" y="{ly + rows*pitch + 18}" font-size="10.5" text-anchor="middle" fill="#1f5e9e">列 i（正在量化）</text>')
+
+    # formula box
+    s.append(f'<rect x="40" y="272" width="860" height="142" rx="6" fill="#f4f7fb" stroke="#d5dfeb"/>')
+    lines = [
+        ('① 块入口（每 16 列）  s_r \u2190 E4M3( c \u00b7 amax_16( W\u2032[r, \u00b7] ) / 6 )     \u2190 从当前值重算，非初始权重', None),
+        ('② 列量化              q_i = round_E2M1( W\u2032[:, i] / s_r ) \u00b7 s_r ,  \u03b4_i = W\u2032[:, i] \u2212 q_i', None),
+        ('③ 误差前馈            W\u2032[:, i+1:] \u2190 W\u2032[:, i+1:] \u2212 \u03b4_i \u00b7 U[i, i+1:] / U[i,i]', '#0f6db3'),
+        ('    U = chol(H\u207b\u00b9) 上三角因子：一次分解 = 每步对剩余子矩阵求逆的精确 OBS 条件解', '#5b6b7d'),
+    ]
+    for k, (txt, color) in enumerate(lines):
+        s.append(f'<text x="58" y="{300 + k*27}" font-size="12" font-family="{M}" fill="{color or "#16324a"}">{txt}</text>')
+
+    # clip search: label + chips +示意 MSE U-bars
+    s.append(f'<text x="40" y="445" font-size="11.5" fill="#1a1a2e">逐层裁剪搜索（max 与 MSE 校准在此合流）：c 网格 \u2192</text>')
+    grid = ["1.0", "0.95", "0.9", "0.85", "0.8", "0.7", "0.6", "0.5"]
+    mse = [1.00, 0.86, 0.72, 0.78, 0.86, 0.96, 1.08, 1.22]
+    for k, c in enumerate(grid):
+        best = (k == 2)
+        chx = 340 + k * 52
+        fill, tc = ("#2f7fd1", "#ffffff") if best else ("#e8eef5", "#3c4a58")
+        s.append(f'<rect x="{chx}" y="430" width="46" height="22" rx="4" fill="{fill}"/>')
+        s.append(f'<text x="{chx+23}" y="445" font-size="11" text-anchor="middle" fill="{tc}">{c}</text>')
+        bh = mse[k] * 30
+        s.append(f'<rect x="{chx}" y="{512-bh:.0f}" width="46" height="{bh:.0f}" rx="2" fill="{"#2f7fd1" if best else "#b9cfe6"}"/>')
+    s.append(f'<text x="{340+2*52+23}" y="474" font-size="10" text-anchor="middle" fill="#1f5e9e">c*（示意）</text>')
+    s.append(f'<line x1="340" y1="512" x2="750" y2="512" stroke="#8fa3b8"/>')
+    s.append(f'<text x="762" y="492" font-size="10.5" fill="#5b6b7d">逐层输出 MSE（示意，U 形）</text>')
+    s.append(f'<text x="40" y="540" font-size="11" fill="#3c4a58">判据 argmin_c tr(\u0394W_c \u00b7 H \u00b7 \u0394W_c\u1d40)（Hessian 恒等式评估，无须跑网络）；求逆前阻尼 H \u2190 H + 0.01\u00b7mean(diag H)\u00b7I。</text>')
+    s.append("</svg>")
+    (FIGS / "gptq_block.svg").write_text("".join(s), encoding="utf-8")
+    print("wrote gptq_block.svg")
+
 if __name__ == "__main__":
     e1_chart()
     opbench_heatmap()
     ladder_chart()
     swizzle_layout()
+    gptq_block()
     print("figures done ->", FIGS)
