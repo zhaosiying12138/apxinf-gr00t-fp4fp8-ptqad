@@ -205,7 +205,7 @@ def mk_hook(name):
     return hook
 ```
 
-`forward_pre_hook` 保证拿到的是线性层的**输入**（对于 q/k/v 就是各自 norm 之后的张量）；Hessian 在 GPU 上按批累积（`e["H"] += xf.t() @ xf`，每批一次 `+=`）、结束时落盘 CPU fp32（5.49GB）。两个容易做错的细节：其一，外积与累加前先把 BF16 输入 `.float()` 升精度——每层全程约 43k 行的求和若留在 BF16 的 8 位尾数里，H 的旁对角元会被舍入噪声淹没；其二，H 保持**未归一化**的求和形式、不除以行数 n——恒等式 $\sum_i\lVert x_i\Delta W^\top\rVert^2=\operatorname{tr}(\Delta W H \Delta W^\top)$ 要求 $H$ 恰为 $\sum_i x_i x_i^\top$，取平均会让逐层 MSE 的绝对值差一个 $1/n$ 因子（GPTQ 的 H⁻¹ 方向不受标量因子影响，它在求逆中消掉，但逐层裁剪搜索比较的正是 MSE 绝对值，必须用未归一化形式）。挂载范围是除动作头外、输入维为 16 倍数的全部 backbone 线性层，共 189 个（动作头的量化在写盘时用 RTN 完成）。AWQ 的通道显著度（absmean）在同一钩子里免费获得。
+`forward_pre_hook` 保证拿到的是线性层的**输入**（对于 q/k/v 就是各自 norm 之后的张量）；Hessian 在 GPU 上按批累积（`e["H"] += xf.t() @ xf`，每批一次 `+=`）、结束时落盘 CPU fp32（5.49GB）。两个容易做错的细节：其一，外积与累加前先把 BF16 输入 `.float()` 升精度——每层全程约 43k 行的求和若留在 BF16 的 8 位尾数里，H 的旁对角元会被舍入噪声淹没；其二，H 保持**未归一化**的求和形式、不除以行数 n——恒等式 $\sum_i\lVert x_i\Delta W^\top\rVert^2=\operatorname{tr}(\Delta W H \Delta W^\top)$ 要求 $H$ 恰为 $\sum_i x_i x_i^\top$，取平均会让逐层 MSE 的绝对值差一个 $1/n$ 因子（GPTQ 的 H⁻¹ 方向不受标量因子影响，它在求逆中消掉，但逐层裁剪搜索比较的正是 MSE 绝对值，必须用未归一化形式）。挂载范围是除动作头外、输入维为 16 倍数的全部 backbone 线性层，共 189 个（动作头的量化在写盘时用 RTN 完成）。AWQ 的通道显著度（absmean）在同一钩子里一并采集。
 
 ## A.3.2 量化器与 GPTQ 的 NVFP4 块格式适配（quantizers.py）
 
@@ -268,7 +268,7 @@ def alloc_aggr(name, W):             # 本文激进方案（2.88×）：动作�
 
 ## A.4.1 加性 LoRA：训练前向与部署函数严格同一（lora_qad.py）
 
-恢复训练的核心决定是把"量化"从训练循环里**请出去**：基座权重是量化写盘时定格的量化值（不变），LoRA 残差是精确梯度的 BF16 低秩分支：
+恢复训练的核心决定是让"量化"**离开训练循环**：基座权重是量化写盘时定格的量化值（不变），LoRA 残差是精确梯度的 BF16 低秩分支：
 
 ```python
 def make_fwd(m, s):   # s = alpha/r
