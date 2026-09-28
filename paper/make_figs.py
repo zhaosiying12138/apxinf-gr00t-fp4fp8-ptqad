@@ -46,52 +46,6 @@ def e1_chart():
     ]
     hbar_chart(rows, "端到端延迟（batch-1, P50, ms）", " ms", "e1_latency.svg")
 
-def opbench_heatmap():
-    """Operator speedups on real pi05 shapes (fp4 vs bf16 pipeline)."""
-    csv_path = ROOT / "results/engine/fp4_opbench_realshapes.csv"
-    if not csv_path.exists():
-        print("skip heatmap (csv missing)"); return
-    data = {}
-    with open(csv_path) as f:
-        for r in csv.DictReader(f):
-            if r.get("ok") == "1":
-                tag = r["tag"].split(",")[0]
-                data.setdefault(tag, {})[int(r["M"])] = float(r["gbps"]) and float(r["speedup"] if "speedup" in r else 0)
-    # simpler: reparse speedup = bf16_us/fp4_us
-    data.clear()
-    with open(csv_path) as f:
-        for r in csv.DictReader(f):
-            if r.get("ok") == "1":
-                tag = r["tag"].split(",")[0]
-                try:
-                    su = float(r["bf16_us_p50"]) / float(r["fp4_us_p50"])
-                except (KeyError, ZeroDivisionError):
-                    continue
-                data.setdefault(tag, {})[int(r["M"])] = su
-    tags = list(data)
-    ms = sorted({m for d in data.values() for m in d})
-    cw, ch, top, left = 86, 30, 52, 130
-    w = left + len(ms) * cw + 20
-    h = top + len(tags) * ch + 20
-    s = [svg_header(w, h, "NVFP4 全管线加速 ×（真实层形状, vs BF16 GEMM）")]
-    for j, m in enumerate(ms):
-        s.append(f'<text x="{left+j*cw+cw/2}" y="{top-10}" font-size="11" text-anchor="middle">M={m}</text>')
-    for i, t in enumerate(tags):
-        s.append(f'<text x="{left-6}" y="{top+i*ch+19}" font-size="11" text-anchor="end">{t}</text>')
-        for j, m in enumerate(ms):
-            su = data[t].get(m)
-            if su is None:
-                fill, txt = "#eef2f6", "–"
-            else:
-                alpha = min(1.0, (su - 1) / 4.4 + 0.15)
-                fill, txt = f"rgba(47,127,209,{alpha:.2f})", f"{su:.1f}×"
-            s.append(f'<rect x="{left+j*cw+2}" y="{top+i*ch+2}" width="{cw-6}" height="{ch-6}" rx="3" fill="{fill}"/>')
-            s.append(f'<text x="{left+j*cw+cw/2-1}" y="{top+i*ch+19}" font-size="11" text-anchor="middle" fill="{"#fff" if su and su>2.6 else "#1a1a2e"}">{txt}</text>')
-    s.append("</svg>")
-    (FIGS / "opbench_heatmap.svg").write_text("".join(s), encoding="utf-8")
-    print("wrote opbench_heatmap.svg")
-
-
 
 def ladder_chart():
     """09-28 final closed-loop recovery ladder (LIBERO-10)."""
@@ -281,7 +235,6 @@ def gptq_block():
 
 if __name__ == "__main__":
     e1_chart()
-    opbench_heatmap()
     ladder_chart()
     swizzle_layout()
     gptq_block()

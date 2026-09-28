@@ -3,7 +3,7 @@
 set -e
 cd "$(dirname "$0")"
 export PATH="$HOME/.local/bin:$PATH"
-for f in e1_latency ladder opbench_heatmap swizzle_layout gptq_block; do
+for f in e1_latency ladder swizzle_layout gptq_block; do
   uv run --with cairosvg python -c "import cairosvg; cairosvg.svg2png(url='$f.svg', write_to='$f.png', scale=2.0)"
   echo "ok $f"
 done
