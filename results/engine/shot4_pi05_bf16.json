@@ -1,0 +1,39 @@
+{
+ "model_dir": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base",
+ "variant": "bf16",
+ "model_type": "pi05",
+ "load_s": 124.2,
+ "n": 10,
+ "model_ms_p50": 47.77,
+ "model_ms_p99": 50.11,
+ "total_ms_p50": 48.84,
+ "total_ms_p99": 51.19,
+ "hz_p50": 20.5,
+ "power_w_mean": 143.4,
+ "power_w_max": 167.3,
+ "vram_mb_peak": 15742,
+ "lat_model_ms": [
+  46.85,
+  46.89,
+  47.17,
+  47.3,
+  47.7,
+  47.77,
+  47.89,
+  48.47,
+  49.26,
+  50.11
+ ],
+ "lat_total_ms": [
+  47.89,
+  48.01,
+  48.39,
+  48.52,
+  48.83,
+  48.84,
+  49.64,
+  49.67,
+  50.56,
+  51.19
+ ]
+}

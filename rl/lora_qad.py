@@ -132,43 +132,51 @@ def install_trainer_hooks():
                 print(f"[opd] probe cache loaded: pred {tuple(d['pred'].shape)}", flush=True)
 
         orig_loss = Gr00tTrainer.compute_loss
-
-        def with_probe_kl(self, model, inputs, return_outputs=False, **kw):
-            out = orig_loss(self, model, inputs, return_outputs=return_outputs, **kw)
-            try:
-                if model.training and self.state.global_step % 4 == 0:
-                    load_probe()
-                    tin = {k: (v.to(next(model.parameters()).device) if torch.is_tensor(v) else v)
-                           for k, v in _probe["inputs"].items()}
-                    tin.pop("labels", None)
-                    torch.manual_seed(20260927)
-                    s_pred = model(tin).get("pred_actions")
-                    if s_pred is not None:
-                        t_pred = _probe["pred"].to(s_pred.device)
-                        kl = torch.nn.functional.mse_loss(s_pred.float(), t_pred.float())
-                        loss = out["loss"] if isinstance(out, dict) else out
-                        loss = loss + KL_W * kl
-                        if isinstance(out, dict):
-                            out["loss"] = loss
-                        else:
-                            out = loss
-                        if self.state.global_step % 20 == 0:
-                            print(f"[opd] step {self.state.global_step} kl={float(kl):.6f}", flush=True)
-            except Exception as e:
-                print("[opd] probe-kl skip:", type(e).__name__, str(e)[:120], flush=True)
-            return out
-        Gr00tTrainer.compute_loss = with_probe_kl
+        if getattr(orig_loss, "_probe_kl_wrapped", False):
+            print("[opd] hook already installed, skipping re-wrap", flush=True)
+        else:
+            def with_probe_kl(self, model, inputs, return_outputs=False, **kw):
+                out = orig_loss(self, model, inputs, return_outputs=return_outputs, **kw)
+                try:
+                    if model.training and self.state.global_step % 4 == 0:
+                        load_probe()
+                        dev = next(model.parameters()).device
+                        tin = {k: (v.to(dev) if torch.is_tensor(v) else v)
+                               for k, v in _probe["inputs"].items()}
+                        tin.pop("labels", None)
+                        torch.manual_seed(20260927)
+                        # probe forward must NOT build an autograd graph: with one,
+                        # the 8-window graph stacks on the training batch's and
+                        # overflows 24GB (allocator corruption / driver wedge).
+                        with torch.no_grad():
+                            s_pred = model(tin).get("pred_actions")
+                        if s_pred is not None:
+                            t_pred = _probe["pred"].to(s_pred.device)
+                            kl = torch.nn.functional.mse_loss(s_pred.float(), t_pred.float())
+                            loss = out["loss"] if isinstance(out, dict) else out
+                            loss = loss + KL_W * kl
+                            if isinstance(out, dict):
+                                out["loss"] = loss
+                            else:
+                                out = loss
+                            if self.state.global_step % 20 == 0:
+                                print(f"[opd] step {self.state.global_step} kl={float(kl):.6f}", flush=True)
+                        del s_pred, tin
+                        torch.cuda.empty_cache()
+                except Exception as e:
+                    print("[opd] probe-kl skip:", type(e).__name__, str(e)[:120], flush=True)
+                return out
+            with_probe_kl._probe_kl_wrapped = True
+            Gr00tTrainer.compute_loss = with_probe_kl
         print(f"[opd] probe-cached teacher-KL hook installed (w={KL_W})", flush=True)
 
-
-install_trainer_hooks()
 
 install_trainer_hooks()
 
 if __name__ == "__main__":
     sys.argv = ["launch_finetune.py",
         "--base-model-path", os.environ["GR00T_BASE_CKPT"],
-        "--dataset-path", "./demo_data/libero_demo",
+        "--dataset-path", os.environ.get("QAD_DATASET", "./demo_data/libero_demo"),
         "--embodiment-tag", "LIBERO_PANDA",
         "--num-gpus", "1",
         "--output-dir", OUT,

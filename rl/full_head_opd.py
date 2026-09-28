@@ -87,17 +87,25 @@ def install_teacher_kl(trainer_cls):
                         if torch.is_tensor(v) else v)
                    for k, v in _probe["inputs"].items()}
             torch.manual_seed(20260927)  # replay the pinned (noise, t)
-            p_out = model(pin)           # STUDENT forward, grad on — QAD-stable path
+            # no_grad WITHOUT eval/train swap: the graph-free forward avoids the
+            # old WSL crash, while grad-on stacked an 8-window autograd graph on
+            # the training batch's and overflowed 24GB (allocator corruption /
+            # driver wedge = hard machine freeze).
+            with torch.no_grad():
+                p_out = model(pin)       # STUDENT forward, graph-free
             s_pred = p_out.get("pred_actions") if hasattr(p_out, "get") \
                 else getattr(p_out, "pred_actions", None)
-            t_pred = _probe["pred"].to(s_pred.device)
-            if s_pred is not None and s_pred.shape == t_pred.shape:
-                kl = torch.nn.functional.mse_loss(
-                    s_pred.float(), t_pred.float())
-                loss = loss + float(os.environ.get("OPD_KL_W", "5.0")) * kl
-                if self.state.global_step % 20 < EVERY:
-                    print(f"[opd] step {self.state.global_step} "
-                          f"task={float(loss):.4f} kl={float(kl):.6f}", flush=True)
+            if s_pred is not None:
+                t_pred = _probe["pred"].to(s_pred.device)
+                if s_pred.shape == t_pred.shape:
+                    kl = torch.nn.functional.mse_loss(
+                        s_pred.float(), t_pred.float())
+                    loss = loss + float(os.environ.get("OPD_KL_W", "5.0")) * kl
+                    if self.state.global_step % 20 < EVERY:
+                        print(f"[opd] step {self.state.global_step} "
+                              f"task={float(loss):.4f} kl={float(kl):.6f}", flush=True)
+            del s_pred, pin, p_out
+            torch.cuda.empty_cache()
         except Exception as e:
             print("[opd] probe-kl skip:", type(e).__name__, str(e)[:120], flush=True)
         return (loss, outputs) if return_outputs else loss
