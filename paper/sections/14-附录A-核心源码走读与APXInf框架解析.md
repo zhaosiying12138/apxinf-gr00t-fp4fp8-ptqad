@@ -38,7 +38,7 @@ pub(in crate::pi05) enum ModelVariant { Fp8Static(Pi05Model<Fp8StaticBlocks>), B
 
 ## A.1.4 Python 侧：robo 层与 serving 拓扑
 
-APXInf-robo（RLinf/APXinf-robo）是模型之上的机器人层：`Gr00tPolicy` 家族用 `precision=/calibration=/embodiment=` 构造（π0.5 走 `AutoPolicy`+`model_variant=`），LIBERO 评测与 OpenPI 兼容 server 都在这层。本文的闭环评测栈与该拓扑同构：eval server（策略常驻、批处理观测）+ ZMQ rollout 客户端（MuJoCo/EGL 在独立 venv）——**评测即部署形态**，烤好的 PTQ/LoRA 合并 checkpoint 换入模型路径即可，零代码改动。引擎侧需在同一 venv 安装 NVIDIA gr00t 包（`--no-deps`）+ transformers 4.57.3。
+APXInf-robo（RLinf/APXinf-robo）是模型之上的机器人层：`Gr00tPolicy` 家族用 `precision=/calibration=/embodiment=` 构造（π0.5 走 `AutoPolicy`+`model_variant=`），LIBERO 评测与 OpenPI 兼容 server 都在这层。本文的闭环评测栈与该拓扑同构：eval server（策略常驻、批处理观测）+ ZMQ rollout 客户端（MuJoCo/EGL 在独立 venv）——**评测即部署形态**，量化写盘产出的 PTQ/LoRA 合并 checkpoint 换入模型路径即可，零代码改动。引擎侧需在同一 venv 安装 NVIDIA gr00t 包（`--no-deps`）+ transformers 4.57.3。
 
 # A.2 引擎内的 NVFP4 执行路径：五步源码走读
 
@@ -233,7 +233,7 @@ for i in range(K):
 
 **逐层裁剪搜索**在量化器外面套一层：`rtnc_best_clip` 对 c ∈ {1.0, 0.95, …, 0.5} 逐个完整跑上述量化（RTN 路径）或把 c 传入 GPTQ 的块入口（GPTQ 路径），以 `layer_mse_tr`（A.3.1 的 Hessian 恒等式，无须跑网络）取输出 MSE 最小者——max 校准（c=1）与 MSE 校准（c<1）在同一循环里合流。这就是正文 §4.3 的结论的出处：即便逐层输出 MSE 被压到 RTN 的 76%，全 NVFP4 的闭环仍为 0%——误差的**放置**比总量重要。
 
-## A.3.3 配方烤盘：分配表即策略（bake.py）
+## A.3.3 量化写盘：分配表即策略（bake.py）
 
 五种配方是五个纯函数，把模块名映射到精度——NVIDIA 分配的复刻与我们的激进版只差几行：
 
@@ -258,7 +258,7 @@ def alloc_aggr(name, W):             # 本文激进方案（2.88×）：动作�
     return "nvfp4_gptq"              # 视觉塔也 NVFP4（实测：闭环致死）
 ```
 
-而**恢复基座（2.44×）**就是"backbone 全 FP8 + 动作头全 NVFP4"——与 mixed 的差别恰是把 NVIDIA 保留 FP8/FP16 的动作头四类投影推进到 NVFP4（贡献亮点 1）。烤盘把量化值以 **place-value 形式写回 safetensors**（BF16 张量携带量化噪声），因此现有评测栈零改动即可闭环；压缩账目（nvfp4=0.5625 字节/参数含 E4M3 缩放、fp8=1 字节+行缩放）随 checkpoint 落盘成 `ptq_recipe.json`。
+而**恢复基座（2.44×）**就是"backbone 全 FP8 + 动作头全 NVFP4"——与 mixed 的差别恰是把 NVIDIA 保留 FP8/FP16 的动作头四类投影推进到 NVFP4（贡献亮点 1）。写盘方式是**按原键、原形状把量化取值写回 safetensors**（张量仍是普通 BF16，数值已落在量化格点上，不新增键或结构），因此现有评测栈零改动即可闭环；压缩账目（nvfp4=0.5625 字节/参数含 E4M3 缩放、fp8=1 字节+行缩放）随 checkpoint 落盘成 `ptq_recipe.json`。
 
 ## A.3.4 AWQ 折叠映射：三个非平凡边界（folds.py）
 
@@ -268,11 +268,11 @@ def alloc_aggr(name, W):             # 本文激进方案（2.88×）：动作�
 
 ## A.4.1 加性 LoRA：训练前向与部署函数严格同一（lora_qad.py）
 
-恢复训练的核心决定是把"量化"从训练循环里**请出去**：基座权重是烤好的量化值（不变），LoRA 残差是精确梯度的 BF16 低秩分支：
+恢复训练的核心决定是把"量化"从训练循环里**请出去**：基座权重是量化写盘时定格的量化值（不变），LoRA 残差是精确梯度的 BF16 低秩分支：
 
 ```python
 def make_fwd(m, s):   # s = alpha/r
-    # v2 加性语义：量化基座（烤在 m.weight 里，值永不再变）+ 精确梯度低秩残差。
+    # v2 加性语义：量化基座（量化值已写进 m.weight，永不再变）+ 精确梯度低秩残差。
     # 部署 = lora_merge_bake（W_baked + (B@A)*s，BF16 加法，不重量化）。
     def fwd(x):
         y = torch.nn.functional.linear(x, m.weight, m.bias)
@@ -284,7 +284,7 @@ def make_fwd(m, s):   # s = alpha/r
 
 三个由此而来的性质：(i) **无 STE 近似**——量化基座不需要梯度（冻结），残差路径是普通线性函数，梯度精确；(ii) **训练=部署**——合并只是把这个加法算一次（W_baked + BA·s），闭环评测的函数与训练完全一致；(iii) **原生速度**——0.43 秒/步，而"逐前向把 W+BA 量化合并"的朴素写法是 75 秒/步（170×），后者曾在 24GB 卡上把 500 步推到 10 小时量级。训练器通过替换 `Gr00tTrainer.__init__` 注入（构造后遍历模块装 LoRA、冻结基座），`QAD_OPD_KL_W>0` 时再包一层 `compute_loss` 做 probe 缓存 teacher-KL（BF16 教师探针 38 秒离线缓存，训练循环内只跑学生前向——这是对早期 twin-forward 方案在 WSL 上确定性崩溃的修复）。
 
-## A.4.2 合并烤盘的教训（lora_merge_bake.py）
+## A.4.2 LoRA 合并写盘的教训（lora_merge_bake.py）
 
 合并逻辑本身三行（全局加载全部 shard → `W_baked + (B@A)·α/r` → 按原索引回写），但它踩中了两个值得记录的坑：HF 保存的 LoRA 键是 `X.lora_A` 而 base 是 `X.weight`（查表要补后缀）；lora_A 与其 base 权重可能落在**不同 shard**（必须全局加载后合并再回写，逐 shard 处理会 KeyError 崩在半路）。
 
@@ -316,14 +316,14 @@ def mark_scope(model):
     nn.Linear.forward = _ORIG   # 恢复原生前向；权重已携带量化噪声
 ```
 
-烤盘（A.3.3）是它的持久化版本。eval server（`run_gr00t_server_fp4vla.py`）在此之上只加三个环境变量钩子：`FP4VLA_QUANT/SCOPE`（量化注入）与 `FP4VLA_LOG_DIR`（A.4.3 的 rollout 日志）。于是全部实验臂——五臂 PTQ、LoRA 合并产物、RWR 产物——都以同一形态进入闭环：**换 checkpoint 路径，不换代码**。
+量化写盘脚本（A.3.3）是它的持久化版本。eval server（`run_gr00t_server_fp4vla.py`）在此之上只加三个环境变量钩子：`FP4VLA_QUANT/SCOPE`（量化注入）与 `FP4VLA_LOG_DIR`（A.4.3 的 rollout 日志）。于是全部实验臂——五臂 PTQ、LoRA 合并产物、RWR 产物——都以同一形态进入闭环：**换 checkpoint 路径，不换代码**。
 
 # A.6 复现索引
 
 | 组件 | 位置 | 一条命令 |
 |---|---|---|
 | 校准采集 | quant/ptq/collector.py | `.venv/bin/python .../collector.py`（16 批×8 窗，189 层 Hessian 5.49GB） |
-| 五臂烤盘 | quant/ptq/bake.py | `bake.py --recipe mixed --out weights/ptq_bakes/gr00t_ptq_mixed` |
+| 五臂量化写盘 | quant/ptq/bake.py | `bake.py --recipe mixed --out weights/ptq_bakes/gr00t_ptq_mixed` |
 | QAD/OPD-LoRA | rl/lora_qad.py | `GR00T_BASE_CKPT=<fp8臂> QAD_STEPS=500 ... lora_qad.py`（OPD 加 `QAD_OPD_KL_W=1.0`） |
 | LoRA 合并 | rl/lora_merge_bake.py | `--ckpt <checkpoint-500> --out <部署目录>` |
 | RWR 臂 | rl/lora_rwr.py + rwr_chain.sh | 采集（`FP4VLA_LOG_DIR=...`）→ 训练 → 评测 |

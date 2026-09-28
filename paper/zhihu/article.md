@@ -2,7 +2,7 @@
 
 视觉-语言-动作（VLA）模型需要在本体上以 10–50 Hz 闭环运行，但现有部署研究集中在 BF16/FP8。NVIDIA Blackwell 将 NVFP4（E2M1 + 逐 16 元素 E4M3 块缩放）带入消费级 GPU，本文在 RTX 5090 Laptop（sm_120）上系统回答：**VLA 能否在 FP4/FP8 混合精度下运行，闭环成功率损失几何，如何恢复？**
 
-**算子层**：我们通过受控探针实验测定并逐字节验证了 cuBLASLt 的 NVFP4 块缩放物理布局，据此实现了 sm_120 上可用的 block-scaled NVFP4 GEMM，峰值 506 TFLOPS（1.8× FP8）。**引擎层**：在 APXInf 中交付完整 NVFP4 执行路径（四层正确性验证，corr=1.000000），并给出首批 GeForce 上的 VLA 引擎数据（π0.5 = 7.3×、GR00T N1.7 = 3.2× 于各自 PyTorch 基线）。**实证层（核心结果，LIBERO-10 × 10×10 全量闭环）**：全模型 NVFP4 PTQ 无论 max 校准、GPTQ Hessian 舍入还是逐层 MSE 裁剪均闭环归零（0%）——逐层最优的量化误差在闭环中复合成行为崩溃；而复刻 NVIDIA Jetson AI Lab 的混合 FP8/NVFP4 分配（backbone FP8 + 敏感投影保护）在 2.02× 线性参数压缩下达到 **95.1%**（BF16 基线 96.7%）。**恢复层**：在 2.44× 压缩、全量闭环仅 43.4% 的 FP8/NVFP4 基座上，500 步（3.5 分钟）的量化域 LoRA 后训练（量化基座 + BF16 低秩残差的加性形态，SVDQuant 家族）将闭环成功率恢复到 **99.0%**（QAD 演示蒸馏与 OPD teacher-KL 双臂同达，均超 BF16 基线）；同预算的 PPO 家族在线对照（成功加权自模仿 RWR）则**零恢复**——构成量化恢复问题上离线蒸馏与在线自模仿的经济学对照。**理论层**：以 DAgger 协变量漂移框架将复合误差定量化（O(T²ε)→O(Tε)），导出并实测了 PTQ→QAD→OPD 恢复阶梯。**工程交付**：1400+ 行可上游引擎补丁、打包工件管线、校准 PTQ 套件（Hessian 采集/GPTQ/AWQ/五臂烤盘）、24GB 单卡 LoRA 恢复训练栈（无 FSDP2、0.43s/步）、全部 checkpoint 与复现脚本。
+**算子层**：我们通过受控探针实验测定并逐字节验证了 cuBLASLt 的 NVFP4 块缩放物理布局，据此实现了 sm_120 上可用的 block-scaled NVFP4 GEMM，峰值 506 TFLOPS（1.8× FP8）。**引擎层**：在 APXInf 中交付完整 NVFP4 执行路径（四层正确性验证，corr=1.000000），并给出首批 GeForce 上的 VLA 引擎数据（π0.5 = 7.3×、GR00T N1.7 = 3.2× 于各自 PyTorch 基线）。**实证层（核心结果，LIBERO-10 × 10×10 全量闭环）**：全模型 NVFP4 PTQ 无论 max 校准、GPTQ Hessian 舍入还是逐层 MSE 裁剪均闭环归零（0%）——逐层最优的量化误差在闭环中复合成行为崩溃；而复刻 NVIDIA Jetson AI Lab 的混合 FP8/NVFP4 分配（backbone FP8 + 敏感投影保护）在 2.02× 线性参数压缩下达到 **95.1%**（BF16 基线 96.7%）。**恢复层**：在 2.44× 压缩、全量闭环仅 43.4% 的 FP8/NVFP4 基座上，500 步（3.5 分钟）的量化域 LoRA 后训练（量化基座 + BF16 低秩残差的加性形态，SVDQuant 家族）将闭环成功率恢复到 **99.0%**（QAD 演示蒸馏与 OPD teacher-KL 双臂同达，均超 BF16 基线）；同预算的 PPO 家族在线对照（成功加权自模仿 RWR）则**零恢复**——构成量化恢复问题上离线蒸馏与在线自模仿的经济学对照。**理论层**：以 DAgger 协变量漂移框架将复合误差定量化（O(T²ε)→O(Tε)），导出并实测了 PTQ→QAD→OPD 恢复阶梯。**工程交付**：1400+ 行可上游引擎补丁、打包工件管线、校准 PTQ 套件（Hessian 采集/GPTQ/AWQ/五臂精度分配）、24GB 单卡 LoRA 恢复训练栈（无 FSDP2、0.43s/步）、全部 checkpoint 与复现脚本。
 
 # 贡献亮点
 
@@ -94,7 +94,7 @@ NVFP4 由三层结构组成：4-bit E2M1 数据格（值域 {0, ±0.5, ±1, ±1.
 
 ![](images/gptq_block.png)
 
-**精度分配即策略**。校准回答的是"给定放法之后误差有多小"，更上游的问题是"误差放在哪里"。五种配方就是五个"模块名 → 精度"的纯函数（代码见 §A.3.3）：rtn（全部 NVFP4、max 校准）与 calib（全部 NVFP4 + GPTQ/逐层裁剪）检验纯校准的天花板；mixed 复刻 NVIDIA 的官方分配；aggr 只保护 o_proj/down_proj 两类投影；恢复基座 = backbone per-channel FP8 + 动作头全部线性层 NVFP4。§4.4 将给出压倒性的证据：calib 把逐层输出 MSE 压到 rtn 的 76%，闭环仍 0%；mixed 不动校准、只动分配即 95.1%——**误差的放置位置比误差总量更决定闭环成败**。落盘由"烤盘"完成：把量化值以 place-value 形式写回 safetensors（BF16 张量携带量化格点值），现有评测栈零改动；真实显存收益发生在部署格式账目上——NVFP4 每参数 0.5625 字节（4 bit 权重 + 每 16 个权重共享的 8 bit 块缩放），FP8 约 1 字节 + 行缩放——压缩比随 checkpoint 一并落盘备查。
+**精度分配即策略**。校准回答的是"给定放法之后误差有多小"，更上游的问题是"误差放在哪里"。五种配方就是五个"模块名 → 精度"的纯函数（代码见 §A.3.3）：rtn（全部 NVFP4、max 校准）与 calib（全部 NVFP4 + GPTQ/逐层裁剪）检验纯校准的天花板；mixed 复刻 NVIDIA 的官方分配；aggr 只保护 o_proj/down_proj 两类投影；恢复基座 = backbone per-channel FP8 + 动作头全部线性层 NVFP4。§4.4 将给出压倒性的证据：calib 把逐层输出 MSE 压到 rtn 的 76%，闭环仍 0%；mixed 不动校准、只动分配即 95.1%——**误差的放置位置比误差总量更决定闭环成败**。落盘由量化写盘脚本完成（bake.py，走读见 §A.3.3）：按分配表把每个受量化线性层的权重量化，把量化取值按原键、原形状写回 safetensors——张量仍是普通 BF16，只是数值已落在量化格点上，不新增任何键或结构，现有评测栈零改动；真实显存收益发生在部署格式账目上——NVFP4 每参数 0.5625 字节（4 bit 权重 + 每 16 个权重共享的 8 bit 块缩放），FP8 约 1 字节 + 行缩放——压缩比随 checkpoint 一并落盘备查。
 
 ## 3.3 量化误差的闭环复合：协变量漂移分析
 
@@ -110,7 +110,7 @@ NVFP4 由三层结构组成：4-bit E2M1 数据格（值域 {0, ±0.5, ±1, ±1.
 
 ## 3.4 量化域恢复：加性 LoRA 的 QAD、OPD 与在线自模仿对照
 
-**加性 LoRA 形态**。恢复训练的第一决定是把"量化"从训练循环里请出去。每个受恢复的线性层计算 y = x·W_bakedᵀ + (x·Aᵀ·Bᵀ)·(α/r)：基座权重 W_baked 是烤盘产出的量化值（冻结、永不再量化），低秩残差是 BF16 全精度分支。三个由此而来的性质：(i) 梯度经低秩路径**精确**回传，无 STE 近似——量化基座不需要梯度；(ii) **训练前向与部署函数严格同一**——部署合并只是把加法算一次（W_baked + BA·α/r，BF16 加法，不重量化），闭环评测与训练所见函数一致；(iii) **原生速度**——0.43 秒/步，逐前时把 W+BA 整体量化的朴素写法为 75 秒/步（170×），在 24GB 单卡上把 500 步训练从 10 小时量级拉回 3.5 分钟。该形态与 SVDQuant/EoRA 的"量化主体 + 全精度低秩修正"结构同源（§2.3），但以 LoRA 训练动态实现。
+**加性 LoRA 形态**。恢复训练的第一决定是把"量化"从训练循环里请出去。每个受恢复的线性层计算 y = x·W_bakedᵀ + (x·Aᵀ·Bᵀ)·(α/r)：基座权重 W_baked 是量化写盘时定格的量化值（冻结、永不再量化），低秩残差是 BF16 全精度分支。三个由此而来的性质：(i) 梯度经低秩路径**精确**回传，无 STE 近似——量化基座不需要梯度；(ii) **训练前向与部署函数严格同一**——部署合并只是把加法算一次（W_baked + BA·α/r，BF16 加法，不重量化），闭环评测与训练所见函数一致；(iii) **原生速度**——0.43 秒/步，逐前时把 W+BA 整体量化的朴素写法为 75 秒/步（170×），在 24GB 单卡上把 500 步训练从 10 小时量级拉回 3.5 分钟。该形态与 SVDQuant/EoRA 的"量化主体 + 全精度低秩修正"结构同源（§2.3），但以 LoRA 训练动态实现。
 
 **三个恢复臂**。QAD：演示分布上的 flow-matching 损失（量化域内的监督微调）。OPD：同预算外加探针缓存的 teacher-KL——BF16 教师在固定探针批上的预测离线缓存（38 秒），训练循环只跑学生前向对缓存做 MSE，避免 twin-forward 在 WSL 上的确定性崩溃；KL 项可观测且单调下降（§4.4）。RWR（在线自模仿对照，理论见 §2.5）：两阶段离线环——评测服务器记录批量 rollout（观测 + 动作块，任务成功率由评测日志给出），训练侧把成功 episode 的 64 步动作窗口（由已执行的 8 步前缀拼接、经处理器归一化，z-range 校验）以任务成功率为权做 flow-matching BC。预算与 QAD/OPD 对齐（500 梯度步当量），另计 25 分钟采集成本——on-policy 方法的固有开销，正是对照的一部分。它被如实标注为 REINFORCE 的退化形式（0/1 终端奖励、无优势估计）。
 
@@ -118,7 +118,7 @@ NVFP4 由三层结构组成：4-bit E2M1 数据格（值域 {0, ±0.5, ±1, ±1.
 
 **闭环是唯一裁判**。我们实证（§4.5）离线指标与闭环损伤混沌解耦，故一切臂间取舍以闭环成功率为准；离线量（逐层 MSE、向量场相关性）只用于工程排障。
 
-**双轨协议**。全量协议 = LIBERO-10 × 每任务 10 episodes（全部正式数字）；mini 协议 = 3 任务 × 5 episodes（快速筛臂，已知偏易：恢复基座在 mini 上 70.8%、全量 43.4%——本文所有结论性数字均取全量）。评测栈与部署形态同构：策略常驻服务器 + ZMQ rollout 客户端，烤好的 checkpoint 换入模型路径即测。**quantize-once 语义**：加载时把受量化线性层的权重一次性替换为 NVFP4 反量化值，前向恢复原生 BF16 速度——数值与逐前向 fake-quant 完全等价，避免评测慢 50 倍导致的 rollout 超时（§A.5）。
+**双轨协议**。全量协议 = LIBERO-10 × 每任务 10 episodes（全部正式数字）；mini 协议 = 3 任务 × 5 episodes（快速筛臂，已知偏易：恢复基座在 mini 上 70.8%、全量 43.4%——本文所有结论性数字均取全量）。评测栈与部署形态同构：策略常驻服务器 + ZMQ rollout 客户端，量化写盘产出的 checkpoint 换入模型路径即测。**quantize-once 语义**：加载时把受量化线性层的权重一次性替换为 NVFP4 反量化值，前向恢复原生 BF16 速度——数值与逐前向 fake-quant 完全等价，避免评测慢 50 倍导致的 rollout 超时（§A.5）。
 
 # 4. 实验
 
@@ -126,7 +126,7 @@ PTQ 侧的排障（§4.3）从全量 NVFP4 的 0% 出发，在一次次失败中
 
 ## 4.1 实验设置
 
-全部实验在单张 RTX 5090 Laptop（Blackwell sm_120，24GB，WSL2）上完成，训练、推理与仿真同载一机。闭环评测协议：LIBERO-10 的 10 个操作任务、每任务 10 episodes、每 episode 上限 720 步（每 8 步重新决策一次），以任务完成判定成功；正式数字一律取全量协议，3 任务 × 5 episodes 的 mini 协议仅用于臂间快筛并如实标注。基线：BF16 原模型（官方 LIBERO 微调 checkpoint）全量闭环 96.7%，与 NVIDIA Thor 参考值 ~98% 相当；到 §4.4 的恢复实验它才充当蒸馏教师。所有量化臂与恢复臂共用这一原模型、同一评测栈、同一随机种子协议；每个臂的 checkpoint、烤盘配方（ptq_recipe.json）与逐任务日志全部入库可复现（§A.6）。
+全部实验在单张 RTX 5090 Laptop（Blackwell sm_120，24GB，WSL2）上完成，训练、推理与仿真同载一机。闭环评测协议：LIBERO-10 的 10 个操作任务、每任务 10 episodes、每 episode 上限 720 步（每 8 步重新决策一次），以任务完成判定成功；正式数字一律取全量协议，3 任务 × 5 episodes 的 mini 协议仅用于臂间快筛并如实标注。基线：BF16 原模型（官方 LIBERO 微调 checkpoint）全量闭环 96.7%，与 NVIDIA Thor 参考值 ~98% 相当；到 §4.4 的恢复实验它才充当蒸馏教师。所有量化臂与恢复臂共用这一原模型、同一评测栈、同一随机种子协议；每个臂的 checkpoint、量化配方（ptq_recipe.json）与逐任务日志全部入库可复现（§A.6）。
 
 ## 4.2 执行层：BF16 引擎加速与 NVFP4 算子特性
 
@@ -244,11 +244,11 @@ PTQ 侧的每一步都由上一步的失败驱动。事后看，整条路径是�
 
 ## 5.2 APXInf 生态在本工作中的角色
 
-本工作不是把 APXInf 当黑箱，也不是重造引擎——五点可验证的具体受益：(i) **位级语义基准**：我们的 PyTorch 量化器逐位对齐引擎工件转换路径（corr=1.000000、maxdiff=0.0），保证离线校准与恢复训练的数字就是部署 kernel 消费的数字；(ii) **真实 kernel 路径的先行验证**：π0.5 的 nvfp4_static 闭环（0/100 vs BF16 90.0%）在写任何校准代码之前就锁定了"全 NVFP4 RTN 致死"，直接决定了把火力投向混合分配与恢复而非纯校准；(iii) **serving 拓扑**：闭环评测跑在与 robo 层同构的策略服务器 + ZMQ rollout 栈上，全部实验臂零代码改动换入即测——评测即部署形态；(iv) **工件产线复用**：packed 工件转换器的 RMSNorm 折叠与行拼接为旋转类 PTQ 的离线折叠预留了工程位；(v) **性能参照系**：GR00T N1.7 引擎 33.7 ms / 29.7 Hz 给出量化部署的延迟基线。诚实边界：GR00T 侧的校准与恢复实验目前跑在 PyTorch 量化语义（烤盘注入）上，引擎侧 GR00T fp4 kernel 化是下一步工作；π0.5 侧的引擎闭环已经证明该迁移路径可行。
+本工作不是把 APXInf 当黑箱，也不是重造引擎——五点可验证的具体受益：(i) **位级语义基准**：我们的 PyTorch 量化器逐位对齐引擎工件转换路径（corr=1.000000、maxdiff=0.0），保证离线校准与恢复训练的数字就是部署 kernel 消费的数字；(ii) **真实 kernel 路径的先行验证**：π0.5 的 nvfp4_static 闭环（0/100 vs BF16 90.0%）在写任何校准代码之前就锁定了"全 NVFP4 RTN 致死"，直接决定了把火力投向混合分配与恢复而非纯校准；(iii) **serving 拓扑**：闭环评测跑在与 robo 层同构的策略服务器 + ZMQ rollout 栈上，全部实验臂零代码改动换入即测——评测即部署形态；(iv) **工件产线复用**：packed 工件转换器的 RMSNorm 折叠与行拼接为旋转类 PTQ 的离线折叠预留了工程位；(v) **性能参照系**：GR00T N1.7 引擎 33.7 ms / 29.7 Hz 给出量化部署的延迟基线。诚实边界：GR00T 侧的校准与恢复实验目前跑在 PyTorch 量化语义（量化写盘注入）上，引擎侧 GR00T fp4 kernel 化是下一步工作；π0.5 侧的引擎闭环已经证明该迁移路径可行。
 
 ## 5.3 工程贡献
 
-cuBLASLt CUDA 13 API 适配与布局探针测定方法（含全套 spike 工具）；FP8 在 sm_120 不可用性的根因定位（E4M3 GEMM 输出 dtype 不支持，探针铁证）；1387 行可上游引擎补丁与打包工件产线；校准 PTQ 套件（Hessian 采集 / GPTQ-NVFP4 / AWQ 折叠映射 / 五臂烤盘）；24GB 无 FSDP2 的量化域 LoRA 恢复栈（0.43 秒/步，170× 于逐前向量化合并）；全部 checkpoint、配方与一键复现脚本。
+cuBLASLt CUDA 13 API 适配与布局探针测定方法（含全套 spike 工具）；FP8 在 sm_120 不可用性的根因定位（E4M3 GEMM 输出 dtype 不支持，探针铁证）；1387 行可上游引擎补丁与打包工件产线；校准 PTQ 套件（Hessian 采集 / GPTQ-NVFP4 / AWQ 折叠映射 / 五臂精度分配）；24GB 无 FSDP2 的量化域 LoRA 恢复栈（0.43 秒/步，170× 于逐前向量化合并）；全部 checkpoint、配方与一键复现脚本。
 
 ## 5.4 局限
 
@@ -298,7 +298,7 @@ pub(in crate::pi05) enum ModelVariant { Fp8Static(Pi05Model<Fp8StaticBlocks>), B
 
 ## A.1.4 Python 侧：robo 层与 serving 拓扑
 
-APXInf-robo（RLinf/APXinf-robo）是模型之上的机器人层：`Gr00tPolicy` 家族用 `precision=/calibration=/embodiment=` 构造（π0.5 走 `AutoPolicy`+`model_variant=`），LIBERO 评测与 OpenPI 兼容 server 都在这层。本文的闭环评测栈与该拓扑同构：eval server（策略常驻、批处理观测）+ ZMQ rollout 客户端（MuJoCo/EGL 在独立 venv）——**评测即部署形态**，烤好的 PTQ/LoRA 合并 checkpoint 换入模型路径即可，零代码改动。引擎侧需在同一 venv 安装 NVIDIA gr00t 包（`--no-deps`）+ transformers 4.57.3。
+APXInf-robo（RLinf/APXinf-robo）是模型之上的机器人层：`Gr00tPolicy` 家族用 `precision=/calibration=/embodiment=` 构造（π0.5 走 `AutoPolicy`+`model_variant=`），LIBERO 评测与 OpenPI 兼容 server 都在这层。本文的闭环评测栈与该拓扑同构：eval server（策略常驻、批处理观测）+ ZMQ rollout 客户端（MuJoCo/EGL 在独立 venv）——**评测即部署形态**，量化写盘产出的 PTQ/LoRA 合并 checkpoint 换入模型路径即可，零代码改动。引擎侧需在同一 venv 安装 NVIDIA gr00t 包（`--no-deps`）+ transformers 4.57.3。
 
 # A.2 引擎内的 NVFP4 执行路径：五步源码走读
 
@@ -388,7 +388,7 @@ for i in range(K):if i % block == 0:                      # 块入口：从当�
 
 **逐层裁剪搜索**在量化器外面套一层：`rtnc_best_clip` 对 c ∈ {1.0, 0.95, …, 0.5} 逐个完整跑上述量化（RTN 路径）或把 c 传入 GPTQ 的块入口（GPTQ 路径），以 `layer_mse_tr`（A.3.1 的 Hessian 恒等式，无须跑网络）取输出 MSE 最小者——max 校准（c=1）与 MSE 校准（c<1）在同一循环里合流。这就是正文 §4.3 的结论的出处：即便逐层输出 MSE 被压到 RTN 的 76%，全 NVFP4 的闭环仍为 0%——误差的**放置**比总量重要。
 
-## A.3.3 配方烤盘：分配表即策略（bake.py）
+## A.3.3 量化写盘：分配表即策略（bake.py）
 
 五种配方是五个纯函数，把模块名映射到精度——NVIDIA 分配的复刻与我们的激进版只差几行：
 
@@ -398,7 +398,7 @@ def alloc_mixed(name, W):            # NVIDIA mixed_nvfp4 复刻（2.02×）if n
 def alloc_aggr(name, W):             # 本文激进方案（2.88×）：动作头整体 NVFP4...if name.startswith("action_head."):...  # 全部 nvfp4；仅 o_proj/down_proj → fp8return "nvfp4_gptq"              # 视觉塔也 NVFP4（实测：闭环致死）
 ```
 
-而**恢复基座（2.44×）**就是"backbone 全 FP8 + 动作头全 NVFP4"——与 mixed 的差别恰是把 NVIDIA 保留 FP8/FP16 的动作头四类投影推进到 NVFP4（贡献亮点 1）。烤盘把量化值以 **place-value 形式写回 safetensors**（BF16 张量携带量化噪声），因此现有评测栈零改动即可闭环；压缩账目（nvfp4=0.5625 字节/参数含 E4M3 缩放、fp8=1 字节+行缩放）随 checkpoint 落盘成 `ptq_recipe.json`。
+而**恢复基座（2.44×）**就是"backbone 全 FP8 + 动作头全 NVFP4"——与 mixed 的差别恰是把 NVIDIA 保留 FP8/FP16 的动作头四类投影推进到 NVFP4（贡献亮点 1）。写盘方式是**按原键、原形状把量化取值写回 safetensors**（张量仍是普通 BF16，数值已落在量化格点上，不新增键或结构），因此现有评测栈零改动即可闭环；压缩账目（nvfp4=0.5625 字节/参数含 E4M3 缩放、fp8=1 字节+行缩放）随 checkpoint 落盘成 `ptq_recipe.json`。
 
 ## A.3.4 AWQ 折叠映射：三个非平凡边界（folds.py）
 
@@ -408,15 +408,15 @@ def alloc_aggr(name, W):             # 本文激进方案（2.88×）：动作�
 
 ## A.4.1 加性 LoRA：训练前向与部署函数严格同一（lora_qad.py）
 
-恢复训练的核心决定是把"量化"从训练循环里**请出去**：基座权重是烤好的量化值（不变），LoRA 残差是精确梯度的 BF16 低秩分支：
+恢复训练的核心决定是把"量化"从训练循环里**请出去**：基座权重是量化写盘时定格的量化值（不变），LoRA 残差是精确梯度的 BF16 低秩分支：
 
 ```python
-def make_fwd(m, s):   # s = alpha/r# v2 加性语义：量化基座（烤在 m.weight 里，值永不再变）+ 精确梯度低秩残差。# 部署 = lora_merge_bake（W_baked + (B@A)*s，BF16 加法，不重量化）。def fwd(x):y = torch.nn.functional.linear(x, m.weight, m.bias)z = torch.nn.functional.linear(x, m.lora_A)     # (…, r)z = torch.nn.functional.linear(z, m.lora_B)     # (…, N)return y + (z * s).to(y.dtype)return fwd
+def make_fwd(m, s):   # s = alpha/r# v2 加性语义：量化基座（量化值已写进 m.weight，永不再变）+ 精确梯度低秩残差。# 部署 = lora_merge_bake（W_baked + (B@A)*s，BF16 加法，不重量化）。def fwd(x):y = torch.nn.functional.linear(x, m.weight, m.bias)z = torch.nn.functional.linear(x, m.lora_A)     # (…, r)z = torch.nn.functional.linear(z, m.lora_B)     # (…, N)return y + (z * s).to(y.dtype)return fwd
 ```
 
 三个由此而来的性质：(i) **无 STE 近似**——量化基座不需要梯度（冻结），残差路径是普通线性函数，梯度精确；(ii) **训练=部署**——合并只是把这个加法算一次（W_baked + BA·s），闭环评测的函数与训练完全一致；(iii) **原生速度**——0.43 秒/步，而"逐前向把 W+BA 量化合并"的朴素写法是 75 秒/步（170×），后者曾在 24GB 卡上把 500 步推到 10 小时量级。训练器通过替换 `Gr00tTrainer.__init__` 注入（构造后遍历模块装 LoRA、冻结基座），`QAD_OPD_KL_W>0` 时再包一层 `compute_loss` 做 probe 缓存 teacher-KL（BF16 教师探针 38 秒离线缓存，训练循环内只跑学生前向——这是对早期 twin-forward 方案在 WSL 上确定性崩溃的修复）。
 
-## A.4.2 合并烤盘的教训（lora_merge_bake.py）
+## A.4.2 LoRA 合并写盘的教训（lora_merge_bake.py）
 
 合并逻辑本身三行（全局加载全部 shard → `W_baked + (B@A)·α/r` → 按原索引回写），但它踩中了两个值得记录的坑：HF 保存的 LoRA 键是 `X.lora_A` 而 base 是 `X.weight`（查表要补后缀）；lora_A 与其 base 权重可能落在**不同 shard**（必须全局加载后合并再回写，逐 shard 处理会 KeyError 崩在半路）。
 
@@ -436,14 +436,14 @@ def inject_action(batch, target):a  = torch.zeros(1, 64, 132, dtype=torch.bfloat
 def mark_scope(model):with torch.no_grad():for name, mod in model.named_modules():if isinstance(mod, nn.Linear) and inscope(name) and ...:mod.weight.data = fake_quant_nvfp4_torch(w).to(w.dtype)nn.Linear.forward = _ORIG   # 恢复原生前向；权重已携带量化噪声
 ```
 
-烤盘（A.3.3）是它的持久化版本。eval server（`run_gr00t_server_fp4vla.py`）在此之上只加三个环境变量钩子：`FP4VLA_QUANT/SCOPE`（量化注入）与 `FP4VLA_LOG_DIR`（A.4.3 的 rollout 日志）。于是全部实验臂——五臂 PTQ、LoRA 合并产物、RWR 产物——都以同一形态进入闭环：**换 checkpoint 路径，不换代码**。
+量化写盘脚本（A.3.3）是它的持久化版本。eval server（`run_gr00t_server_fp4vla.py`）在此之上只加三个环境变量钩子：`FP4VLA_QUANT/SCOPE`（量化注入）与 `FP4VLA_LOG_DIR`（A.4.3 的 rollout 日志）。于是全部实验臂——五臂 PTQ、LoRA 合并产物、RWR 产物——都以同一形态进入闭环：**换 checkpoint 路径，不换代码**。
 
 # A.6 复现索引
 
 | 组件 | 位置 | 一条命令 |
 |---|---|---|
 | 校准采集 | quant/ptq/collector.py | `.venv/bin/python .../collector.py`（16 批×8 窗，189 层 Hessian 5.49GB） |
-| 五臂烤盘 | quant/ptq/bake.py | `bake.py --recipe mixed --out weights/ptq_bakes/gr00t_ptq_mixed` |
+| 五臂量化写盘 | quant/ptq/bake.py | `bake.py --recipe mixed --out weights/ptq_bakes/gr00t_ptq_mixed` |
 | QAD/OPD-LoRA | rl/lora_qad.py | `GR00T_BASE_CKPT=<fp8臂> QAD_STEPS=500 ... lora_qad.py`（OPD 加 `QAD_OPD_KL_W=1.0`） |
 | LoRA 合并 | rl/lora_merge_bake.py | `--ckpt <checkpoint-500> --out <部署目录>` |
 | RWR 臂 | rl/lora_rwr.py + rwr_chain.sh | 采集（`FP4VLA_LOG_DIR=...`）→ 训练 → 评测 |
