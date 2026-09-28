@@ -9,7 +9,7 @@ closed-loop runs. Saves (probe_inputs, teacher pred_actions) to
 import os, sys, time
 
 BASE = "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10"
-OUT = "/mnt/c/fq_opd_probes"
+OUT = os.environ.get("OPD_CACHE_OUT", "/mnt/c/fq_opd_probes")
 os.makedirs(OUT, exist_ok=True)
 T0 = time.time()
 sys.path.insert(0, os.getcwd())

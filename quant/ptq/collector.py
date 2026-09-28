@@ -13,7 +13,7 @@ Head (action_head.*) is excluded: it is quantized by plain RTN at bake time
 import os, sys, time, json
 
 BASE = os.environ.get("PTQ_BASE", "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10")
-OUT = "/mnt/c/fq_ptq_calib"
+OUT = os.environ.get("PTQ_CAL_OUT", "/mnt/c/fq_ptq_calib")
 N_BATCH = int(os.environ.get("PTQ_CAL_BATCHES", "16"))
 BATCH = 8
 
