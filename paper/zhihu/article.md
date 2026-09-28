@@ -6,6 +6,8 @@
 
 # 贡献亮点
 
+**0. 五要素闭环组合（本文的独特之处）。** 据我们所知，此前没有工作把以下五个要素接成一条闭环流水线：**APXInf 推理引擎**（我们为其交付了完整的 NVFP4 执行路径并以 1387 行可上游补丁回归主线）承载 **GR00T N1.7**（Qwen3-VL backbone + DiT 动作头）的 **NVFP4/FP8 混合精度 PTQ**（含 GPTQ 的 NVFP4 块缩放适配——经典 GPTQ 假设逐层固定量化格，块缩放格式此前没有现成解法），再以**量化域 QAD/OPD 蒸馏**把激进压缩造成的闭环坍塌恢复到 99.0%（反超 BF16 基线），全程以闭环成功率为唯一裁判。五个要素互为前提：没有引擎执行层就没有真实 kernel 路径的先行验证；没有自研 PTQ（块适配 GPTQ + 模块敏感度地图）就没有 2.44× 的激进基座；没有 QAD/OPD 恢复，43.4% 的基座只是失败记录而非可用方案。
+
 **1. 在 NVIDIA 混合方案之上把压缩从 2.02× 推进到 2.44×——继续量化了什么？** NVIDIA 的 mixed_nvfp4 配方在动作头一侧留有大量余量：DiT 的注意力投影（to_q/to_k/to_v/to_out）与 adaLN 调制投影保持 FP8，timestep 编码器与动作解码器输出投影保持 FP16。我们把**动作头的全部线性层——包括 NVIDIA 保留的这四类——整体推进到 NVFP4**，backbone（ViT + LLM + lm_head）以 per-channel FP8-E4M3 权重量化承载，线性参数占用从 6.25 GB 压到 2.56 GB（2.44×；NVIDIA 配方复刻为 2.02×）。代价是全量闭环从 95.1% 跌至 43.4%——这恰好构成恢复层的严格测试床：**量化更激进、恢复更难，恢复方法本身的贡献才可分离**。
 
 **2. 从 PTQ-only（NVIDIA 路线）到 PTQ + 量化域恢复（本文）：43.4% → 99.0%。** NVIDIA 止步于 PTQ（其报告 97.5%→97.3%）。我们在 43.4% 的 2.44× 基座上证明，仅 500 步（3.5 分钟）的 LoRA 后训练即可恢复到 **99.0%，反超 BF16 基线（96.7%）**，且 QAD（演示蒸馏）与 OPD（teacher-KL）两路同达。做对了三件事：(a) **恢复训练发生在量化域内**——加性 LoRA 形态（量化基座 + BF16 低秩残差）使训练前向与部署函数严格同一，梯度经低秩路径精确回传、无 STE 近似，且以原生速度运行（0.43 秒/步，是逐前向全矩阵量化合并方案的 170 倍）；(b) **闭环成功率是唯一裁判**——我们实证离线指标与闭环损伤脱钩，所有配置的取舍均以 10×10 全量闭环裁定；(c) **用离线监督信号而非在线自模仿**——同预算的 PPO 家族对照（成功加权自模仿）对基座零改善，说明量化恢复的瓶颈在策略自身分布之外的信息，恰是演示/teacher 所提供的。
@@ -284,7 +286,7 @@ NVFP4 在消费级 Blackwell 上的 VLA 部署在算子、引擎、校准与后�
 
 # 附录 A. 核心源码走读与 APXInf 框架解析
 
-本附录面向希望复现或扩展本工作的读者，分两部分：A.1 解释 APXInf 引擎的代码框架——我们的全部引擎侧工作都在它的既有模式内完成；A.2–A.5 逐段走读我们实现的核心源码（引擎侧 CUDA/Rust 与 PyTorch 侧校准/恢复/评测栈），每段代码都说明"为什么这样写"。全部代码位于 fp4vla 仓库（`quant/ptq/`、`rl/`）与引擎补丁（`patches/apxinf-fp4vla-engine.patch`，1387 行，可对引擎主干一键应用）。
+本附录面向希望复现或扩展本工作的读者，分两部分：A.1 解释 APXInf 引擎的代码框架——我们的全部引擎侧工作都在它的既有模式内完成；A.2–A.5 逐段走读我们实现的核心源码（引擎侧 CUDA/Rust 与 PyTorch 侧校准/恢复/评测栈），每段代码都说明"为什么这样写"。全部代码位于本仓库（`quant/ptq/`、`rl/`）与引擎补丁（`patches/apxinf-fp4vla-engine.patch`，1387 行，可对引擎主干一键应用）。
 
 # A.1 APXInf 引擎代码框架解析
 
@@ -476,4 +478,4 @@ def mark_scope(model):with torch.no_grad():for name, mod in model.named_modules(
 | 闭环全量 | groot-fsdp2/run_libero_eval_fp4vla.sh | `bash run_libero_eval_fp4vla.sh <CKPT> <TAG> 10` |
 | 引擎侧 | patches/apxinf-fp4vla-engine.patch | `git apply` 于引擎主干（1387 行，adapter/算子/加载器/拓扑/变体全链） |
 
-引擎补丁的完整文件清单：`cublaslt_fp4_adapter.cu`（GEMM+量化核+cast 核）、`build.rs`/`ffi/cublaslt.rs`（注册与声明）、`kernels/fp4.rs`（fp4_linear+测试）、`pi05/fp4_weights.rs`（产物加载器+往返测试）、`pi05/model/blocks/fp4.rs`（Fp4Blocks 混合拓扑）、`pi05/config.rs`/`model.rs`/`load.rs`（Nvfp4Static 变体接线）、外加 fp8 在 sm_120 的输出 dtype 修复。每个文件的 spike/验证脚本在 fp4vla 仓库的探针实验目录 `spike/` 与 `quant/` 下成对出现。
+引擎补丁的完整文件清单：`cublaslt_fp4_adapter.cu`（GEMM+量化核+cast 核）、`build.rs`/`ffi/cublaslt.rs`（注册与声明）、`kernels/fp4.rs`（fp4_linear+测试）、`pi05/fp4_weights.rs`（产物加载器+往返测试）、`pi05/model/blocks/fp4.rs`（Fp4Blocks 混合拓扑）、`pi05/config.rs`/`model.rs`/`load.rs`（Nvfp4Static 变体接线）、外加 fp8 在 sm_120 的输出 dtype 修复。每个文件的 spike/验证脚本在本仓库的探针实验目录 `spike/` 与 `quant/` 下成对出现。
