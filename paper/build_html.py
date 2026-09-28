@@ -20,6 +20,7 @@ body{font-family:"Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui
      color:var(--ink);background:var(--bg);margin:0;line-height:1.7;font-size:16px}
 .page{max-width:880px;margin:0 auto;padding:48px 28px 96px}
 p{margin:9px 0;text-align:justify}
+p.math{text-align:center;margin:14px 0}
 header{border-bottom:3px solid var(--accent);padding-bottom:20px;margin-bottom:32px}
 h1{font-size:28px;line-height:1.35;margin:0 0 8px}
 .meta{color:var(--soft);font-size:14px}
@@ -42,6 +43,31 @@ blockquote{border-left:3px solid var(--soft);margin:16px 0;padding:2px 16px;colo
 """
 
 SWIZZLE_DEMO_JS = ""
+
+# KaTeX for math rendering: bootcdn primary (CN-friendly), cdnjs fallback via onerror.
+KATEX_HEAD = """
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.css"
+      onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css'">
+<script defer src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.js"
+        onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js';document.head.appendChild(s)"></script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js';document.head.appendChild(s)"></script>
+"""
+KATEX_INIT = """
+<script>
+window.addEventListener("load", function () {
+  function go() {
+    if (!window.renderMathInElement) return;
+    renderMathInElement(document.body, {delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "$",  right: "$",  display: false}
+    ], throwOnError: false});
+  }
+  go();
+  if (!window.renderMathInElement) setTimeout(go, 1200);
+});
+</script>
+"""
 
 def md_to_html(md: str) -> str:
     """Tiny markdown subset: headers, paragraphs, bold, code spans, code blocks, tables, lists."""
@@ -81,11 +107,13 @@ def md_to_html(md: str) -> str:
             out.append(f"<blockquote><p>{inline(''.join(buf))}</p></blockquote>"); i = j; continue
         if ln.startswith("{{fig:"):
             out.append(inline(ln)); i += 1; continue
+        if ln.startswith("$$"):
+            out.append(f'<p class="math">{inline(ln)}</p>'); i += 1; continue
         if not ln.strip(): i += 1; continue
         # merge consecutive plain lines into ONE dense paragraph (standard MD)
         j = i; buf = []
         while j < len(lines) and lines[j].strip() \
-                and not lines[j].startswith(("```", "|", "#", ">")) \
+                and not lines[j].startswith(("```", "|", "#", ">", "$$")) \
                 and not lines[j].startswith("{{fig:") \
                 and not re.match(r"^[-*]\s+", lines[j]):
             buf.append(lines[j].strip()); j += 1
@@ -103,13 +131,13 @@ def main():
     title = (PAPER / "meta.json").exists() and json.loads((PAPER / "meta.json").read_text()) or {}
     html_doc = f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{html.escape(title.get('title','FP4-VLA'))}</title><style>{CSS}</style></head>
+<title>{html.escape(title.get('title','FP4-VLA'))}</title><style>{CSS}</style>{KATEX_HEAD}</head>
 <body><div class="page">
 <header><h1>{html.escape(title.get('title','FP4-VLA'))}</h1>
 <div class="meta">{html.escape(title.get('meta',''))}</div></header>
 {body}
 <hr><p class="meta">本页由 paper/build_html.py 生成 · 数据与代码见仓库 · {title.get('date','')}</p>
-</div></body></html>"""
+</div>{KATEX_INIT}</body></html>"""
     out = PAPER / "paper.html"
     out.write_text(html_doc, encoding="utf-8")
     print(f"wrote {out} ({out.stat().st_size/1024:.0f} KB)")
