@@ -85,7 +85,7 @@ extern "C" cublasStatus_t apxinf_fp4_gemm_f16(
 
 写这段代码时踩过的坑值得记录：(i) CUDA 13 移除了行主序布局常量，全部按列主序重新推导存储方向——权重 `[N,K]` 行主序与 `[K,N]` 列主序 ld=K 是同一段字节，这是让 HF 转置习惯与 cuBLASLt 共存的关键；(ii) scale 指针与 scale 模式是描述符属性而非布局属性，设错位置会静默落到逐 tensor 缩放；(iii) `CUBLAS_COMPUTE_32F + CUDA_R_32F` 的组合是该 scale 模式下唯一可用的高精度路径。
 
-**物理 swizzle 布局**——cuBLASLt 要求块缩放字节按固定物理公式排布（§8.7 的探针测定过程），适配器与离线转换器共用同一公式：
+**物理 swizzle 布局**——cuBLASLt 要求块缩放字节按固定物理公式排布（§3.1 的探针测定过程），适配器与离线转换器共用同一公式：
 
 ```
 PS = 512 * ceil(KB/4)
@@ -179,7 +179,7 @@ pub fn gemm_maybe_fp4(
 }
 ```
 
-语言层与动作层的每个 Linear 站点都换成 `gemm_maybe_fp4(...)`。两个非平凡的工程点：其一，引擎的 Gemma 执行器把 qkv 与 gate_up 存为 **PACKED 权重**（k/q/v 行拼接、dual-geglu 交错），而 HF checkpoint 是分开的张量——所以工件转换器（`quant/nvfp4_convert_packed.py`）必须**先按引擎内存布局拼接、再量化**，工件名用引擎内存名；RMSNorm 增益按输入通道折叠进 q/k/v（`w *= (1 + ln.weight)`）、gate/up 则乘 `(1 + post_ln.weight)`——这正是 §11 讨论的"变换折叠"在工件产线里的既有先例。其二，fp4 站点的 dtype 边界：引擎中间张量是 BF16，而量化核要求 F16 输入，故每个 fp4 站点付一次 bf16→f16 cast（输出侧同理），这在批注里如实标注为"豁免语义的代价"。
+语言层与动作层的每个 Linear 站点都换成 `gemm_maybe_fp4(...)`。两个非平凡的工程点：其一，引擎的 Gemma 执行器把 qkv 与 gate_up 存为 **PACKED 权重**（k/q/v 行拼接、dual-geglu 交错），而 HF checkpoint 是分开的张量——所以工件转换器（`quant/nvfp4_convert_packed.py`）必须**先按引擎内存布局拼接、再量化**，工件名用引擎内存名；RMSNorm 增益按输入通道折叠进 q/k/v（`w *= (1 + ln.weight)`）、gate/up 则乘 `(1 + post_ln.weight)`——这正是 §4.6 讨论的"变换折叠"在工件产线里的既有先例。其二，fp4 站点的 dtype 边界：引擎中间张量是 BF16，而量化核要求 F16 输入，故每个 fp4 站点付一次 bf16→f16 cast（输出侧同理），这在批注里如实标注为"豁免语义的代价"。
 
 ## A.2.5 变体接线与可见性
 
@@ -227,7 +227,7 @@ for i in range(K):
     W[:, i] = q
 ```
 
-这就是正文 §11 的结论的出处：即便逐层输出 MSE 被压到 RTN 的 76%，全 NVFP4 的闭环仍为 0%——误差的**放置**比总量重要。
+这就是正文 §4.4 的结论的出处：即便逐层输出 MSE 被压到 RTN 的 76%，全 NVFP4 的闭环仍为 0%——误差的**放置**比总量重要。
 
 ## A.3.3 配方烤盘：分配表即策略（bake.py）
 
@@ -258,7 +258,7 @@ def alloc_aggr(name, W):             # 本文激进方案（2.88×）：动作�
 
 ## A.3.4 AWQ 折叠映射：三个非平凡边界（folds.py）
 
-折叠映射表覆盖了 GQA 注意力（o_proj 的通道缩放须折叠进 v_proj 输出列，且同一 kv 通道被 2 个 q 头共享——映射函数处理 head_dim 分解）、GeGLU（down_proj 缩放精确折叠进 up_proj 列，因为 y=gelu(g)·u 对 u 线性）、以及**不可折叠点**（视觉塔 SiLU-MLP 的 fc2：逐元素非线性阻挡精确折叠）。搜索判据用 A.3.1 的 Hessian 恒等式精确评估输出 MSE——结果是全部站点 α=0（§11.4 的负结果）。
+折叠映射表覆盖了 GQA 注意力（o_proj 的通道缩放须折叠进 v_proj 输出列，且同一 kv 通道被 2 个 q 头共享——映射函数处理 head_dim 分解）、GeGLU（down_proj 缩放精确折叠进 up_proj 列，因为 y=gelu(g)·u 对 u 线性）、以及**不可折叠点**（视觉塔 SiLU-MLP 的 fc2：逐元素非线性阻挡精确折叠）。搜索判据用 A.3.1 的 Hessian 恒等式精确评估输出 MSE——结果是全部站点 α=0（§4.6 的负结果）。
 
 # A.4 量化域 LoRA 恢复栈（rl/）
 
