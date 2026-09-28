@@ -22,11 +22,11 @@ CUDA 调用不走 Rust FFI 直连，而是经过 **适配器层**：`adapters/*.
 pub(in crate::pi05) enum ModelVariant { Fp8Static(Pi05Model<Fp8StaticBlocks>), Bf16(...), ... }
 ```
 
-这套模式直接决定了我们的 fp4 实现形态：新增 `Nvfp4Static` 变体需要覆盖 `ModelVariant` 的**全部** match 臂（漏一处是 E0004 非穷尽错误），并且要么克隆一份完整 Blocks（fp8 的做法，千行级），要么做**组合式**设计。我们选择了后者（见 A.2.4）——这既是对引擎模式的遵循，也是对它的一次改进实验。
+这套模式直接决定了我们的 fp4 实现形态：新增 `Nvfp4Static` 变体需要覆盖 `ModelVariant` 的**全部** match 分支（漏一处是 E0004 非穷尽错误），并且要么克隆一份完整 Blocks（fp8 的做法，千行级），要么做**组合式**设计。我们选择了后者（见 A.2.4）——这既是对引擎模式的遵循，也是对它的一次改进实验。
 
-## A.1.3 工件与校准约定
+## A.1.3 产物与校准约定
 
-引擎的量化模型是**离线工件 + 在线执行**：权重以量化格式离线转换成工件目录，加载器只上传字节、从不重量化。π0.5 的 FP8 profile 约定放在 `<model-dir>/calibration.json`（`load.rs` 的 `options.calibration_path` 或模型根自动识别，fp8_weights.rs 甚至带校准 JSON 的身份校验）。我们的 NVFP4 工件沿用并显式化这一约定：
+引擎的量化模型是**离线产物 + 在线执行**：权重以量化格式离线转换成产物目录，加载器只上传字节、从不重量化。π0.5 的 FP8 profile 约定放在 `<model-dir>/calibration.json`（`load.rs` 的 `options.calibration_path` 或模型根自动识别，fp8_weights.rs 甚至带校准 JSON 的身份校验）。我们的 NVFP4 产物沿用并显式化这一约定：
 
 ```
 <dir>/<stem>.packed.u8   # rows x K/2 字节，E2M1 对（偶数 k 在低 nibble）
@@ -34,7 +34,7 @@ pub(in crate::pi05) enum ModelVariant { Fp8Static(Pi05Model<Fp8StaticBlocks>), B
 <dir>/manifest.json      # 每张量 {shape, block=16, tscale, rel_frob}
 ```
 
-**部分工件是合法状态**：豁免表（哪些张量留在 BF16）由工件的存在性表达——加载器查不到就回退 BF16。这个"存在即量化"的约定让混合精度部署不需要改任何引擎代码。
+**部分产物是合法状态**：豁免表（哪些张量留在 BF16）由产物的存在性表达——加载器查不到就回退 BF16。这个"存在即量化"的约定让混合精度部署不需要改任何引擎代码。
 
 ## A.1.4 Python 侧：robo 层与 serving 拓扑
 
@@ -94,7 +94,7 @@ off(r, b) = PS*(r/128) + 512*(b/4) + 16*(r%32) + 4*((r/32)%4) + (b%4)
 
 ## A.2.2 在线激活量化核：与 CPU 参考逐位一致
 
-适配器里的第二个导出函数把 F16 激活在线量化成 NVFP4（packed + swizzled scale）。这段代码的目标不是"快"而是**逐位确定**——它必须与离线转换器（`fp4_quant.py`）产出完全相同的字节，否则在线路径与离线工件的数值语义就分裂了：
+适配器里的第二个导出函数把 F16 激活在线量化成 NVFP4（packed + swizzled scale）。这段代码的目标不是"快"而是**逐位确定**——它必须与离线转换器（`fp4_quant.py`）产出完全相同的字节，否则在线路径与离线产物的数值语义就分裂了：
 
 ```c
 __device__ __forceinline__ uint8_t fp4_enc_e4m3(float v) {
@@ -132,9 +132,9 @@ __global__ void nvfp4_quantize_activation_kernel(
 
 两个刻意的设计决定：(i) **E4M3 编码用手写位级函数而非 `__nv_cvt_float_to_fp8`**——硬件内建函数的舍入模式与 CPU 参考不同，我们要的是 RNE-on-log-lattice 的精确复刻；(ii) **归一化除法而非乘倒数**——`x / sd` 与 `x * (1/sd)` 在 fp32 下给出不同舍入，注释里明确标注这是为了匹配 CPU 路径。E2M1 阶梯函数 `fp4_e2m1_mag` 用显式分支处理全部中点（0.25→0、0.75→1.0、1.75→2.0、3.5→4.0、5.0→4.0），保证 ties-to-even 的**码字**序而非数值序。这些细节共同保证了 kernel 与 Python 金标准逐字节一致（gold_check4 corr=1.000000）。
 
-## A.2.3 Rust 算子与工件加载器
+## A.2.3 Rust 算子与产物加载器
 
-`kernels/fp4.rs` 的 `fp4_linear` 是模型层看到的唯一入口——借用工件缓冲的零拷贝视图、在线量化激活、调用 GEMM：
+`kernels/fp4.rs` 的 `fp4_linear` 是模型层看到的唯一入口——借用产物缓冲的零拷贝视图、在线量化激活、调用 GEMM：
 
 ```rust
 pub struct Fp4WeightView<'a> {
@@ -158,14 +158,14 @@ pub fn fp4_linear(ctx: &CudaContext, x: &Tensor, w: &Fp4WeightView<'_>) -> Resul
 }
 ```
 
-`pi05/fp4_weights.rs` 加载器只做三件事：解析 manifest、按 stem 约定定位文件、`CudaBuffer` 上传——**注释里写明"工件不可变（QAD 冻结 scale），本加载器永不重量化"**，这是引擎"离线工件/在线执行"哲学的贯彻。它还带真实工件的设备往返回归测试（逐字节比对，环境变量门控），以及前述"部分工件合法"的豁免表语义。
+`pi05/fp4_weights.rs` 加载器只做三件事：解析 manifest、按 stem 约定定位文件、`CudaBuffer` 上传——**注释里写明"产物不可变（QAD 冻结 scale），本加载器永不重量化"**，这是引擎"离线产物/在线执行"哲学的贯彻。它还带真实产物的设备往返回归测试（逐字节比对，环境变量门控），以及前述"部分产物合法"的豁免表语义。
 
 ## A.2.4 混合拓扑执行器：组合式 Fp4Blocks 与逐站路由
 
 fp8_static.rs 的做法是克隆整个执行拓扑（千行级）。我们没有克隆，而是组合：`Fp4Blocks { inner: Bf16Blocks, fp4: Fp4TensorMap }`——视觉前处理、嵌入、KV cache 类型全部委托给既有 BF16 实现（`vision_layer_bf16` 等自由函数直接复用），只在 GEMM 站点插入路由。路由的心脏是这一个函数：
 
 ```rust
-/// 混合拓扑的路由心脏：权重有工件张量则走 fp4 GEMM，否则 BF16 直通（豁免语义）。
+/// 混合拓扑的路由心脏：权重有产物张量则走 fp4 GEMM，否则 BF16 直通（豁免语义）。
 pub fn gemm_maybe_fp4(
     ctx: &Context, x_bf16: &Tensor, weight_bf16: &Tensor,
     fp4: Option<&Fp4DeviceWeight>,
@@ -179,7 +179,7 @@ pub fn gemm_maybe_fp4(
 }
 ```
 
-语言层与动作层的每个 Linear 站点都换成 `gemm_maybe_fp4(...)`。两个非平凡的工程点：其一，引擎的 Gemma 执行器把 qkv 与 gate_up 存为 **PACKED 权重**（k/q/v 行拼接、dual-geglu 交错），而 HF checkpoint 是分开的张量——所以工件转换器（`quant/nvfp4_convert_packed.py`）必须**先按引擎内存布局拼接、再量化**，工件名用引擎内存名；RMSNorm 增益按输入通道折叠进 q/k/v（`w *= (1 + ln.weight)`）、gate/up 则乘 `(1 + post_ln.weight)`——这正是 §4.5 讨论的"变换折叠"在工件产线里的既有先例。其二，fp4 站点的 dtype 边界：引擎中间张量是 BF16，而量化核要求 F16 输入，故每个 fp4 站点付一次 bf16→f16 cast（输出侧同理），这在批注里如实标注为"豁免语义的代价"。
+语言层与动作层的每个 Linear 站点都换成 `gemm_maybe_fp4(...)`。两个非平凡的工程点：其一，引擎的 Gemma 执行器把 qkv 与 gate_up 存为 **PACKED 权重**（k/q/v 行拼接、dual-geglu 交错），而 HF checkpoint 是分开的张量——所以产物转换器（`quant/nvfp4_convert_packed.py`）必须**先按引擎内存布局拼接、再量化**，产物名用引擎内存名；RMSNorm 增益按输入通道折叠进 q/k/v（`w *= (1 + ln.weight)`）、gate/up 则乘 `(1 + post_ln.weight)`——这正是 §4.5 讨论的"变换折叠"在产物产线里的既有先例。其二，fp4 站点的 dtype 边界：引擎中间张量是 BF16，而量化核要求 F16 输入，故每个 fp4 站点付一次 bf16→f16 cast（输出侧同理），这在批注里如实标注为"豁免语义的代价"。
 
 ## A.2.5 变体接线与可见性
 
@@ -282,15 +282,15 @@ def make_fwd(m, s):   # s = alpha/r
     return fwd
 ```
 
-三个由此而来的性质：(i) **无 STE 近似**——量化基座不需要梯度（冻结），残差路径是普通线性函数，梯度精确；(ii) **训练=部署**——合并只是把这个加法算一次（W_baked + BA·s），闭环评测的函数与训练完全一致；(iii) **原生速度**——0.43 秒/步，而"逐前向把 W+BA 量化合并"的朴素写法是 75 秒/步（170×），后者曾在 24GB 卡上把 500 步推到 10 小时量级。训练器通过替换 `Gr00tTrainer.__init__` 注入（构造后遍历模块装 LoRA、冻结基座），`QAD_OPD_KL_W>0` 时再包一层 `compute_loss` 做 probe 缓存 teacher-KL（BF16 教师探针 38 秒离线缓存，训练循环内只跑学生前向——这是对早期 twin-forward 方案在 WSL 上确定性崩溃的修复）。
+三个由此而来的性质：(i) **无 STE 近似**——量化基座不需要梯度（冻结），残差路径是普通线性函数，梯度精确；(ii) **训练=部署**——合并只是把这个加法算一次（W_baked + BA·s），闭环评测的函数与训练完全一致；(iii) **原生速度**——0.43 秒/步，而"逐前向把 W+BA 量化合并"的朴素写法是 75 秒/步（170×），后者曾在 24GB 卡上把 500 步推到 10 小时量级。训练器通过替换 `Gr00tTrainer.__init__` 注入（构造后遍历模块装 LoRA、冻结基座），`QAD_OPD_KL_W>0` 时再包一层 `compute_loss` 做 probe 缓存 teacher-KL（BF16 教师探针 38 秒离线缓存，训练循环内只跑学生前向——这是对早期教师学生同批双前向（twin-forward）方案在 WSL 上确定性崩溃的修复）。
 
 ## A.4.2 LoRA 合并写盘的教训（lora_merge_bake.py）
 
 合并逻辑本身三行（全局加载全部 shard → `W_baked + (B@A)·α/r` → 按原索引回写），但它踩中了两个值得记录的坑：HF 保存的 LoRA 键是 `X.lora_A` 而 base 是 `X.weight`（查表要补后缀）；lora_A 与其 base 权重可能落在**不同 shard**（必须全局加载后合并再回写，逐 shard 处理会 KeyError 崩在半路）。
 
-## A.4.3 RWR 在线对照臂（lora_rwr.py）
+## A.4.3 RWR 在线对照组（lora_rwr.py）
 
-PPO 家族对照的落地是两阶段离线环：eval server 以 `FP4VLA_LOG_DIR` 记录批量 rollout（观测 JPEG 压缩 + 动作块），训练侧按任务日志 mtime 分段、按 slot 拼接 64 步目标、经 `apply_action`（含相对坐标转换与归一化，z-range 校验=1.00）注入训练批。GR00T 的统一动作空间是 132 维，libero 占据前 7 槽——这个映射不是从文档查的，而是从演示数据的方差结构测出来的（var>0 恰在 0..6）：
+PPO 家族对照的落地是两阶段离线环：eval server 以 `FP4VLA_LOG_DIR` 记录批量 rollout（观测 JPEG 压缩 + 动作块），训练侧按任务日志 mtime 分段、按 slot 拼接 64 步目标、经 `apply_action`（含相对坐标转换与归一化，取值范围校验全数通过）注入训练批。GR00T 的统一动作空间是 132 维，libero 占据前 7 槽——这个映射不是从文档查的，而是从演示数据的方差结构测出来的（var>0 恰在 0..6）：
 
 ```python
 def inject_action(batch, target):
@@ -316,18 +316,18 @@ def mark_scope(model):
     nn.Linear.forward = _ORIG   # 恢复原生前向；权重已携带量化噪声
 ```
 
-量化写盘脚本（A.3.3）是它的持久化版本。eval server（`run_gr00t_server_fp4vla.py`）在此之上只加三个环境变量钩子：`FP4VLA_QUANT/SCOPE`（量化注入）与 `FP4VLA_LOG_DIR`（A.4.3 的 rollout 日志）。于是全部实验臂——五臂 PTQ、LoRA 合并产物、RWR 产物——都以同一形态进入闭环：**换 checkpoint 路径，不换代码**。
+量化写盘脚本（A.3.3）是它的持久化版本。eval server（`run_gr00t_server_fp4vla.py`）在此之上只加三个环境变量钩子：`FP4VLA_QUANT/SCOPE`（量化注入）与 `FP4VLA_LOG_DIR`（A.4.3 的 rollout 日志）。于是全部实验产物——五种 PTQ 配置、LoRA 合并产物、RWR 产物——都以同一形态进入闭环：**换 checkpoint 路径，不换代码**。
 
 # A.6 复现索引
 
 | 组件 | 位置 | 一条命令 |
 |---|---|---|
 | 校准采集 | quant/ptq/collector.py | `.venv/bin/python .../collector.py`（16 批×8 窗，189 层 Hessian 5.49GB） |
-| 五臂量化写盘 | quant/ptq/bake.py | `bake.py --recipe mixed --out weights/ptq_bakes/gr00t_ptq_mixed` |
-| QAD/OPD-LoRA | rl/lora_qad.py | `GR00T_BASE_CKPT=<fp8臂> QAD_STEPS=500 ... lora_qad.py`（OPD 加 `QAD_OPD_KL_W=1.0`） |
+| 五配方量化写盘 | quant/ptq/bake.py | `bake.py --recipe mixed --out weights/ptq_bakes/gr00t_ptq_mixed` |
+| QAD/OPD-LoRA | rl/lora_qad.py | `GR00T_BASE_CKPT=<fp8 基座> QAD_STEPS=500 ... lora_qad.py`（OPD 加 `QAD_OPD_KL_W=1.0`） |
 | LoRA 合并 | rl/lora_merge_bake.py | `--ckpt <checkpoint-500> --out <部署目录>` |
-| RWR 臂 | rl/lora_rwr.py + rwr_chain.sh | 采集（`FP4VLA_LOG_DIR=...`）→ 训练 → 评测 |
+| RWR 组 | rl/lora_rwr.py + rwr_chain.sh | 采集（`FP4VLA_LOG_DIR=...`）→ 训练 → 评测 |
 | 闭环全量 | groot-fsdp2/run_libero_eval_fp4vla.sh | `bash run_libero_eval_fp4vla.sh <CKPT> <TAG> 10` |
 | 引擎侧 | patches/apxinf-fp4vla-engine.patch | `git apply` 于引擎主干（1387 行，adapter/算子/加载器/拓扑/变体全链） |
 
-引擎补丁的完整文件清单：`cublaslt_fp4_adapter.cu`（GEMM+量化核+cast 核）、`build.rs`/`ffi/cublaslt.rs`（注册与声明）、`kernels/fp4.rs`（fp4_linear+测试）、`pi05/fp4_weights.rs`（工件加载器+往返测试）、`pi05/model/blocks/fp4.rs`（Fp4Blocks 混合拓扑）、`pi05/config.rs`/`model.rs`/`load.rs`（Nvfp4Static 变体接线）、外加 fp8 在 sm_120 的输出 dtype 修复。每个文件的 spike/验证脚本在 fp4vla 仓库 `spike/` 与 `quant/` 下成对出现。
+引擎补丁的完整文件清单：`cublaslt_fp4_adapter.cu`（GEMM+量化核+cast 核）、`build.rs`/`ffi/cublaslt.rs`（注册与声明）、`kernels/fp4.rs`（fp4_linear+测试）、`pi05/fp4_weights.rs`（产物加载器+往返测试）、`pi05/model/blocks/fp4.rs`（Fp4Blocks 混合拓扑）、`pi05/config.rs`/`model.rs`/`load.rs`（Nvfp4Static 变体接线）、外加 fp8 在 sm_120 的输出 dtype 修复。每个文件的 spike/验证脚本在 fp4vla 仓库的探针实验目录 `spike/` 与 `quant/` 下成对出现。
