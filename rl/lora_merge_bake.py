@@ -78,6 +78,9 @@ def main():
             if k in sd:
                 tensors[k] = sd[k]
         save_file(tensors, f"{args.out}/{shard}", metadata={"format": "pt"})
+    if idx is not None:
+        idx["weight_map"] = {k: v for k, v in wmap.items() if ".lora_" not in k}
+        json.dump(idx, open(f"{args.out}/model.safetensors.index.json", "w"), indent=1)
     print(f"[merge] {merged} LoRA layers merged (additive, no requant), "
           f"{skipped} stragglers dropped -> {args.out}", flush=True)
 
