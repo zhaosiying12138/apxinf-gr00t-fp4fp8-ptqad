@@ -24,7 +24,8 @@
     "media7-linux-64.explicit.txt": "f32d98f0dac16e8fcd14cabb55ee6e75b584cd1c3f7529a953e27f2374f47514",
     "recovery-py312.txt": "22f6eccb25d59d4075f62679ec51ef91d21b2e7368a8f0319061a6da8f9674fe",
     "pi05-baseline-environment.json": "66f4dfad86756e3bb806c51ce581be3efdfcaafb1c843b18ae8cc163698bda4c",
-    "pi05-baseline-py312.txt": "8c82ca432c56a218513f55ae52848455da2da7b9a03b463d0e856cc10cfda4ba"
+    "pi05-baseline-py312.txt": "8c82ca432c56a218513f55ae52848455da2da7b9a03b463d0e856cc10cfda4ba",
+    "model-sources.json": "5ed79d1ad96dab0a4ed06d90f2caaa382ee17443abcae3bfe34f91a1a64d127c"
   },
   "optional_pi05_baseline": {
     "python": "3.12.14",
@@ -34,5 +35,6 @@
     "git_commit": null,
     "purpose": "Optional synthetic input reference timing; not required for core GR00T closed loop",
     "provenance": "Installed distribution metadata and RECORD verified; no VCS install metadata; clean installation and new GPU timing not executed by this audit."
-  }
+  },
+  "model_identity_manifest": "setup/locks/model-sources.json"
 }

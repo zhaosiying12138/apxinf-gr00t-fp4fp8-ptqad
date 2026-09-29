@@ -1,0 +1,265 @@
+{
+  "version": 1,
+  "verification_utc": "2026-09-29T04:18:34.324039+00:00",
+  "method": "Read existing local files and Hugging Face download metadata only; no remote HEAD, model download, install or GPU call.",
+  "models": {
+    "cosmos": {
+      "repo_id": "nvidia/Cosmos-Reason2-2B",
+      "actual_local_root": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561",
+      "metadata_local_root": "/home/zhaosiying/models/Cosmos-Reason2-2B",
+      "files": [
+        {
+          "path": "model.safetensors",
+          "bytes": 4877470304,
+          "sha256": "fa5a6e6ef4fce40216b185cc48a3b24d31637ac3e2ba69c107ed1f389c1e6ede",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "fa5a6e6ef4fce40216b185cc48a3b24d31637ac3e2ba69c107ed1f389c1e6ede",
+          "metadata_sha256": "37ef001295ef15e6b7ebf560e5ffb6235ebf6588c6b6c89625087efec5971d44",
+          "etag_kind": "sha256_lfs",
+          "computed_git_blob_sha1": null,
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\nfa5a6e6ef4fce40216b185cc48a3b24d31637ac3e2ba69c107ed1f389c1e6ede\n1790263923.3915958\n"
+        },
+        {
+          "path": "config.json",
+          "bytes": 1505,
+          "sha256": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "0cd8c646eb55794594b14fefcd1d3acea5cc000f",
+          "metadata_sha256": "881efbf5367206fc4b0bb22a59c5ee55addf3d3247daef130e4ef838fb2b3cc2",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "0cd8c646eb55794594b14fefcd1d3acea5cc000f",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\n0cd8c646eb55794594b14fefcd1d3acea5cc000f\n1790263268.9538517\n"
+        },
+        {
+          "path": "chat_template.json",
+          "bytes": 5502,
+          "sha256": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "e49e75bdda104c8de941eb20e0b3765184fb27bc",
+          "metadata_sha256": "ba962c7075d20aaf5ccc55896002a9cb8418d3f7108da4be945844127ad0d9a5",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "e49e75bdda104c8de941eb20e0b3765184fb27bc",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\ne49e75bdda104c8de941eb20e0b3765184fb27bc\n1790263268.9623268\n"
+        },
+        {
+          "path": "generation_config.json",
+          "bytes": 269,
+          "sha256": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "7bb37933d2d86e4ceaabcc6540be989658f238e9",
+          "metadata_sha256": "f15398c5ed000595c03c32b58545f11b1efc56d67ac9b1e89286ae27a28c9e94",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "7bb37933d2d86e4ceaabcc6540be989658f238e9",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\n7bb37933d2d86e4ceaabcc6540be989658f238e9\n1790263268.8984873\n"
+        },
+        {
+          "path": "merges.txt",
+          "bytes": 1671839,
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "20024bfe7c83998e9aeaf98a0cd6a2ce6306c2f0",
+          "metadata_sha256": "4a29e26cff98bc8084608526bbe4b0fdd6e2031ae1e625d0df9a52e4643e061f",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "20024bfe7c83998e9aeaf98a0cd6a2ce6306c2f0",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\n20024bfe7c83998e9aeaf98a0cd6a2ce6306c2f0\n1790263269.8956351\n"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "bytes": 390,
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "2ea84a437d448ff71b08df68fdd949d5cc4ebb64",
+          "metadata_sha256": "5197ed158fa93fc0104129bf3c7b1e567425e6a949dac0de66fe56f82a7216ee",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "2ea84a437d448ff71b08df68fdd949d5cc4ebb64",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\n2ea84a437d448ff71b08df68fdd949d5cc4ebb64\n1790263269.6778743\n"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 7032403,
+          "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "c6cc1014128b19d1fc46b1d30a23e3b1d35db421",
+          "metadata_sha256": "0baabdb139026421ff3c9978835354f332aec29331a264f6c870023cbf78b0c0",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "c6cc1014128b19d1fc46b1d30a23e3b1d35db421",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\nc6cc1014128b19d1fc46b1d30a23e3b1d35db421\n1790263271.5062916\n"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 10868,
+          "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "d3d3763207692c78780f4bf42d4dadf49a5c8012",
+          "metadata_sha256": "54f8554e10e854a16e0ca227597f0efcc251ecb6d8c0597dc8845fee1f92f64b",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "d3d3763207692c78780f4bf42d4dadf49a5c8012",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\nd3d3763207692c78780f4bf42d4dadf49a5c8012\n1790263269.692535\n"
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "bytes": 385,
+          "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "3ba673a5ad7d4d13f54155ecd38b2a94a6dac8fe",
+          "metadata_sha256": "46205c46919fa80734cb4d14295731601577a8a043de7334cc18f5dc9739cb8f",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "3ba673a5ad7d4d13f54155ecd38b2a94a6dac8fe",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\n3ba673a5ad7d4d13f54155ecd38b2a94a6dac8fe\n1790263269.7629347\n"
+        },
+        {
+          "path": "vocab.json",
+          "bytes": 2776833,
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+          "metadata_revision": "9ce19a195e423419c349abfc86fd07178b230561",
+          "metadata_etag": "4783fe10ac3adce15ac8f358ef5462739852c569",
+          "metadata_sha256": "f6ab6f13937e91b993999ec8945f26b6431540b58dbc76b6550bad073935879b",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "4783fe10ac3adce15ac8f358ef5462739852c569",
+          "etag_matches_actual_file": true,
+          "metadata_record": "9ce19a195e423419c349abfc86fd07178b230561\n4783fe10ac3adce15ac8f358ef5462739852c569\n1790263271.467731\n"
+        }
+      ],
+      "revision": "9ce19a195e423419c349abfc86fd07178b230561",
+      "revision_confidence": "verified_existing_download_metadata_and_file_content",
+      "local_dir": "Cosmos-Reason2-2B"
+    },
+    "pi05": {
+      "repo_id": "lerobot/pi05_libero_base",
+      "actual_local_root": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base",
+      "metadata_local_root": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base",
+      "files": [
+        {
+          "path": "model.safetensors",
+          "bytes": 14467165872,
+          "sha256": "21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4",
+          "metadata_revision": "a217bfd3b14673cf2ce597e69997ab21866438dd",
+          "metadata_etag": "21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4",
+          "metadata_sha256": "f1454dd3504c5249ebdee988859ed4ebceb950aec13f4bfff8fadacba7743dec",
+          "etag_kind": "sha256_lfs",
+          "computed_git_blob_sha1": null,
+          "etag_matches_actual_file": true,
+          "metadata_record": "a217bfd3b14673cf2ce597e69997ab21866438dd\n21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4\n1790263116.0699213\n"
+        },
+        {
+          "path": "config.json",
+          "bytes": 1715,
+          "sha256": "4d59e79adda2b1467e00f4c76390d95bfe05e9f1eff5f4da08aa493d6fe08651",
+          "metadata_revision": "a217bfd3b14673cf2ce597e69997ab21866438dd",
+          "metadata_etag": "e8f8438c8cdc4a8e72d7cd1471241705e2f46cf5",
+          "metadata_sha256": "8561e6710da0fbe70a3966ae91fc179fa8af5d439ef79d56b392c77e7450d687",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "e8f8438c8cdc4a8e72d7cd1471241705e2f46cf5",
+          "etag_matches_actual_file": true,
+          "metadata_record": "a217bfd3b14673cf2ce597e69997ab21866438dd\ne8f8438c8cdc4a8e72d7cd1471241705e2f46cf5\n1790262652.4232056\n"
+        },
+        {
+          "path": "policy_preprocessor.json",
+          "bytes": 1034,
+          "sha256": "3b82ad181de39a25bab881b31d04f800c18ad629c894fcbe2f4d3699559a27db",
+          "metadata_revision": "a217bfd3b14673cf2ce597e69997ab21866438dd",
+          "metadata_etag": "612de502987d83ed6df719d1cc302c5d5e72a766",
+          "metadata_sha256": "cac7fd4c4425a4e6d8c5b964444258220ce33375c60e8fcdea0718e7be50bfee",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "612de502987d83ed6df719d1cc302c5d5e72a766",
+          "etag_matches_actual_file": true,
+          "metadata_record": "a217bfd3b14673cf2ce597e69997ab21866438dd\n612de502987d83ed6df719d1cc302c5d5e72a766\n1790262651.5935261\n"
+        },
+        {
+          "path": "policy_postprocessor.json",
+          "bytes": 448,
+          "sha256": "eab7a5deb97c59e7224da9247b4a4fe07371bcb5a4f41818e3881461fbaf0872",
+          "metadata_revision": "a217bfd3b14673cf2ce597e69997ab21866438dd",
+          "metadata_etag": "4490f0951e4c146a36b9346d36e49c9b676cee23",
+          "metadata_sha256": "7c31bf0f9c51b30053a5f349f7e45b3d21675dbc09da1871c71c6e554be452a9",
+          "etag_kind": "git_blob_sha1",
+          "computed_git_blob_sha1": "4490f0951e4c146a36b9346d36e49c9b676cee23",
+          "etag_matches_actual_file": true,
+          "metadata_record": "a217bfd3b14673cf2ce597e69997ab21866438dd\n4490f0951e4c146a36b9346d36e49c9b676cee23\n1790262652.3834143\n"
+        }
+      ],
+      "revision": "a217bfd3b14673cf2ce597e69997ab21866438dd",
+      "revision_confidence": "verified_existing_download_metadata_and_file_content",
+      "local_dir": "pi05_libero_base"
+    },
+    "gr00t": {
+      "repo_id": "nvidia/GR00T-N1.7-LIBERO",
+      "revision": null,
+      "revision_confidence": "not_established_from_local_download_metadata",
+      "actual_local_root": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO",
+      "files": [
+        {
+          "path": "libero_10/model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+        },
+        {
+          "path": "libero_10/model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+        },
+        {
+          "path": "libero_10/model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        },
+        {
+          "path": "libero_10/config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        {
+          "path": "libero_10/processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        {
+          "path": "libero_10/statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        {
+          "path": "libero_10/embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        }
+      ],
+      "local_dir": "GR00T-N1.7-LIBERO"
+    }
+  },
+  "external_assets": [
+    {
+      "path": "pi05_libero_base/norm_stats.json",
+      "source_url_recorded_in_existing_setup_script": "https://storage.googleapis.com/openpi-assets/checkpoints/pi05_libero/assets/physical-intelligence/libero/norm_stats.json",
+      "bytes": 1914,
+      "sha256": "b3a44bb2810436fb62917decaea58bd4d9110255df527dea21e8fd40c960bd84",
+      "remote_generation": null,
+      "remote_etag": null,
+      "provenance_limit": "No original HTTP response or GCS generation/ETag receipt retained; URL comes from existing setup script, not proof of which object generation was downloaded."
+    },
+    {
+      "path": "pi05_libero_base/paligemma_tokenizer.model",
+      "source_url_recorded_in_existing_setup_script": "https://storage.googleapis.com/big_vision/paligemma_tokenizer.model",
+      "bytes": 4264023,
+      "sha256": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6",
+      "remote_generation": null,
+      "remote_etag": null,
+      "provenance_limit": "No original HTTP response or GCS generation/ETag receipt retained; URL comes from existing setup script, not proof of which object generation was downloaded."
+    }
+  ],
+  "download_policy": {
+    "huggingface_hub_version": "0.36.2",
+    "gr00t_unresolved_revision": "Default download selector main is not claimed as the original revision. Exact known file SHA-256 is mandatory after download; changes fail closed. Set GR00T_HF_REVISION if a separately evidenced revision becomes available.",
+    "revision_overrides": "COSMOS_HF_REVISION, PI05_HF_REVISION, GR00T_HF_REVISION override selectors only; they do not disable content verification. PTQAD_MODEL_SOURCE_MANIFEST may point to an independently reviewed alternate manifest.",
+    "asset_policy": "External HTTP assets have no retained original generation/ETag. Verify known SHA-256; download to a temporary path and publish only if it matches. Existing mismatched assets are not overwritten."
+  }
+}

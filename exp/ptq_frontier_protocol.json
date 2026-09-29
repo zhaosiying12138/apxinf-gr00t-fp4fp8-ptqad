@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "purpose": "Independent pure-PTQ reference frontier for the fixed five-arm recovery experiment",
+  "reference_rule": "Freeze every completed PTQ recipe before the selected recipe in the audited development prefix, including fp8 and excluding BF16. Do not select, add or remove references using heldout outcomes.",
+  "selection_source": "compare_development.audit_development only; no heldout input is accepted by freeze",
+  "heldout": {"seed": 220000, "episodes_per_task": 10, "tasks": 10, "init_state_indices": [10,11,12,13,14,15,16,17,18,19], "n_envs": 1, "n_action_steps": 8, "max_episode_steps": 720, "settle_steps": 10, "initial_state_protocol": "libero10_official_bank_v1"},
+  "budget": {"scope": "Full checkpoint encoding budget, physical and known-tied-alias deduplicated, each with its matching source denominator", "recovery_residual": "Add the independently stored BF16 LoRA payload to each recovery point; verify rank, scope and trainable elements against the actual merge/recovery manifest.", "limitation": "Encoding estimates are not measured dense checkpoint size, native deployment memory or latency."},
+  "comparison": {"main_arms_unchanged": ["bf16", "ptq", "qad", "continued_qad", "qad_opd"], "pairing": "Same official bank/restored/postsettle hashes, task and episode order as all five main arms", "reporting": "Report every frozen reference including unfavorable results; observed nondominated points are descriptive, not a noninferiority test or a global PTQ optimum.", "prohibited": "No heldout-driven recipe, rank, teacher-weight, training-length or checkpoint tuning."}
+}

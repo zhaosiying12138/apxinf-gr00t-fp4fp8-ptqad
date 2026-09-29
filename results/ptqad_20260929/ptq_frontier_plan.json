@@ -1,0 +1,434 @@
+{
+  "version": 1,
+  "status": "frozen",
+  "created_utc": "2026-09-29T04:29:04.563112+00:00",
+  "reference_selection_uses_heldout": false,
+  "selected_recipe": "head_lang",
+  "references": [
+    "fp8",
+    "head_ffn"
+  ],
+  "development_root": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development",
+  "selection": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/selection.json",
+    "bytes": 13142,
+    "sha256": "cf1de4545f18142a102184afe272b7fca526e4cf5af3734d9d3ba99358855c16"
+  },
+  "development_sources": {
+    "bf16/eval_manifest.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/bf16/eval_manifest.json",
+      "bytes": 2183,
+      "sha256": "f95dc64df827c14ea9e4501b8d55fa41f8fb0c588dee5f0db61134aee78119c1"
+    },
+    "bf16/task_results.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/bf16/task_results.json",
+      "bytes": 23034,
+      "sha256": "2e13bd63bb66df293a10f4e7658a5e4ece1b400323a7ae0934ec7167d714d4d5"
+    },
+    "bf16/summary.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/bf16/summary.json",
+      "bytes": 211,
+      "sha256": "a174ea554c83fecf570ad957acbb479e01441c6444087149df1df4ea82e92db0"
+    },
+    "fp8/eval_manifest.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/fp8/eval_manifest.json",
+      "bytes": 2176,
+      "sha256": "04a7793116d863673e5c3a11fc81e4248452e34196ca82fbd244afa166e8648a"
+    },
+    "fp8/task_results.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/fp8/task_results.json",
+      "bytes": 23034,
+      "sha256": "0e5dea97bd85a500317f21439e41a8aefcfe76c28694c5faf8ef847f76af547d"
+    },
+    "fp8/summary.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/fp8/summary.json",
+      "bytes": 211,
+      "sha256": "b17bbc9fb3c1808fb1becc105140ed82588d257863a0ff61c711869739228c78"
+    },
+    "head_ffn/eval_manifest.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/head_ffn/eval_manifest.json",
+      "bytes": 2187,
+      "sha256": "2855413049f74d0336579b6da76128613a3c4c36b775f4b4845c9d6afbf10ae3"
+    },
+    "head_ffn/task_results.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/head_ffn/task_results.json",
+      "bytes": 23035,
+      "sha256": "46b0b754f621173a2167d617370f85f9fad2869fc4a08218666c154d74515b42"
+    },
+    "head_ffn/summary.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/head_ffn/summary.json",
+      "bytes": 212,
+      "sha256": "351c473b334f458d0fe06f0933f9d0d317db783b02da602b9f4e030b2c6981af"
+    },
+    "head_lang/eval_manifest.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/head_lang/eval_manifest.json",
+      "bytes": 2190,
+      "sha256": "769605c8605ce60f7d5f5251535e28713f6f267e6cdd459447e4fb4c4b7c2c92"
+    },
+    "head_lang/task_results.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/head_lang/task_results.json",
+      "bytes": 23036,
+      "sha256": "d5b9ab88a8d2ddb1d0adfa8d609bcb7663b71acb53dbec8ee0d741d65881ae25"
+    },
+    "head_lang/summary.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/head_lang/summary.json",
+      "bytes": 211,
+      "sha256": "a11f1c0a8e97655b1317e125f90129c55565591a7328f955a6852f15920bc566"
+    }
+  },
+  "source_files": {
+    "eval/compare_ptq_frontier.py": {
+      "path": "/home/zhaosiying/codebase/fp4vla/eval/compare_ptq_frontier.py",
+      "bytes": 24690,
+      "sha256": "d6321c221a0dfa792256ea411e1511bb6fa6b0aa91666da8ba690801f9dbb938"
+    },
+    "eval/compare_development.py": {
+      "path": "/home/zhaosiying/codebase/fp4vla/eval/compare_development.py",
+      "bytes": 4602,
+      "sha256": "278d852eb06f4f4752600c3b3f5e15006ff0a68913bfdb5cb4e43d783e9d5857"
+    },
+    "eval/compare_recovery.py": {
+      "path": "/home/zhaosiying/codebase/fp4vla/eval/compare_recovery.py",
+      "bytes": 6468,
+      "sha256": "49ad903a090d1ce5f8a6c848c6bbfd159965413da707167366373f3a71799949"
+    },
+    "eval/run_recovery_eval.py": {
+      "path": "/home/zhaosiying/codebase/fp4vla/eval/run_recovery_eval.py",
+      "bytes": 12347,
+      "sha256": "ca13ac96ad31ea764c4d5e7426bff6533b3cb30146a8db6e5907744572d25620"
+    },
+    "eval/rollout_seeded.py": {
+      "path": "/home/zhaosiying/codebase/fp4vla/eval/rollout_seeded.py",
+      "bytes": 4318,
+      "sha256": "37e08b98bb313978548f9a4b85f438a2f46e77e269a427d2b119c886daf138fa"
+    },
+    "eval/serve_recovery.py": {
+      "path": "/home/zhaosiying/codebase/fp4vla/eval/serve_recovery.py",
+      "bytes": 1211,
+      "sha256": "1202847f769e025d7318b5f09df2c9643f0ec8c9db843862c3093a4d78e3e047"
+    },
+    "exp/run_ptq_frontier.sh": {
+      "path": "/home/zhaosiying/codebase/fp4vla/exp/run_ptq_frontier.sh",
+      "bytes": 532,
+      "sha256": "4e03e8e6e3344157e057ddbebb6df94e4a77d56bde7da3c116530165e147dc7a"
+    },
+    "exp/ptq_frontier_protocol.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/exp/ptq_frontier_protocol.json",
+      "bytes": 1617,
+      "sha256": "e4ad7da7cccbeb372f23e5f38fe5aabb8362cffac623336b2ac0b5b5ea1eaf56"
+    },
+    "exp/recovery_protocol.json": {
+      "path": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol.json",
+      "bytes": 3580,
+      "sha256": "705d3217ffc73bc2ae17875c4b1f0a2012022dbc942c30152b64581a7cffb5f5"
+    }
+  },
+  "budget_source": {
+    "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/recipe_inventory.json",
+    "bytes": 18947,
+    "sha256": "f183304ffe04c6a90010d3ff62944315a726a2ebd70c85cd6e6c982819054fe4"
+  },
+  "checkpoints": {
+    "bf16": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+      "recipe": null,
+      "metadata": {
+        "config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        "statistics.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        "processor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        "embodiment_id.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        "model.safetensors.index.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        }
+      },
+      "weights": {
+        "model-00001-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+        },
+        "model-00002-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+        }
+      }
+    },
+    "fp8": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base",
+      "recipe": "fp8",
+      "metadata": {
+        "config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        "statistics.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        "processor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        "embodiment_id.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        "model.safetensors.index.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        },
+        "ptq_recipe.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/ptq_recipe.json",
+          "bytes": 378122,
+          "sha256": "bf73800a38eb7b9c803a811dffe0617c850304a13dfa20776e66c22425a4f370"
+        },
+        "bake_manifest.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/bake_manifest.json",
+          "bytes": 1213,
+          "sha256": "1bb8b98c767b2ba8876caf74367a961241edb8b71bbdb7ef9c0993102b93fbd0"
+        }
+      },
+      "weights": {
+        "model-00001-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "938b6c84ea23370b2ba6a99ca3437342bb408db7cf15b578b59f7e27bede5b03"
+        },
+        "model-00002-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base/model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "285357c193c4a91f025352797b963eec198e4f7a66bcf907b80d52e21003bf2d"
+        }
+      }
+    },
+    "head_ffn": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn",
+      "recipe": "head_ffn",
+      "metadata": {
+        "config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        "statistics.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        "processor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        "embodiment_id.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        "model.safetensors.index.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        },
+        "ptq_recipe.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/ptq_recipe.json",
+          "bytes": 450002,
+          "sha256": "4f2df006403544270a57205d6097d2eb7bfa131f75af41472daf4f7215fe331b"
+        },
+        "bake_manifest.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/bake_manifest.json",
+          "bytes": 1214,
+          "sha256": "02a212295d3e5c3ab33c3837ac30c6370ed7b9def72d200abbcc32d4bb1fc3cf"
+        }
+      },
+      "weights": {
+        "model-00001-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "c9d2ca7a0b9da58476e9ad3b120f5baaf1cd6cb8f185ca83507f31e67d9bc214"
+        },
+        "model-00002-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn/model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "285357c193c4a91f025352797b963eec198e4f7a66bcf907b80d52e21003bf2d"
+        }
+      }
+    },
+    "head_lang": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang",
+      "recipe": "head_lang",
+      "metadata": {
+        "config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        "statistics.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        "processor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        "embodiment_id.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        "model.safetensors.index.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        },
+        "ptq_recipe.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/ptq_recipe.json",
+          "bytes": 452633,
+          "sha256": "85d81b7b6577a80233487cc9cc1b3062e94b018fdf9589e87b96c47419accf90"
+        },
+        "bake_manifest.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/bake_manifest.json",
+          "bytes": 1213,
+          "sha256": "3428908fa2e0da636a1066b4af0399afbc6df942065a55dd6a0b05d72b4d4113"
+        }
+      },
+      "weights": {
+        "model-00001-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "c2e26f9a0540bdfc7cff8c4b11d38620df0e0f2dc4193ac92d7591b76cf44b76"
+        },
+        "model-00002-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang/model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "285357c193c4a91f025352797b963eec198e4f7a66bcf907b80d52e21003bf2d"
+        }
+      }
+    }
+  },
+  "budget_derivations": {
+    "fp8": {
+      "method": "derived_from_actual_equal_tied_tensor_bytes_and_frozen_inventory",
+      "aliases": [
+        {
+          "alias": "backbone.model.lm_head.weight",
+          "canonical": "backbone.model.model.language_model.embed_tokens.weight",
+          "tensor": {
+            "shape": [
+              151936,
+              2048
+            ],
+            "dtype": "BF16",
+            "bytes": 622329856,
+            "sha256": "41e9aa5fc8f0e347388e0cce823bf99da8622b53c0f28aa930a03694f5915243"
+          },
+          "removed_source_bytes": 622329856,
+          "removed_target_bytes": 311772672
+        }
+      ]
+    },
+    "head_ffn": {
+      "method": "completed_ptq_metadata"
+    },
+    "head_lang": {
+      "method": "completed_ptq_metadata"
+    }
+  },
+  "encoding_budgets": {
+    "fp8": {
+      "physical": {
+        "source_bytes": 6910361856,
+        "base_bytes": 3221001460
+      },
+      "known_alias_deduplicated": {
+        "source_bytes": 6288032000,
+        "base_bytes": 2909228788
+      }
+    },
+    "head_ffn": {
+      "physical": {
+        "source_bytes": 6910361856,
+        "base_bytes": 3044054388
+      },
+      "known_alias_deduplicated": {
+        "source_bytes": 6288032000,
+        "base_bytes": 2732281716
+      }
+    },
+    "head_lang": {
+      "physical": {
+        "source_bytes": 6910361856,
+        "base_bytes": 2985072180
+      },
+      "known_alias_deduplicated": {
+        "source_bytes": 6288032000,
+        "base_bytes": 2673299508
+      }
+    }
+  },
+  "recovery_residual": {
+    "kind": "shape_derived_independent_bf16_lora_encoding_budget",
+    "scope": "head+lang_all",
+    "rank": 32,
+    "alpha": 64,
+    "linear_modules": 364,
+    "tensor_elements": 58580992,
+    "dtype": "bfloat16",
+    "bytes_per_element": 2,
+    "target_bytes": 117161984,
+    "source_index_sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59",
+    "source_config_sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+    "linear_coverage_source": "results/ptqad_20260929/calibration/calib_meta.json",
+    "linear_coverage_sha256": "5e5dd98f31e70cd29c05d102097f0642e53a331c967f4132ba629a349d04eb28",
+    "note": "Same hypothetical separately stored residual budget for each base; does not assert all recipes underwent recovery or actual packed deployment."
+  },
+  "heldout_protocol": {
+    "seed": 220000,
+    "episodes_per_task": 10,
+    "tasks": 10,
+    "init_state_indices": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "n_envs": 1,
+    "n_action_steps": 8,
+    "max_episode_steps": 720,
+    "settle_steps": 10,
+    "initial_state_protocol": "libero10_official_bank_v1"
+  },
+  "note": "Checkpoint bytes are hashed at freeze and rechecked before evaluation/comparison. Freeze reads no heldout data."
+}
