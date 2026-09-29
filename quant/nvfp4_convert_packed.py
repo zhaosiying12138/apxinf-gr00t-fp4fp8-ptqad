@@ -19,7 +19,8 @@ import argparse, json, pathlib, sys
 import numpy as np
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from nvfp4_convert import convert_one, iter_safetensors
+from nvfp4_convert import convert_one
+from safetensors import safe_open
 
 ROOT = "paligemma_with_expert"
 LANG = f"{ROOT}.paligemma.model.language_model.layers"
@@ -36,22 +37,36 @@ def main():
     ap.add_argument("--lang-depth", type=int, default=27)
     ap.add_argument("--act-depth", type=int, default=32)
     ap.add_argument("--vision-depth", type=int, default=27)
+    ap.add_argument("--chunk-rows", type=int, default=512,
+                    help="CPU quantization workspace bound; does not change packed values")
     ap.add_argument("--scope", choices=["all","lang","act","vision","lang+act"],
                     default="all", help="sensitivity-grid exemption artifacts: which tree(s) to quantize")
     ap.add_argument("--skip-first", type=int, default=0, help="skip first N layers of each tree (exemption)")
     ap.add_argument("--skip-last", type=int, default=0, help="skip last N layers of each tree")
     args = ap.parse_args()
 
-    tensors = {}
-    for name, t in iter_safetensors(args.ckpt):
-        tensors[name] = np.asarray(t)
-    print(f"collected {len(tensors)} tensors")
+    if args.chunk_rows < 1 or min(args.lang_depth, args.act_depth, args.vision_depth) < 0:
+        ap.error("chunk-rows must be positive and depths nonnegative")
+    if args.out.exists():
+        ap.error(f"refusing existing output: {args.out}")
+    # This converter targets the native pi0.5 float32 source checkpoint.
+    # Keep the safetensors map open and materialize only projections needed now.
+    with safe_open(str(args.ckpt), framework="numpy") as source:
+        class TensorView:
+            def __getitem__(self, name):
+                if name not in source.keys():
+                    raise KeyError(name)
+                return source.get_tensor(name)
+        print(f"opened {len(source.keys())} source tensors (lazy CPU reads)", flush=True)
+        convert_checkpoint(args, TensorView())
 
-    args.out.mkdir(parents=True, exist_ok=True)
+
+def convert_checkpoint(args, tensors):
+    args.out.mkdir(parents=True, exist_ok=False)
     manifest = []
 
     def emit(name: str, W: np.ndarray):
-        packed, phys, tscale, rel = convert_one(W)
+        packed, phys, tscale, rel = convert_one(W, chunk_rows=args.chunk_rows)
         stem = name.replace("/", ".")
         packed.tofile(args.out / f"{stem}.packed.u8")
         phys.tofile(args.out / f"{stem}.scale.u8")
@@ -78,7 +93,7 @@ def main():
                 [fold_scale(gate, g_post), fold_scale(up, g_post)], axis=0))
             if i % 8 == 0: print(f"  lang {i}", flush=True)
         except KeyError as e:
-            print(f"  lang {i}: stop ({e})", flush=True); break
+            raise ValueError(f"missing required language layer {i}: {e}") from e
 
     for i in range(args.act_depth):
         if args.scope not in ("all", "act", "lang+act") or i < args.skip_first or i >= args.act_depth - args.skip_last:
@@ -91,7 +106,7 @@ def main():
             emit(f"{p}.gate_up.weight", np.concatenate([gate, up], axis=0))
             if i % 8 == 0: print(f"  act {i}", flush=True)
         except KeyError as e:
-            print(f"  act {i}: stop ({e})", flush=True); break
+            raise ValueError(f"missing required action layer {i}: {e}") from e
 
     for i in range(args.vision_depth):
         if args.scope not in ("all", "vision") or i < args.skip_first or i >= args.vision_depth - args.skip_last:
@@ -102,7 +117,7 @@ def main():
             emit(f"{p}.qkv.weight", np.concatenate([q, k, v], axis=0))
             if i % 9 == 0: print(f"  vision {i}", flush=True)
         except KeyError as e:
-            print(f"  vision {i}: stop ({e})", flush=True); break
+            raise ValueError(f"missing required vision layer {i}: {e}") from e
 
     total_packed = sum(m["shape"][0]*m["shape"][1]//2
                        + 512*(((m["shape"][1]+15)//16+3)//4)*((m["shape"][0]+127)//128)

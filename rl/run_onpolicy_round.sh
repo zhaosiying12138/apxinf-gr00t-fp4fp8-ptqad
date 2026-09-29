@@ -18,11 +18,39 @@ HELDOUT_EPISODES=${HELDOUT_EPISODES:-10}
 PORT=${PORT:-5595}
 export QAD_MICRO_BATCH=${QAD_MICRO_BATCH:-1}
 export QAD_GLOBAL_BATCH=${QAD_GLOBAL_BATCH:-16}
+export QAD_LORA_SCOPE=${QAD_LORA_SCOPE:-head+lang_all}
+export QAD_LORA_R=${QAD_LORA_R:-32}
+export QAD_LORA_ALPHA=${QAD_LORA_ALPHA:-64}
 export QAD_ACTIVATION_CHECKPOINTING=${QAD_ACTIVATION_CHECKPOINTING:-1}
 export QAD_LR=${QAD_LR:-1e-4}
 export LD_LIBRARY_PATH=${PTQAD_MEDIA_LIB:-${LD_LIBRARY_PATH:-$HOME/miniforge3/envs/media7/lib}}
 export HF_HUB_OFFLINE=1
 test ! -e "$ROUND_OUT" || { echo "ROUND_OUT already exists; use a new evidence directory" >&2; exit 1; }
+# Fail before collecting trajectories if continuation settings do not match QAD.
+python3 - "$QAD_ADAPTER" "$PTQ_BASE" "$QAD_MERGED" <<'PY'
+import hashlib, json, os, sys
+from pathlib import Path
+adapter, base, merged = map(lambda p: Path(p).resolve(), sys.argv[1:])
+manifest_path = adapter / "recovery_manifest.json"
+manifest = json.loads(manifest_path.read_text())
+expected = {"base": str(base), "rank": int(os.environ["QAD_LORA_R"]),
+            "alpha": float(os.environ["QAD_LORA_ALPHA"]),
+            "scope": os.environ["QAD_LORA_SCOPE"]}
+if any(manifest.get(k) != v for k, v in expected.items()):
+    raise ValueError("Continuation base/rank/alpha/scope differs from initial QAD")
+for field, filename in (("base_config_sha256", "config.json"),
+                        ("base_statistics_sha256", "statistics.json"),
+                        ("base_recipe_sha256", "ptq_recipe.json")):
+    if manifest.get(field) != hashlib.sha256((base / filename).read_bytes()).hexdigest():
+        raise ValueError(f"QAD base metadata changed: {filename}")
+export = json.loads((merged / "merge_manifest.json").read_text())
+if (Path(export["training_checkpoint"]).resolve() != adapter or
+        Path(export["base"]).resolve() != base or export.get("status") != "complete"):
+    raise ValueError("Collection policy is not the completed export of the initial QAD adapter")
+if export["recovery_manifest_sha256"] != hashlib.sha256(manifest_path.read_bytes()).hexdigest():
+    raise ValueError("Collection policy and QAD adapter manifest differ")
+print("[round] initial QAD adapter, collection export and continuation settings match", flush=True)
+PY
 mkdir -p "$ROUND_OUT"
 ROUND_OUT=$(realpath "$ROUND_OUT")
 cd "$GR00T"

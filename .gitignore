@@ -20,6 +20,17 @@ target/
 build/
 *.so
 
+# Rebuild CUDA executables from the adjacent .cu sources.
+spike/fp4_adapter_test
+spike/fp4_gemm_bench
+spike/fp4_opbench
+spike/fp4_quant_test
+spike/fp8_probe
+spike/gold_check
+spike/gold_check2
+spike/gold_check3
+spike/gold_check4
+
 # ---- editors / os ----
 .vscode/
 .idea/

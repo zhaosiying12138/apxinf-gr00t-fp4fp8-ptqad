@@ -100,6 +100,7 @@ bake_recipe() {
 
 train_arm() {
   local arm=$1 steps=$2 init=${3:-} weight=${4:-0}
+  [[ ! -e "$RUN_DIR/train_$arm" ]] || { printf 'Refusing existing training output: %s\n' "$RUN_DIR/train_$arm"; return 2; }
   local -a command=(env "GR00T_BASE_CKPT=$RUN_DIR/$RECOVERY_RECIPE" "QAD_DATASET=$DATASET"
     "QAD_OUT=$RUN_DIR/train_$arm" "QAD_STEPS=$steps" "QAD_SAVE_STEPS=$steps" "QAD_GLOBAL_BATCH=$BSZ" "QAD_MICRO_BATCH=$MICRO_BATCH"
     "QAD_LORA_R=$RANK" "QAD_LORA_ALPHA=$ALPHA" "QAD_LORA_SCOPE=${QAD_LORA_SCOPE:-head+lang_all}" "QAD_LR=$LR"

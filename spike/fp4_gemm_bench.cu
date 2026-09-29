@@ -8,7 +8,7 @@
 // Layout used (cuBLASLt "TN"): A stored MxK K-major, B stored NxK K-major,
 // C stored MxN col-major.  C[m,n] = sum_k A[m,k]*B[n,k].
 //   Adesc = (rows=K, cols=M, ld=K, ORDER_COL, opA=T)
-//   Bdesc = (rows=K, cols=N, ld=K, ORDER_COL, opB=T)
+//   Bdesc = (rows=K, cols=N, ld=K, ORDER_COL, opB=N)
 //   Cdesc = (rows=M, cols=N, ld=M, ORDER_COL)
 // Outer scale mode: scaleA is ceil(K/16) x M col-major, scaleB ceil(K/16) x N.
 //
@@ -148,7 +148,7 @@ static cublasLtHandle_t g_lt;  // CUDA 13 cuBLASLt requires a handle for matmul/
 //   block : per-block across rows     idx = kb*M + m             (== col-major M x KB)
 //   row4  : row, KB padded to mult of 4                            (docs hint "MN x K4")
 //   block4: block, M padded to mult of 4
-static int g_slayout = 0;  // 0=row 1=block 2=row4 3=block4 4=hw-swizzle
+static int g_slayout = 4;  // Default and measured contract: hardware-swizzled block scales.
 static const char* slayout_name(int i){static const char* n[]={"row","block","row4","block4","hw"};return n[i];}
 
 static size_t scale_upload(const Tensor& t, int rows, int K, std::vector<uint8_t>& out) {
@@ -294,10 +294,14 @@ static BenchResult run_lt(Dt dt, int M, int N, int K, const Tensor& A, const Ten
   const void* hB = (dt==Dt::BF16)? (const void*)B.bf16.data() : (dt==Dt::FP8)? (const void*)B.fp8.data() : (const void*)B.fp4.data();
   CHECK_CUDA(cudaMemcpy(dA, hA, aBytes, cudaMemcpyHostToDevice));
   CHECK_CUDA(cudaMemcpy(dB, hB, bBytes, cudaMemcpyHostToDevice));
+  size_t aScaleBytes=0, bScaleBytes=0;
   if(dt==Dt::NVFP4 || dt==Dt::MXFP4){
     static std::vector<uint8_t> sa, sb;
-    CHECK_CUDA(cudaMemcpy(dAs, sa.data(), scale_upload(A,M,K,sa), cudaMemcpyHostToDevice));
-    CHECK_CUDA(cudaMemcpy(dBs, sb.data(), scale_upload(B,N,K,sb), cudaMemcpyHostToDevice));
+    // Populate before taking data(): C++ argument evaluation order must not
+    // expose a stale pointer if scale_upload reallocates the vector.
+    aScaleBytes=scale_upload(A,M,K,sa); bScaleBytes=scale_upload(B,N,K,sb);
+    CHECK_CUDA(cudaMemcpy(dAs, sa.data(), aScaleBytes, cudaMemcpyHostToDevice));
+    CHECK_CUDA(cudaMemcpy(dBs, sb.data(), bScaleBytes, cudaMemcpyHostToDevice));
   }
   if(dt==Dt::FP8){
     CHECK_CUDA(cudaMemcpy(dS8A, &A.fp8_scale, 4, cudaMemcpyHostToDevice));
@@ -318,23 +322,29 @@ static BenchResult run_lt(Dt dt, int M, int N, int K, const Tensor& A, const Ten
   CHECK_CUDA(cudaEventRecord(e1)); CHECK_CUDA(cudaEventSynchronize(e1));
   float ms; CHECK_CUDA(cudaEventElapsedTime(&ms, e0, e1)); ms/=iters;
   R.ms=ms; R.tflops = 2.0*M*N*K/(ms*1e-3)/1e12;
-  double abytes = aBytes + ((dt==Dt::NVFP4||dt==Dt::MXFP4)? (double)((K+A.block-1)/A.block)*M : 0);
-  double bbytes = bBytes + ((dt==Dt::NVFP4||dt==Dt::MXFP4)? (double)((K+A.block-1)/A.block)*N : 0);
+  double abytes = aBytes + aScaleBytes;
+  double bbytes = bBytes + bScaleBytes;
   R.gbps = (abytes+bbytes+(double)M*N*4)/ (ms*1e-3) / 1e9;
   R.ok = true;
 
   if(verify){
     std::vector<float> C((size_t)M*N);
     CHECK_CUDA(cudaMemcpy(C.data(), dC, C.size()*4, cudaMemcpyDeviceToHost));
-    std::vector<float> ar, br; double maxrel=0; int nz=0; int shown=0;
+    std::vector<float> ar, br; double maxrel=0, maxabs=0; int nz=0, failures=0; int shown=0;
     for(int m=0;m<M;++m){ dequant_row(A,dt,m,ar);
       for(int n=0;n<N;++n){ dequant_row(B,dt,n,br);
         double acc=0; for(int k=0;k<K;++k) acc += (double)ar[k]*br[k];
         float g = C[(size_t)m+(size_t)n*M];
-        double rel = std::fabs(acc - g) / (std::fabs(acc)+1e-3);
+        double error = std::fabs(acc - g);
+        double rel = error / (std::fabs(acc)+1e-3);
+        if(!std::isfinite(g) || error > 1e-4 + 1e-4*std::fabs(acc)) failures++;
+        maxabs=std::max(maxabs,error);
         if(rel>maxrel) maxrel=rel; nz++;
         if(rel>0.2 && shown<8){ fprintf(stderr,"#   mismatch m=%d n=%d cpu=%.4f gpu=%.4f ratio=%.6f\n", m,n,acc,g, g/(acc+1e-9)); shown++; } } }
-    R.note += " verify_maxrel=" + std::to_string(maxrel);
+    R.note += " verify_maxabs=" + std::to_string(maxabs) +
+              " verify_maxrel=" + std::to_string(maxrel) +
+              " checked=" + std::to_string(nz) + " failed=" + std::to_string(failures);
+    R.ok = failures == 0;
     if(getenv("FP4_PROBE")) dump_probe(dt_name(dt), M, N, K, C.data(), 1);
     if(getenv("FP4_MAP")) dump_map(M, N, K, C.data());
   }
@@ -353,9 +363,20 @@ int main(int argc, char** argv) {
     else if(!strncmp(argv[i],"--dtypes=",9)) dtypes=argv[i]+9;
     else if(!strncmp(argv[i],"--slayout=",10)){
       const char* s=argv[i]+10;
-      g_slayout = !strcmp(s,"row")?0 : !strcmp(s,"block")?1 : !strcmp(s,"row4")?2 : 3;
-    }
+      if(!strcmp(s,"hw")) g_slayout=4;
+      else if(!strcmp(s,"row")) g_slayout=0;
+      else if(!strcmp(s,"block")) g_slayout=1;
+      else if(!strcmp(s,"row4")) g_slayout=2;
+      else if(!strcmp(s,"block4")) g_slayout=3;
+      else { fprintf(stderr,"Unknown scale layout: %s\n",s); return 2; }
+    } else { fprintf(stderr,"Unknown argument: %s\n",argv[i]); return 2; }
   }
+  if(iters < 1){ fprintf(stderr,"iters must be positive\n"); return 2; }
+  if(!verify && (g_slayout!=4 || getenv("FP4_FLAT_SCALE") || getenv("FP4_SLOT") || getenv("FP4_MAP") || getenv("FP4_PROBE"))){
+    fprintf(stderr,"Timed sweeps require hardware-swizzled scales and no diagnostic overrides\n"); return 2;
+  }
+  fprintf(stderr,"# scale_layout=%s output=column_major_f32 secondary_scale=1 "
+                 "timing=mean_of_%d_cuda_event_iterations quantization=outside_timing\n",slayout_name(g_slayout),iters);
   cudaDeviceProp prop; CHECK_CUDA(cudaGetDeviceProperties(&prop,0));
   CHECK_LT(cublasLtCreate(&g_lt));
   size_t wsSize=256ULL<<20; void *ws; CHECK_CUDA(cudaMalloc(&ws, wsSize));
@@ -371,9 +392,10 @@ int main(int argc, char** argv) {
           driver, rt, cublasLtGetVersion(), CUDART_VERSION/1000, (CUDART_VERSION%1000)/10);
 
   if(verify){
-    fprintf(stderr, "# verify mode M=N=K=256\n");
+    fprintf(stderr, "# verify mode M=128 N=256 K=256; fp64 decoded-input reference; atol=1e-4 rtol=1e-4\n");
     std::mt19937 g(7); std::normal_distribution<float> d(0,1);
-    int M=256,N=256,K=256;
+    int M=128,N=256,K=256;
+    int verified=0, failed=0, unavailable=0;
     Tensor A,B; std::vector<float> a((size_t)M*K), b((size_t)N*K);
     for(auto&v:a) v=d(g)*0.1f; for(auto&v:b) v=d(g)*0.1f;
     for(Dt dt:{Dt::BF16,Dt::FP8,Dt::NVFP4,Dt::MXFP4}){
@@ -426,18 +448,17 @@ int main(int argc, char** argv) {
         fprintf(stderr, "# probe-run %-6s ok=%d %s\n", dt_name(dt), (int)R.ok, R.note.c_str());
         continue;
       }
-      if(dt==Dt::NVFP4 || dt==Dt::MXFP4){
-        for(int sl=4; sl<5; ++sl){   // "hw" swizzle is the decoded winner; see docs/spike.md
-          g_slayout=sl;
-          auto R=run_lt(dt,M,N,K,A,B,dA,dB,dC,dAs,dBs,dS8A,dS8B,ws,wsSize,2,2,true);
-          fprintf(stderr, "# verify %-6s slayout=%-7s ok=%d %s\n", dt_name(dt), slayout_name(sl), (int)R.ok, R.note.c_str());
-        }
-      } else {
-        auto R=run_lt(dt,M,N,K,A,B,dA,dB,dC,dAs,dBs,dS8A,dS8B,ws,wsSize,2,2,true);
-        fprintf(stderr, "# verify %-6s ok=%d %s\n", dt_name(dt), (int)R.ok, R.note.c_str());
-      }
+      // Exactly the same selected layout and run_lt contract as the sweep.
+      auto R=run_lt(dt,M,N,K,A,B,dA,dB,dC,dAs,dBs,dS8A,dS8B,ws,wsSize,2,2,true);
+      fprintf(stderr, "# verify %-6s slayout=%-7s ok=%d %s\n", dt_name(dt),
+              slayout_name(g_slayout), (int)R.ok, R.note.c_str());
+      if(R.algos==0) unavailable++;
+      else if(R.ok) verified++;
+      else failed++;
     }
-    return 0;
+    fprintf(stderr,"# verification_summary verified=%d failed=%d unavailable=%d; "
+                   "unavailable formats are not validated\n",verified,failed,unavailable);
+    return failed ? 2 : (verified ? 0 : 3);
   }
 
   // shape sweep: prefill-like (compute bound) + decode/action-head-like (memory bound)

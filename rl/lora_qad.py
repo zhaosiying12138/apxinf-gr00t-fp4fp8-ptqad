@@ -19,7 +19,8 @@ Env knobs:
   QAD_OPD_MSE_W (0: off; QAD_OPD_KL_W is a deprecated alias)
   OPD_CACHE_PATH, OPD_EVERY (4), QAD_INIT_ADAPTER (optional prior checkpoint)
   QAD_ACTIVATION_CHECKPOINTING (0): optional non-reentrant block recomputation
-  Teacher backward follows the main backward on microbatch 1; graphs never stack.
+  On selected optimizer updates, teacher backward follows the main backward on
+  every accumulation microbatch; the two forward graphs never stack.
 Run from ~/codebase/groot-fsdp2/Isaac-GR00T with .venv python.
 """
 import json, os, sys, time
@@ -222,6 +223,13 @@ def install_trainer_hooks():
                     "objective": "demo flow loss + scheduled sequential teacher velocity MSE" if MSE_W else "demo flow loss",
                     "normalization": "frozen base statistics", "seed": self.args.seed}
         manifest["activation_checkpointing"] = activation_checkpointing
+        manifest["recovery_source_sha256"] = {
+            str(path.relative_to(PROJECT)): file_sha256(path)
+            for path in (PROJECT / "rl" / filename for filename in (
+                "lora_qad.py", "probe_distill.py", "lora_scope.py", "recovery_batch.py",
+                "gr00t_runtime.py", "activation_checkpoint.py", "runtime_metrics.py"))
+        }
+        manifest["protocol_sha256"] = file_sha256(PROJECT / "exp/recovery_protocol.json")
         manifest.update({"micro_batch": MICRO_BATCH, "gradient_accumulation_steps": ACCUM_STEPS,
                          "effective_global_batch": GLOBAL_BATCH,
                          "upstream_global_batch_size_cli": MICRO_BATCH,
