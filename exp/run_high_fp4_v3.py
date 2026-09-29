@@ -547,13 +547,19 @@ class Driver:
                             "merge_opd_025" if float(key)==.25 else "merge_opd_100")
             values[str(key)]={field:key,**self.eval_verify(p,"development",model),
                              "evaluation_path":str(p),"selection_source":"development_only"}
-        reference=eval_audit(self.selection_path.parent/"bf16", self.protocol, "development", self.base)
+        reference_path = self.selection_path.parent / "bf16"
+        if not reference_path.is_dir():
+            # Category development stores the reference below its explicit
+            # partition directory; retain compatibility with the older flat
+            # layout without weakening the evidence audit.
+            reference_path = self.selection_path.parent / "development" / "bf16"
+        reference=eval_audit(reference_path, self.protocol, "development", self.base)
         require_pairing({"bf16":reference,**values})
         winner=sorted(values.values(),key=lambda x:(-frac(x,field),x[field]))[0]
         d={"format":"high_fp4_v3_"+("qad_lr" if kind=="qad" else "opd")+"_"+("selection"),
            "protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
            "selection_uses_heldout":False,"criterion":"highest development macro success; ties choose lower "+("learning rate" if kind=="qad" else "OPD weight"),
-           "environment_pairing_verified":True,"reference_bf16_evaluation":str(self.selection_path.parent/"bf16"),
+           "environment_pairing_verified":True,"reference_bf16_evaluation":str(reference_path),
            "candidates":values,"selected_"+field:winner[field]}
         return d
     def select_verify(self,p,kind):
