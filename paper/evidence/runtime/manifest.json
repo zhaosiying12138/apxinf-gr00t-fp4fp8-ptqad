@@ -22,7 +22,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "stdout": "ec2920d507a33e60785aa14cb1efa624712ef0c0\n"
+    "stdout": "43697a10719c8d770ec28bb54dd6ef86f3475f36\n"
   },
   "gr00t_head": {
     "command": [
@@ -134,6 +134,10 @@
     "paper/capture_runtime.py": {
       "bytes": 6278,
       "sha256": "904ed2d66d4eee8d000fe798652df9adfe57ee98a8c9c7d5b91e5ee7ad99d3cb"
+    },
+    "paper/collect_pairing_evidence.py": {
+      "bytes": 4471,
+      "sha256": "c2139bf4e505f1fb5737cd8392f6bd119bdf7b74900c2544486ad4319b345cfd"
     },
     "patches/apxinf-fp4vla-engine.patch": {
       "bytes": 92068,
@@ -248,8 +252,8 @@
       "sha256": "65edc9a1f2caffa9e722701ca29e44847d2856beed621e7d9c0b2f8c8e0a7a47"
     },
     "setup/06_install_recovery.sh": {
-      "bytes": 6468,
-      "sha256": "053d94a46d6776639a0bb390f402374405af4e04f5b1d2712ba445d188302e01"
+      "bytes": 8774,
+      "sha256": "3cd6d2f5ff050e2b2468f19f5637b405b841023a9ebce34f5f4e4f40a09178f0"
     },
     "setup/locks/manifest.json": {
       "bytes": 2560,
@@ -588,7 +592,9 @@
   },
   "source_selection": {
     "policy": "explicit_public_allowlist_v1",
-    "additional_files": [],
+    "additional_files": [
+      "paper/collect_pairing_evidence.py"
+    ],
     "note": "Every source_files path must be included in the public repository; external source is restored from pinned upstream plus patches."
   }
 }
