@@ -16,9 +16,9 @@
     "NO_ALBUMENTATIONS_UPDATE": "1"
   },
   "python_version": "Python 3.12.14",
-  "source_head_before": "700d97e2a22fa1bc670dcb0d2cb82d2fc6fdd28c",
-  "started_utc": "2026-09-29T09:30:57.610763+00:00",
-  "completed_utc": "2026-09-29T09:30:57.692018+00:00",
+  "source_head_before": "7559fcbb4780a558f1db12017386d73a09a85ab2",
+  "started_utc": "2026-09-29T10:35:19.778261+00:00",
+  "completed_utc": "2026-09-29T10:35:19.892332+00:00",
   "returncode": 0,
   "tests": 8,
   "skipped": 0,
@@ -26,8 +26,8 @@
   "errors": 0,
   "expected_failures": 0,
   "unexpected_successes": 0,
-  "unittest_elapsed_seconds": 0.016,
-  "process_wall_seconds": 0.08126816699950723,
+  "unittest_elapsed_seconds": 0.018,
+  "process_wall_seconds": 0.11408914400089998,
   "gpu_execution": false,
   "publication_zip_generated": false,
   "test_file_sha256": {
@@ -61,7 +61,7 @@
     "paper/collect_training_costs.py": "bc859a90290fafc3f30364687c00b4908243fef63251e81ccd628c7ea401f1f1",
     "paper/export_zhihu.py": "0d757e236f20f612bc1c625551a7e03fbee35c7badc7562da3dd36bc05ecb49a",
     "paper/frontier_evidence.py": "3b215c5e2204657b0724d13b5d7fb8eca36f850ef57624af825b58131c286a61",
-    "paper/make_figs.py": "2e4100bca089295a5cd61ddbdfbc6968e4a1b345391e431bcf085fd46bfd96a3",
+    "paper/make_figs.py": "d2f1b6f11608bc6574f02b8a104712f6ba9fc2f50664acc8014ab70f281c907a",
     "paper/package_publication.py": "1d42c8028573622063c629cbeaca0038271e997cf363f3fc18dd1a213ff47f90",
     "paper/publication_guard.py": "d4e8766387da69cb5c19bb69189e14fe14cd913fad0caf5a5cb09dc0628791e0",
     "paper/qa_browser.cjs": "4a4a97832d688cf87760702f15f7d733c1c1c3984bf35b7ea5b27e81965715c5",
@@ -103,5 +103,5 @@
   "source_hash_scope": "Explicit public runtime implementation plus publication helpers; byte identity inventory, not a statement of line/test coverage.",
   "files_changed_during_check": [],
   "log": "paper/validation/training-publication-checks.log",
-  "log_sha256": "22cce7cbacf21c4c9f670cefef3f7053aeb2ea5cfa55f061818b63b71a3e7009"
+  "log_sha256": "6797fea840c4148426090f71ab3063f365ed0398717f4f931a1a7ac0eb2d41df"
 }
