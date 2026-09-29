@@ -220,8 +220,13 @@ class Driver:
         self.art=self.run_dir/"artifacts"; self.work=self.run_dir/"work"; self.logs=self.run_dir/"logs"
         self.stages=self.run_dir/"stages"; self.receipts=self.run_dir/"cleanup_receipts"
         self.groot=Path(a.gr00t_repo or os.environ.get("GR00T_REPO",str(Path.home()/ "codebase/groot-fsdp2/Isaac-GR00T"))).expanduser().resolve()
-        self.py=Path(a.python or os.environ.get("PTQAD_PYTHON",str(self.groot/".venv/bin/python"))).expanduser().resolve()
-        self.sim=Path(a.rollout_python or os.environ.get("LIBERO_PYTHON",str(self.groot/"gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python"))).expanduser().resolve()
+        # Keep the requested venv launcher path intact.  ``Path.resolve()``
+        # follows the launcher symlink to uv's bare interpreter, which drops
+        # the GR00T/LIBERO environment and makes recovery fail before import.
+        self.py=Path(a.python or os.environ.get("PTQAD_PYTHON",str(self.groot/".venv/bin/python"))).expanduser().absolute()
+        self.sim=Path(a.rollout_python or os.environ.get("LIBERO_PYTHON",str(self.groot/"gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python"))).expanduser().absolute()
+        if not self.py.is_file(): raise OrchestrationError(f"training Python launcher not found: {self.py}")
+        if not self.sim.is_file(): raise OrchestrationError(f"rollout Python launcher not found: {self.sim}")
         self.base=Path(a.base or os.environ.get("PTQAD_BASE",str(ROOT/"weights/GR00T-N1.7-LIBERO/libero_10"))).expanduser().resolve()
         self.dataset=Path(a.dataset or os.environ.get("QAD_DATASET",str(self.groot/"demo_data/libero_demo"))).expanduser().resolve()
         s=self.protocol["selection"]; self.seed=int(s["train_seed"]); self.qsteps=int(s["qad_optimizer_steps"])
