@@ -1,0 +1,91 @@
++ export SHOT_GPU_RELEASED=0
++ SHOT_GPU_RELEASED=0
++ set -euo pipefail
++ PROJECT=/home/zhaosiying/codebase/fp4vla
++ SCRATCH=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4
++ FIGURE=shot_verify
++ GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PTQAD_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ LIBERO_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python
++ NATIVE_PY=/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/bin/python
++ BF16_TEACHER=/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10
++ NATIVE_PI05_MODEL=/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model
++ export GR00T_REPO PTQAD_PYTHON LIBERO_PYTHON
++ export GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ export PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ export LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ export 'PATH=/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ PATH='/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1
++ HF_HUB_OFFLINE=1
++ TRANSFORMERS_OFFLINE=1
++ NO_ALBUMENTATIONS_UPDATE=1
++ export PYTHONUNBUFFERED=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
++ PYTHONUNBUFFERED=1
++ OMP_NUM_THREADS=2
++ MKL_NUM_THREADS=2
++ export QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ unset QAD_BSZ QAD_ACC QAD_ACCUM_STEPS QAD_INIT_ADAPTER QAD_OPD_KL_W OPD_CACHE_PATH
++ unset OPD_CAPTURE_DIR FP4VLA_LOG_DIR FP4VLA_SCOPE
++ export QAD_LORA_R=32 QAD_LORA_ALPHA=64 QAD_LORA_SCOPE=head+lang_all
++ QAD_LORA_R=32
++ QAD_LORA_ALPHA=64
++ QAD_LORA_SCOPE=head+lang_all
++ export QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=2 QAD_ACTIVATION_CHECKPOINTING=1 QAD_LR=1e-4
++ QAD_MICRO_BATCH=1
++ QAD_GLOBAL_BATCH=2
++ QAD_ACTIVATION_CHECKPOINTING=1
++ QAD_LR=1e-4
++ export QAD_OPD_MSE_W=0 OPD_EVERY=4 FP4VLA_QUANT=0
++ QAD_OPD_MSE_W=0
++ OPD_EVERY=4
++ FP4VLA_QUANT=0
++ export PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ test -x /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ test -f /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json
++ test -d /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ test -e /home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ export CUDA_VISIBLE_DEVICES=
++ CUDA_VISIBLE_DEVICES=
++ mkdir -p /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages
++ mkdir /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages/shot_verify
++ date -u +%FT%TZ
++ cd /home/zhaosiying/codebase/fp4vla
++ /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -p test_quantization_semantics.py -v
+test_awq_gqa_mapping_and_producer_consumer_objective (test_quantization_semantics.QuantizationSemantics.test_awq_gqa_mapping_and_producer_consumer_objective) ... ok
+test_awq_norm_objective_equals_explicit_outputs (test_quantization_semantics.QuantizationSemantics.test_awq_norm_objective_equals_explicit_outputs) ... ok
+test_e2m1_all_codes_midpoints_and_neighbors (test_quantization_semantics.QuantizationSemantics.test_e2m1_all_codes_midpoints_and_neighbors) ... ok
+test_e4m3_all_codes_midpoints_native_fp8_oracle (test_quantization_semantics.QuantizationSemantics.test_e4m3_all_codes_midpoints_native_fp8_oracle) ... ok
+test_fp8_row_scale_reference (test_quantization_semantics.QuantizationSemantics.test_fp8_row_scale_reference) ... ok
+test_gptq_diagonal_equals_rtn_one_tensor_scale (test_quantization_semantics.QuantizationSemantics.test_gptq_diagonal_equals_rtn_one_tensor_scale) ... ok
+test_gptq_representability_and_matrix_objective (test_quantization_semantics.QuantizationSemantics.test_gptq_representability_and_matrix_objective) ... ok
+test_rtn_packed_reference_and_matrix_outputs (test_quantization_semantics.QuantizationSemantics.test_rtn_packed_reference_and_matrix_outputs) ... ok
+test_ste_value_and_identity_gradient (test_quantization_semantics.QuantizationSemantics.test_ste_value_and_identity_gradient) ... ok
+test_zero_tiny_weights_and_zero_physical_scale (test_quantization_semantics.QuantizationSemantics.test_zero_tiny_weights_and_zero_physical_scale) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.108s
+
+OK
++ /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -p test_ptq_tied_weights.py -v
+test_inconsistent_tied_source_rejected (test_ptq_tied_weights.TiedWeights.test_inconsistent_tied_source_rejected) ... ok
+test_missing_real_linear_hessian_rejected (test_ptq_tied_weights.TiedWeights.test_missing_real_linear_hessian_rejected) ... ok
+test_tied_output_uses_embedding_even_if_head_has_hessian (test_ptq_tied_weights.TiedWeights.test_tied_output_uses_embedding_even_if_head_has_hessian) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.117s
+
+OK
++ /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -p test_checkpoint_roundtrip.py -v
+test_bake_and_cross_shard_adapter_export_preserve_base_dtype_and_keys (test_checkpoint_roundtrip.CheckpointRoundtrip.test_bake_and_cross_shard_adapter_export_preserve_base_dtype_and_keys) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.066s
+
+OK
++ date -u +%FT%TZ

@@ -1,0 +1,107 @@
++ export SHOT_GPU_RELEASED=1
++ SHOT_GPU_RELEASED=1
++ set -euo pipefail
++ PROJECT=/home/zhaosiying/codebase/fp4vla
++ SCRATCH=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4
++ FIGURE=shot_qad
++ GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PTQAD_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ LIBERO_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python
++ NATIVE_PY=/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/bin/python
++ BF16_TEACHER=/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10
++ NATIVE_PI05_MODEL=/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model
++ export GR00T_REPO PTQAD_PYTHON LIBERO_PYTHON
++ export GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ export PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ export LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ export 'PATH=/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ PATH='/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1
++ HF_HUB_OFFLINE=1
++ TRANSFORMERS_OFFLINE=1
++ NO_ALBUMENTATIONS_UPDATE=1
++ export PYTHONUNBUFFERED=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
++ PYTHONUNBUFFERED=1
++ OMP_NUM_THREADS=2
++ MKL_NUM_THREADS=2
++ export QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ unset QAD_BSZ QAD_ACC QAD_ACCUM_STEPS QAD_INIT_ADAPTER QAD_OPD_KL_W OPD_CACHE_PATH
++ unset OPD_CAPTURE_DIR FP4VLA_LOG_DIR FP4VLA_SCOPE
++ export QAD_LORA_R=32 QAD_LORA_ALPHA=64 QAD_LORA_SCOPE=head+lang_all
++ QAD_LORA_R=32
++ QAD_LORA_ALPHA=64
++ QAD_LORA_SCOPE=head+lang_all
++ export QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=2 QAD_ACTIVATION_CHECKPOINTING=1 QAD_LR=1e-4
++ QAD_MICRO_BATCH=1
++ QAD_GLOBAL_BATCH=2
++ QAD_ACTIVATION_CHECKPOINTING=1
++ QAD_LR=1e-4
++ export QAD_OPD_MSE_W=0 OPD_EVERY=4 FP4VLA_QUANT=0
++ QAD_OPD_MSE_W=0
++ OPD_EVERY=4
++ FP4VLA_QUANT=0
++ export PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ test -x /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ test -f /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json
++ test -d /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ test -e /home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ test 1 = 1
++ python3 -
++ export CUDA_VISIBLE_DEVICES=0
++ CUDA_VISIBLE_DEVICES=0
++ mkdir -p /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages
++ mkdir /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages/shot_qad
++ date -u +%FT%TZ
++ cd /home/zhaosiying/codebase/fp4vla
++ test -f /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages/shot_bake/completed_utc.txt
++ cd /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ export GR00T_BASE_CKPT=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/head_lang QAD_OUT=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad
++ GR00T_BASE_CKPT=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/head_lang
++ QAD_OUT=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad
++ export QAD_STEPS=2 QAD_SAVE_STEPS=2
++ QAD_STEPS=2
++ QAD_SAVE_STEPS=2
++ /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -u /home/zhaosiying/codebase/fp4vla/rl/lora_qad.py
+[lora-qad] launching: r=32 scope=head+lang_all steps=2 mse_w=0.0 micro_batch=1 accumulation=2 effective_global_batch=2
+<string>:48: UserWarning: global_batch_size=1 is pre-accumulation; accumulated_batch_size=2 (× gradient_accumulation_steps=2).
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/experiment/experiment.py:122: UserWarning: image_crop_size and image_target_size will be deprecated in the future. Please use shortest_image_edge and crop_fraction instead.
+  warnings.warn(
+WARNING:gr00t.model.modules.qwen3_backbone:flash_attn is not installed. Falling back to sdpa attention. Install flash-attn for better performance: pip install flash-attn
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'compute_dtype' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.compute_dtype'.
+  embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'output_dim' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.output_dim'.
+  self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
+Total number of DiT parameters:  1091722240
+Total number of SelfAttentionTransformer parameters:  201433088
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.64s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.70s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.84s/it]
+Initializing datasets:   0%|          | 0/1 [00:00<?, ?it/s]Generating stats for /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
+Generated 2 shards for dataset /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
+Total steps: 1331, average shard length: 665.5, shard length std: 0.5
+Initializing datasets: 100%|██████████| 1/1 [00:00<00:00, 116.63it/s]
+WARNING:gr00t.data.state_action.state_action_processor:Statistics for embodiment 'libero_sim' already present; new stats DISCARDED (override=False). If the new data differs from the existing distribution this will cause silent normalization mismatch — pass override=True (or override_pretraining_statistics=True at the dataset level) to use the merged stats instead.
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/lib/python3.12/site-packages/torch/backends/__init__.py:46: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  self.setter(val)
+[lora-qad] LoRA on 364 Linears (r=32, scope=head+lang_all); trainable=58.6M frozen=3144M
+[activation-checkpoint] {'implementation': 'torch.non_reentrant_per_block', 'blocks': {'language': 16, 'dit': 32, 'vl': 4}, 'preserve_rng_state': True, 'eval_mode_gradients_supported': True, 'kv_cache': False, 'parameter_dtypes_changed': False}
+[lora-qad] injected at trainer init (17s)
+Current global step: 0
+Creating custom train dataloader
+  0%|          | 0/2 [00:00<?, ?it/s]Rank 0, Worker 0: Caching shard...
+Rank 0, Worker 0: Wait for shard 0 in dataset 0 in 10.69 seconds
+Rank 0, Worker 0: Caching shard...
+[lora-grad-check] head: 252 B tensors, norm=0.0425121
+[lora-grad-check] language: 112 B tensors, norm=0.132411
+Could not estimate the number of tokens of the input, floating-point operations will not be computed
+ 50%|█████     | 1/2 [00:14<00:14, 14.52s/it]100%|██████████| 2/2 [00:15<00:00,  6.51s/it]Copying experiment config directory /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad/experiment_cfg to /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad/checkpoint-2/experiment_cfg
+Copying processor directory /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad/processor to /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad/checkpoint-2
+Copying wandb_config.json from /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad/wandb_config.json to /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad/checkpoint-2/wandb_config.json
+                                             {'train_runtime': 33.737, 'train_samples_per_second': 0.119, 'train_steps_per_second': 0.059, 'train_loss': 0.11306111514568329}
+100%|██████████| 2/2 [00:33<00:00,  6.51s/it]100%|██████████| 2/2 [00:33<00:00, 16.87s/it]
+[lora-qad] COMPLETED in 0.02h
+[runtime-metrics] saved /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad/runtime_metrics.json
++ date -u +%FT%TZ

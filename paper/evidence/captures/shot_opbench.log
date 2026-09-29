@@ -1,0 +1,90 @@
++ export SHOT_GPU_RELEASED=1
++ SHOT_GPU_RELEASED=1
++ set -euo pipefail
++ PROJECT=/home/zhaosiying/codebase/fp4vla
++ SCRATCH=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r6
++ FIGURE=shot_opbench
++ GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PTQAD_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ LIBERO_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python
++ NATIVE_PY=/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/bin/python
++ BF16_TEACHER=/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10
++ NATIVE_PI05_MODEL=/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model
++ export GR00T_REPO PTQAD_PYTHON LIBERO_PYTHON
++ export GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ export PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ export LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ export 'PATH=/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ PATH='/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1
++ HF_HUB_OFFLINE=1
++ TRANSFORMERS_OFFLINE=1
++ NO_ALBUMENTATIONS_UPDATE=1
++ export PYTHONUNBUFFERED=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
++ PYTHONUNBUFFERED=1
++ OMP_NUM_THREADS=2
++ MKL_NUM_THREADS=2
++ export QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ unset QAD_BSZ QAD_ACC QAD_ACCUM_STEPS QAD_INIT_ADAPTER QAD_OPD_KL_W OPD_CACHE_PATH
++ unset OPD_CAPTURE_DIR FP4VLA_LOG_DIR FP4VLA_SCOPE
++ export QAD_LORA_R=32 QAD_LORA_ALPHA=64 QAD_LORA_SCOPE=head+lang_all
++ QAD_LORA_R=32
++ QAD_LORA_ALPHA=64
++ QAD_LORA_SCOPE=head+lang_all
++ export QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=2 QAD_ACTIVATION_CHECKPOINTING=1 QAD_LR=1e-4
++ QAD_MICRO_BATCH=1
++ QAD_GLOBAL_BATCH=2
++ QAD_ACTIVATION_CHECKPOINTING=1
++ QAD_LR=1e-4
++ export QAD_OPD_MSE_W=0 OPD_EVERY=4 FP4VLA_QUANT=0
++ QAD_OPD_MSE_W=0
++ OPD_EVERY=4
++ FP4VLA_QUANT=0
++ export PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ test -x /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ test -f /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json
++ test -d /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ test -e /home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ test 1 = 1
++ python3 -
++ export CUDA_VISIBLE_DEVICES=0
++ CUDA_VISIBLE_DEVICES=0
++ mkdir -p /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r6/stages
++ mkdir /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r6/stages/shot_opbench
++ date -u +%FT%TZ
++ cd /home/zhaosiying/codebase/fp4vla
++ test -x /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench
++ sha256sum /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench.cu
+f81c952db476bb9a58106ef8f0dca6bed6f1853228f0836664202fbd4125016d  /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench
+a80e32f8783ae92b26e37af8d195d57527deb831d644d8a7c85b251ff7ba431a  /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench.cu
++ /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench --samples=3 --warmup=1
++ tee /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r6/opbench_smoke.csv.log
+# gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120 driver=13030 runtime=13030 cublasLt=130600
+# deterministic_inputs=v1 weight_tensor_scale=0.25 output=row_major timing=CUDA_event_true_median samples=3 warmup=1
+# fp4=online_activation_quantize+rowmajor_scaled_adapter; bf16=prepared_GEMM; preparation_and_reference_checks_excluded; per_case=all_activation_bytes+21_sampled_outputs
+shape,M,N,K,samples,warmup,weight_tensor_scale,fp4_us_p50,bf16_us_p50,speedup,fp4_check_max_abs,bf16_check_max_abs,status
+gemma-1152,522,1152,1152,3,1,0.25,43.584000,24.863999,0.570485,0,0,ok
+gemma-1152,778,1152,1152,3,1,0.25,40.160000,32.768000,0.815936,0,0,ok
+gemma-1152,2048,1152,1152,3,1,0.25,41.824002,66.047996,1.579189,0,0,ok
+mlp-3072x1024,522,3072,1024,3,1,0.25,29.696001,41.536000,1.398707,0,0,ok
+mlp-3072x1024,778,3072,1024,3,1,0.25,34.623999,59.776001,1.726433,0,0,ok
+mlp-3072x1024,2048,3072,1024,3,1,0.25,58.143999,143.360004,2.465603,0,0,ok
+mlp-4096x1024,522,4096,1024,3,1,0.25,32.896001,57.344001,1.743191,0,0,ok
+mlp-4096x1024,778,4096,1024,3,1,0.25,54.687999,88.448003,1.617320,0,0,ok
+mlp-4096x1024,2048,4096,1024,3,1,0.25,78.400001,196.383998,2.504898,0,0,ok
+big-16384x2048,522,16384,2048,3,1,0.25,133.727998,405.887991,3.035176,0,0,ok
+big-16384x2048,778,16384,2048,3,1,0.25,127.424002,606.527984,4.759919,0,0,ok
+big-16384x2048,2048,16384,2048,3,1,0.25,307.264000,1319.200039,4.293377,0,0,ok
+attn-2048x2048,522,2048,2048,3,1,0.25,35.135999,56.256000,1.601093,0,0,ok
+attn-2048x2048,778,2048,2048,3,1,0.25,41.824002,72.480001,1.732976,0,0,ok
+attn-2048x2048,2048,2048,2048,3,1,0.25,89.184001,194.304004,2.178687,0,0,ok
+geglu-4304x1152,522,4304,1152,3,1,0.25,46.879999,64.511999,1.376109,0,0,ok
+geglu-4304x1152,778,4304,1152,3,1,0.25,56.224000,90.687998,1.612977,0,0,ok
+geglu-4304x1152,2048,4304,1152,3,1,0.25,76.959997,221.184000,2.874013,0,0,ok
+# completed=18 unavailable=0; unavailable cases have no timing or speedup
++ date -u +%FT%TZ

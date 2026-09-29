@@ -1,0 +1,147 @@
++ export SHOT_GPU_RELEASED=1
++ SHOT_GPU_RELEASED=1
++ set -euo pipefail
++ PROJECT=/home/zhaosiying/codebase/fp4vla
++ SCRATCH=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4
++ FIGURE=shot_rollout
++ GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PTQAD_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ LIBERO_PYTHON=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python
++ NATIVE_PY=/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/bin/python
++ BF16_TEACHER=/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10
++ NATIVE_PI05_MODEL=/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model
++ export GR00T_REPO PTQAD_PYTHON LIBERO_PYTHON
++ export GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ GR00T_BACKBONE_MODEL=/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ export PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
++ export LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ LD_LIBRARY_PATH=/home/zhaosiying/miniforge3/envs/media7/lib:/usr/local/cuda/lib64:/usr/lib/wsl/lib
++ export 'PATH=/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ PATH='/home/zhaosiying/miniforge3/envs/media7/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/WindowsApps/Microsoft.WindowsTerminal_1.24.11911.0_x64__8wekyb3d8bbwe:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/.codex/tmp/arg0/codex-arg0UHGM4Z:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libheif/libheif/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/jxrlib/jxrlib/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin/x64:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v13.3/bin:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2026.2.1/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell:/mnt/c/Users/Admin1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Admin1/AppData/Roaming/npm:/mnt/c/Users/Admin1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:/mnt/c/Users/Admin1/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/0ddb895c950eaeba:/mnt/c/Users/Admin1/AppData/Local/OpenAI/Codex/bin/faa963e871dd422c'
++ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 NO_ALBUMENTATIONS_UPDATE=1
++ HF_HUB_OFFLINE=1
++ TRANSFORMERS_OFFLINE=1
++ NO_ALBUMENTATIONS_UPDATE=1
++ export PYTHONUNBUFFERED=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2
++ PYTHONUNBUFFERED=1
++ OMP_NUM_THREADS=2
++ MKL_NUM_THREADS=2
++ export QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ QAD_DATASET=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ unset QAD_BSZ QAD_ACC QAD_ACCUM_STEPS QAD_INIT_ADAPTER QAD_OPD_KL_W OPD_CACHE_PATH
++ unset OPD_CAPTURE_DIR FP4VLA_LOG_DIR FP4VLA_SCOPE
++ export QAD_LORA_R=32 QAD_LORA_ALPHA=64 QAD_LORA_SCOPE=head+lang_all
++ QAD_LORA_R=32
++ QAD_LORA_ALPHA=64
++ QAD_LORA_SCOPE=head+lang_all
++ export QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=2 QAD_ACTIVATION_CHECKPOINTING=1 QAD_LR=1e-4
++ QAD_MICRO_BATCH=1
++ QAD_GLOBAL_BATCH=2
++ QAD_ACTIVATION_CHECKPOINTING=1
++ QAD_LR=1e-4
++ export QAD_OPD_MSE_W=0 OPD_EVERY=4 FP4VLA_QUANT=0
++ QAD_OPD_MSE_W=0
++ OPD_EVERY=4
++ FP4VLA_QUANT=0
++ export PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ PYTHONPATH=/home/zhaosiying/codebase/fp4vla:/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ test -x /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python
++ test -f /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json
++ test -d /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo
++ test -e /home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B
++ test 1 = 1
++ python3 -
++ export CUDA_VISIBLE_DEVICES=0
++ CUDA_VISIBLE_DEVICES=0
++ mkdir -p /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages
++ mkdir /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages/shot_rollout
++ date -u +%FT%TZ
++ cd /home/zhaosiying/codebase/fp4vla
++ test -f /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/stages/shot_evalserver/completed_utc.txt
++ export GR00T_EVAL_SEED=10910000 MUJOCO_GL=egl PYOPENGL_PLATFORM=egl
++ GR00T_EVAL_SEED=10910000
++ MUJOCO_GL=egl
++ PYOPENGL_PLATFORM=egl
++ export OPD_CAPTURE_DIR=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/observations/task0
++ OPD_CAPTURE_DIR=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/observations/task0
++ export OPD_CAPTURE_EVERY=1 OPD_CAPTURE_PER_TASK=2 OPD_CAPTURE_LIMIT=2
++ OPD_CAPTURE_EVERY=1
++ OPD_CAPTURE_PER_TASK=2
++ OPD_CAPTURE_LIMIT=2
++ server_pid=
++ trap cleanup_server EXIT
++ PORT=5598
++ python3 - 5598
++ start_server
++ cd /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
++ server_pid=258022
++ printf '%s\n' 258022
++ setsid /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -u /home/zhaosiying/codebase/fp4vla/eval/serve_recovery.py --model-path /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad_merged --embodiment-tag LIBERO_PANDA --use-sim-policy-wrapper --host 127.0.0.1 --port 5598
++ python3 - 258022 5598
+Starting GR00T inference server...
+  Embodiment tag: EmbodimentTag.LIBERO_PANDA
+  Model path: /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/qad_merged
+  Device: cuda
+  Host: 127.0.0.1
+  Port: 5598
+flash_attn is not installed. Falling back to sdpa attention. Install flash-attn for better performance: pip install flash-attn
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'compute_dtype' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.compute_dtype'.
+  embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'output_dim' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.output_dim'.
+  self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
+Total number of DiT parameters:  1091722240
+Total number of SelfAttentionTransformer parameters:  201433088
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.17s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.08s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.24s/it]
+
+✓ Server ready — listening on 127.0.0.1:5598
+
+Server is ready and listening on tcp://127.0.0.1:5598
++ /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python -u /home/zhaosiying/codebase/fp4vla/eval/rollout_seeded.py --env-name libero_sim/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket --n-episodes 1 --n-envs 1 --seed 910000 --init-state-indices 4 --max-episode-steps 720 --n-action-steps 8 --video-dir /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/videos/task0 --policy-client-host 127.0.0.1 --policy-client-port 5598
++ tee /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/rollout.raw.log
+[robosuite WARNING] No private macro file found! (__init__.py:7)
+[robosuite WARNING] It is recommended to use a private macro file (__init__.py:8)
+[robosuite WARNING] To setup, run: python /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/robosuite/scripts/setup_macros.py (__init__.py:9)
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[Warning]: datasets path /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/../datasets does not exist!
+Running collecting 1 episodes for libero_sim/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket with 1 vec envs
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+FP4VLA_EPISODE_RESET {"episode_index": 0, "seed": 910000, "task_id": 0, "init_state_index": 4, "init_state_bank_size": 50, "init_state_bank_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030", "restored_state_sha256": "376f48b75f50d4e1eff9e3f49f307de0bcfc44d2a081f5cb9c124cf985330c41", "settle_steps": 10, "initial_state_sha256": "bd616ba45d9824915f7ea74928096f5cd9077acee337ad842af7ddc726277f95"}
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `reset()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:240: UserWarning: [33mWARN: Casting input x to numpy array.[0m
+  gym.logger.warn("Casting input x to numpy array.")
+Episodes:   0%|          | 0/1 [00:00<?, ?it/s][onpolicy-capture] saved=1 task=8204544096e9 task_count=1 slot=0 call=1
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `step()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+[onpolicy-capture] saved=2 task=8204544096e9 task_count=2 slot=0 call=2
+FP4VLA_EPISODE_RESET {"episode_index": 1, "seed": 910001, "task_id": 0, "init_state_index": 4, "init_state_bank_size": 50, "init_state_bank_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030", "restored_state_sha256": "376f48b75f50d4e1eff9e3f49f307de0bcfc44d2a081f5cb9c124cf985330c41", "settle_steps": 10, "initial_state_sha256": "761a05c3eb0fe4d8bc84d68072698d265fee94f3471d9e3bb2abf3dd74b14b90"}
+Episodes: 100%|██████████| 1/1 [00:33<00:00, 33.12s/it]FP4VLA_EPISODE_RESET {"episode_index": 2, "seed": 910002, "task_id": 0, "init_state_index": 4, "init_state_bank_size": 50, "init_state_bank_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030", "restored_state_sha256": "376f48b75f50d4e1eff9e3f49f307de0bcfc44d2a081f5cb9c124cf985330c41", "settle_steps": 10, "initial_state_sha256": "3877183b161f56dac89c6a225f8a38fa2f9da668784bc895092565b91436c8b7"}
+Episodes: 100%|██████████| 1/1 [00:35<00:00, 35.25s/it]
+Collecting 1 episodes took 41.19866108894348 seconds
+Video saved to:  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4/videos/task0
+results:  ('libero_sim/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket', [True], {'episode_lengths': [285], 'episode_rewards': [1.0]})
+success rate:  1.0
++ stop_server_cleanly
++ /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python - 5598
+{"endpoint": "ping", "response": {"status": "ok", "message": "Server is running"}}
++ wait 258022
++ server_pid=
++ trap - EXIT
++ cd /home/zhaosiying/codebase/fp4vla
++ python3 - /home/zhaosiying/codebase/fp4vla/paper/_build/capture_batch/scratch/20260929_r4
++ date -u +%FT%TZ

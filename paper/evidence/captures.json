@@ -1,0 +1,599 @@
+{
+  "version": 1,
+  "approved_sample": {
+    "sha256": "416dda8f6bc6db8142815f37ab816a88b7c173a1d2dcc66b08b169fb9bb31c18",
+    "confirmed_by_user": true,
+    "confirmed_on": "2026-09-29",
+    "dimensions": [
+      3840,
+      2280
+    ]
+  },
+  "screenshots": [
+    {
+      "figure": "shot_bake",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:44:43.3517424Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 53.34557540501501,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_bake.log",
+      "raw_log_sha256": "5efc18bbcdc0e01dd31d8b221fac131721c6d902643a95bb261bf10794d41820",
+      "script": "evidence/captures/shot_bake.sh",
+      "script_sha256": "fbf4d4fdb4516d5b66ecf4e4af578dcd5c04ecfa5d9b196b05e8427ee0be678d",
+      "capture_sidecar": "evidence/captures/shot_bake.capture.json",
+      "capture_sidecar_sha256": "af7d089982e567ed65cec66bdb9c98a9c5c7dbfabcdcd35cd958203235f1433f",
+      "crop_manifest": "evidence/captures/shot_bake.crop.json",
+      "crop_manifest_sha256": "1c13f25eff45cc1fc150d314c55b97170353c51242e037205fd3f406b477a057"
+    },
+    {
+      "figure": "shot_collect",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:41:41.5201236Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 49.272125909921485,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_collect.log",
+      "raw_log_sha256": "8e7d7ad81b8d048067725a70f33970d7f68bd4d89d7d1abb9604c02bb24eb2cd",
+      "script": "evidence/captures/shot_collect.sh",
+      "script_sha256": "6ff29d152a05069e10ee6a53b6269500aa0fe049233855810bcabafe46833874",
+      "capture_sidecar": "evidence/captures/shot_collect.capture.json",
+      "capture_sidecar_sha256": "ae046fff974fe79649b8b777ef00a3b5c501043a6b88f167bef880ecd471213d",
+      "crop_manifest": "evidence/captures/shot_collect.crop.json",
+      "crop_manifest_sha256": "0314192caa1a5b829fe189761387526118fbf70df6d0b0490894b6468e61cba2"
+    },
+    {
+      "figure": "shot_evalserver",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:51:19.4873388Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 43.988731318936615,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_evalserver.log",
+      "raw_log_sha256": "9aaa5d00d623e7ad42712ffe3be4121f7e1f1b7150b208ac28532997e7c3964f",
+      "script": "evidence/captures/shot_evalserver.sh",
+      "script_sha256": "065da3092ff538a887d3933f50e30cc260c7eb6d1fb84caf67c73c82ff907446",
+      "capture_sidecar": "evidence/captures/shot_evalserver.capture.json",
+      "capture_sidecar_sha256": "fe7062e93b33788b63b2a0b66a91c64b52812fd9c10ead3becd1b84e2dcbe19d",
+      "crop_manifest": "evidence/captures/shot_evalserver.crop.json",
+      "crop_manifest_sha256": "d1d17d76218b06b21d28879a213b10f39988f7a012f2674ed267ce27ba416ae2"
+    },
+    {
+      "figure": "shot_fp8probe",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:19:18.3569315Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 43.17184149766177,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_fp8probe.log",
+      "raw_log_sha256": "8fef0e6145ccf3fcad862537fae92a7bdafb817a32ca38ea1982d5e1fd2b0896",
+      "script": "evidence/captures/shot_fp8probe.sh",
+      "script_sha256": "d74db1e678a7763a5c53b4d84158c4ef36f78969a4617b86cfb07dd09ea53030",
+      "capture_sidecar": "evidence/captures/shot_fp8probe.capture.json",
+      "capture_sidecar_sha256": "31045e501ab801d42c937f0ee8bceec44a8e335348286f6838df0cbccd2ef991",
+      "crop_manifest": "evidence/captures/shot_fp8probe.crop.json",
+      "crop_manifest_sha256": "c3b32e8e048062bdf80412fb6d9684ddb50a01e84b321947e9f2752e84a584a7"
+    },
+    {
+      "figure": "shot_gemm",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:20:24.6657476Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 43.864972373084775,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_gemm.log",
+      "raw_log_sha256": "2a20d25433278f2fe6dcde90add303db0a9302017fa32504ffd03aa0e81cb491",
+      "script": "evidence/captures/shot_gemm.sh",
+      "script_sha256": "60a55b2a688282fd2fe9561bfd402935416f5e63ef91574e1a55190af6ac8829",
+      "capture_sidecar": "evidence/captures/shot_gemm.capture.json",
+      "capture_sidecar_sha256": "c5fa2a4135492841061bf572bd16bbee5b1b4cde589cb1c05ae59bb5827fd966",
+      "crop_manifest": "evidence/captures/shot_gemm.crop.json",
+      "crop_manifest_sha256": "5da20440088abc49231c923f58d1ec2f608e354faf47d0fffd4b736363a1a21b"
+    },
+    {
+      "figure": "shot_nvfp4",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "0215b53e09317e03eed6d7b980cd5845ef89d16f54d6059f46e3ff44fbed0bd0",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:39:22.8983488Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 43.347726241315634,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_nvfp4.log",
+      "raw_log_sha256": "9198a7557ae86d71ddefbec65c55a7129c1071d8ee22226274f899db26fedb9d",
+      "script": "evidence/captures/shot_nvfp4.sh",
+      "script_sha256": "e6b0a92c191dfcadf8337410e2846bb015e80f80eef2015072b4c79d7976af8d",
+      "capture_sidecar": "evidence/captures/shot_nvfp4.capture.json",
+      "capture_sidecar_sha256": "878ed4f28a59dbe5c433da015087ade958fcd2a850085f3227c847d46e70d033",
+      "crop_manifest": "evidence/captures/shot_nvfp4.crop.json",
+      "crop_manifest_sha256": "39d6ed876cb9a681e9b316e188c2bd3ad8000f37b0fe351bb602b2d3150f38ea"
+    },
+    {
+      "figure": "shot_opbench",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "c7db35ef39dd99022c6595b5f32a0730c84aea266f888f9084c9c96816be2f4d",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:33:59.7564568Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 50.78687683228282,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_opbench.log",
+      "raw_log_sha256": "5e92cf45d5d410ce820a04614439960367ecfafbcac30a9ca69da829ffb2d972",
+      "script": "evidence/captures/shot_opbench.sh",
+      "script_sha256": "0322873804b7492de43d173724ab7f6163f5af08e83b71503b98018914db27e1",
+      "capture_sidecar": "evidence/captures/shot_opbench.capture.json",
+      "capture_sidecar_sha256": "43e05526e3e4f388c5528a05370f32709ae506529be34bb8556082b2a52769e9",
+      "crop_manifest": "evidence/captures/shot_opbench.crop.json",
+      "crop_manifest_sha256": "508762a58c76e4cd33e2678d2933d1056d4efc95d84e798d8ab5b67989d61c20"
+    },
+    {
+      "figure": "shot_opd",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:59:27.2634479Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 52.590112636597354,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_opd.log",
+      "raw_log_sha256": "f876964832ff1440792a11337b6f98ee346c153fd90ee8b5428435cc52e3c5ae",
+      "script": "evidence/captures/shot_opd.sh",
+      "script_sha256": "fc61faaa9a4057a4e85260b4d76d2dc79ea57e404273fcbe49fc528612f3ddf5",
+      "capture_sidecar": "evidence/captures/shot_opd.capture.json",
+      "capture_sidecar_sha256": "51d2918eb40411a3fd7492c585c47906024bfcec899e56734aaa37dc6f68a043",
+      "crop_manifest": "evidence/captures/shot_opd.crop.json",
+      "crop_manifest_sha256": "31677c97c7527ea08f4bbf2bf926962359fb5a5b504909229189830b0dca1bb3"
+    },
+    {
+      "figure": "shot_opdcache",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:56:32.8838791Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 46.42365806909318,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_opdcache.log",
+      "raw_log_sha256": "b27715eba904c21551435a792468811514780c0f451ffdcd8c031262c319f0ea",
+      "script": "evidence/captures/shot_opdcache.sh",
+      "script_sha256": "39960162dabe64d0bccadabacd15f345e81bb643d8bdf42fdb3c048e945e2e94",
+      "capture_sidecar": "evidence/captures/shot_opdcache.capture.json",
+      "capture_sidecar_sha256": "99939f277642512964129babd35f42e40ab94ab2cc3a2883342665177e63f002",
+      "crop_manifest": "evidence/captures/shot_opdcache.crop.json",
+      "crop_manifest_sha256": "3576be7af72060964e8aa1de1a81af5b11d2c21f3cfdbcdb0c9acdd8657f6d79"
+    },
+    {
+      "figure": "shot_packed",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:06:33.8016093Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 42.579264631394246,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_packed.log",
+      "raw_log_sha256": "72cd137bf2e150f6eaaaa08d43e3259e5f10bb3e256bfd9cfac5f18f6ba38b1c",
+      "script": "evidence/captures/shot_packed.sh",
+      "script_sha256": "f9885fb388d15d5d07e844d7a4e3a6bd7508df3d14b70d6b83c3684db9a25694",
+      "capture_sidecar": "evidence/captures/shot_packed.capture.json",
+      "capture_sidecar_sha256": "9ca5360a461eb5c1c8aeffbd4653cbd3311ac986ca25061b8a470395e17604b0",
+      "crop_manifest": "evidence/captures/shot_packed.crop.json",
+      "crop_manifest_sha256": "75a2493a2d62bc184be1812c7d66c8ed08156788aa852a17daeca92bfc4ff38a"
+    },
+    {
+      "figure": "shot_probe",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:02:59.1745647Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 44.54976478533872,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_probe.log",
+      "raw_log_sha256": "8804331c84544614b7772c981207a7e4b068d34faa9fa453f146174db6c40e02",
+      "script": "evidence/captures/shot_probe.sh",
+      "script_sha256": "e434b4ea4fda584e875835133826d19e4c80341e6ad85cf634d7a3f2a61e429f",
+      "capture_sidecar": "evidence/captures/shot_probe.capture.json",
+      "capture_sidecar_sha256": "f3833a8b8595d481ad3feae0fb4bfa2c610df9fbc45822a9b13a0260d049029a",
+      "crop_manifest": "evidence/captures/shot_probe.crop.json",
+      "crop_manifest_sha256": "843b15811749745fdb55b4e2faf4be3560ed0797b99a16b707e5c99acfc7cbd3"
+    },
+    {
+      "figure": "shot_qad",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:49:17.8337170Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 54.1504574663256,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_qad.log",
+      "raw_log_sha256": "0e25ab7082d52fd4bba83613190403abe6da975c2836cecd8d7ae4eadae04634",
+      "script": "evidence/captures/shot_qad.sh",
+      "script_sha256": "16edb2ed16779a59ab6a0b364788954969d4f398c2db462fa8ef0cd2e5b7f1bc",
+      "capture_sidecar": "evidence/captures/shot_qad.capture.json",
+      "capture_sidecar_sha256": "ddcaab23f31e1afd5a0761ec72aee42f2b7d97ccaa2e3187bec647528f7a0e3b",
+      "crop_manifest": "evidence/captures/shot_qad.crop.json",
+      "crop_manifest_sha256": "8d5f1642ae5d8ec152178ecdaa86c2587178b38e099f53b4995e600cef029529"
+    },
+    {
+      "figure": "shot_qat",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:04:08.8330366Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 43.661655454617694,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_qat.log",
+      "raw_log_sha256": "469eee44d4f99087cea0fffd2a13ec013349094b0a13ed89fcce5bc6f8a9bf90",
+      "script": "evidence/captures/shot_qat.sh",
+      "script_sha256": "d9bf69ae693aeeb38b96153330ac2b60bae5d52ac5aa5eca8301dc84959076e8",
+      "capture_sidecar": "evidence/captures/shot_qat.capture.json",
+      "capture_sidecar_sha256": "15b9134f0289dafceb9b7594c982fe12e70e9428941ec05b6d214851acd8cf8b",
+      "crop_manifest": "evidence/captures/shot_qat.crop.json",
+      "crop_manifest_sha256": "9224efe350ed91973f6d2ee9a921c9e4efc81b495154fbd32c0e9a49fdee415e"
+    },
+    {
+      "figure": "shot_rollout",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:54:51.8287384Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 51.75809457526662,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_rollout.log",
+      "raw_log_sha256": "cf56d4bf88263d05b154d76565bf757f4624ec8d46297d7b0aca8429802980ae",
+      "script": "evidence/captures/shot_rollout.sh",
+      "script_sha256": "98a56f5ce8aa27726638227807a7d372b014bd6caf07fa3147f57959f9dcab35",
+      "capture_sidecar": "evidence/captures/shot_rollout.capture.json",
+      "capture_sidecar_sha256": "8931adc0b831812bd4e78a7390ef829173f72f3c459fd5ea8c3ed3d5389b77ec",
+      "crop_manifest": "evidence/captures/shot_rollout.crop.json",
+      "crop_manifest_sha256": "e9397cd22625a1cde2753b8c06cf85a06a347cdc7f28a340331af24e19f975c7"
+    },
+    {
+      "figure": "shot_verify",
+      "verified": true,
+      "visual_review": {
+        "verified": true,
+        "scope": "Terminal content, command identity, theme and overlays manually inspected"
+      },
+      "sha256": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "captured_at": "2026-09-29T08:02:10.1402361Z",
+      "exit_status": 0,
+      "capture_status": "accepted_not_black",
+      "image_quality": {
+        "validator": "near_black_grid_v1",
+        "width": 3840,
+        "height": 2400,
+        "sample_stride": 11,
+        "sampled_pixels": 76650,
+        "near_black_rgb_max": 12,
+        "rejection_fraction_threshold": 0.98,
+        "near_black_fraction": 0.0003392041748206132,
+        "mean_luminance": 49.548640161699005,
+        "maximum_luminance": 254.99999999999997,
+        "accepted_not_black": true,
+        "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+      },
+      "image_processing": "taskbar crop only",
+      "raw_log": "evidence/captures/shot_verify.log",
+      "raw_log_sha256": "f741349a42ea92b28da47b2647b474da85525e91f1dcebf3234ced94c5da626c",
+      "script": "evidence/captures/shot_verify.sh",
+      "script_sha256": "add3d9573e6d01dcca1259071cf25cd3b7da235191aec6717a0083d517dff695",
+      "capture_sidecar": "evidence/captures/shot_verify.capture.json",
+      "capture_sidecar_sha256": "d19779c7b37d94eb8b72b2510511b622d9b34837352b22e83480e9aed6f33f9f",
+      "crop_manifest": "evidence/captures/shot_verify.crop.json",
+      "crop_manifest_sha256": "c39827a7dab0f971f3c694d67223a285059c3edf3e78ed2e5c95c5e25e6fb333"
+    }
+  ]
+}

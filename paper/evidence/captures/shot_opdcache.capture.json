@@ -1,0 +1,24 @@
+{
+    "capture_status":  "accepted_not_black",
+    "captured_at":  "2026-09-29T08:56:32.8838791Z",
+    "script":  "/mnt/c/Users/Admin1/shot/ptqad_new_evidence_r4/shot_opdcache.sh",
+    "image":  "C:\\Users\\Admin1\\shot\\ptqad_new_evidence_r4\\shot_opdcache.png",
+    "raw_log":  "C:\\Users\\Admin1\\shot\\ptqad_new_evidence_r4\\shot_opdcache.log",
+    "exit_status":  0,
+    "image_quality":  {
+                          "validator":  "near_black_grid_v1",
+                          "width":  3840,
+                          "height":  2400,
+                          "sample_stride":  11,
+                          "sampled_pixels":  76650,
+                          "near_black_rgb_max":  12,
+                          "rejection_fraction_threshold":  0.98,
+                          "near_black_fraction":  0.00033920417482061319,
+                          "mean_luminance":  46.423658069093179,
+                          "maximum_luminance":  254.99999999999997,
+                          "accepted_not_black":  true,
+                          "limitation":  "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+                      },
+    "sha256_before_taskbar_crop":  "14fc3b61821d99c353634c7e402ed7a8d8f83e65e3ec4a023121609e97a2c514",
+    "review_required":  "Inspect real terminal content, theme, popups and command identity before publication."
+}

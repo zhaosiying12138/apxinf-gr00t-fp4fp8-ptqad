@@ -1,0 +1,24 @@
+{
+    "capture_status":  "accepted_not_black",
+    "captured_at":  "2026-09-29T08:19:18.3569315Z",
+    "script":  "/mnt/c/Users/Admin1/shot/ptqad_new_evidence_r5/shot_fp8probe.sh",
+    "image":  "C:\\Users\\Admin1\\shot\\ptqad_new_evidence_r5\\shot_fp8probe.png",
+    "raw_log":  "C:\\Users\\Admin1\\shot\\ptqad_new_evidence_r5\\shot_fp8probe.log",
+    "exit_status":  0,
+    "image_quality":  {
+                          "validator":  "near_black_grid_v1",
+                          "width":  3840,
+                          "height":  2400,
+                          "sample_stride":  11,
+                          "sampled_pixels":  76650,
+                          "near_black_rgb_max":  12,
+                          "rejection_fraction_threshold":  0.98,
+                          "near_black_fraction":  0.00033920417482061319,
+                          "mean_luminance":  43.171841497661767,
+                          "maximum_luminance":  254.99999999999997,
+                          "accepted_not_black":  true,
+                          "limitation":  "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
+                      },
+    "sha256_before_taskbar_crop":  "ca757b749975889b2495538b3edb5b60d201547815ce8ce7551d92f8d300ee42",
+    "review_required":  "Inspect real terminal content, theme, popups and command identity before publication."
+}

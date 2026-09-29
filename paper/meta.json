@@ -1,5 +1,5 @@
 {
  "title": "PTQAD：APXInf 生态下 GR00T 的 FP4/FP8 混合精度量化与闭环恢复",
- "meta": "apxinf-gr00t-fp4fp8-ptqad · 块适配 PTQ × QAD 低秩恢复 · RTX 5090 Laptop / LIBERO-10 · 以成功率与编码预算为主线，独立报告部署与延迟证据",
+ "meta": "apxinf-gr00t-fp4fp8-ptqad · 块适配 PTQ × QAD/OPD 恢复 · RTX 5090 Laptop / LIBERO-10 · 以成功率与编码预算为主线，独立报告部署与延迟证据",
  "date": "2026-09-29"
 }
