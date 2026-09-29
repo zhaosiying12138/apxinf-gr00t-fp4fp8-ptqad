@@ -1,0 +1,51 @@
+{
+  "version": 4,
+  "date": "2026-09-29",
+  "id": "category-fp4-stress-v4",
+  "question": "Can category-specific state/action projections also use NVFP4 while the same QAD/OPD recovery scope preserves LIBERO behavior?",
+  "model": "GR00T-N1.7-LIBERO/libero_10",
+  "initial_state_protocol": "libero10_official_bank_v1",
+  "partitions": {
+    "development": {"seed": 440000, "init_state_indices": [4, 5, 6, 7, 8], "episodes_per_task": 5,
+      "purpose": "select the category-aware pressure recipe and recovery settings before final evaluation"},
+    "collection": {"seed": 550000, "init_state_indices": [20, 21, 22, 23], "episodes_per_task": 4,
+      "purpose": "collect student-visited observations for the frozen QAD checkpoint"},
+    "heldout": {"seed": 660000, "init_state_indices": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39], "episodes_per_task": 10,
+      "purpose": "single final paired read after all category-aware choices are frozen"},
+    "smoke": {"seed": 770000, "init_state_indices": [0], "episodes_per_task": 1,
+      "purpose": "fixture and server validation only; never a reported score"}
+  },
+  "fixed_runtime": {
+    "tasks": 10, "n_envs": 1, "task_seed_stride": 1000, "episode_seed_stride": 1,
+    "n_action_steps": 8, "max_episode_steps": 720, "settle_steps": 10,
+    "settle_action": "seven raw simulator zeros including gripper; outside policy horizon",
+    "paired_scope": "environment initial-state hashes; policy noise is seeded per task, not per episode"
+  },
+  "selection": {
+    "development_only": true,
+    "pressure_candidates": ["head_lang_vision_category", "calib_category"],
+    "pressure_rule": {"min_drop_from_bf16": 0.20, "min_absolute_success": 0.30,
+      "choose": "highest_fp4", "no_qualifying_action": "report_no_recoverable_stress_window"},
+    "recovery_scope": "head+lang_all", "train_seed": 20260929,
+    "qad_learning_rates": [0.00005, 0.0001], "qad_learning_rate_tie_break": "If development macro success is equal, choose the lower learning rate.",
+    "qad_optimizer_steps": 500, "continuation_optimizer_steps": 100, "rank": 32, "alpha": 64,
+    "effective_demo_batch": 16, "opd_every": 4, "opd_weights": [0.25, 1.0],
+    "opd_weight_tie_break": "If development macro success is equal, choose the lower OPD weight.",
+    "same_budget_control": "continued_qad",
+    "rule": "Evaluate both category-aware pressure candidates. Freeze the highest-FP4 candidate whose development macro success is at least 0.20 below BF16 and at least 0.30 absolute. If neither qualifies, report that the pre-registered pressure window was not reached rather than changing the threshold. Choose QAD/OPD settings only from development results."
+  },
+  "category_quantization": {
+    "parent_recipes": ["head_lang_vision", "calib"],
+    "allowlist": ["action_head.action_encoder.W1.W", "action_head.action_encoder.W2.W", "action_head.action_encoder.W3.W", "action_head.state_encoder.layer1.W", "action_head.state_encoder.layer2.W", "action_head.action_decoder.layer1.W", "action_head.action_decoder.layer2.W"],
+    "active_category": 2,
+    "categories": 32,
+    "method": "active category uses calibrated GPTQ when its weighted error beats RTN; unobserved categories use RTN and are explicitly marked",
+    "axis_contract": "source [category,K,N] is transposed to [N,K], padded only along K to a multiple of 16, quantized, cropped, and transposed back",
+    "source_kind": "category_specific_parent_ptq"
+  },
+  "reporting": {
+    "primary": ["successes and episode count", "ten-task macro success", "NVFP4 share of eligible and all checkpoint parameters", "target encoding budget including the BF16 low-rank residual"],
+    "required_arms": ["bf16", "pressure_ptq", "qad", "continued_qad", "qad_opd"],
+    "heldout_freeze": "No heldout result may select a recipe, teacher weight, training length, checkpoint, or statistical test."
+  }
+}
