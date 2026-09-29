@@ -420,7 +420,9 @@ class Driver:
         if collection: c += ["--collection-manifest",str(collection)]
         env={"PROTOCOL_FILE":str(self.protocol_path),"QAD_DATASET":str(self.dataset)}
         if purpose == "collection":
-            env.update(OPD_CAPTURE_EVERY="8",OPD_CAPTURE_PER_TASK="16",OPD_CAPTURE_LIMIT="160")
+            # Four calls per capture provide 16 probes even when a task
+            # succeeds before the nominal trajectory call budget.
+            env.update(OPD_CAPTURE_EVERY="4",OPD_CAPTURE_PER_TASK="16",OPD_CAPTURE_LIMIT="160")
         self.run_logged(name,c,self.groot,env)
         return {"checkpoint":str(ckpt),"purpose":purpose}
     def eval_verify(self,p,purpose,checkpoint=None): return eval_audit(p,self.protocol,purpose,checkpoint)
@@ -450,7 +452,7 @@ class Driver:
                     manifest.get("student_checkpoint")!=str(model) or
                     manifest.get("student_statistics_sha256")!=sha(model/"statistics.json") or
                     manifest.get("student_config_sha256")!=sha(model/"config.json") or
-                    manifest.get("every_server_calls")!=8 or
+                    manifest.get("every_server_calls")!=4 or
                     manifest.get("per_task_limit")!=16 or manifest.get("total_limit")!=160):
                 raise OrchestrationError(f"capture does not use frozen winning QAD/settings: {task}")
             paths=sorted(folder.glob("sample_*.pt"))
