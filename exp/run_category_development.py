@@ -236,6 +236,7 @@ def main() -> None:
     parser.add_argument("--python")
     parser.add_argument("--rollout-python")
     parser.add_argument("--dataset", default=os.environ.get("QAD_DATASET"))
+    parser.add_argument("--backbone-model", default=os.environ.get("GR00T_BACKBONE_MODEL"))
     parser.add_argument("--media-lib", default=os.environ.get("PTQAD_MEDIA_LIB",
                                                                  "/home/zhaosiying/miniforge3/envs/media7/lib"))
     parser.add_argument("--port", type=int, default=5630)
@@ -280,6 +281,18 @@ def main() -> None:
     require((media_lib.parent / "bin" / "ffmpeg").is_file(),
             f"ffmpeg is missing beside media library: {media_lib}; pass --media-lib explicitly")
     media_env = {"PTQAD_MEDIA_LIB": str(media_lib)}
+    backbone = args.backbone_model
+    if not backbone:
+        ref = Path.home() / ".cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/refs/main"
+        if ref.is_file():
+            snapshot = (ref.read_text().strip())
+            candidate = ref.parent.parent / "snapshots" / snapshot
+            if candidate.is_dir():
+                backbone = str(candidate)
+    if backbone:
+        backbone = str(Path(backbone).expanduser().absolute())
+        require(Path(backbone).is_dir(), f"backbone model path is missing: {backbone}")
+        media_env["GR00T_BACKBONE_MODEL"] = backbone
     # Make the media runtime part of every child evaluation environment.  This
     # avoids relying on a shell profile when the driver is launched from WSL.
     os.environ["PTQAD_MEDIA_LIB"] = str(media_lib)
@@ -305,6 +318,7 @@ def main() -> None:
             "selection_uses_heldout": False, "device": args.device,
             "calibration_windows": args.calibration_windows, "calibration_batch": args.calibration_batch,
             "python": str(python), "rollout_python": str(rollout), "media_lib": str(media_lib),
+            "backbone_model": backbone,
         })
 
     # BF16 is always evaluated into this new v4 directory first.
@@ -333,7 +347,7 @@ def main() -> None:
             "--seed", str(protocol["selection"]["train_seed"]), "--device", args.device], groot,
             logs / f"category-calibrate-{candidate}.log", {
                 "PROTOCOL_FILE": str(protocol_path), "HF_HUB_OFFLINE": "0",
-                "TRANSFORMERS_OFFLINE": "0"})
+                "TRANSFORMERS_OFFLINE": "0", **media_env})
         run_logged(f"category-bake-{candidate}", [str(python), str(ROOT / "quant/ptq/bake_category.py"),
             "--parent", str(parent), "--calib", str(cache), "--out", str(output),
             "--expected-windows", str(args.calibration_windows), "--gptq-damp", "0.01"], ROOT,
