@@ -18,6 +18,7 @@ Env knobs:
   QAD_ACCUM_STEPS must equal GLOBAL/MICRO if also supplied (single GPU)
   QAD_OPD_MSE_W (0: off; QAD_OPD_KL_W is a deprecated alias)
   OPD_CACHE_PATH, OPD_EVERY (4), QAD_INIT_ADAPTER (optional prior checkpoint)
+  TRAIN_SEED (from protocol; historical default 42), PROTOCOL_FILE
   QAD_ACTIVATION_CHECKPOINTING (0): optional non-reentrant block recomputation
   On selected optimizer updates, teacher backward follows the main backward on
   every accumulation microbatch; the two forward graphs never stack.
@@ -54,6 +55,16 @@ STEPS = os.environ.get("QAD_STEPS", "1000")
 MICRO_BATCH, ACCUM_STEPS, GLOBAL_BATCH = resolve_batch(os.environ)
 MSE_W = float(os.environ.get("QAD_OPD_MSE_W", os.environ.get("QAD_OPD_KL_W", "0")))
 OUT = os.environ.get("QAD_OUT", "/mnt/c/fq_lora_out")
+PROTOCOL_FILE = Path(os.environ.get("PROTOCOL_FILE", os.environ.get(
+    "PTQAD_PROTOCOL_FILE", PROJECT / "exp/recovery_protocol.json"))).resolve()
+if not PROTOCOL_FILE.is_file():
+    raise FileNotFoundError(f"PROTOCOL_FILE does not exist: {PROTOCOL_FILE}")
+PROTOCOL = json.loads(PROTOCOL_FILE.read_text())
+PROTOCOL_VERSION = int(PROTOCOL.get("version", 1))
+TRAIN_SEED = int(os.environ.get("TRAIN_SEED", str(
+    PROTOCOL.get("selection", {}).get("train_seed", 42))))
+if TRAIN_SEED < 0:
+    raise ValueError("TRAIN_SEED must be non-negative")
 
 _lora_count = [0]
 _runtime_trainer = [None]
@@ -112,6 +123,10 @@ def load_initial_adapter(model, checkpoint):
     if (Path(manifest["base"]).resolve() != base or manifest["rank"] != R or
         manifest["alpha"] != ALPHA or manifest["scope"] != SCOPE):
         raise ValueError("Continuation base/rank/alpha/scope differs from its QAD source")
+    if PROTOCOL_VERSION >= 3:
+        if (manifest.get("train_seed") != TRAIN_SEED or
+                manifest.get("protocol_sha256") != file_sha256(PROTOCOL_FILE)):
+            raise ValueError("Continuation training seed/protocol differs from its QAD source")
     for field, filename in (("base_config_sha256", "config.json"),
                             ("base_statistics_sha256", "statistics.json"),
                             ("base_recipe_sha256", "ptq_recipe.json")):
@@ -195,6 +210,8 @@ def install_trainer_hooks():
         if (self.args.per_device_train_batch_size != MICRO_BATCH or
                 self.args.gradient_accumulation_steps != ACCUM_STEPS):
             raise ValueError("Upstream Trainer batch semantics differ from the audited single-GPU contract")
+        if self.args.seed != TRAIN_SEED:
+            raise ValueError(f"Upstream Trainer seed {self.args.seed} differs from TRAIN_SEED {TRAIN_SEED}")
         core = getattr(model, "module", model)
         arch = require_full_model(core)
         install_lora(core)
@@ -222,7 +239,10 @@ def install_trainer_hooks():
                     "probe_cache_sha256": file_sha256(os.environ["OPD_CACHE_PATH"]) if MSE_W else None,
                     "probe_action_mask": libero_action_spec(base) if MSE_W else None,
                     "objective": "demo flow loss + scheduled sequential teacher velocity MSE" if MSE_W else "demo flow loss",
-                    "normalization": "frozen base statistics", "seed": self.args.seed}
+                    "normalization": "frozen base statistics", "seed": self.args.seed,
+                    "train_seed": TRAIN_SEED,
+                    "protocol_file": str(PROTOCOL_FILE),
+                    "protocol_sha256": file_sha256(PROTOCOL_FILE)}
         manifest["activation_checkpointing"] = activation_checkpointing
         manifest["recovery_source_sha256"] = {
             str(path.relative_to(PROJECT)): file_sha256(path)
@@ -230,7 +250,6 @@ def install_trainer_hooks():
                 "lora_qad.py", "probe_distill.py", "lora_scope.py", "recovery_batch.py",
                 "gr00t_runtime.py", "activation_checkpoint.py", "runtime_metrics.py"))
         }
-        manifest["protocol_sha256"] = file_sha256(PROJECT / "exp/recovery_protocol.json")
         manifest.update({"micro_batch": MICRO_BATCH, "gradient_accumulation_steps": ACCUM_STEPS,
                          "effective_global_batch": GLOBAL_BATCH,
                          "upstream_global_batch_size_cli": MICRO_BATCH,
@@ -262,6 +281,17 @@ def install_trainer_hooks():
     install_gradient_audit(Gr00tTrainer)
 
 if __name__ == "__main__":
+    # The upstream fine-tune CLI has no seed flag.  Its experiment.run reads
+    # config.data.seed, so wrap that entry point before launch_finetune imports
+    # it and keep TrainingArguments, dataset sharding, and set_seed aligned.
+    import gr00t.experiment.experiment as _experiment
+    _original_run = _experiment.run
+
+    def _seeded_run(config):
+        config.data.seed = TRAIN_SEED
+        return _original_run(config)
+
+    _experiment.run = _seeded_run
     install_trainer_hooks()
     sys.argv = ["launch_finetune.py",
         "--base-model-path", os.environ["GR00T_BASE_CKPT"],

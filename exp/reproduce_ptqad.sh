@@ -16,7 +16,8 @@ BASE=${PTQAD_BASE:-$ROOT/weights/GR00T-N1.7-LIBERO/libero_10}
 DATASET=${QAD_DATASET:-$GROOT/demo_data/libero_demo}
 EVAL_RUNS_ROOT=${PTQAD_EVAL_RUNS_ROOT:-$RUN_DIR/evaluations}
 RECOVERY_RECIPE=${PTQAD_RECOVERY_RECIPE:-fp8}
-PROTOCOL_FILE=${PTQAD_PROTOCOL_FILE:-$ROOT/exp/recovery_protocol.json}
+PROTOCOL_FILE=${PTQAD_PROTOCOL_FILE:-${PROTOCOL_FILE:-$ROOT/exp/recovery_protocol.json}}
+TRAIN_SEED=${TRAIN_SEED:-}
 case "$RECOVERY_RECIPE" in
   rtn|fp8|mixed|aggr|calib|head_ffn|head_lang|head_lang_vision) ;;
   *) printf 'Invalid recovery recipe: %s\n' "$RECOVERY_RECIPE"; exit 2 ;;
@@ -52,22 +53,25 @@ for name in ("development", "collection", "heldout"):
     item = parts.get(name, {})
     print(int(item["seed"]))
     print(int(item["episodes_per_task"]))
+print(int(data.get("selection", {}).get("train_seed", 42)))
 PY
 )
-[[ ${#_PROTOCOL_VALUES[@]} -eq 6 ]] || { printf 'Protocol lacks seed/episode declarations for development, collection and heldout\n'; exit 2; }
+[[ ${#_PROTOCOL_VALUES[@]} -eq 7 ]] || { printf 'Protocol lacks seed/episode declarations for development, collection and heldout\n'; exit 2; }
 DEV_SEED=${PTQAD_DEV_SEED:-${_PROTOCOL_VALUES[0]}}
 DEV_EPISODES=${DEV_EPISODES:-${_PROTOCOL_VALUES[1]}}
 COLLECTION_SEED=${PTQAD_COLLECTION_SEED:-${_PROTOCOL_VALUES[2]}}
 COLLECTION_EPISODES=${PTQAD_COLLECTION_EPISODES:-${_PROTOCOL_VALUES[3]}}
 HELDOUT_SEED=${PTQAD_HELDOUT_SEED:-${_PROTOCOL_VALUES[4]}}
 EPISODES=${EPISODES:-${_PROTOCOL_VALUES[5]}}
+TRAIN_SEED=${TRAIN_SEED:-${_PROTOCOL_VALUES[6]}}
+export PROTOCOL_FILE TRAIN_SEED
 mkdir -p -- "$RUN_DIR/logs"
 if [[ ! -f "$RUN_DIR/run_parameters.json" ]]; then
   "$PY" - "$RUN_DIR/run_parameters.json" "$ROOT" "$BASE" "$DATASET" "$GROOT" "$CAL_SCOPE" \
-    "$CAL_WINDOWS" "$CAL_BATCH" "$QAD_STEPS" "$CONT_STEPS" "$BSZ" "$MICRO_BATCH" "$RANK" "$ALPHA" "$LR" "$EPISODES" "$RECOVERY_RECIPE" <<'PY'
+    "$CAL_WINDOWS" "$CAL_BATCH" "$QAD_STEPS" "$CONT_STEPS" "$BSZ" "$MICRO_BATCH" "$RANK" "$ALPHA" "$LR" "$EPISODES" "$RECOVERY_RECIPE" "$PROTOCOL_FILE" "$TRAIN_SEED" <<'PY'
 import json,sys,hashlib,subprocess,os
 from pathlib import Path
-out,repo,base,data,groot,scope,windows,batch,steps,cont,bsz,micro,rank,alpha,lr,eps,recovery=sys.argv[1:]
+out,repo,base,data,groot,scope,windows,batch,steps,cont,bsz,micro,rank,alpha,lr,eps,recovery,protocol,train_seed=sys.argv[1:]
 paths=['quant/torch_fp4.py','quant/ptq/quantizers.py','quant/ptq/bake.py','quant/ptq/collector.py',
        'rl/lora_qad.py','rl/probe_distill.py','rl/lora_merge_bake.py','rl/activation_checkpoint.py',
        'rl/runtime_metrics.py','rl/gr00t_runtime.py','exp/reproduce_ptqad.sh']
@@ -76,6 +80,8 @@ record={'recovery_recipe':recovery,'repo':repo,'base':base,'dataset':data,'gr00t
         'continuation_steps_each_arm':int(cont),'global_batch':int(bsz),'micro_batch':int(micro), 'gradient_accumulation':int(bsz)//int(micro),
         'lora_rank':int(rank),'lora_alpha':float(alpha),'learning_rate':float(lr),
         'activation_checkpointing':os.environ.get('QAD_ACTIVATION_CHECKPOINTING') == '1',
+        'train_seed':int(train_seed),'protocol_file':str(Path(protocol).resolve()),
+        'protocol_sha256':hashlib.sha256(Path(protocol).read_bytes()).hexdigest(),
         'requested_eval_episodes_per_task':int(eps),
         'source_sha256':{p:hashlib.sha256((Path(repo)/p).read_bytes()).hexdigest() for p in paths},
         'git_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip(),
@@ -84,17 +90,26 @@ record={'recovery_recipe':recovery,'repo':repo,'base':base,'dataset':data,'gr00t
 Path(out).write_text(json.dumps(record,indent=2)+'\n')
 PY
 else
-  "$PY" - "$RUN_DIR/run_parameters.json" "$RECOVERY_RECIPE" "$BASE" <<'PY'
-import json,sys
+  "$PY" - "$RUN_DIR/run_parameters.json" "$RECOVERY_RECIPE" "$BASE" "$PROTOCOL_FILE" "$TRAIN_SEED" <<'PY'
+import hashlib,json,sys
 from pathlib import Path
 path=Path(sys.argv[1]); previous=json.loads(path.read_text())
 if previous['base'] != sys.argv[3]:
     raise ValueError('Existing run uses another base; use a new run directory')
+training_started = bool(list((path.parent/'logs').glob('train-*.log')))
 if previous['recovery_recipe'] != sys.argv[2]:
-    if list((path.parent/'logs').glob('train-*.log')):
+    if training_started:
         raise ValueError('Cannot change recovery recipe after training started')
     previous['recovery_recipe']=sys.argv[2]
-    path.write_text(json.dumps(previous,indent=2)+'\n')
+protocol = Path(sys.argv[4]).resolve()
+expected = {'protocol_file':str(protocol),
+            'protocol_sha256':hashlib.sha256(protocol.read_bytes()).hexdigest(),
+            'train_seed':int(sys.argv[5])}
+for key, value in expected.items():
+    if key in previous and previous[key] != value and training_started:
+        raise ValueError(f'Cannot change {key} after training started')
+    previous[key] = value
+path.write_text(json.dumps(previous,indent=2)+'\n')
 PY
 fi
 
@@ -126,7 +141,7 @@ train_arm() {
   local -a command=(env "GR00T_BASE_CKPT=$RUN_DIR/$RECOVERY_RECIPE" "QAD_DATASET=$DATASET"
     "QAD_OUT=$RUN_DIR/train_$arm" "QAD_STEPS=$steps" "QAD_SAVE_STEPS=$steps" "QAD_GLOBAL_BATCH=$BSZ" "QAD_MICRO_BATCH=$MICRO_BATCH"
     "QAD_LORA_R=$RANK" "QAD_LORA_ALPHA=$ALPHA" "QAD_LORA_SCOPE=${QAD_LORA_SCOPE:-head+lang_all}" "QAD_LR=$LR"
-    "QAD_OPD_MSE_W=$weight" "OPD_EVERY=${OPD_EVERY:-4}")
+    "QAD_OPD_MSE_W=$weight" "OPD_EVERY=${OPD_EVERY:-4}" "TRAIN_SEED=$TRAIN_SEED" "PROTOCOL_FILE=$PROTOCOL_FILE")
   if [[ -n "$init" ]]; then command+=("QAD_INIT_ADAPTER=$init"); fi
   if [[ "$weight" != 0 ]]; then
     : "${OPD_CACHE_PATH:?Set OPD_CACHE_PATH to a new student-rollout teacher cache}"
@@ -162,7 +177,7 @@ evaluate() {
     --port "$((PORT_BASE + offset))" --protocol-file "$PROTOCOL_FILE" "${protocol[@]}"
   local actual_request=$EPISODES
   [[ "$purpose" == development ]] && actual_request=$DEV_EPISODES
-  [[ "$purpose" == collection ]] && actual_request=2
+  [[ "$purpose" == collection ]] && actual_request=$COLLECTION_EPISODES
   "$PY" "$ROOT/paper/collect_reevaluation.py" "$tag" --source-dir "$EVAL_RUNS_ROOT/$tag" \
     --requested-episodes "$actual_request" --output-root "$RUN_DIR/evidence"
 }

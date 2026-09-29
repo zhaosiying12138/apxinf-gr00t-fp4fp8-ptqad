@@ -11,7 +11,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'eval'))
-from compare_development import ORDER, audit_development
+from compare_development import ORDER, audit_development, load_protocol
 from run_recovery_eval import TASKS
 
 
@@ -109,58 +109,82 @@ def run_logged(command, log, cwd, env):
         stream.write('COMPLETED UTC ' + datetime.now(timezone.utc).isoformat() + '\n')
 
 
-def verify_result(folder, checkpoint):
+def verify_result(folder, checkpoint, protocol=None):
     folder = Path(folder)
     manifest, rows, summary = (load(folder / name) for name in ['eval_manifest.json', 'task_results.json', 'summary.json'])
     require(Path(manifest['checkpoint']).resolve() == Path(checkpoint), 'Evaluated another checkpoint')
-    require(manifest['protocol_sha256'] == sha(ROOT / 'exp/recovery_protocol.json'), 'Changed development protocol')
+    expected_seed = protocol['seed'] if protocol else 330000
+    expected_episodes = protocol['episodes'] if protocol else 2
+    expected_indices = protocol['indices'] if protocol else [0, 1]
+    expected_protocol_sha = protocol['sha256'] if protocol else sha(ROOT / 'exp/recovery_protocol.json')
+    require(manifest.get('protocol_sha256') == expected_protocol_sha, 'Changed development protocol')
+    require(manifest['seed'] == expected_seed and manifest['episodes'] == expected_episodes and
+            manifest['init_state_indices'] == expected_indices, 'Development partition differs from protocol')
     require(set(rows) == set(TASKS) and summary['tasks_complete'] == 10, 'Incomplete development task set')
     successes = 0
     for task in TASKS:
         row = rows[task]
-        require(row['returncode'] == 0 and len(row['results']) == 2 and all(type(v) is bool for v in row['results']),
+        require(row['returncode'] == 0 and len(row['results']) == expected_episodes and all(type(v) is bool for v in row['results']),
                 'Invalid/partial development result: ' + task)
-        require(row['episodes'] == 2 and row['successes'] == sum(row['results']), 'Result counts differ')
+        require(row['episodes'] == expected_episodes and row['successes'] == sum(row['results']), 'Result counts differ')
         require(sha(folder / (task + '.log')) == row['log_sha256'], 'Raw task log identity differs')
         successes += row['successes']
-    require(summary['total_successes'] == successes and summary['total_episodes'] == 20 and
-            abs(summary['macro_success_rate'] - successes / 20) < 1e-12, 'Summary disagrees with raw outcomes')
+    total = 10 * expected_episodes
+    require(summary['total_successes'] == successes and summary['total_episodes'] == total and
+            abs(summary['macro_success_rate'] - successes / total) < 1e-12, 'Summary disagrees with raw outcomes')
 
 
 def execute(args):
     run = Path(args.run_dir).resolve()
     development = Path(args.development_root).resolve()
+    protocol_file_arg = getattr(args, 'protocol_file', None)
+    protocol = load_protocol(protocol_file_arg) if protocol_file_arg else None
+    order = protocol['order'] if protocol else ORDER
     require(not development.exists(), 'Use a new development root; failed or completed output is never reused')
     require(not any(run.glob('train_*')), 'Development selection must finish before recovery training starts')
     env = os.environ.copy()
     env.update(PTQAD_RUN_DIR=str(run), PTQAD_BASE=str(Path(args.base).resolve()),
                GR00T_REPO=str(Path(args.gr00t).resolve()), PTQAD_PYTHON=args.server_python,
-               LIBERO_PYTHON=args.rollout_python, PTQAD_RECOVERY_RECIPE='fp8')
+               LIBERO_PYTHON=args.rollout_python, PTQAD_RECOVERY_RECIPE='fp8',
+               PTQAD_PROTOCOL_FILE=str(protocol['path']) if protocol else
+               str(ROOT / 'exp/recovery_protocol.json'))
     commands = []
-    for arm in ORDER:
+    seed = protocol['seed'] if protocol else 330000
+    episodes = protocol['episodes'] if protocol else 2
+    protocol_file = str(protocol['path']) if protocol else None
+    for arm in order:
         checkpoint = str(Path(args.base).resolve()) if arm == 'bf16' else str(run / arm)
         command = [sys.executable, str(ROOT / 'eval/run_recovery_eval.py'), '--checkpoint', checkpoint,
-                   '--out', str(development / arm), '--purpose', 'development', '--seed', '330000',
-                   '--episodes', '2', '--gr00t', args.gr00t, '--server-python', args.server_python,
+                   '--out', str(development / arm), '--purpose', 'development', '--seed', str(seed),
+                   '--episodes', str(episodes), '--gr00t', args.gr00t, '--server-python', args.server_python,
                    '--rollout-python', args.rollout_python, '--port', str(args.port)]
+        if protocol_file:
+            command.extend(['--protocol-file', protocol_file])
         commands.append({'arm': arm, 'checkpoint': checkpoint, 'evaluation': command,
                          'bake_if_missing': None if arm == 'bf16' else ['bash', str(ROOT / 'exp/reproduce_ptqad.sh'), arm]})
     if args.dry_run:
         print(json.dumps({'dry_run': True, 'resource_identities_verified': False, 'development_root': str(development),
                           'commands_in_possible_order': commands,
-                          'stop_rule': 'After each complete arm, audit the prefix; stop at first selected_recipe != null.',
+                          'stop_rule': ('Evaluate every declared pressure candidate, then freeze the highest qualifying arm.'
+                                        if protocol and protocol['high_fp4_rule'] else
+                                        'After each complete arm, audit the prefix; stop at first selected_recipe != null.'),
                           'calibration_requirement': str(run / 'calibration/calib.pt')}, indent=2))
         return
     require(Path(args.server_python).is_file() and os.access(args.server_python, os.X_OK), 'Missing server Python')
     require(Path(args.rollout_python).is_file() and os.access(args.rollout_python, os.X_OK), 'Missing rollout Python')
     base = checkpoint_identity(args.base)
     development.mkdir(parents=True)
-    inputs = ['exp/run_development.py', 'exp/run_development.sh', 'exp/reproduce_ptqad.sh',
-              'eval/compare_development.py', 'eval/run_recovery_eval.py', 'exp/recovery_protocol.json']
+    inputs = [ROOT / name for name in ['exp/run_development.py', 'exp/run_development.sh',
+              'exp/reproduce_ptqad.sh', 'eval/compare_development.py', 'eval/run_recovery_eval.py']]
+    inputs.append(protocol['path'] if protocol else ROOT / 'exp/recovery_protocol.json')
     write_new(development / 'development_run.json', {'version': 1, 'created_utc': datetime.now(timezone.utc).isoformat(),
               'run_dir': str(run), 'development_root': str(development), 'base_identity': base,
-              'source_files': {n: identity(ROOT / n) for n in inputs}, 'possible_order': ORDER,
-              'heldout_used_for_selection': False})
+              'source_files': {str(n): identity(n) for n in inputs}, 'possible_order': order,
+              'heldout_used_for_selection': False,
+              'protocol_file': str(protocol['path']) if protocol else str(ROOT / 'exp/recovery_protocol.json'),
+              'protocol_sha256': protocol['sha256'] if protocol else sha(ROOT / 'exp/recovery_protocol.json'),
+              'development_partition': {'seed': seed, 'episodes_per_task': episodes,
+                                         'init_state_indices': protocol['indices'] if protocol else [0, 1]}})
     completed = []
     for job in commands:
         arm, folder = job['arm'], Path(job['checkpoint'])
@@ -179,15 +203,25 @@ def execute(args):
         write_new(development / (arm + '.checkpoint.json'), current)
         print('[development] evaluating ' + arm + ': ' + str(folder), flush=True)
         run_logged(job['evaluation'], development / (arm + '.driver.log'), ROOT, env)
-        verify_result(development / arm, folder)
+        verify_result(development / arm, folder, protocol)
         completed.append(arm)
-        report = audit_development(development, completed)
+        report = (audit_development(development, completed, str(protocol['path'])) if protocol else
+                  audit_development(development, completed))
         write_new(development / ('comparison_after_' + arm + '.json'), report)
         print(json.dumps({'completed': completed, 'selected_recipe': report['selected_recipe']}), flush=True)
         if report['selected_recipe'] is not None:
             write_new(development / 'selection.json', report)
             print('[development] STOP; selected=' + report['selected_recipe'] + '; selection=' + str(development / 'selection.json'))
             return
+    # A v3 protocol explicitly permits the pressure window to be absent.  Keep
+    # the complete development audit for the paper, but do not silently select
+    # calib after looking at these outcomes.
+    report = (audit_development(development, completed, str(protocol['path'])) if protocol else
+              audit_development(development, completed))
+    write_new(development / 'selection.json', report)
+    if protocol and protocol['high_fp4_rule']:
+        print('[development] no declared pressure candidate met the preregistered rule; selection remains null')
+        return
     raise RuntimeError('Declared ladder exhausted without a selected recipe')
 
 
@@ -199,6 +233,8 @@ def main():
     p.add_argument('--gr00t', default=os.environ.get('GR00T_REPO', str(ROOT / 'third_party/Isaac-GR00T')))
     p.add_argument('--server-python', default=os.environ.get('PTQAD_PYTHON'))
     p.add_argument('--rollout-python', default=os.environ.get('LIBERO_PYTHON'))
+    p.add_argument('--protocol-file', default=os.environ.get('PTQAD_PROTOCOL_FILE') or os.environ.get('PROTOCOL_FILE'),
+                   help='Versioned protocol JSON; omit for the historical six-arm protocol')
     p.add_argument('--port', type=int, default=int(os.environ.get('PTQAD_PORT_BASE', '5610')))
     p.add_argument('--dry-run', action='store_true')
     args = p.parse_args()

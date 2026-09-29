@@ -45,7 +45,16 @@
   "selection": {
     "development_only": true,
     "pressure_candidates": ["head_lang_vision", "calib"],
+    "pressure_rule": {
+      "min_drop_from_bf16": 0.20,
+      "min_absolute_success": 0.30,
+      "choose": "highest_fp4",
+      "no_qualifying_action": "report_no_recoverable_stress_window"
+    },
     "recovery_scope": "head+lang_all",
+    "train_seed": 20260929,
+    "qad_learning_rates": [0.00005, 0.0001],
+    "qad_learning_rate_tie_break": "If development macro success is equal, choose the lower learning rate.",
     "qad_optimizer_steps": 500,
     "continuation_optimizer_steps": 100,
     "rank": 32,
@@ -53,8 +62,9 @@
     "effective_demo_batch": 16,
     "opd_every": 4,
     "opd_weights": [0.25, 1.0],
+    "opd_weight_tie_break": "If development macro success is equal, choose the lower OPD weight.",
     "same_budget_control": "continued_qad",
-    "rule": "Freeze the first pressure candidate whose development macro success is at least 0.20 below BF16 and at least 0.30 absolute; if both qualify, choose the higher FP4 candidate. If neither qualifies, report that the pre-registered pressure window was not reached rather than changing the threshold. Choose QAD/OPD settings only from development results."
+    "rule": "Evaluate both declared pressure candidates. Freeze the highest-FP4 candidate whose development macro success is at least 0.20 below BF16 and at least 0.30 absolute. If neither qualifies, report that the pre-registered pressure window was not reached rather than changing the threshold. Choose QAD/OPD settings only from development results."
   },
   "reporting": {
     "primary": [

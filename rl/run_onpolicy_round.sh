@@ -26,13 +26,15 @@ for name in ("collection", "heldout"):
     item = parts.get(name, {})
     print(int(item["seed"]))
     print(int(item["episodes_per_task"]))
+print(int(data.get("selection", {}).get("train_seed", 42)))
 PY
 )
-[[ ${#_PROTOCOL_VALUES[@]} -eq 4 ]] || { echo "Protocol lacks collection/heldout seed and episode declarations" >&2; exit 1; }
+[[ ${#_PROTOCOL_VALUES[@]} -eq 5 ]] || { echo "Protocol lacks collection/heldout seed and episode declarations" >&2; exit 1; }
 COLLECTION_SEED=${COLLECTION_SEED:-${_PROTOCOL_VALUES[0]}}
 COLLECTION_EPISODES=${COLLECTION_EPISODES:-${_PROTOCOL_VALUES[1]}}
 HELDOUT_SEED=${HELDOUT_SEED:-${_PROTOCOL_VALUES[2]}}
 HELDOUT_EPISODES=${HELDOUT_EPISODES:-${_PROTOCOL_VALUES[3]}}
+TRAIN_SEED=${TRAIN_SEED:-${_PROTOCOL_VALUES[4]}}
 export QAD_MICRO_BATCH=${QAD_MICRO_BATCH:-1}
 export QAD_GLOBAL_BATCH=${QAD_GLOBAL_BATCH:-16}
 export QAD_LORA_SCOPE=${QAD_LORA_SCOPE:-head+lang_all}
@@ -40,6 +42,8 @@ export QAD_LORA_R=${QAD_LORA_R:-32}
 export QAD_LORA_ALPHA=${QAD_LORA_ALPHA:-64}
 export QAD_ACTIVATION_CHECKPOINTING=${QAD_ACTIVATION_CHECKPOINTING:-1}
 export QAD_LR=${QAD_LR:-1e-4}
+export TRAIN_SEED
+export PROTOCOL_FILE
 export LD_LIBRARY_PATH=${PTQAD_MEDIA_LIB:-${LD_LIBRARY_PATH:-$HOME/miniforge3/envs/media7/lib}}
 export HF_HUB_OFFLINE=1
 test ! -e "$ROUND_OUT" || { echo "ROUND_OUT already exists; use a new evidence directory" >&2; exit 1; }
@@ -55,6 +59,12 @@ expected = {"base": str(base), "rank": int(os.environ["QAD_LORA_R"]),
             "scope": os.environ["QAD_LORA_SCOPE"]}
 if any(manifest.get(k) != v for k, v in expected.items()):
     raise ValueError("Continuation base/rank/alpha/scope differs from initial QAD")
+protocol = Path(os.environ["PROTOCOL_FILE"])
+protocol_data = json.loads(protocol.read_text())
+if int(protocol_data.get("version", 1)) >= 3:
+    if (manifest.get("train_seed") != int(os.environ["TRAIN_SEED"]) or
+            manifest.get("protocol_sha256") != hashlib.sha256(protocol.read_bytes()).hexdigest()):
+        raise ValueError("Initial QAD training seed/protocol differs from this on-policy round")
 for field, filename in (("base_config_sha256", "config.json"),
                         ("base_statistics_sha256", "statistics.json"),
                         ("base_recipe_sha256", "ptq_recipe.json")):
