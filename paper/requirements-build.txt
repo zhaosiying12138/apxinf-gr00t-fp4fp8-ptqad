@@ -1,0 +1,4 @@
+# Direct dependencies used by the publication build; separate from GPU runtimes.
+markdown-it-py==3.0.0
+CairoSVG==2.9.1
+Pillow==12.1.1

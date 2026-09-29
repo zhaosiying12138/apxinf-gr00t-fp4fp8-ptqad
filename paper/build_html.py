@@ -1,155 +1,143 @@
 #!/usr/bin/env python3
-"""Build the single-file Chinese paper (paper/paper.html) from sections + figures.
-
-- Sections: paper/sections/*.md (ordered by filename)
-- Figures:  paper/figs/*.svg inlined into the HTML
-- Data:     results/**/*.csv rendered into tables by scripts in paper/tables.py (later)
-- Animations: inline <svg> + vanilla JS (swizzle demo) — no external deps, fully offline
-Run:  uv run --with numpy,matplotlib python paper/build_html.py
-"""
+"""Build the offline single-file paper. Requires markdown-it-py and Node.js."""
 from __future__ import annotations
-import html, json, pathlib, re, sys
+import base64
+import html
+import json
+import pathlib
+import re
+import struct
+import subprocess
+from markdown_it import MarkdownIt
+from publication_guard import file_record, html_build_inputs, require
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-PAPER = ROOT / "paper"
+PAPER = pathlib.Path(__file__).resolve().parent
+CSS = r'''
+:root{--ink:#172c3c;--muted:#627580;--line:#dce5e9;--blue:#17667a;--paper:#fff;--wash:#f3f7f8}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:#f4f6f7;color:var(--ink);font:17px/1.94 "Noto Serif CJK SC","Source Han Serif SC","Microsoft YaHei",serif}
+main{max-width:1020px;margin:32px auto;background:var(--paper);padding:64px 76px 96px;box-shadow:0 4px 24px #172c3c08}
+header{border-bottom:2px solid var(--blue);padding-bottom:30px;margin-bottom:36px}
+.eyebrow{font:600 12px/1.5 system-ui,sans-serif;letter-spacing:.2em;color:var(--blue)}
+h1{font-size:34px;line-height:1.5;letter-spacing:.015em;margin:16px 0 20px;font-weight:700}
+.meta{font:14px/1.9 system-ui,"Microsoft YaHei",sans-serif;color:var(--muted)}
+h2,h3,h4,h5{font-family:system-ui,"Microsoft YaHei",sans-serif;line-height:1.55;scroll-margin-top:24px}
+h2{font-size:25px;margin:60px 0 22px;border-top:1px solid var(--line);padding-top:28px}
+h3{font-size:20px;margin:38px 0 18px}h4{font-size:17px;margin-top:28px}
+p{margin:14px 0;overflow-wrap:anywhere}strong{font-weight:700;color:#123e50}
+a{color:#12667e;text-underline-offset:3px;text-decoration-thickness:1px}a:hover{color:#a45627}
+nav{background:var(--wash);padding:22px 28px;border-radius:8px;font:14px/1.9 system-ui,"Microsoft YaHei",sans-serif}
+nav ol{columns:2;column-gap:32px;margin:12px 0 0;padding-left:0;list-style:none}nav li{break-inside:avoid;padding:3px 0}
+nav details{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}nav summary{cursor:pointer;color:var(--blue)}
+nav .sub{font-size:13px;color:var(--muted)}
+figure{margin:32px 0}figure svg,figure img{display:block;width:100%;height:auto;max-width:100%;border:1px solid var(--line);border-radius:4px}
+figcaption{font:13px/1.75 system-ui,"Microsoft YaHei",sans-serif;color:var(--muted);margin-top:10px}
+.shot img{cursor:zoom-in}.table-wrap{overflow-x:auto;margin:24px 0;border:1px solid var(--line);border-radius:5px}
+table{border-collapse:collapse;width:100%;font:13.5px/1.8 system-ui,"Microsoft YaHei",sans-serif}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;min-width:65px}
+th{background:#eaf2f5;color:#183c4d;font-weight:650}tbody tr:nth-child(even){background:#f8fafb}
+td code{white-space:normal}code{font:13px/1.75 "Noto Sans Mono CJK SC",Consolas,monospace;background:#eef3f5;padding:2px 4px;border-radius:3px}
+pre{background:#142734;color:#e0eaf0;padding:20px 24px;border-radius:6px;overflow-x:auto;line-height:1.75;font-size:13px}
+pre code{background:none;padding:0;color:inherit;white-space:pre}
+blockquote{margin:24px 0;padding:10px 22px;border-left:3px solid #3a8092;background:#f0f6f8;font-size:15px}
+li{margin:8px 0}ul,ol{padding-left:1.6em}.katex{font-size:1.03em!important}.katex-display{overflow-x:auto;overflow-y:hidden;padding:6px 0}
+.math-block{margin:24px 0}.backtop{position:fixed;right:18px;bottom:18px;font:13px system-ui;background:white;border:1px solid var(--line);border-radius:20px;padding:10px 16px}
+footer{border-top:1px solid var(--line);margin-top:50px;padding-top:18px;font:13px/1.8 system-ui;color:var(--muted)}
+dialog{width:98vw;max-width:98vw;height:96vh;border:0;padding:32px 12px 12px;background:#111;color:white}dialog::backdrop{background:#000b}
+dialog img{width:100%;height:100%;object-fit:contain}dialog button{position:absolute;right:12px;top:6px;cursor:pointer}
+@media(max-width:760px){body{font-size:16px}main{margin:0;padding:30px 20px 60px;box-shadow:none}h1{font-size:27px}h2{font-size:23px}nav ol{columns:1}nav{padding:18px}table{font-size:12.5px}pre{padding:16px}.backtop{display:none}}
+@media print{body{background:white;font-size:11pt}main{margin:0;max-width:none;padding:0;box-shadow:none}nav,.backtop,dialog{display:none}h2,h3,h4{break-after:avoid}figure,pre,tr{break-inside:avoid}a{color:inherit}pre{white-space:pre-wrap;color:#172c3c;background:#f1f4f6}.table-wrap{overflow:visible}table{font-size:9pt}}
+'''
 
-CSS = """
-:root{--ink:#1a1a2e;--accent:#0f6db3;--soft:#5b6b7d;--bg:#ffffff;--band:#f4f7fa}
-*{box-sizing:border-box}
-body{font-family:"Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
-     color:var(--ink);background:var(--bg);margin:0;line-height:1.7;font-size:16px}
-.page{max-width:880px;margin:0 auto;padding:48px 28px 96px}
-p{margin:9px 0;text-align:justify}
-p.math{text-align:center;margin:14px 0}
-header{border-bottom:3px solid var(--accent);padding-bottom:20px;margin-bottom:32px}
-h1{font-size:28px;line-height:1.35;margin:0 0 8px}
-.meta{color:var(--soft);font-size:14px}
-h2{font-size:21px;margin-top:44px;border-left:4px solid var(--accent);padding-left:10px}
-h3{font-size:17px;margin-top:28px}
-table{border-collapse:collapse;margin:18px 0;font-size:14px;width:100%}
-th,td{border:1px solid #d5dde5;padding:6px 10px;text-align:center}
-th{background:var(--band)}
-tr:nth-child(even) td{background:#fafcfe}
-figure{margin:24px 0;text-align:center}
-figure svg{max-width:100%;height:auto}
-figcaption{font-size:13px;color:var(--soft);margin-top:6px}
-code,pre{font-family:"JetBrains Mono",Consolas,monospace;font-size:13.5px}
-pre{background:#0f172a;color:#dbe7f3;padding:14px 16px;border-radius:8px;overflow-x:auto}
-code{background:#eef2f6;padding:1px 5px;border-radius:4px}
-pre code{background:none;padding:0}
-blockquote{border-left:3px solid var(--soft);margin:16px 0;padding:2px 16px;color:#3c4a58;background:var(--band)}
-.kv{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.kv span{background:var(--band);border-radius:6px;padding:2px 10px;font-size:13px}
-"""
+def data_uri(path):
+    mime = 'font/woff2' if path.suffix == '.woff2' else 'image/png'
+    return 'data:' + mime + ';base64,' + base64.b64encode(path.read_bytes()).decode()
 
-SWIZZLE_DEMO_JS = ""
-
-# KaTeX for math rendering: bootcdn primary (CN-friendly), cdnjs fallback via onerror.
-KATEX_HEAD = """
-<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.css"
-      onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css'">
-<script defer src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.js"
-        onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js';document.head.appendChild(s)"></script>
-<script defer src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
-        onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js';document.head.appendChild(s)"></script>
-"""
-KATEX_INIT = """
-<script>
-window.addEventListener("load", function () {
-  function go() {
-    if (!window.renderMathInElement) return;
-    renderMathInElement(document.body, {delimiters: [
-      {left: "$$", right: "$$", display: true},
-      {left: "$",  right: "$",  display: false}
-    ], throwOnError: false});
-  }
-  go();
-  if (!window.renderMathInElement) setTimeout(go, 1200);
-});
-</script>
-"""
-
-def md_to_html(md: str) -> str:
-    """Tiny markdown subset: headers, paragraphs, bold, code spans, code blocks, tables, lists."""
-    out, lines, i = [], md.splitlines(), 0
-    def inline(s):
-        s = html.escape(s)
-        s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
-        s = re.sub(r"`(.+?)`", r"<code>\1</code>", s)
-        return s
-    while i < len(lines):
-        ln = lines[i]
-        if ln.startswith("```"):
-            j = i + 1
-            while j < len(lines) and not lines[j].startswith("```"): j += 1
-            out.append("<pre><code>" + html.escape("\n".join(lines[i+1:j])) + "</code></pre>")
-            i = j + 1; continue
-        if ln.startswith("|"):
-            j = i
-            while j < len(lines) and lines[j].startswith("|"): j += 1
-            rows = [[c.strip() for c in r.strip("|").split("|")] for r in lines[i:j] if not re.match(r"^\|[\s:|-]+\|$", r)]
-            head, body = rows[0], rows[1:]
-            t = "<table><tr>" + "".join(f"<th>{inline(c)}</th>" for c in head) + "</tr>"
-            for r in body: t += "<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>"
-            out.append(t + "</table>"); i = j; continue
-        m = re.match(r"^(#{1,4})\s+(.*)", ln)
-        if m:
-            out.append(f"<h{len(m.group(1))+1}>{inline(m.group(2))}</h{len(m.group(1))+1}>"); i += 1; continue
-        if re.match(r"^[-*]\s+", ln):
-            j = i; items = []
-            while j < len(lines) and re.match(r"^[-*]\s+", lines[j]):
-                items.append(f"<li>{inline(re.sub(r'^[-*]\s+','',lines[j]))}</li>"); j += 1
-            out.append("<ul>" + "".join(items) + "</ul>"); i = j; continue
-        if ln.startswith(">"):
-            j = i; buf = []
-            while j < len(lines) and lines[j].startswith(">"):
-                buf.append(lines[j].lstrip("> ").strip()); j += 1
-            out.append(f"<blockquote><p>{inline(''.join(buf))}</p></blockquote>"); i = j; continue
-        if ln.startswith("{{fig:"):
-            out.append(inline(ln)); i += 1; continue
-        if ln.startswith("$$"):
-            out.append(f'<p class="math">{inline(ln)}</p>'); i += 1; continue
-        if not ln.strip(): i += 1; continue
-        # merge consecutive plain lines into ONE dense paragraph (standard MD)
-        j = i; buf = []
-        while j < len(lines) and lines[j].strip() \
-                and not lines[j].startswith(("```", "|", "#", ">", "$$")) \
-                and not lines[j].startswith("{{fig:") \
-                and not re.match(r"^[-*]\s+", lines[j]):
-            buf.append(lines[j].strip()); j += 1
-        out.append(f"<p>{inline(''.join(buf))}</p>"); i = j; continue
-    return "\n".join(out)
+def math_and_code(md):
+    """Protect code first so $, backslashes and Markdown inside TeX stay literal."""
+    codes, maths = [], []
+    def keep_code(m):
+        codes.append(m.group()); return f'FPVCODETOKEN{len(codes)-1}END'
+    md = re.sub(r'```[^\n]*\n[\s\S]*?```|`[^`\n]+`', keep_code, md)
+    def keep_math(m):
+        display = m.group().startswith('$$')
+        edge = 2 if display else 1
+        maths.append({'tex': m.group()[edge:-edge].strip(), 'display': display})
+        token = f'FPVMATHTOKEN{len(maths)-1}END'
+        return '\n\n' + token + '\n\n' if display else token
+    md = re.sub(r'\$\$[\s\S]*?\$\$|(?<!\\)\$(?!\$)[^$\n]+?(?<!\\)\$', keep_math, md)
+    md = re.sub(r'FPVCODETOKEN(\d+)END', lambda m: codes[int(m[1])], md)
+    rendered = subprocess.run(['node', str(PAPER/'render_math.cjs')], input=json.dumps(maths),
+                              text=True, encoding='utf-8', capture_output=True, check=True)
+    return md, json.loads(rendered.stdout), maths
 
 def main():
-    sections = sorted((PAPER / "sections").glob("*.md"))
-    body = "\n".join(md_to_html(p.read_text(encoding="utf-8")) for p in sections)
-    # inline figures: replace {{fig:NAME}} with svg content, or embedded png (screenshots)
-    import base64
+    inputs = html_build_inputs(PAPER)
+    meta = json.loads((PAPER/'meta.json').read_text(encoding='utf-8'))
+    figures = json.loads((PAPER/'figures.json').read_text(encoding='utf-8'))
+    md = '\n\n'.join(p.read_text(encoding='utf-8') for p in sorted((PAPER/'sections').glob('*.md')))
+    # Control markers are editorial metadata, never reader-visible prose.
+    md = re.sub(r'<!-- (?:BEGIN|END) [A-Z0-9 ]+ -->', '', md)
+    md, maths, math_sources = math_and_code(md)
+    parser = MarkdownIt('commonmark', {'html': False, 'typographer': False}).enable('table')
+    doc = parser.render(md)
+    for i, result in enumerate(maths):
+        token = f'FPVMATHTOKEN{i}END'
+        if math_sources[i]['display']:
+            doc = doc.replace('<p>'+token+'</p>', '<div class="math-block">'+result+'</div>')
+        else:
+            doc = doc.replace(token, result)
     def fig(m):
-        name = m.group(1)
-        f = PAPER / "figs" / (name + ".svg")
-        if f.exists():
-            return f.read_text(encoding="utf-8")
-        p = PAPER / "figs" / (name + ".png")
-        if p.exists():
-            b64 = base64.b64encode(p.read_bytes()).decode("ascii")
-            return (f'<figure><img src="data:image/png;base64,{b64}" alt="{name}" '
-                    f'style="max-width:100%;border:1px solid #d5dde5;border-radius:6px"/></figure>')
-        return f"<figure><figcaption>[缺图 {name}]</figcaption></figure>"
-    body = re.sub(r"\{\{fig:([\w.-]+)\}\}", fig, body)
-    title = (PAPER / "meta.json").exists() and json.loads((PAPER / "meta.json").read_text()) or {}
-    html_doc = f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{html.escape(title.get('title','FP4-VLA'))}</title><style>{CSS}</style>{KATEX_HEAD}</head>
-<body><div class="page">
-<header><h1>{html.escape(title.get('title','FP4-VLA'))}</h1>
-<div class="meta">{html.escape(title.get('meta',''))}</div></header>
-{body}
-<hr><p class="meta">本页由 paper/build_html.py 生成 · 数据与代码见仓库 · {title.get('date','')}</p>
-</div>{KATEX_INIT}</body></html>"""
-    out = PAPER / "paper.html"
-    out.write_text(html_doc, encoding="utf-8")
-    print(f"wrote {out} ({out.stat().st_size/1024:.0f} KB)")
+        name = m[1]
+        info = figures[name]
+        path = PAPER/'figs'/(name+'.svg')
+        if path.exists():
+            content = path.read_text(encoding='utf-8')
+        else:
+            path = path.with_suffix('.png')
+            if not path.exists(): raise FileNotFoundError(path)
+            width,height=struct.unpack('>II',path.read_bytes()[16:24])
+            content = f'<img width="{width}" height="{height}" src="{data_uri(path)}" alt="{html.escape(info["title"])}">'
+        kind = 'shot' if name.startswith('shot_') else 'diagram'
+        return f'<figure class="{kind}" id="fig-{name}" data-figure="{name}">{content}<figcaption>{html.escape(info["title"])} · {html.escape(info["note"])}</figcaption></figure>'
+    doc = re.sub(r'<p>\{\{fig:([\w.-]+)\}\}</p>', fig, doc)
+    if '{{fig:' in doc: raise ValueError('Unresolved figure token')
+    toc, toc_main, counter = [], [], [0]
+    def heading(m):
+        level, title = int(m[1]), m[2]
+        counter[0] += 1
+        anchor = f'section-{counter[0]}'
+        if level <= 2:
+            cls = ' class="sub"' if level == 2 else ''
+            toc.append(f'<li{cls}><a href="#{anchor}">{title}</a></li>')
+            if level == 1: toc_main.append(f'<li><a href="#{anchor}">{title}</a></li>')
+        return f'<h{level+1} id="{anchor}">{title}</h{level+1}>'
+    doc = re.sub(r'<h([1-4])>(.*?)</h\1>', heading, doc)
+    doc = doc.replace('<table>', '<div class="table-wrap" tabindex="0"><table>').replace('</table>', '</table></div>')
+    kcss = (PAPER/'assets/katex/katex.min.css').read_text(encoding='utf-8')
+    kcss = re.sub(r'src:[^;}]+', lambda m: 'src:url(' + data_uri(PAPER/'assets/katex'/re.search(r'url\(([^)]+\.woff2)\)', m[0])[1]) + ') format("woff2")', kcss)
+    out = f'''<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="{html.escape(meta['meta'])}"><title>{html.escape(meta['title'])}</title>
+<style>{kcss}\n{CSS}</style></head><body><main id="top">
+<header><div class="eyebrow">FP4-VLA · RESEARCH REPORT · 2026</div><h1>{html.escape(meta['title'])}</h1><div class="meta">{html.escape(meta['meta'])}<br>修订日期：{meta['date']} · 正文、公式、图表与原始截图均可离线阅读</div></header>
+<nav aria-label="文章目录"><strong>阅读导航</strong><ol>{''.join(toc_main)}</ol><details><summary>展开完整章节目录</summary><ol>{''.join(toc)}</ol></details></nav>
+<article>{doc}</article><footer>由同一 Markdown 源生成 HTML 与知乎发布稿。完整源稿、运行证据、图像哈希及校验报告随发布包保存。数学排版使用 KaTeX 0.16.22（MIT）；详细来源见发布包。</footer>
+</main><a class="backtop" href="#top">返回目录 ↑</a><dialog id="viewer"><button aria-label="关闭大图">关闭 ×</button><img alt="原始截图放大"></dialog>
+<script>const v=document.getElementById('viewer'); document.querySelectorAll('.shot img').forEach(i=>i.addEventListener('click',()=>{{v.querySelector('img').src=i.src;v.showModal()}}));v.querySelector('button').onclick=()=>v.close();</script>
+</body></html>'''
+    (PAPER/'paper.html').write_text(out, encoding='utf-8')
+    (PAPER/'_build').mkdir(exist_ok=True)
+    (PAPER/'_build/build-report.json').write_text(json.dumps({'math_expressions':len(maths),'figures':len(re.findall('data-figure=',doc)), 'headings': counter[0], 'bytes':len(out.encode())}, indent=2)+'\n')
+    require(inputs == html_build_inputs(PAPER), 'HTML inputs changed during rendering')
+    (PAPER/'validation').mkdir(exist_ok=True)
+    manifest = {'version': 1, 'status': 'passed', 'inputs': inputs,
+                'output': file_record(PAPER/'paper.html', PAPER),
+                'math_expressions': len(maths), 'figures': len(figures)}
+    temporary = PAPER/'validation/html-build.json.tmp'
+    temporary.write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n')
+    temporary.replace(PAPER/'validation/html-build.json')
+    print('Built offline paper:', len(maths), 'math expressions;', len(out.encode()), 'bytes')
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()
