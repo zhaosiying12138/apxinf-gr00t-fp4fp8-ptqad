@@ -66,7 +66,14 @@ def main():
     category_sources = {}
     category_shards = {key: ent["shard"] for key, ent in categories.items()}
     try:
-        for shard in sorted(set(v for v in category_shards.values())):
+        all_shards = sorted(set(ent["shard"] for ent in entries.values()))
+        category_shard_names = set(category_shards.values())
+        for shard in all_shards:
+            if shard not in category_shard_names:
+                # Category banks occupy only one or two physical shards.  The
+                # remaining parent shards still belong in the output index.
+                shutil.copy2(parent / shard, stage / shard)
+                continue
             tensors = load_file(str(parent / shard), device="cpu")
             for key in sorted(categories):
                 if category_shards[key] != shard:
