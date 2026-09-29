@@ -100,6 +100,17 @@ CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" -m unittest discover -s tests -v
 
 完整模型必须加载 16 层语言栈、32 层 DiT 和 4 层 VL 模块。校准器通过 `training.start_from_checkpoint` 加载权重，保留基座统计，记录实际窗口数、每层样本行数、调用次数及源权重散列。真实 Linear 缺少 H 时，`required` 模式直接失败；非 Linear 回退由真实模块类型单独记录。
 
+本次 CPU 验收共通过 **142 项检查，0 跳过、0 失败**：`tests/` 的 96 项、发布数据与截图等证据的 39 项，以及图表布局的 7 项检查。它们分别覆盖量化数值、梯度、缓存、共享权重和导出，拒绝不完整或不一致的证据，并检查密集图表标签。原始命令与日志散列见 [CPU 检查收据](paper/validation/cpu-tests.json) 及同目录的发布与布局检查收据。发布和布局检查另外这样运行：
+
+```bash
+for suite in test_frontier_publication.py test_publication_guards.py test_training_publication.py test_frontier_layout.py; do
+  CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 \
+    "$PTQAD_PYTHON" -O -m unittest discover -s paper/validation -p "$suite" -v
+done
+```
+
+这些 CPU 检查与完整 GPU 执行、LIBERO 成功率评测分别验收。
+
 ### 2. 构建配方并在开发集选择压缩强度
 
 ```bash
