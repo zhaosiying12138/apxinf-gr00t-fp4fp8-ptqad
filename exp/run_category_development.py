@@ -235,6 +235,8 @@ def main() -> None:
     parser.add_argument("--python")
     parser.add_argument("--rollout-python")
     parser.add_argument("--dataset", default=os.environ.get("QAD_DATASET"))
+    parser.add_argument("--media-lib", default=os.environ.get("PTQAD_MEDIA_LIB",
+                                                                 "/home/zhaosiying/miniforge3/envs/media7/lib"))
     parser.add_argument("--port", type=int, default=5630)
     parser.add_argument("--calibration-windows", type=int, default=128)
     parser.add_argument("--calibration-batch", type=int, default=1)
@@ -262,6 +264,12 @@ def main() -> None:
     python = Path(args.python or groot / ".venv/bin/python").resolve(strict=True)
     rollout = Path(args.rollout_python or groot / "gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python").resolve(strict=True)
     dataset = Path(args.dataset or groot / "demo_data/libero_demo").resolve(strict=True)
+    media_lib = Path(args.media_lib).expanduser().resolve(strict=True)
+    require((media_lib / "ffmpeg").is_file(),
+            f"ffmpeg is missing from media library: {media_lib}; pass --media-lib explicitly")
+    # Make the media runtime part of every child evaluation environment.  This
+    # avoids relying on a shell profile when the driver is launched from WSL.
+    os.environ["PTQAD_MEDIA_LIB"] = str(media_lib)
     if args.dry_run:
         print(json.dumps({"dry_run": True, "run_dir": str(run), "protocol_sha256": protocol["sha256"],
                           "order": ["bf16", *CANDIDATES], "parent_recipes": PARENT_RECIPES}, indent=2))
@@ -281,6 +289,7 @@ def main() -> None:
             for candidate in CANDIDATES},
         "selection_uses_heldout": False, "device": args.device,
         "calibration_windows": args.calibration_windows, "calibration_batch": args.calibration_batch,
+        "python": str(python), "rollout_python": str(rollout), "media_lib": str(media_lib),
     })
 
     # BF16 is always evaluated into this new v4 directory first.
