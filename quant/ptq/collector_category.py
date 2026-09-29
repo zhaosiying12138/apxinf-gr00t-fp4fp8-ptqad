@@ -25,6 +25,22 @@ from probe_distill import replay_context, require_full_model, tensor_tree
 from gr00t_runtime import configure_libero_data, verify_libero_statistics
 
 
+def use_local_hf_metadata() -> None:
+    """Avoid a Transformers model-tag probe when all files are cached locally.
+
+    Recent Transformers releases call ``huggingface_hub.model_info`` while
+    loading the Qwen tokenizer, even with ``local_files_only=True``.  The
+    probe is only used to detect a Mistral-specific regex; GR00T's Qwen
+    tokenizer does not need that patch.  Returning an empty tag set keeps the
+    load offline and leaves the tokenizer bytes untouched.
+    """
+    if os.environ.get("PTQAD_LOCAL_HF_METADATA", "1") != "1":
+        return
+    import huggingface_hub
+    from types import SimpleNamespace
+    huggingface_hub.model_info = lambda *args, **kwargs: SimpleNamespace(tags=[])
+
+
 def accumulate(entry, value):
     x = value.detach().reshape(-1, value.shape[-1]).float()
     with (torch.autocast(device_type=x.device.type, enabled=False)
@@ -67,6 +83,7 @@ def main():
     np.random.seed(args.seed)
     if args.device == "cuda":
         torch.backends.cuda.matmul.allow_tf32 = False
+    use_local_hf_metadata()
     sys.path.insert(0, os.getcwd())
     from gr00t.configs.base_config import get_default_config
     from gr00t.configs.model.gr00t_n1d7 import Gr00tN1d7Config

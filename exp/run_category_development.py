@@ -192,6 +192,10 @@ def run_logged(name: str, command: list[str], cwd: Path, log: Path, env: dict[st
                                                         "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE"):
             merged.pop(key)
     merged.update(env)
+    if merged.get("PTQAD_MEDIA_LIB"):
+        media_path = merged["PTQAD_MEDIA_LIB"]
+        merged["LD_LIBRARY_PATH"] = media_path + (os.pathsep + merged["LD_LIBRARY_PATH"]
+                                                   if merged.get("LD_LIBRARY_PATH") else "")
     merged.setdefault("HF_HUB_OFFLINE", "1")
     merged.setdefault("TRANSFORMERS_OFFLINE", "1")
     with log.open("x") as stream:
@@ -282,16 +286,10 @@ def main() -> None:
             f"ffmpeg is missing beside media library: {media_lib}; pass --media-lib explicitly")
     media_env = {"PTQAD_MEDIA_LIB": str(media_lib)}
     backbone = args.backbone_model
-    if not backbone:
-        ref = Path.home() / ".cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/refs/main"
-        if ref.is_file():
-            snapshot = (ref.read_text().strip())
-            candidate = ref.parent.parent / "snapshots" / snapshot
-            if candidate.is_dir():
-                backbone = str(candidate)
     if backbone:
-        backbone = str(Path(backbone).expanduser().absolute())
-        require(Path(backbone).is_dir(), f"backbone model path is missing: {backbone}")
+        if backbone.startswith(".") or backbone.startswith("/"):
+            backbone = str(Path(backbone).expanduser().absolute())
+            require(Path(backbone).is_dir(), f"backbone model path is missing: {backbone}")
         media_env["GR00T_BACKBONE_MODEL"] = backbone
     # Make the media runtime part of every child evaluation environment.  This
     # avoids relying on a shell profile when the driver is launched from WSL.
@@ -346,8 +344,8 @@ def main() -> None:
             "--windows", str(args.calibration_windows), "--batch", str(args.calibration_batch),
             "--seed", str(protocol["selection"]["train_seed"]), "--device", args.device], groot,
             logs / f"category-calibrate-{candidate}.log", {
-                "PROTOCOL_FILE": str(protocol_path), "HF_HUB_OFFLINE": "0",
-                "TRANSFORMERS_OFFLINE": "0", **media_env})
+                "PROTOCOL_FILE": str(protocol_path), "HF_HUB_OFFLINE": "1",
+                "TRANSFORMERS_OFFLINE": "1", "PTQAD_LOCAL_HF_METADATA": "1", **media_env})
         run_logged(f"category-bake-{candidate}", [str(python), str(ROOT / "quant/ptq/bake_category.py"),
             "--parent", str(parent), "--calib", str(cache), "--out", str(output),
             "--expected-windows", str(args.calibration_windows), "--gptq-damp", "0.01"], ROOT,
