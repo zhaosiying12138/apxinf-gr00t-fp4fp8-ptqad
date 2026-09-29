@@ -558,7 +558,11 @@ def ptq_frontier():
     s.text(570,558,'已知共享副本去重后的净编码预算 / GB（1 GB = 10 亿字节）',15,anchor='middle')
     labels={'bf16':'BF16','ptq':data.get('selected_recipe','head_lang')+' 纯 PTQ',
             'qad':'QAD','continued_qad':'继续 QAD','qad_opd':'QAD + OPD'}
-    labels.update({name:name+' 纯 PTQ' for name in data['references']})
+    reference_order=data.get('reference_order', list((data.get('references') or {}).keys()))
+    if not reference_order:
+        reference_order=[row['name'] for row in points
+                         if row['name'] not in labels and row['name'] != 'ptq']
+    labels.update({name:name+' 纯 PTQ' for name in reference_order})
     groups={}
     for i,row in enumerate(points):
         key=(row['encoding_budget'][scope]['total_bytes'],row['successes'])
