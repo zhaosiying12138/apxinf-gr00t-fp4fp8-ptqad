@@ -1,7 +1,7 @@
 {
   "version": 1,
   "verification_utc": "2026-09-29T04:18:34.324039+00:00",
-  "method": "Read existing local files and Hugging Face download metadata only; no remote HEAD, model download, install or GPU call.",
+  "method": "Local file SHA-256 and retained HF download metadata for Cosmos/pi05; GR00T additionally verified against an immutable upstream revision via LFS SHA-256/size and downloaded small-file bytes. No large weight download or GPU call.",
   "models": {
     "cosmos": {
       "repo_id": "nvidia/Cosmos-Reason2-2B",
@@ -193,8 +193,8 @@
     },
     "gr00t": {
       "repo_id": "nvidia/GR00T-N1.7-LIBERO",
-      "revision": null,
-      "revision_confidence": "not_established_from_local_download_metadata",
+      "revision": "2ea293aa20ba7cf5bbf3ba17a5fbcb1a01cbfe21",
+      "revision_confidence": "verified_byte_equivalent_upstream_download_revision_original_download_unknown",
       "actual_local_root": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO",
       "files": [
         {
@@ -233,7 +233,9 @@
           "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
         }
       ],
-      "local_dir": "GR00T-N1.7-LIBERO"
+      "local_dir": "GR00T-N1.7-LIBERO",
+      "original_download_revision": null,
+      "revision_receipt": "setup/locks/gr00t-equivalent-revision.json"
     }
   },
   "external_assets": [
@@ -258,8 +260,8 @@
   ],
   "download_policy": {
     "huggingface_hub_version": "0.36.2",
-    "gr00t_unresolved_revision": "Default download selector main is not claimed as the original revision. Exact known file SHA-256 is mandatory after download; changes fail closed. Set GR00T_HF_REVISION if a separately evidenced revision becomes available.",
     "revision_overrides": "COSMOS_HF_REVISION, PI05_HF_REVISION, GR00T_HF_REVISION override selectors only; they do not disable content verification. PTQAD_MODEL_SOURCE_MANIFEST may point to an independently reviewed alternate manifest.",
-    "asset_policy": "External HTTP assets have no retained original generation/ETag. Verify known SHA-256; download to a temporary path and publish only if it matches. Existing mismatched assets are not overwritten."
+    "asset_policy": "External HTTP assets have no retained original generation/ETag. Verify known SHA-256; download to a temporary path and publish only if it matches. Existing mismatched assets are not overwritten.",
+    "gr00t_revision": "Default immutable revision serves the seven recorded file identities; original local download revision remains unknown. Exact SHA-256 remains mandatory."
   }
 }

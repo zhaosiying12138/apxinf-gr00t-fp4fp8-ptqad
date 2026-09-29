@@ -1,16 +1,16 @@
 # 模型权重的下载身份与验收
 
-本轮的字节身份见 `setup/locks/model-sources.json`。清单来自已有本地文件与 Hugging Face 下载记录；审查期间没有请求远端最新版本、下载模型、安装环境或调用 GPU。大文件计算 SHA-256，小文件额外计算 Git blob SHA-1，与 `.cache/huggingface/download/*.metadata` 保存的 ETag 比较。
+本轮的字节身份见 `setup/locks/model-sources.json`。首先对已有本地文件计算 SHA-256；Cosmos 与 π0.5 另核对 Hugging Face 下载记录中的 revision 与 ETag。GR00T 没有保留原始下载记录，因此进一步查询官方仓库的不可变 revision：两个大权重分片的 LFS SHA-256 与大小匹配，五个辅助文件的下载字节也逐项匹配。这次补充核验未下载大权重、安装环境或调用 GPU。
 
 | 资源 | 可确认的来源 | 验收与边界 |
 |---|---|---|
 | `nvidia/Cosmos-Reason2-2B` | HF commit `9ce19a195e423419c349abfc86fd07178b230561` | 10 个运行所需文件全部与已有下载 metadata 的 revision/ETag 对应；实际命名路径指向此 snapshot |
 | `lerobot/pi05_libero_base` | HF commit `a217bfd3b14673cf2ce597e69997ab21866438dd` | 权重、config、两个 processor 文件全部匹配下载 metadata；其他本地附加文件不据此归属于 HF commit |
-| `nvidia/GR00T-N1.7-LIBERO` | **原始 HF revision 未确认** | 当前目录未保留下载 metadata，已检查的 HF cache 没有相应 repo；以两份 shard、index、config、processor、statistics、embodiment 共 7 个文件的实际 SHA-256 为准 |
+| `nvidia/GR00T-N1.7-LIBERO` | 等价下载 commit `2ea293aa20ba7cf5bbf3ba17a5fbcb1a01cbfe21` | 共 7 个文件与本轮实际字节身份一致；原始下载日期及当时 revision 仍未恢复，不将等价下载版本冒称为原始下载记录 |
 | π0.5 `norm_stats.json` | 既有下载脚本记录的 OpenPI GCS URL | 没有原始 HTTP 响应、GCS generation 或 ETag；只确认现有文件 SHA-256，不能把当前远端版本反推为下载时版本 |
 | `paligemma_tokenizer.model` | 既有脚本记录的 Big Vision GCS URL | 同上；模型与 tokenizer 的下载来源分别记录 |
 
-`setup/03_download_weights.sh` 默认固定已核实的 Cosmos 与 π0.5 commit。GR00T 暂以 `main` 作为下载选择器，**不把它称为原始 revision**；下载后必须与上述已知字节完全一致，否则失败。因此远端若改变内容，脚本会要求恢复已知工件或补充可信 revision，不会默默升级实验。
+`setup/03_download_weights.sh` 默认固定上述三个 commit；下载后仍必须通过已知字节校验。GR00T 的补充来源收据见 `setup/locks/gr00t-equivalent-revision.json`，原始 API 响应一并保存。等价性指这七个运行所需文件的内容身份，不扩展到未核验的上游文件。
 
 ```bash
 # 完整模型资源；默认固定 huggingface_hub==0.36.2 下载客户端

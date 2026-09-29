@@ -25,7 +25,9 @@
     "recovery-py312.txt": "22f6eccb25d59d4075f62679ec51ef91d21b2e7368a8f0319061a6da8f9674fe",
     "pi05-baseline-environment.json": "66f4dfad86756e3bb806c51ce581be3efdfcaafb1c843b18ae8cc163698bda4c",
     "pi05-baseline-py312.txt": "8c82ca432c56a218513f55ae52848455da2da7b9a03b463d0e856cc10cfda4ba",
-    "model-sources.json": "5ed79d1ad96dab0a4ed06d90f2caaa382ee17443abcae3bfe34f91a1a64d127c"
+    "model-sources.json": "438d6cdb76a5f6bfb09245939792f6009f7d4f365ffc14fd6b1be03c72b1d1a7",
+    "gr00t-equivalent-revision.json": "cf31de6e455f91a7d671a9b1d942aec3159c8d142685ec5a963926c72bd51c94",
+    "gr00t-equivalent-revision-api.json": "9c1fa71eee5b2f996d82ad4538c325bc8e2667ff2e1cd2224342dbe5f8f42e63"
   },
   "optional_pi05_baseline": {
     "python": "3.12.14",

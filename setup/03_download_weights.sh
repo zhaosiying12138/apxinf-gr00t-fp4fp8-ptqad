@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Restore the paper's exact local model bytes. No model is executed here.
 # Cosmos/pi05 revisions are proved by retained local HF metadata + content ETags.
-# GR00T's original revision is unresolved; any download must match the known SHA.
+# GR00T uses a verified byte-equivalent revision; original download is unresolved.
 set -Eeuo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 export PATH="$HOME/.local/bin:$PATH"
@@ -10,7 +10,7 @@ MANIFEST=${PTQAD_MODEL_SOURCE_MANIFEST:-$ROOT/setup/locks/model-sources.json}
 HF_HUB_VERSION=${PTQAD_HF_HUB_VERSION:-0.36.2}
 COSMOS_HF_REVISION=${COSMOS_HF_REVISION:-9ce19a195e423419c349abfc86fd07178b230561}
 PI05_HF_REVISION=${PI05_HF_REVISION:-a217bfd3b14673cf2ce597e69997ab21866438dd}
-GR00T_HF_REVISION=${GR00T_HF_REVISION:-main}
+GR00T_HF_REVISION=${GR00T_HF_REVISION:-2ea293aa20ba7cf5bbf3ba17a5fbcb1a01cbfe21}
 MODELS=(gr00t cosmos pi05)
 VERIFY_ONLY=0
 for arg in "$@"; do
