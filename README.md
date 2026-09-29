@@ -109,6 +109,8 @@ export PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v4_category_fp4.json"
 
 标准校准入口为 `exp/reproduce_ptqad.sh calibrate`。高 FP4 类别扩展使用冻结的 `recovery_protocol_v4_category_fp4.json`，先以 `--dry-run` 检查路径，再运行开发分区：
 
+下面两个父 checkpoint 由前置 `head_lang_vision`/`calib` PTQ 阶段生成，并放在当前运行目录的 `parents/` 下。
+
 ```bash
 PTQAD_CAL_SCOPE=calib PTQ_CAL_WINDOWS=128 PTQ_CAL_BATCH=1 \
   bash exp/reproduce_ptqad.sh calibrate
@@ -117,8 +119,8 @@ PTQAD_CAL_SCOPE=calib PTQ_CAL_WINDOWS=128 PTQ_CAL_BATCH=1 \
   --run-dir "$PTQAD_RUN_DIR/development_v4" \
   --protocol-file "$PROTOCOL_FILE" \
   --base "$PTQAD_BASE" \
-  --parent-head-lang-vision "$PROJECT/results/ptqad_20260929/high_fp4_v3/head_lang_vision" \
-  --parent-calib "$PROJECT/results/ptqad_20260929/high_fp4_v3/calib" \
+  --parent-head-lang-vision "$PTQAD_RUN_DIR/parents/head_lang_vision" \
+  --parent-calib "$PTQAD_RUN_DIR/parents/calib" \
   --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
   --dataset "$QAD_DATASET" --media-lib "$PTQAD_MEDIA_LIB" \
