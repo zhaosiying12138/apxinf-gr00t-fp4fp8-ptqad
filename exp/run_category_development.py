@@ -235,10 +235,6 @@ def main() -> None:
     parser.add_argument("--python")
     parser.add_argument("--rollout-python")
     parser.add_argument("--dataset", default=os.environ.get("QAD_DATASET"))
-    parser.add_argument("--media-lib", default=os.environ.get("PTQAD_MEDIA_LIB"),
-                        help="ffmpeg environment lib directory passed to evaluation")
-    parser.add_argument("--media-bin", default=os.environ.get("PTQAD_MEDIA_BIN"),
-                        help="optional ffmpeg environment bin directory")
     parser.add_argument("--media-lib", default=os.environ.get("PTQAD_MEDIA_LIB",
                                                                  "/home/zhaosiying/miniforge3/envs/media7/lib"))
     parser.add_argument("--port", type=int, default=5630)
@@ -268,14 +264,10 @@ def main() -> None:
     python = Path(args.python or groot / ".venv/bin/python").resolve(strict=True)
     rollout = Path(args.rollout_python or groot / "gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python").resolve(strict=True)
     dataset = Path(args.dataset or groot / "demo_data/libero_demo").resolve(strict=True)
-    media_env = {}
-    if args.media_lib:
-        media_env["PTQAD_MEDIA_LIB"] = str(Path(args.media_lib).expanduser().resolve(strict=True))
-    if args.media_bin:
-        media_env["PTQAD_MEDIA_BIN"] = str(Path(args.media_bin).expanduser().resolve(strict=True))
     media_lib = Path(args.media_lib).expanduser().resolve(strict=True)
     require((media_lib.parent / "bin" / "ffmpeg").is_file(),
             f"ffmpeg is missing beside media library: {media_lib}; pass --media-lib explicitly")
+    media_env = {"PTQAD_MEDIA_LIB": str(media_lib)}
     # Make the media runtime part of every child evaluation environment.  This
     # avoids relying on a shell profile when the driver is launched from WSL.
     os.environ["PTQAD_MEDIA_LIB"] = str(media_lib)
