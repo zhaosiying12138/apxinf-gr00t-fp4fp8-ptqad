@@ -242,13 +242,18 @@ def main() -> None:
     parser.add_argument("--calibration-batch", type=int, default=1)
     parser.add_argument("--device", choices=("cuda", "cpu"), default="cuda")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--resume", action="store_true",
+                        help="resume a directory whose BF16 development arm completed")
     args = parser.parse_args()
     require(args.protocol_file, "--protocol-file is required")
     protocol_path = Path(args.protocol_file).expanduser().resolve()
     protocol = load_protocol(protocol_path)
     base = Path(args.base or ROOT / "weights/GR00T-N1.7-LIBERO/libero_10").resolve(strict=True)
     run = Path(args.run_dir).expanduser().resolve()
-    require(not run.exists(), f"new v4 run directory required: {run}")
+    if run.exists():
+        require(args.resume, f"new v4 run directory required (or pass --resume): {run}")
+        require((run / "run_manifest.json").is_file(),
+                f"cannot resume without run manifest: {run}")
     parents = {
         "head_lang_vision_category": Path(args.parent_head_lang_vision).resolve(strict=True),
         "calib_category": Path(args.parent_calib).resolve(strict=True),
@@ -282,32 +287,38 @@ def main() -> None:
                           "order": ["bf16", *CANDIDATES], "parent_recipes": PARENT_RECIPES}, indent=2))
         return
 
-    run.mkdir(parents=True)
+    if not args.resume:
+        run.mkdir(parents=True)
     development = run / "development"
     logs = run / "logs"
-    write_new(run / "run_manifest.json", {
-        "version": 1, "kind": "category_fp4_development_v4", "status": "running",
-        "protocol_file": str(protocol_path), "protocol_sha256": protocol["sha256"],
-        "base": str(base), "base_identity": {"config": sha(base / "config.json"),
-        "statistics": sha(base / "statistics.json")}, "parent_recipes": {
-            candidate: {"path": str(parents[candidate]), "recipe": PARENT_RECIPES[candidate],
-                        "ptq_recipe_sha256": parent_info[candidate]["ptq_recipe"]["sha256"],
-                        "bake_manifest_sha256": parent_info[candidate]["bake_manifest"]["sha256"]}
-            for candidate in CANDIDATES},
-        "selection_uses_heldout": False, "device": args.device,
-        "calibration_windows": args.calibration_windows, "calibration_batch": args.calibration_batch,
-        "python": str(python), "rollout_python": str(rollout), "media_lib": str(media_lib),
-    })
+    if not args.resume:
+        write_new(run / "run_manifest.json", {
+            "version": 1, "kind": "category_fp4_development_v4", "status": "running",
+            "protocol_file": str(protocol_path), "protocol_sha256": protocol["sha256"],
+            "base": str(base), "base_identity": {"config": sha(base / "config.json"),
+            "statistics": sha(base / "statistics.json")}, "parent_recipes": {
+                candidate: {"path": str(parents[candidate]), "recipe": PARENT_RECIPES[candidate],
+                            "ptq_recipe_sha256": parent_info[candidate]["ptq_recipe"]["sha256"],
+                            "bake_manifest_sha256": parent_info[candidate]["bake_manifest"]["sha256"]}
+                for candidate in CANDIDATES},
+            "selection_uses_heldout": False, "device": args.device,
+            "calibration_windows": args.calibration_windows, "calibration_batch": args.calibration_batch,
+            "python": str(python), "rollout_python": str(rollout), "media_lib": str(media_lib),
+        })
 
     # BF16 is always evaluated into this new v4 directory first.
     part = protocol["partitions"]["development"]
     bf16_eval = development / "bf16"
-    run_logged("eval-bf16", [str(python), str(ROOT / "eval/run_recovery_eval.py"),
-        "--checkpoint", str(base), "--out", str(bf16_eval), "--purpose", "development",
-        "--seed", str(part["seed"]), "--episodes", str(part["episodes_per_task"]),
-        "--gr00t", str(groot), "--server-python", str(python), "--rollout-python", str(rollout),
-        "--port", str(args.port), "--protocol-file", str(protocol_path)], groot,
-        logs / "eval-bf16.log", {"PROTOCOL_FILE": str(protocol_path), **media_env})
+    if not args.resume:
+        run_logged("eval-bf16", [str(python), str(ROOT / "eval/run_recovery_eval.py"),
+            "--checkpoint", str(base), "--out", str(bf16_eval), "--purpose", "development",
+            "--seed", str(part["seed"]), "--episodes", str(part["episodes_per_task"]),
+            "--gr00t", str(groot), "--server-python", str(python), "--rollout-python", str(rollout),
+            "--port", str(args.port), "--protocol-file", str(protocol_path)], groot,
+            logs / "eval-bf16.log", {"PROTOCOL_FILE": str(protocol_path), **media_env})
+    else:
+        require((bf16_eval / "task_results.json").is_file(),
+                "resume requires completed BF16 task_results.json")
     audits = {"bf16": eval_audit(bf16_eval, protocol, "development", base)}
     pairing = audits["bf16"]["pairing_sha256"]
 
@@ -319,7 +330,9 @@ def main() -> None:
             "--parent", str(parent), "--out", str(cache), "--dataset", str(dataset),
             "--windows", str(args.calibration_windows), "--batch", str(args.calibration_batch),
             "--seed", str(protocol["selection"]["train_seed"]), "--device", args.device], groot,
-            logs / f"category-calibrate-{candidate}.log", {"PROTOCOL_FILE": str(protocol_path)})
+            logs / f"category-calibrate-{candidate}.log", {
+                "PROTOCOL_FILE": str(protocol_path), "HF_HUB_OFFLINE": "0",
+                "TRANSFORMERS_OFFLINE": "0"})
         run_logged(f"category-bake-{candidate}", [str(python), str(ROOT / "quant/ptq/bake_category.py"),
             "--parent", str(parent), "--calib", str(cache), "--out", str(output),
             "--expected-windows", str(args.calibration_windows), "--gptq-damp", "0.01"], ROOT,
