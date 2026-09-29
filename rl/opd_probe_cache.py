@@ -119,6 +119,8 @@ def main():
             raise ValueError("Each input must be independently collated as a microbatch of one")
         with replay_context(model, seed, args.autocast_dtype), torch.no_grad():
             pred = prediction(model(tensor_tree(inputs, args.device))).float().cpu()
+        if not torch.isfinite(pred).all():
+            raise ValueError(f"Nonfinite teacher velocity at probe {index}; refusing cache")
         samples.append({"inputs": inputs, "pred": pred, "seed": seed,
                         "provenance": {k: v for k, v in raw.items() if k != "inputs"}})
         print(f"[probe-cache] {index + 1}/{len(raw_samples)} pred={tuple(pred.shape)}", flush=True)
