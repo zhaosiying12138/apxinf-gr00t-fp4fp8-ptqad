@@ -545,7 +545,17 @@ class Driver:
         for key,p in rows.items():
             model=self.art/("merge_qad_lr_"+sn(str(float(key))) if kind=="qad" else
                             "merge_opd_025" if float(key)==.25 else "merge_opd_100")
-            values[str(key)]={field:key,**self.eval_verify(p,"development",model),
+            eval_protocol=self.protocol
+            manifest_path=Path(p)/"eval_manifest.json"
+            if manifest_path.is_file():
+                manifest=jread(manifest_path)
+                if manifest.get("protocol_sha256") != self.protocol["sha256"]:
+                    # Exploratory v5 audits completed v4 development evidence
+                    # under the protocol recorded by that evidence.
+                    eval_protocol=load_protocol(manifest.get("protocol_file",""))
+                    if eval_protocol["partitions"] != self.protocol["partitions"]:
+                        raise OrchestrationError("development evaluation partitions differ from recovery protocol")
+            values[str(key)]={field:key,**eval_audit(p,eval_protocol,"development",model),
                              "evaluation_path":str(p),"selection_source":"development_only"}
         reference_path = self.selection_path.parent / "bf16"
         if not reference_path.is_dir():
@@ -553,7 +563,13 @@ class Driver:
             # partition directory; retain compatibility with the older flat
             # layout without weakening the evidence audit.
             reference_path = self.selection_path.parent / "development" / "bf16"
-        reference=eval_audit(reference_path, self.protocol, "development", self.base)
+        reference_protocol=self.protocol
+        ref_manifest=reference_path/"eval_manifest.json"
+        if ref_manifest.is_file() and jread(ref_manifest).get("protocol_sha256") != self.protocol["sha256"]:
+            reference_protocol=load_protocol(jread(ref_manifest).get("protocol_file",""))
+            if reference_protocol["partitions"] != self.protocol["partitions"]:
+                raise OrchestrationError("BF16 development partitions differ from recovery protocol")
+        reference=eval_audit(reference_path, reference_protocol, "development", self.base)
         require_pairing({"bf16":reference,**values})
         winner=sorted(values.values(),key=lambda x:(-frac(x,field),x[field]))[0]
         d={"format":"high_fp4_v3_"+("qad_lr" if kind=="qad" else "opd")+"_"+("selection"),
