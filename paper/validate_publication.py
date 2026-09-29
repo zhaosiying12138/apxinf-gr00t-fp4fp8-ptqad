@@ -46,6 +46,8 @@ class Page(HTMLParser):
 
 
 def check_finished(source):
+    require('textcolor{#b42318}' not in source and 'mathrm{xxx}' not in source,
+            'Incomplete review draft: red xxx placeholders must be replaced by verified results')
     phrases=('正式开发结果将在','五臂最终结果将在','本轮执行结果将在',
              '本轮显式精度配置的 PyTorch 与 APXInf 测量结果将在','训练、教师标注、额外学生探针与评测成本分别从实际运行日志统计',
              '本轮矩阵乘时延、吞吐和格式可用性将在','本轮逐形状结果将在')
@@ -237,8 +239,9 @@ def validate(write_report=True):
     sections=sorted((P/'sections').glob('*.md'))
     require({path.name for path in sections}=={
         '01-摘要与引言.md','02-背景与相关工作.md','03-方法.md','04-实验.md','05-讨论与结论.md',
-        '14-附录A-核心源码走读与APXInf框架解析.md','15-附录B-复现与证据索引.md','16-参考文献.md'},
-        'Expected all eight complete article source files')
+        '14-附录A-核心源码走读与APXInf框架解析.md','15-附录B-复现与证据索引.md',
+        '15-附录C-执行基准与完整测量.md','16-参考文献.md'},
+        'Expected all nine complete article source files')
     source='\n\n'.join(path.read_text() for path in sections);check_finished(source)
     metadata=load(P/'meta.json');registry=load(P/'figures.json');required=set(registry)
     figures=re.findall(r'\{\{fig:([\w.-]+)\}\}',source)
