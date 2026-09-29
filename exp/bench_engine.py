@@ -287,6 +287,7 @@ def benchmark(policy, args, sampler_factory=PowerSampler):
         observation_hash.update(payload)
     first = policy.infer(first_observation)
     shape = check_inference(first)
+    first_actions = np.asarray(first["actions"]).copy()
     first_tokens = len(first["token_ids"]) if "token_ids" in first else None
     for _ in range(args.warmup):
         check_inference(policy.infer(make_obs()), shape)
@@ -308,7 +309,7 @@ def benchmark(policy, args, sampler_factory=PowerSampler):
               "lat_model_ms": lat_model, "lat_total_ms": lat_total, "lat_wrapper_ms": lat_wrapper,
               "action_shape": shape, "all_outputs_finite": True, "first_token_count": first_tokens,
               "first_observation_sha256": observation_hash.hexdigest(),
-              "first_actions": np.asarray(first["actions"]).tolist(),
+              "first_actions": first_actions.tolist(),
               "first_actions_scope": "Untimed synthetic observation for numerical inspection only; not a task-success measurement.",
               "sample_token_counts": token_counts, "quantile_method": "numpy.percentile linear",
               "power_w_mean": float(np.mean(power)) if power else None,

@@ -32,15 +32,18 @@ class EngineTimingTests(unittest.TestCase):
         class Policy:
             metadata = {"image_keys": ["image"], "prompt_key": "prompt"}
             values = iter([1., 30., 10.])
+            actions = np.ones((2, 7))
             def infer(self, observation):
                 value = next(self.values)
-                return {"actions": np.ones((2, 7)), "timing": {"model_ms": value, "total_ms": value + 1}}
+                self.actions.fill(value)  # A native wrapper may reuse a host buffer.
+                return {"actions": self.actions, "timing": {"model_ms": value, "total_ms": value + 1}}
         args = types.SimpleNamespace(seed=7, warmup=0, samples=2, telemetry_device="0")
         result = bench.benchmark(Policy(), args, Sampler)
         self.assertEqual(result["lat_model_ms"], [30., 10.])
         self.assertEqual(result["model_ms_p50"], 20.)
         self.assertIsNone(result["power_w_mean"])
         self.assertIsNone(result["vram_mb_peak"])
+        self.assertEqual(result["first_actions"], np.ones((2, 7)).tolist())
 
     def test_output_is_atomic_and_never_replaced(self):
         with tempfile.TemporaryDirectory() as temporary:
