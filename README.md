@@ -248,81 +248,109 @@ PyTorch 参考入口的独立命令与计时边界见 [baseline-timing.md](docs/
 
 ## Ubuntu 运行截图
 
-以下保留全部 17 个截图入口，按执行阶段展开查看。截图便于核对实际命令与终端输出；统计结论仍对应可解析日志、配置及结果文件。论文与 README 共用这些原图路径。
+以下保留全部 17 个截图入口，按执行阶段独立编号。15 张重新执行的短测截图记录在 [capture 清单](paper/evidence/captures.json)，2 张保留的 BF16 流程截图记录在 [保留清单](paper/evidence/retained_captures.json)。截图便于核对实际命令与终端输出；统计结论仍对应可解析日志、配置及结果文件。论文与 README 共用这些原图路径，论文沿用图注登记编号。
 
 <details>
 <summary>量化、校准与产物</summary>
 
-**01 · 完整模型校准统计采集**
+**01 · 完整模型的 2 窗口校准短测**
 
-![01 · 完整模型校准统计采集](paper/figs/shot_collect.png)
+![01 · 完整模型的 2 窗口校准短测](paper/figs/shot_collect.png)
 
-**02 · PTQ 权重写盘**
+完整 GR00T（语言 16 层、DiT 32 层、VL 4 层）以 batch=1 抽样 2 个演示窗口，得到 468 层二阶统计。H 在 GPU 上按 FP32 逐层计算并累加至 CPU；这是独立的校准短测，不是正式 128 窗口结果，也不保证两个抽样窗口互不重复。
 
-![02 · PTQ 权重写盘](paper/figs/shot_bake.png)
+**02 · 2 窗口 H 驱动的 head_lang 写盘短测**
 
-**03 · 低精度打包产物**
+![02 · 2 窗口 H 驱动的 head_lang 写盘短测](paper/figs/shot_bake.png)
 
-![03 · 低精度打包产物](paper/figs/shot_packed.png)
+使用本次新采集的 2 窗口 H，以 `required` 模式完成 80 个 NVFP4-GPTQ、253 个 NVFP4-RTN 和 139 个 FP8 张量。输出是 BF16 容器中的量化格点值，不是 packed 文件，也不是正式 128 窗口工件。终端 `2.6860×` 仅为 eligible 物理张量子集的目标编码预算；正文 `2.3522×` 包含未量化张量，并对已知共享副本去重，是完整纯 PTQ 模型口径。两者都不是本次稠密权重文件的实测压缩比。
 
-**04 · 动作探针**
+**03 · π0.5 单个语言层的 NVFP4 打包短测**
 
-![04 · 动作探针](paper/figs/shot_probe.png)
+![03 · π0.5 单个语言层的 NVFP4 打包短测](paper/figs/shot_packed.png)
+
+从真实 checkpoint 打包第 0 个语言层的 qkv 与 gate_up 两个张量，包含归一化折叠、payload 与硬件 scale 布局。图中 `orig_bytes=289,406,976` 按 **FP32** 统计，`packed_bytes=40,697,856` 仅含 payload 与物理 scale；约 7.11× 是相对 FP32，同元素 BF16 参照约 3.56×，均非整模型文件压缩比。该单层子集不能单独运行完整 NVFP4 模型。
+
+**04 · 有效动作掩码与探针梯度的 CPU 短测**
+
+![04 · 有效动作掩码与探针梯度的 CPU 短测](paper/figs/shot_probe.png)
+
+微型模型验证掩码、随机状态恢复与串行探针反向；合成 processor/statistics 配置夹具验证 40×132 容器中的 16×7 有效区域（112 个元素）。该测试没有加载完整 GR00T checkpoint，不作为恢复效果证据。
 
 </details>
 
 <details>
 <summary>恢复训练与教师标注</summary>
 
-**05 · QAD 低秩恢复训练**
+**05 · 完整模型 QAD 的 2 步短测**
 
-![05 · QAD 低秩恢复训练](paper/figs/shot_qad.png)
+![05 · 完整模型 QAD 的 2 步短测](paper/figs/shot_qad.png)
 
-**06 · 教师探针缓存**
+本次截图使用完整 GR00T、`head+lang_all`、rank=32、alpha=64，并开启激活重算；microbatch=1、梯度累积=2、有效 batch=2，共 2 次优化器更新与 4 次演示窗口抽样。日志和 checkpoint 对应这次短测，不代表正式 500 步恢复结果。
 
-![06 · 教师探针缓存](paper/figs/shot_opdcache.png)
+**06 · 2 条真实学生访问观测的教师标注短测**
 
-**07 · 教师辅助恢复训练**
+![06 · 2 条真实学生访问观测的教师标注短测](paper/figs/shot_opdcache.png)
 
-![07 · 教师辅助恢复训练](paper/figs/shot_opd.png)
+从本次单任务闭环的 2 条真实学生访问观测生成 version-3 缓存。完整教师冻结，参数按 FP32 存储、使用 BF16 autocast；保留完整 40×132 插值端点和共享 noise/time 的重放种子，仅有效 16×7 输出参与后续 masked MSE。该短测不是正式多任务缓存规模。
 
-**08 · 量化训练检查**
+**07 · 从 QAD 适配器继续的 4 步教师辅助短测**
 
-![08 · 量化训练检查](paper/figs/shot_qat.png)
+![07 · 从 QAD 适配器继续的 4 步教师辅助短测](paper/figs/shot_opd.png)
+
+精确载入本次 QAD `checkpoint-2` 的 728 个 A/B 张量，以新优化器执行 4 次更新：microbatch=1、梯度累积=2、有效 batch=2，共 8 次演示窗口抽样。教师项权重为 1、每 4 步触发；第 4 步执行 2 次学生对缓存教师目标的串行探针反向，教师本体冻结且 `no_grad`。完整 `checkpoint-4` 已保存。该短测核对训练链路，不测量恢复后的成功率，额外探针计算另计。
+
+**08 · 激活重算与 LoRA 梯度的 CPU 小模型检查**
+
+![08 · 激活重算与 LoRA 梯度的 CPU 小模型检查](paper/figs/shot_qat.png)
+
+真实 Qwen、DiT 和 VL 模块的小尺寸集成测试比较重算前后的输出及 LoRA 梯度；微型 dropout 模型另检验 RNG 恢复。该图不代表完整 GR00T 训练，也不是额外一组 QAT 实验。
 
 </details>
 
 <details>
 <summary>闭环评测</summary>
 
-**09 · 策略服务端**
+**09 · 两步 QAD 导出后的策略服务端与健康 RPC**
 
-![09 · 策略服务端](paper/figs/shot_evalserver.png)
+![09 · 两步 QAD 导出后的策略服务端与健康 RPC](paper/figs/shot_evalserver.png)
 
-**10 · LIBERO rollout 客户端**
+将本次 `checkpoint-2` 的 LoRA 导出至独立 BF16 checkpoint，加载真实 LIBERO 策略服务端，执行 `ping` RPC 后正常关闭。该图验证导出、加载与服务就绪，没有执行环境闭环，也不证明原生 FP4 kernel 覆盖。
 
-![10 · LIBERO rollout 客户端](paper/figs/shot_rollout.png)
+**10 · 学生闭环与观测采集（1 任务 × 1 回合短测）**
+
+![10 · 学生闭环与观测采集（1 任务 × 1 回合短测）](paper/figs/shot_rollout.png)
+
+本次两步 QAD 学生在 LIBERO-10 第一个任务上运行单环境、单回合：官方 bank index=4、环境 seed=910000，先执行 10 个 raw-zero 稳定步。唯一计分回合成功，日志长度为 285 步，保存视频及 2 条真实访问观测；后续自动 reset 只留下初始化记录，不增加计分回合。这个独立短测不属于开发、正式采集或 heldout，也不形成十任务平均分。
 
 </details>
 
 <details>
 <summary>数值格式、算子与原生引擎</summary>
 
-**11 · 低精度数值检查**
+**11 · 量化格点与最小 checkpoint 导出的 CPU 短测**
 
-![11 · 低精度数值检查](paper/figs/shot_verify.png)
+![11 · 量化格点与最小 checkpoint 导出的 CPU 短测](paper/figs/shot_verify.png)
 
-**12 · FP8 输出类型探针**
+覆盖量化格点、共享权重和最小跨分片 LoRA 导出契约。CPU 测试通过不等于完整模型性能或闭环成功率已获验证。
 
-![12 · FP8 输出类型探针](paper/figs/shot_fp8probe.png)
+**12 · FP8 描述符可用性与同步返回状态**
 
-**13 · 矩阵乘算子基准**
+![12 · FP8 描述符可用性与同步返回状态](paper/figs/shot_fp8probe.png)
 
-![13 · 矩阵乘算子基准](paper/figs/shot_gemm.png)
+GPU 探针初始化完整输入，记录所测组合的 heuristic、matmul 与 CUDA 同步返回状态。`NO ALGO` 表示该描述符组合不可用，不对应零耗时；结论仅限实际测试的组合。
 
-**14 · 实际层形状的算子基准**
+**13 · 9 种形状的 GEMM 短测（每项 5 次）**
 
-![14 · 实际层形状的算子基准](paper/figs/shot_opbench.png)
+![13 · 9 种形状的 GEMM 短测（每项 5 次）](paper/figs/shot_gemm.png)
+
+先执行 decoded-input 参考校验，再运行全部 9 种形状、每项 5 次的短 sweep。MXFP4 不可用项没有有效耗时；截图展示执行入口，正文算子表采用独立正式测量，不能用该短测代替。
+
+**14 · 18 个实际层形状的算子短测（预热 1、采样 3）**
+
+![14 · 18 个实际层形状的算子短测（预热 1、采样 3）](paper/figs/shot_opbench.png)
+
+全部 18 个实际层形状均保留，包括较慢形状。NVFP4 口径包含在线激活量化与 adapter；预热 1 次、采样 3 次用于入口短测，不替代正文正式性能表。
 
 **15 · GR00T BF16 执行流程展示（10 次采样）**
 
@@ -336,9 +364,11 @@ PyTorch 参考入口的独立命令与计时边界见 [baseline-timing.md](docs/
 
 模型加载与动作输出的执行流程展示；正文定量结论以本轮统一协议的原始计时记录为准。 图中缺失变换统计的提示不构成归一化或行为等价证据。
 
-**17 · π0.5 NVFP4 原型运行**
+**17 · π0.5 NVFP4 完整模型路径短测（预热 1、采样 2）**
 
-![17 · π0.5 NVFP4 原型运行](paper/figs/shot_nvfp4.png)
+![17 · π0.5 NVFP4 完整模型路径短测（预热 1、采样 2）](paper/figs/shot_nvfp4.png)
+
+使用独立、完整的 π0.5 packed checkpoint，记录原生 NVFP4 路径的实际 `execution_mode` 与输出有限性。预热 1 次、采样 2 次是入口短测，不替代正式 P50/P99，也不构成 GR00T 恢复模型部署加速的证据。
 
 </details>
 
