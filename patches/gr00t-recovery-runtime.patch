@@ -1,0 +1,1293 @@
+diff --git a/gr00t/configs/finetune_config.py b/gr00t/configs/finetune_config.py
+index 15918e2..93bddff 100644
+--- a/gr00t/configs/finetune_config.py
++++ b/gr00t/configs/finetune_config.py
+@@ -163,6 +163,23 @@ class FinetuneConfig:
+     max_steps: int = 10000
+     """Total number of training steps to run before stopping."""
+ 
++    gradient_checkpointing: bool = False
++
++    # FSDP2 single-GPU CPU offload (paper project)
++    use_fsdp2: bool = False
++    fsdp2_reshard_after_forward: bool = True
++    fsdp2_pin_memory: bool = True
++    fsdp2_activation_checkpointing: bool = False
++    fsdp2_ac_targets: str = "both"  # both | dit | vlsa
++    enable_profiling: bool = False
++
++    # Muon/AdamW hybrid (paper C3)
++    use_muon: bool = False
++    muon_lr: float = 3e-3
++    """If True, enable gradient checkpointing (activation recomputation) to
++    trade compute for memory. Official-model-native path; independent of
++    FSDP2's per-block selective checkpointing."""
++
+     weight_decay: float = 1e-5
+     """Weight decay coefficient for optimizer (L2 regularization)."""
+ 
+diff --git a/gr00t/configs/training/training_config.py b/gr00t/configs/training/training_config.py
+index f6f4101..02906fd 100755
+--- a/gr00t/configs/training/training_config.py
++++ b/gr00t/configs/training/training_config.py
+@@ -89,6 +89,81 @@ class TrainingConfig:
+     save_best_eval_metric_name: str = ""
+     save_best_eval_metric_greater_is_better: bool = True
+ 
++    # FSDP2 single-GPU CPU offload (paper project)
++    use_fsdp2: bool = False
++    """Apply native FSDP2 fully_shard to the trainable action head (single GPU)."""
++    fsdp2_cpu_offload: bool = True
++    fsdp2_reshard_after_forward: bool = True
++    fsdp2_pin_memory: bool = True
++    fsdp2_activation_checkpointing: bool = False
++    fsdp2_ac_targets: str = "both"  # both | dit | vlsa
++    fsdp2_offload_vlm: bool = False  # Level-2 (frozen VLM offload), not implemented yet
++
++    # FSDP2 single-GPU CPU offload (paper project)
++    use_fsdp2: bool = False
++    """Apply native FSDP2 fully_shard to the trainable action head (single GPU)."""
++    fsdp2_cpu_offload: bool = True
++    fsdp2_reshard_after_forward: bool = True
++    fsdp2_pin_memory: bool = True
++    fsdp2_activation_checkpointing: bool = False
++    fsdp2_offload_vlm: bool = False  # Level-2 (frozen VLM offload), not implemented yet
++
++    # Muon/AdamW hybrid optimizer (paper C3)
++    use_muon: bool = False
++    muon_lr: float = 3e-3
++
++    # FSDP2 single-GPU CPU offload (paper project)
++    use_fsdp2: bool = False
++    """Apply native FSDP2 fully_shard to the trainable action head (single GPU)."""
++    fsdp2_cpu_offload: bool = True
++    fsdp2_reshard_after_forward: bool = True
++    fsdp2_pin_memory: bool = True
++    fsdp2_activation_checkpointing: bool = False
++    fsdp2_offload_vlm: bool = False  # Level-2 (frozen VLM offload), not implemented yet
++
++    # Muon/AdamW hybrid optimizer (paper C3)
++    use_muon: bool = False
++    muon_lr: float = 3e-3
++
++    # FSDP2 single-GPU CPU offload (paper project)
++    use_fsdp2: bool = False
++    """Apply native FSDP2 fully_shard to the trainable action head (single GPU)."""
++    fsdp2_cpu_offload: bool = True
++    fsdp2_reshard_after_forward: bool = True
++    fsdp2_pin_memory: bool = True
++    fsdp2_activation_checkpointing: bool = False
++    fsdp2_offload_vlm: bool = False  # Level-2 (frozen VLM offload), not implemented yet
++
++    # Muon/AdamW hybrid optimizer (paper C3)
++    use_muon: bool = False
++    muon_lr: float = 3e-3
++
++    # FSDP2 single-GPU CPU offload (paper project)
++    use_fsdp2: bool = False
++    """Apply native FSDP2 fully_shard to the trainable action head (single GPU)."""
++    fsdp2_cpu_offload: bool = True
++    fsdp2_reshard_after_forward: bool = True
++    fsdp2_pin_memory: bool = True
++    fsdp2_activation_checkpointing: bool = False
++    fsdp2_offload_vlm: bool = False  # Level-2 (frozen VLM offload), not implemented yet
++
++    # Muon/AdamW hybrid optimizer (paper C3)
++    use_muon: bool = False
++    muon_lr: float = 3e-3
++
++    # FSDP2 single-GPU CPU offload (paper project)
++    use_fsdp2: bool = False
++    """Apply native FSDP2 fully_shard to the trainable action head (single GPU)."""
++    fsdp2_cpu_offload: bool = True
++    fsdp2_reshard_after_forward: bool = True
++    fsdp2_pin_memory: bool = True
++    fsdp2_activation_checkpointing: bool = False
++    fsdp2_offload_vlm: bool = False  # Level-2 (frozen VLM offload), not implemented yet
++
++    # Muon/AdamW hybrid optimizer (paper C3)
++    use_muon: bool = False
++    muon_lr: float = 3e-3
++
+     # DeepSpeed (default)
+     deepspeed_stage: int = 2  # ZeRO stage (1, 2, or 3)
+     gradient_checkpointing: bool = False
+diff --git a/gr00t/eval/run_gr00t_server.py b/gr00t/eval/run_gr00t_server.py
+index 9994b30..85c9306 100644
+--- a/gr00t/eval/run_gr00t_server.py
++++ b/gr00t/eval/run_gr00t_server.py
+@@ -89,6 +89,13 @@ class ServerConfig:
+ 
+ 
+ def main(config: ServerConfig):
++    try:
++        import huggingface_hub as _hh
++        class _MI:
++            tags = None
++        _hh.model_info = lambda *a, **k: _MI()
++    except Exception:
++        pass
+     config.embodiment_tag = EmbodimentTag.resolve(config.embodiment_tag)
+     print("Starting GR00T inference server...")
+     print(f"  Embodiment tag: {config.embodiment_tag}")
+diff --git a/gr00t/eval/sim/LIBERO/libero_uv/requirements-py312.txt b/gr00t/eval/sim/LIBERO/libero_uv/requirements-py312.txt
+new file mode 100644
+index 0000000..716e653
+--- /dev/null
++++ b/gr00t/eval/sim/LIBERO/libero_uv/requirements-py312.txt
+@@ -0,0 +1,14 @@
++hydra-core==1.3.2
++numpy==1.26.4
++wandb==0.18.7
++ easydict==1.9 
++transformers==4.57.3
++opencv-python==4.10.0.84
++ einops==0.4.1
++ thop==0.1.1-2209072238
++ robosuite==1.4.0
++ bddl==1.0.1
++ future==0.18.2 
++matplotlib==3.9.4
++ cloudpickle==2.1.0
++ gym==0.25.2
+diff --git a/gr00t/experiment/experiment.py b/gr00t/experiment/experiment.py
+index a75ecb9..8cf2ce4 100755
+--- a/gr00t/experiment/experiment.py
++++ b/gr00t/experiment/experiment.py
+@@ -190,6 +190,35 @@ def save_initial_actions_artifact(train_dataset, save_cfg_dir: Path):
+ 
+ 
+ def run(config: Config):
++    # offline env: transformers 4.57.3 _patch_mistral_regex calls
++    # huggingface_hub.model_info (python-SSL to hf.co is killed by the
++    # local proxy; we run HF_HUB_OFFLINE=1 with a complete local cache).
++    # Stub it: tags=None -> is_base_mistral() returns False (Qwen tokenizer).
++    try:
++        import huggingface_hub as _hh
++        class _MI:
++            tags = None
++        _hh.model_info = lambda *a, **k: _MI()
++    except Exception:
++        pass
++    # offline env: transformers 4.57.3 _patch_mistral_regex calls
++    # huggingface_hub.model_info (python-SSL to hf.co is killed by the
++    # local proxy; we run HF_HUB_OFFLINE=1 with a complete local cache).
++    # Stub it: tags=None -> is_base_mistral() returns False (Qwen tokenizer).
++    try:
++        import huggingface_hub as _hh
++        class _MI:
++            tags = None
++        _hh.model_info = lambda *a, **k: _MI()
++    except Exception:
++        pass
++    # offline env: transformers 4.57.3 tokenizer load probes
++    # api/models for mistral-regex patching; network is unreliable here.
++    try:
++        import transformers.tokenization_utils_base as _tub
++        _tub.is_base_mistral = lambda *a, **k: False
++    except Exception:
++        pass
+     """Main training function."""
+     warn_configs(config)
+     check_resume_compatibility(config.training)
+@@ -248,6 +277,12 @@ def run(config: Config):
+     pipeline = MODEL_REGISTRY.get(type(config.model))(config, save_cfg_dir)
+     pipeline.setup()
+     model = pipeline.return_model()
++
++    # single-GPU FSDP2 + CPU offload (paper project); must run before trainer
++    # creates its optimizer.
++    if config.training.use_fsdp2:
++        from gr00t.experiment.fsdp2 import apply_fsdp2
++        apply_fsdp2(model, config.training)
+     train_dataset, eval_dataset = pipeline.return_dataset()
+     data_collator = pipeline.return_collator()
+     processor = pipeline.return_processor()
+@@ -257,6 +292,7 @@ def run(config: Config):
+ 
+     # deepspeed config
+     if config.training.num_gpus > 1 and not config.training.use_ddp:
++        assert not config.training.use_fsdp2, "use_fsdp2 is incompatible with DeepSpeed"
+         deepspeed_config = config.get_deepspeed_config()
+     else:
+         deepspeed_config = None
+@@ -288,7 +324,8 @@ def run(config: Config):
+         bf16=config.training.bf16,
+         tf32=config.training.tf32,
+         gradient_checkpointing=config.training.gradient_checkpointing,
+-        optim=config.training.optim,
++        optim=("adamw_torch" if (config.training.use_fsdp2 and config.training.fsdp2_cpu_offload)
++               else config.training.optim),
+         dataloader_num_workers=config.training.dataloader_num_workers,
+         report_to="wandb" if config.training.use_wandb else "none",
+         seed=config.data.seed,
+@@ -303,6 +340,11 @@ def run(config: Config):
+     )
+ 
+     # Create trainer
++    if config.training.use_fsdp2:
++        import transformers.trainer as _tt
++        _tt.Trainer._move_model_to_device = lambda self, model, device: None
++        from gr00t.experiment.fsdp2 import patch_trainer_save
++        patch_trainer_save()
+     trainer = Gr00tTrainer(
+         model=model,
+         args=training_args,
+@@ -312,6 +354,35 @@ def run(config: Config):
+         multiprocessing_context=config.data.multiprocessing_context,
+     )
+ 
++    if config.training.use_muon:
++        trainer._gr00t_muon_cfg = config.training
++
++    if config.training.use_fsdp2:
++        # shards are CPU-offloaded by CPUOffloadPolicy; a later
++        # model.to(cuda) from Trainer would fail swapping DTensors.
++        trainer.place_model_on_device = False
++        # accelerator.prepare() also moves the model (device_placement);
++        # inputs are still moved by Trainer._prepare_inputs independently.
++        trainer.accelerator.device_placement = False
++
++    if config.training.use_fsdp2:
++        # shards are CPU-offloaded by CPUOffloadPolicy; a later
++        # model.to(cuda) from Trainer would fail swapping DTensors.
++        trainer.place_model_on_device = False
++        trainer.accelerator.device_placement = False
++
++    if config.training.use_muon:
++        trainer._gr00t_muon_cfg = config.training
++
++    if config.training.use_muon:
++        trainer._gr00t_muon_cfg = config.training
++
++    if config.training.use_muon:
++        trainer._gr00t_muon_cfg = config.training
++
++    if config.training.use_muon:
++        trainer._gr00t_muon_cfg = config.training
++
+     trainer.add_callback(
+         CheckpointFormatCallback(
+             run_name=experiment_name,
+@@ -367,7 +438,11 @@ def run(config: Config):
+         trainer.train(resume_from_checkpoint=config.training.resume_from_checkpoint)
+ 
+     # Save final model
+-    trainer.save_model()
++    if config.training.use_fsdp2:
++        from gr00t.experiment.fsdp2 import save_fsdp2_model
++        save_fsdp2_model(trainer.model, str(output_dir))
++    else:
++        trainer.save_model()
+     logging.info(f"Model saved to {output_dir}")
+ 
+     if config.training.assert_loss_less_than is not None:
+diff --git a/gr00t/experiment/fsdp2.py b/gr00t/experiment/fsdp2.py
+new file mode 100644
+index 0000000..9a3444e
+--- /dev/null
++++ b/gr00t/experiment/fsdp2.py
+@@ -0,0 +1,177 @@
++# SPDX-License-Identifier: Apache-2.0
++# Single-GPU FSDP2 + CPU offload for GR00T N1.7 (paper project).
++# Applies torch.distributed.fsdp.fully_shard() bottom-up over the trainable
++# action head only; frozen VLM stays GPU-resident (Level-1 offload).
++#
++# Known Phase-1 verification points (do NOT assume; verify empirically):
++#  * HF Trainer must NOT use fused AdamW when params live on CPU  -> force adamw_torch
++#  * trainer eval/save callbacks touching state_dict will see DTensor -> handled via
++#    full_state_dict() helper below (v1); DCP-based resume is v2.
++import logging
++import os
++from typing import Optional
++
++import torch
++import torch.distributed as dist
++from torch.distributed.device_mesh import init_device_mesh
++from torch.distributed.fsdp import CPUOffloadPolicy, MixedPrecisionPolicy, fully_shard
++
++logger = logging.getLogger(__name__)
++
++
++def _ensure_single_rank_process_group() -> None:
++    """single-GPU FSDP2 needs a (world_size=1) process group even under plain `python`.
++    Multi-backend: CPU collectives (e.g. DTensor reduce on offloaded grads during
++    grad clipping) use gloo; CUDA mesh/all-gather uses nccl."""
++    os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
++    os.environ.setdefault("MASTER_PORT", "29517")
++    if not dist.is_initialized():
++        dist.init_process_group(backend="cpu:gloo,cuda:nccl", world_size=1, rank=0)
++        logger.info("fsdp2: initialized world_size=1 multi-backend process group")
++
++
++def apply_fsdp2(model, training_cfg) -> None:
++    """Bottom-up fully_shard over the action head transformer blocks.
++
++    Must be called AFTER pipeline.return_model() and BEFORE Gr00tTrainer creates
++    its optimizer (satisfied by the experiment.py insertion point).
++    """
++    _ensure_single_rank_process_group()
++    # CPUOffloadPolicy requires parameters materialized on CPU at fully_shard
++    # time; Trainer/Accelerate re-placement is disabled via device_placement
++    # patch, and FSDP2 pre-forward sync manages H2D itself.
++    mesh = init_device_mesh("cuda", (1,))
++
++    offload_policy = CPUOffloadPolicy(pin_memory=getattr(training_cfg, "fsdp2_pin_memory", True))
++    mp_policy = MixedPrecisionPolicy(
++        param_dtype=torch.bfloat16,
++        reduce_dtype=torch.float32,
++    )
++    kw = dict(
++        mesh=mesh,
++        reshard_after_forward=getattr(training_cfg, "fsdp2_reshard_after_forward", True),
++        mp_policy=mp_policy,
++        offload_policy=offload_policy,
++    )
++
++    action_head = model.action_head
++    # CPUOffloadPolicy contract: trainable params must be CPU-materialized at
++    # fully_shard time (pipeline setup may have moved them to cuda).
++    action_head.to("cpu")
++    n_units = 0
++
++    # VL self-attention blocks
++    vl_sa = getattr(action_head, "vl_self_attention", None)
++    if vl_sa is not None and hasattr(vl_sa, "transformer_blocks"):
++        for blk in vl_sa.transformer_blocks:
++            fully_shard(blk, **kw)
++            n_units += 1
++
++    # DiT blocks
++    dit = getattr(action_head, "model", None)
++    if dit is not None and hasattr(dit, "transformer_blocks"):
++        for blk in dit.transformer_blocks:
++            fully_shard(blk, **kw)
++            n_units += 1
++
++    # root of the trainable action side collects encoders/decoder/vlln/pos-embed
++    fully_shard(action_head, **kw)
++    n_units += 1
++
++    # Frozen VLM is NOT sharded; keep it GPU-resident (Level-1 offload design).
++    # Only non-DTensor modules may be moved after fully_shard.
++    for attr in ("backbone", "vlm", "model_backbone"):
++        sub = getattr(model, attr, None)
++        if isinstance(sub, torch.nn.Module) and attr == "backbone":
++            sub.to("cuda")
++            logger.info("fsdp2: frozen backbone moved to cuda (GPU-resident)")
++
++    if getattr(training_cfg, "fsdp2_activation_checkpointing", False):
++        # Phase-2 selective AC granularity: "both" (default) | "dit" | "vlsa"
++        ac_targets = getattr(training_cfg, "fsdp2_ac_targets", "both")
++        if ac_targets == "dit":
++            apply_selective_ac(action_head, targets=("model",))
++        elif ac_targets == "vlsa":
++            apply_selective_ac(action_head, targets=("vl_self_attention",))
++        else:
++            apply_selective_ac(action_head, targets=("vl_self_attention", "model"))
++
++    # TEMP DIAG: where do root-unit sharded params live right after apply?
++    import os as _os
++    if _os.environ.get("FSDP2_DEBUG"):
++        for n_, p_ in action_head.named_parameters():
++            loc = p_.to_local() if hasattr(p_, "to_local") else p_
++            if "state_encoder" in n_ or "vlln" in n_:
++                logger.warning("DIAG post-apply %s -> %s", n_, loc.device)
++    # fused AdamW requires CUDA params; CPU-offloaded params must use the
++    # non-fused path. experiment.py also rewrites TrainingArguments.optim.
++    logger.info(
++        "fsdp2: applied fully_shard to %d units (reshard_after_forward=%s, pin=%s)",
++        n_units, kw["reshard_after_forward"], offload_policy.pin_memory,
++    )
++
++
++def apply_selective_ac(action_head, targets=("vl_self_attention", "model")) -> int:
++    """Per-block activation checkpointing on custom DiT blocks (use_reentrant=False,
++    required for FSDP2 compatibility). Returns number of wrapped blocks."""
++    import torch.utils.checkpoint as cp
++
++    n = 0
++    for attr in targets:
++        sub = getattr(action_head, attr, None)
++        if sub is None or not hasattr(sub, "transformer_blocks"):
++            continue
++        for blk in sub.transformer_blocks:
++            if getattr(blk, "_fsdp2_ac_wrapped", False):
++                continue
++            orig_forward = blk.forward
++
++            def make_ckpt(fwd, owner):
++                def ckpt_forward(*args, **kwargs):
++                    if torch.is_grad_enabled() and owner.training:
++                        return cp.checkpoint(fwd, *args, use_reentrant=False, **kwargs)
++                    return fwd(*args, **kwargs)
++                return ckpt_forward
++
++            blk.forward = make_ckpt(orig_forward, blk)  # bind owner block, avoid late binding
++            blk._fsdp2_ac_wrapped = True
++            n += 1
++    logger.info("fsdp2: selective activation checkpointing on %d blocks", n)
++    return n
++
++
++def full_state_dict(model):
++    """CPU full (non-DTensor) state dict for saving, world_size=1."""
++    from torch.distributed.tensor import DTensor
++
++    sd = model.state_dict()
++    out = {}
++    for k, v in sd.items():
++        if isinstance(v, DTensor):
++            v = v.full_tensor()
++        out[k] = v.detach().to("cpu", copy=True)
++    return out
++
++
++def save_fsdp2_model(model, out_dir: str) -> None:
++    """Save without transformers' save_pretrained (its TP-plan probe crashes on
++    DTensor params). Writes config + single-file safetensors."""
++    import os
++
++    from safetensors.torch import save_file
++
++    os.makedirs(out_dir, exist_ok=True)
++    sd = full_state_dict(model)
++    model.config.save_pretrained(out_dir)
++    save_file(sd, os.path.join(out_dir, "model.safetensors"))
++    logger.info("fsdp2: saved full model (%d tensors) to %s", len(sd), out_dir)
++
++
++def patch_trainer_save() -> None:
++    """Make Trainer._save / final save DTensor-safe for the fsdp2 path."""
++    import transformers.trainer as _tt
++
++    def _fsdp2_save(trainer_self, output_dir, state_dict=None):
++        save_fsdp2_model(trainer_self.model, str(output_dir))
++
++    _tt.Trainer._save = _fsdp2_save
+diff --git a/gr00t/experiment/launch_finetune.py b/gr00t/experiment/launch_finetune.py
+index 00cb3ef..2e3ec2d 100644
+--- a/gr00t/experiment/launch_finetune.py
++++ b/gr00t/experiment/launch_finetune.py
+@@ -97,7 +97,10 @@ if __name__ == "__main__":
+ 
+     config.model.load_bf16 = False
+     config.model.reproject_vision = False
+-    config.model.model_name = "nvidia/Cosmos-Reason2-2B"
++    # Cosmos-Reason2-2B is HF-gated; backbone init only needs a shape-compatible
++    # public snapshot since checkpoint load overwrites all backbone weights
++    # (verified: Qwen3-VL-2B-Instruct matches the checkpoint tensor shapes exactly).
++    config.model.model_name = os.environ.get("GR00T_BACKBONE_MODEL", "nvidia/Cosmos-Reason2-2B")
+     config.model.backbone_trainable_params_fp32 = True
+     config.model.use_relative_action = True
+ 
+@@ -108,12 +111,21 @@ if __name__ == "__main__":
+     config.training.dataloader_num_workers = ft_config.dataloader_num_workers
+     config.training.learning_rate = ft_config.learning_rate
+     config.training.gradient_accumulation_steps = ft_config.gradient_accumulation_steps
++    config.training.use_fsdp2 = ft_config.use_fsdp2
++    config.training.fsdp2_reshard_after_forward = ft_config.fsdp2_reshard_after_forward
++    config.training.fsdp2_pin_memory = ft_config.fsdp2_pin_memory
++    config.training.fsdp2_activation_checkpointing = ft_config.fsdp2_activation_checkpointing
++    config.training.fsdp2_ac_targets = ft_config.fsdp2_ac_targets
++    config.training.enable_profiling = ft_config.enable_profiling
++    config.training.use_muon = ft_config.use_muon
++    config.training.muon_lr = ft_config.muon_lr
+     config.training.output_dir = ft_config.output_dir
+     config.training.save_steps = ft_config.save_steps
+     config.training.save_total_limit = ft_config.save_total_limit
+     config.training.num_gpus = ft_config.num_gpus
+     config.training.use_wandb = ft_config.use_wandb
+     config.training.max_steps = ft_config.max_steps
++    config.training.gradient_checkpointing = ft_config.gradient_checkpointing
+     config.training.weight_decay = ft_config.weight_decay
+     config.training.warmup_ratio = ft_config.warmup_ratio
+     config.training.wandb_project = ft_config.wandb_project
+diff --git a/gr00t/experiment/muon.py b/gr00t/experiment/muon.py
+new file mode 100644
+index 0000000..bd37300
+--- /dev/null
++++ b/gr00t/experiment/muon.py
+@@ -0,0 +1,155 @@
++# SPDX-License-Identifier: Apache-2.0
++# Single-GPU, CPU-offload-aware Muon/AdamW hybrid optimizer for GR00T N1.7 (paper C3).
++#
++# Design:
++#  * Muon: 2D weights of attn1/ff inside VL-SA and DiT transformer blocks
++#    (whitelist predicate; excludes norms/biases/embeddings/CategorySpecific 3D banks).
++#  * AdamW: everything else trainable.
++#  * Offload-aware: momentum buffers live on CPU (pinned); each step the 2D buffer
++#    is moved to GPU, orthogonalized by Newton-Schulz (5 iters, bf16), moved back.
++#    Parameters themselves follow FSDP2 CPUOffloadPolicy residency.
++import logging
++from typing import Iterable
++
++import torch
++from torch.optim import Optimizer
++
++logger = logging.getLogger(__name__)
++
++
++def ns_newtonschulz5(G: torch.Tensor, steps: int = 5) -> torch.Tensor:
++    """Approximate the polar factor UV^T of G (Keller Jordan's quintic coefficients)."""
++    assert G.ndim == 2
++    a, b, c = (3.4445, -4.7750, 2.0315)
++    X = G.bfloat16()
++    transposed = False
++    if G.size(0) > G.size(1):
++        X = X.T
++        transposed = True
++    X = X / (X.norm() + 1e-7)
++    for _ in range(steps):
++        A = X @ X.T
++        B = b * A + c * (A @ A)
++        X = a * X + B @ X
++    if transposed:
++        X = X.T
++    return X
++
++
++def muon_predicate(name: str, p: torch.Tensor) -> bool:
++    """Conservative whitelist: only hidden matrices of custom transformer blocks."""
++    if not p.requires_grad or p.ndim != 2:
++        return False
++    if "transformer_blocks" not in name:
++        return False
++    if ".attn1." not in name and ".ff." not in name:
++        return False
++    if "norm" in name or name.endswith(".bias"):
++        return False
++    # category-specific banks are never inside transformer_blocks, but stay defensive
++    if "state_encoder" in name or "action_encoder" in name or "action_decoder" in name:
++        return False
++    return True
++
++
++class Muon(Optimizer):
++    """Momentum + orthogonalized-update optimizer for 2D matrices.
++
++    state per param: momentum buffer (same device/dtype as param).
++    `ns_device` controls where Newton-Schulz runs (default cuda).
++    """
++
++    def __init__(self, params: Iterable[torch.nn.Parameter], lr=3e-3, momentum=0.95,
++                 nesterov=True, ns_steps=5, ns_device="cuda"):
++        super().__init__(list(params), dict(lr=lr, momentum=momentum, nesterov=nesterov,
++                                            ns_steps=ns_steps))
++        self.ns_device = ns_device
++
++    @torch.no_grad()
++    def step(self, closure=None):  # type: ignore[override]
++        from torch.distributed.tensor import DTensor
++
++        loss = None
++        if closure is not None:
++            with torch.enable_grad():
++                loss = closure()
++        for group in self.param_groups:
++            lr, mom, nesterov = group["lr"], group["momentum"], group["nesterov"]
++            for p in group["params"]:
++                if p.grad is None:
++                    continue
++                # FSDP2 offload: work on the local shard (world=1 => full param)
++                pl = p.to_local() if isinstance(p, DTensor) else p
++                g = p.grad
++                gl = g.to_local() if isinstance(g, DTensor) else g
++                st = self.state[p]
++                if "momentum_buffer" not in st:
++                    st["momentum_buffer"] = torch.zeros_like(pl)
++                buf = st["momentum_buffer"]
++                buf.lerp_(gl, 1.0 - mom)
++                g_eff = gl.lerp_(buf, mom) if nesterov else buf
++
++                ns_dev = self.ns_device if torch.cuda.is_available() else pl.device
++                g2 = g_eff.to(ns_dev, non_blocking=True)
++                v = ns_newtonschulz5(g2, group["ns_steps"])
++                # spectral-norm-equivalent scaling (matches AdamW-friendly magnitudes)
++                v = v.to(pl.device, dtype=pl.dtype, non_blocking=True)
++                scale = 0.2 * max(pl.size(0), pl.size(1)) ** 0.5
++                pl.add_(v, alpha=-lr * scale)
++        return loss
++
++
++class MuonAdamW(torch.optim.Optimizer):
++    """Hybrid wrapper exposing .step()/.zero_grad()/state_dict() for HF Trainer loop.
++
++    Subclasses torch Optimizer so LR schedulers accept it; param_groups is the
++    concatenation of the two real optimizers' groups.
++    """
++
++    def __init__(self, muon: Muon, adamw: torch.optim.AdamW):
++        super().__init__([torch.nn.Parameter()], dict(lr=0.0))
++        self.muon, self.adamw = muon, adamw
++        self.param_groups = muon.param_groups + adamw.param_groups
++        self.defaults = {}
++
++    def zero_grad(self, set_to_none=True):
++        self.muon.zero_grad(set_to_none=set_to_none)
++        self.adamw.zero_grad(set_to_none=set_to_none)
++
++    @torch.no_grad()
++    def step(self, closure=None):
++        self.muon.step()
++        self.adamw.step()
++
++    def state_dict(self):
++        return {"muon": self.muon.state_dict(), "adamw": self.adamw.state_dict()}
++
++    def load_state_dict(self, sd):
++        if "muon" in sd:
++            self.muon.load_state_dict(sd["muon"])
++            self.adamw.load_state_dict(sd["adamw"])
++
++
++def build_hybrid_optimizer(model, cfg):
++    """Split trainable params by muon_predicate; AdamW side keeps HF-style
++    decay/no-decay groups (biases & 1D params excluded from weight decay)."""
++    muon_params, adam_decay, adam_no_decay = [], [], []
++    for name, p in model.named_parameters():
++        if not p.requires_grad:
++            continue
++        if muon_predicate(name, p):
++            muon_params.append(p)
++        elif p.ndim <= 1 or "norm" in name.lower() or name.endswith(".bias") or "embedding" in name:
++            adam_no_decay.append(p)
++        else:
++            adam_decay.append(p)
++    n_muon = sum(p.numel() for p in muon_params)
++    logger.info("muon hybrid: muon tensors=%d (%.1fM params), adamw decay=%d no_decay=%d tensors",
++                len(muon_params), n_muon / 1e6, len(adam_decay), len(adam_no_decay))
++    muon = Muon(muon_params, lr=getattr(cfg, "muon_lr", 3e-3), momentum=0.95)
++    wd = getattr(cfg, "weight_decay", 1e-5)
++    adamw = torch.optim.AdamW(
++        [{"params": adam_decay, "weight_decay": wd},
++         {"params": adam_no_decay, "weight_decay": 0.0}],
++        lr=getattr(cfg, "learning_rate", 1e-4), foreach=False)
++    return MuonAdamW(muon, adamw)
+diff --git a/gr00t/experiment/trainer.py b/gr00t/experiment/trainer.py
+index 817a000..c81d13e 100755
+--- a/gr00t/experiment/trainer.py
++++ b/gr00t/experiment/trainer.py
+@@ -251,6 +251,46 @@ class Gr00tTrainer(Trainer):
+     # Loss / accuracy computation override
+     # ------------------------------------------------------------------
+ 
++    def create_optimizer(self):
++        muon_cfg = getattr(self, "_gr00t_muon_cfg", None)
++        if muon_cfg is not None and muon_cfg.use_muon:
++            from gr00t.experiment.muon import build_hybrid_optimizer
++            self.optimizer = build_hybrid_optimizer(self.model, muon_cfg)
++            return self.optimizer
++        return super().create_optimizer()
++
++    def create_optimizer(self):
++        muon_cfg = getattr(self, "_gr00t_muon_cfg", None)
++        if muon_cfg is not None and muon_cfg.use_muon:
++            from gr00t.experiment.muon import build_hybrid_optimizer
++            self.optimizer = build_hybrid_optimizer(self.model, muon_cfg)
++            return self.optimizer
++        return super().create_optimizer()
++
++    def create_optimizer(self):
++        muon_cfg = getattr(self, "_gr00t_muon_cfg", None)
++        if muon_cfg is not None and muon_cfg.use_muon:
++            from gr00t.experiment.muon import build_hybrid_optimizer
++            self.optimizer = build_hybrid_optimizer(self.model, muon_cfg)
++            return self.optimizer
++        return super().create_optimizer()
++
++    def create_optimizer(self):
++        muon_cfg = getattr(self, "_gr00t_muon_cfg", None)
++        if muon_cfg is not None and muon_cfg.use_muon:
++            from gr00t.experiment.muon import build_hybrid_optimizer
++            self.optimizer = build_hybrid_optimizer(self.model, muon_cfg)
++            return self.optimizer
++        return super().create_optimizer()
++
++    def create_optimizer(self):
++        muon_cfg = getattr(self, "_gr00t_muon_cfg", None)
++        if muon_cfg is not None and muon_cfg.use_muon:
++            from gr00t.experiment.muon import build_hybrid_optimizer
++            self.optimizer = build_hybrid_optimizer(self.model, muon_cfg)
++            return self.optimizer
++        return super().create_optimizer()
++
+     def compute_loss(
+         self,
+         model,
+diff --git a/gr00t/model/gr00t_n1d7/gr00t_n1d7.py b/gr00t/model/gr00t_n1d7/gr00t_n1d7.py
+index 346b597..a1a876d 100644
+--- a/gr00t/model/gr00t_n1d7/gr00t_n1d7.py
++++ b/gr00t/model/gr00t_n1d7/gr00t_n1d7.py
+@@ -283,6 +283,7 @@ class Gr00tN1d7ActionHead(nn.Module):
+             "action_mask": action_mask,
+             "backbone_features": vl_embeds,
+             "state_features": state_features,
++            "pred_actions": pred_actions,
+         }
+ 
+     def _encode_features(
+diff --git a/gr00t/model/gr00t_n1d7/setup.py b/gr00t/model/gr00t_n1d7/setup.py
+index 742dcf7..fbe4e71 100644
+--- a/gr00t/model/gr00t_n1d7/setup.py
++++ b/gr00t/model/gr00t_n1d7/setup.py
+@@ -81,6 +81,9 @@ class Gr00tN1d7Pipeline(ModelPipeline):
+         if self.config.training.start_from_checkpoint is not None and not skip_weight_loading:
+             model, loading_info = AutoModel.from_pretrained(
+                 self.config.training.start_from_checkpoint,
++                # runtime model_name must override the value saved in the
++                # checkpoint's config.json (gated-Cosmos fallback: local path)
++                model_name=self.config.model.model_name,
+                 tune_llm=self.config.model.tune_llm,
+                 tune_visual=self.config.model.tune_visual,
+                 tune_projector=self.config.model.tune_projector,
+diff --git a/pyproject.toml b/pyproject.toml
+index 9beb9e5..b55f251 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -37,25 +37,16 @@ dependencies = [
+     "scipy==1.15.3",
+     # torchcodec 0.8.0 pairs with torch 2.9 and supports FFmpeg 4-7. It does NOT
+     # support FFmpeg 8 (the default on Ubuntu 25.10+/26.04); on those distros
+-    # install an FFmpeg<8 runtime. x86_64: PyPI wheel; aarch64 Linux: prebuilt
+-    # wheel in scripts/deployment/dgpu/wheels/ (no aarch64 wheel published on PyPI).
+     "torchcodec==0.8.0; platform_machine == 'x86_64'",
+-    "torchcodec==0.8.0; platform_machine == 'aarch64' and sys_platform == 'linux'",
+     "wandb==0.23.0",
+     "pyzmq==27.0.1",
+     # deepspeed publishes wheels only for x86_64 Linux.
+     "deepspeed==0.17.6; sys_platform == 'linux' and platform_machine == 'x86_64'",
+-    # triton is needed on aarch64 (GB200) but ships with torch on x86_64
+-    "triton==3.5.0; sys_platform == 'linux' and platform_machine == 'aarch64'",
+-    # flash-attn wheels are sourced from `[tool.uv.sources]` below (official cp312 wheels for x86_64 and aarch64).
+-    "flash-attn==2.8.3; sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64')",
++    # flash-attn temporarily disabled (network); sdpa fallback in use
+     "onnx>=1.20.0",
+     "onnxscript",
+-    # cu12 wheels only exist for x86_64; Blackwell / aarch64 requires cu13.
+-    "tensorrt-cu12>=10.15.1.29; platform_machine == 'x86_64'",
+-    "tensorrt-cu13>=10.15.1.29; platform_machine == 'aarch64'",
+-    "tensorrt-cu12-libs>=10.15.1.29; platform_machine == 'x86_64'",
+-    "tensorrt-cu13-libs>=10.15.1.29; platform_machine == 'aarch64'",
++#     "tensorrt-cu12>=10.15.1.29; platform_machine == 'x86_64'",
++#     "tensorrt-cu12-libs>=10.15.1.29; platform_machine == 'x86_64'",
+ ]
+ 
+ [project.optional-dependencies]
+@@ -81,7 +72,6 @@ include = ["gr00t*"]
+ [tool.uv]
+ required-environments = [
+     "sys_platform == 'linux' and platform_machine == 'x86_64'",
+-    "sys_platform == 'linux' and platform_machine == 'aarch64'",
+ ]
+ 
+ [tool.uv.sources]
+@@ -94,19 +84,16 @@ torchvision = [
+ triton = [
+     { index = "pytorch-cu128", marker = "sys_platform == 'linux'" },
+ ]
+-flash-attn = [
+-    { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" },
+-    { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_aarch64.whl", marker = "sys_platform == 'linux' and platform_machine == 'aarch64'" },
+-]
+-torchcodec = [
+-    { path = "scripts/deployment/dgpu/wheels/torchcodec-0.8.0-cp312-cp312-linux_aarch64.whl", marker = "sys_platform == 'linux' and platform_machine == 'aarch64'" },
+-]
+-tensorrt-cu12-libs = [
+-    { index = "nvidia-pypi", marker = "platform_machine == 'x86_64'" },
+-]
+-tensorrt-cu13-libs = [
+-    { index = "nvidia-pypi", marker = "platform_machine == 'aarch64'" },
+-]
++# flash-attn = [
++#     { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" },
++# ]
++# torchcodec = [
++# ]
++# tensorrt-cu12-libs = [
++#     { index = "nvidia-pypi", marker = "platform_machine == 'x86_64'" },
++# ]
++# tensorrt-cu13-libs = [
++# ]
+ 
+ [tool.uv.extra-build-dependencies]
+ flash-attn = ["torch==2.9.0", "numpy==1.26.4", "triton==3.5.0"]
+diff --git a/uv.lock b/uv.lock
+index 1b5f43d..8eb7f92 100644
+--- a/uv.lock
++++ b/uv.lock
+@@ -2,17 +2,14 @@ version = 1
+ revision = 3
+ requires-python = "==3.12.*"
+ resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'linux'",
+-    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+-    "platform_machine == 'x86_64' and sys_platform == 'darwin'",
+-    "platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'linux'",
+-    "platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'linux'",
+-    "platform_machine != 'x86_64' and sys_platform == 'darwin'",
+-    "platform_machine != 'x86_64' and sys_platform != 'darwin' and sys_platform != 'linux'",
++    "platform_machine == 'aarch64' and platform_python_implementation != 'CPython' and sys_platform == 'linux'",
++    "platform_machine != 'aarch64' and sys_platform == 'linux'",
++    "platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
++    "sys_platform == 'darwin'",
++    "sys_platform != 'darwin' and sys_platform != 'linux'",
+ ]
+ required-markers = [
+     "platform_machine == 'x86_64' and sys_platform == 'linux'",
+-    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+ ]
+ 
+ [[package]]
+@@ -435,17 +432,17 @@ name = "deepspeed"
+ version = "0.17.6"
+ source = { registry = "https://pypi.org/simple" }
+ dependencies = [
+-    { name = "einops", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "hjson", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "msgpack", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "ninja", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "numpy", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "packaging", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "psutil", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "py-cpuinfo", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "pydantic", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "tqdm", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
++    { name = "einops" },
++    { name = "hjson" },
++    { name = "msgpack" },
++    { name = "ninja" },
++    { name = "numpy" },
++    { name = "packaging" },
++    { name = "psutil" },
++    { name = "py-cpuinfo" },
++    { name = "pydantic" },
++    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
++    { name = "tqdm" },
+ ]
+ sdist = { url = "https://files.pythonhosted.org/packages/d4/a9/6130c78d84980ed636092be1a262d6429d539105724e675b6f65ef74a05e/deepspeed-0.17.6.tar.gz", hash = "sha256:b3318064ee5798e8a27d201ea8b888f0439973c4eac9af9ab381dd1862ebdf45", size = 1592402, upload-time = "2025-09-19T19:57:50.473Z" }
+ 
+@@ -567,48 +564,6 @@ wheels = [
+     { url = "https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl", hash = "sha256:ca8afb0da15f229774c9ad1b455ed96e85a81373065fb10446672f64444ddf70", size = 26759, upload-time = "2026-03-11T20:45:37.437Z" },
+ ]
+ 
+-[[package]]
+-name = "flash-attn"
+-version = "2.8.3"
+-source = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_aarch64.whl" }
+-resolution-markers = [
+-    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+-]
+-dependencies = [
+-    { name = "einops", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+-    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+-]
+-wheels = [
+-    { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_aarch64.whl", hash = "sha256:db81083bcc579753140c647fecfb082919b0cce746f9c355af4e37e965e9c224" },
+-]
+-
+-[package.metadata]
+-requires-dist = [
+-    { name = "einops" },
+-    { name = "torch" },
+-]
+-
+-[[package]]
+-name = "flash-attn"
+-version = "2.8.3"
+-source = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" }
+-resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'linux'",
+-]
+-dependencies = [
+-    { name = "einops", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+-]
+-wheels = [
+-    { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl", hash = "sha256:4e2f9e39313266b1544b68138b15b91ee6221eccf14f7902b7c6620351340810" },
+-]
+-
+-[package.metadata]
+-requires-dist = [
+-    { name = "einops" },
+-    { name = "torch" },
+-]
+-
+ [[package]]
+ name = "fonttools"
+ version = "4.62.1"
+@@ -702,8 +657,6 @@ dependencies = [
+     { name = "diffusers" },
+     { name = "dm-tree" },
+     { name = "einops" },
+-    { name = "flash-attn", version = "2.8.3", source = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_aarch64.whl" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+-    { name = "flash-attn", version = "2.8.3", source = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+     { name = "gitpython" },
+     { name = "gymnasium" },
+     { name = "huggingface-hub", extra = ["cli"] },
+@@ -721,20 +674,14 @@ dependencies = [
+     { name = "peft" },
+     { name = "pyzmq" },
+     { name = "scipy" },
+-    { name = "tensorrt-cu12", marker = "platform_machine == 'x86_64'" },
+-    { name = "tensorrt-cu12-libs", marker = "platform_machine == 'x86_64'" },
+-    { name = "tensorrt-cu13", marker = "platform_machine == 'aarch64'" },
+-    { name = "tensorrt-cu13-libs", marker = "platform_machine == 'aarch64'" },
+     { name = "termcolor" },
+     { name = "torch", version = "2.9.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+     { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "sys_platform == 'linux'" },
+-    { name = "torchcodec", version = "0.8.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64'" },
+-    { name = "torchcodec", version = "0.8.0", source = { path = "scripts/deployment/dgpu/wheels/torchcodec-0.8.0-cp312-cp312-linux_aarch64.whl" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+-    { name = "torchvision", version = "0.24.0", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
++    { name = "torchcodec", marker = "platform_machine == 'x86_64'" },
++    { name = "torchvision", version = "0.24.0", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+     { name = "torchvision", version = "0.24.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
+-    { name = "torchvision", version = "0.24.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
++    { name = "torchvision", version = "0.24.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux')" },
+     { name = "transformers" },
+-    { name = "triton", version = "3.5.0", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+     { name = "tyro" },
+     { name = "wandb" },
+ ]
+@@ -765,8 +712,6 @@ requires-dist = [
+     { name = "diffusers", specifier = "==0.35.1" },
+     { name = "dm-tree" },
+     { name = "einops", specifier = "==0.8.1" },
+-    { name = "flash-attn", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'", url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_aarch64.whl" },
+-    { name = "flash-attn", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'", url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" },
+     { name = "gitpython", specifier = "==3.1.50" },
+     { name = "gymnasium", specifier = "==1.2.2" },
+     { name = "huggingface-hub", extras = ["cli"] },
+@@ -792,20 +737,14 @@ requires-dist = [
+     { name = "pyzmq", specifier = "==27.0.1" },
+     { name = "ruff", marker = "extra == 'dev'" },
+     { name = "scipy", specifier = "==1.15.3" },
+-    { name = "tensorrt-cu12", marker = "platform_machine == 'x86_64'", specifier = ">=10.15.1.29" },
+-    { name = "tensorrt-cu12-libs", marker = "platform_machine == 'x86_64'", specifier = ">=10.15.1.29", index = "https://pypi.nvidia.com/" },
+-    { name = "tensorrt-cu13", marker = "platform_machine == 'aarch64'", specifier = ">=10.15.1.29" },
+-    { name = "tensorrt-cu13-libs", marker = "platform_machine == 'aarch64'", specifier = ">=10.15.1.29", index = "https://pypi.nvidia.com/" },
+     { name = "termcolor", specifier = "==3.2.0" },
+     { name = "tomli", marker = "python_full_version < '3.11' and extra == 'dev'" },
+     { name = "torch", marker = "sys_platform != 'linux'", specifier = "==2.9.0" },
+     { name = "torch", marker = "sys_platform == 'linux'", specifier = "==2.9.0", index = "https://download.pytorch.org/whl/cu128" },
+-    { name = "torchcodec", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'", path = "scripts/deployment/dgpu/wheels/torchcodec-0.8.0-cp312-cp312-linux_aarch64.whl" },
+     { name = "torchcodec", marker = "platform_machine == 'x86_64'", specifier = "==0.8.0" },
+     { name = "torchvision", marker = "sys_platform != 'linux'", specifier = "==0.24.0" },
+     { name = "torchvision", marker = "sys_platform == 'linux'", specifier = "==0.24.0", index = "https://download.pytorch.org/whl/cu128" },
+     { name = "transformers", specifier = "==4.57.3" },
+-    { name = "triton", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'", specifier = "==3.5.0", index = "https://download.pytorch.org/whl/cu128" },
+     { name = "tyro", specifier = "==0.9.17" },
+     { name = "wandb", specifier = "==0.23.0" },
+ ]
+@@ -1321,7 +1260,7 @@ name = "nvidia-cudnn-cu12"
+ version = "9.10.2.21"
+ source = { registry = "https://pypi.org/simple" }
+ dependencies = [
+-    { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux'" },
++    { name = "nvidia-cublas-cu12" },
+ ]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/fa/41/e79269ce215c857c935fd86bcfe91a451a584dfc27f1e068f568b9ad1ab7/nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:c9132cc3f8958447b4910a1720036d9eff5928cc3179b0a51fb6d167c6cc87d8", size = 705026878, upload-time = "2025-06-06T21:52:51.348Z" },
+@@ -1333,7 +1272,7 @@ name = "nvidia-cufft-cu12"
+ version = "11.3.3.83"
+ source = { registry = "https://pypi.org/simple" }
+ dependencies = [
+-    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform == 'linux'" },
++    { name = "nvidia-nvjitlink-cu12" },
+ ]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/60/bc/7771846d3a0272026c416fbb7e5f4c1f146d6d80704534d0b187dd6f4800/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:848ef7224d6305cdb2a4df928759dca7b1201874787083b6e7550dd6765ce69a", size = 193109211, upload-time = "2025-03-07T01:44:56.873Z" },
+@@ -1363,9 +1302,9 @@ name = "nvidia-cusolver-cu12"
+ version = "11.7.3.90"
+ source = { registry = "https://pypi.org/simple" }
+ dependencies = [
+-    { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cusparse-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform == 'linux'" },
++    { name = "nvidia-cublas-cu12" },
++    { name = "nvidia-cusparse-cu12" },
++    { name = "nvidia-nvjitlink-cu12" },
+ ]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/c8/32/f7cd6ce8a7690544d084ea21c26e910a97e077c9b7f07bf5de623ee19981/nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:db9ed69dbef9715071232caa9b69c52ac7de3a95773c2db65bdba85916e4e5c0", size = 267229841, upload-time = "2025-03-07T01:46:54.356Z" },
+@@ -1377,7 +1316,7 @@ name = "nvidia-cusparse-cu12"
+ version = "12.5.8.93"
+ source = { registry = "https://pypi.org/simple" }
+ dependencies = [
+-    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform == 'linux'" },
++    { name = "nvidia-nvjitlink-cu12" },
+ ]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/bc/f7/cd777c4109681367721b00a106f491e0d0d15cfa1fd59672ce580ce42a97/nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:9b6c161cb130be1a07a27ea6923df8141f3c295852f4b260c65f18f3e0a091dc", size = 288117129, upload-time = "2025-03-07T01:47:40.407Z" },
+@@ -2217,60 +2156,6 @@ wheels = [
+     { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353, upload-time = "2025-04-27T18:04:59.103Z" },
+ ]
+ 
+-[[package]]
+-name = "tensorrt-cu12"
+-version = "10.15.1.29"
+-source = { registry = "https://pypi.org/simple" }
+-dependencies = [
+-    { name = "tensorrt-cu12-bindings", marker = "platform_machine == 'x86_64'" },
+-    { name = "tensorrt-cu12-libs", marker = "platform_machine == 'x86_64'" },
+-]
+-sdist = { url = "https://files.pythonhosted.org/packages/57/a7/c8d81de98428c7dd67b5b9df0e1ea21c497661b4703f946e8d84b39ad76e/tensorrt_cu12-10.15.1.29.tar.gz", hash = "sha256:d28acc4d14804cac0b50c0c1fc58c0d25cb974aa4c53cda5cfd8c4a4154c45fe", size = 19096, upload-time = "2026-01-30T07:44:47.652Z" }
+-
+-[[package]]
+-name = "tensorrt-cu12-bindings"
+-version = "10.15.1.29"
+-source = { registry = "https://pypi.org/simple" }
+-wheels = [
+-    { url = "https://files.pythonhosted.org/packages/ee/a1/feb1b14806e9a5f486b2b69b41623b8eb15b18e86634c992f82a3a4bd3ae/tensorrt_cu12_bindings-10.15.1.29-cp312-none-manylinux_2_28_x86_64.whl", hash = "sha256:627533cc801209887173b28137eb571e1cf52ecf2afb4c92c6cf29c41711f580", size = 1140872, upload-time = "2026-01-29T21:15:11.309Z" },
+-    { url = "https://files.pythonhosted.org/packages/cb/be/a37d45dc6cad228a4b02facec060ed9cc7808373d5b7f3d2e33ddbc9aeb2/tensorrt_cu12_bindings-10.15.1.29-cp312-none-win_amd64.whl", hash = "sha256:39b348cf0ffc548e928b1d180649f9cfbf37563b128fc81b59c172722dc9f1c3", size = 893027, upload-time = "2026-01-29T21:15:49.231Z" },
+-]
+-
+-[[package]]
+-name = "tensorrt-cu12-libs"
+-version = "10.15.1.29"
+-source = { registry = "https://pypi.nvidia.com/" }
+-wheels = [
+-    { url = "https://pypi.nvidia.com/tensorrt-cu12-libs/tensorrt_cu12_libs-10.15.1.29-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:eebdc8740f40179ae0c0a974535b2ced47ac98dc0b93699581533ad980e84b98" },
+-    { url = "https://pypi.nvidia.com/tensorrt-cu12-libs/tensorrt_cu12_libs-10.15.1.29-py2.py3-none-win_amd64.whl", hash = "sha256:79343fa678dd4b5270c01d6e56985db08c55bb82898959bd3d028238268745c2" },
+-]
+-
+-[[package]]
+-name = "tensorrt-cu13"
+-version = "10.15.1.29"
+-source = { registry = "https://pypi.org/simple" }
+-dependencies = [
+-    { name = "tensorrt-cu13-bindings", marker = "(platform_machine != 'x86_64' and sys_platform != 'linux') or (platform_machine == 'aarch64' and sys_platform == 'linux')" },
+-    { name = "tensorrt-cu13-libs", marker = "(platform_machine != 'x86_64' and sys_platform != 'linux') or (platform_machine == 'aarch64' and sys_platform == 'linux')" },
+-]
+-sdist = { url = "https://files.pythonhosted.org/packages/1b/0b/ff3683ddf1960227fb2c6210e92ab83c26eda92091046c123d8dfc1adc93/tensorrt_cu13-10.15.1.29.tar.gz", hash = "sha256:60edcdf1a68526732ea613c309283af036f418f6ebcbc8e18d24566b74d776e0", size = 19084, upload-time = "2026-01-30T07:42:55.055Z" }
+-
+-[[package]]
+-name = "tensorrt-cu13-bindings"
+-version = "10.15.1.29"
+-source = { registry = "https://pypi.org/simple" }
+-wheels = [
+-    { url = "https://files.pythonhosted.org/packages/0c/26/2c78ff712ec9da3aa4851ad86999dae6c5aa927de53a75aa5255cbcdd9c1/tensorrt_cu13_bindings-10.15.1.29-cp312-none-manylinux_2_35_aarch64.whl", hash = "sha256:503a623a015cfce5bf00477162be2e872fdf2397acaf840f75c9dd22f41d6672", size = 1144656, upload-time = "2026-01-29T20:59:50.421Z" },
+-]
+-
+-[[package]]
+-name = "tensorrt-cu13-libs"
+-version = "10.15.1.29"
+-source = { registry = "https://pypi.nvidia.com/" }
+-wheels = [
+-    { url = "https://pypi.nvidia.com/tensorrt-cu13-libs/tensorrt_cu13_libs-10.15.1.29-py2.py3-none-manylinux_2_35_aarch64.whl", hash = "sha256:f2f6fdaba477ef5536e9932d7f0ce2952ab3c87c5d0fbf93f080388390cba1de" },
+-]
+-
+ [[package]]
+ name = "termcolor"
+ version = "3.2.0"
+@@ -2323,19 +2208,17 @@ name = "torch"
+ version = "2.9.0"
+ source = { registry = "https://pypi.org/simple" }
+ resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'darwin'",
+-    "platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'linux'",
+-    "platform_machine != 'x86_64' and sys_platform == 'darwin'",
+-    "platform_machine != 'x86_64' and sys_platform != 'darwin' and sys_platform != 'linux'",
++    "sys_platform == 'darwin'",
++    "sys_platform != 'darwin' and sys_platform != 'linux'",
+ ]
+ dependencies = [
+-    { name = "filelock", marker = "sys_platform != 'linux'" },
+-    { name = "fsspec", marker = "sys_platform != 'linux'" },
+-    { name = "jinja2", marker = "sys_platform != 'linux'" },
+-    { name = "networkx", marker = "sys_platform != 'linux'" },
+-    { name = "setuptools", marker = "sys_platform != 'linux'" },
+-    { name = "sympy", marker = "sys_platform != 'linux'" },
+-    { name = "typing-extensions", marker = "sys_platform != 'linux'" },
++    { name = "filelock" },
++    { name = "fsspec" },
++    { name = "jinja2" },
++    { name = "networkx" },
++    { name = "setuptools" },
++    { name = "sympy" },
++    { name = "typing-extensions" },
+ ]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/66/11/c1c5ba6691cda6279087c35bd626536e4fd29521fe740abf5008377a9a02/torch-2.9.0-cp312-cp312-win_amd64.whl", hash = "sha256:4582b162f541651f0cb184d3e291c05c2f556c7117c64a9873e2ee158d40062b", size = 109280887, upload-time = "2025-10-15T15:46:26.228Z" },
+@@ -2347,35 +2230,34 @@ name = "torch"
+ version = "2.9.0+cu128"
+ source = { registry = "https://download.pytorch.org/whl/cu128" }
+ resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'linux'",
+-    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+-    "platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'linux'",
+-]
+-dependencies = [
+-    { name = "filelock", marker = "sys_platform == 'linux'" },
+-    { name = "fsspec", marker = "sys_platform == 'linux'" },
+-    { name = "jinja2", marker = "sys_platform == 'linux'" },
+-    { name = "networkx", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cublas-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cuda-cupti-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cuda-nvrtc-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cuda-runtime-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cudnn-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cufft-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cufile-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-curand-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cusolver-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cusparse-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-cusparselt-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-nccl-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-nvshmem-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "nvidia-nvtx-cu12", marker = "sys_platform == 'linux'" },
+-    { name = "setuptools", marker = "sys_platform == 'linux'" },
+-    { name = "sympy", marker = "sys_platform == 'linux'" },
+-    { name = "triton", version = "3.5.0", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+-    { name = "triton", version = "3.5.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+-    { name = "typing-extensions", marker = "sys_platform == 'linux'" },
++    "platform_machine == 'aarch64' and platform_python_implementation != 'CPython' and sys_platform == 'linux'",
++    "platform_machine != 'aarch64' and sys_platform == 'linux'",
++    "platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
++]
++dependencies = [
++    { name = "filelock" },
++    { name = "fsspec" },
++    { name = "jinja2" },
++    { name = "networkx" },
++    { name = "nvidia-cublas-cu12" },
++    { name = "nvidia-cuda-cupti-cu12" },
++    { name = "nvidia-cuda-nvrtc-cu12" },
++    { name = "nvidia-cuda-runtime-cu12" },
++    { name = "nvidia-cudnn-cu12" },
++    { name = "nvidia-cufft-cu12" },
++    { name = "nvidia-cufile-cu12" },
++    { name = "nvidia-curand-cu12" },
++    { name = "nvidia-cusolver-cu12" },
++    { name = "nvidia-cusparse-cu12" },
++    { name = "nvidia-cusparselt-cu12" },
++    { name = "nvidia-nccl-cu12" },
++    { name = "nvidia-nvjitlink-cu12" },
++    { name = "nvidia-nvshmem-cu12" },
++    { name = "nvidia-nvtx-cu12" },
++    { name = "setuptools" },
++    { name = "sympy" },
++    { name = "triton" },
++    { name = "typing-extensions" },
+ ]
+ wheels = [
+     { url = "https://download-r2.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:e1765625084e320f1eb2f4eb5fd9d14d39d08d7a1880c10a307ce5de20831d27", upload-time = "2025-10-14T17:28:29Z" },
+@@ -2386,46 +2268,22 @@ wheels = [
+ name = "torchcodec"
+ version = "0.8.0"
+ source = { registry = "https://pypi.org/simple" }
+-resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'linux'",
+-    "platform_machine == 'x86_64' and sys_platform == 'darwin'",
+-    "platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'linux'",
+-]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/f6/fd/eec92c82545038a90ffd24e3626bb3a85f7d51577b04819c1c753d380a9b/torchcodec-0.8.0-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:2ec2e874dfb6fbf9bbeb792bea56317529636e78db175f56aad1e4efd6e12502", size = 1898382, upload-time = "2025-10-16T14:43:37.699Z" },
+     { url = "https://files.pythonhosted.org/packages/fe/09/ce7436151a3825f27c00263d722b0cf093609921da6cf24b0fa8133cc415/torchcodec-0.8.0-cp312-cp312-win_amd64.whl", hash = "sha256:318da9af9179d156be0a84296e909d51e4cd758598eaaea08c828790c80bf977", size = 2070488, upload-time = "2025-10-16T14:43:21.803Z" },
+ ]
+ 
+-[[package]]
+-name = "torchcodec"
+-version = "0.8.0"
+-source = { path = "scripts/deployment/dgpu/wheels/torchcodec-0.8.0-cp312-cp312-linux_aarch64.whl" }
+-resolution-markers = [
+-    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+-]
+-wheels = [
+-    { filename = "torchcodec-0.8.0-cp312-cp312-linux_aarch64.whl", hash = "sha256:3c5bf377f922d2126041b3c49846504083a015d44979ca594e368ccc8c4c0814" },
+-]
+-
+-[package.metadata]
+-requires-dist = [
+-    { name = "numpy", marker = "extra == 'dev'" },
+-    { name = "pillow", marker = "extra == 'dev'" },
+-    { name = "pytest", marker = "extra == 'dev'" },
+-]
+-provides-extras = ["dev"]
+-
+ [[package]]
+ name = "torchvision"
+ version = "0.24.0"
+ source = { registry = "https://download.pytorch.org/whl/cu128" }
+ resolution-markers = [
+-    "platform_machine == 'aarch64' and sys_platform == 'linux'",
++    "platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+ ]
+ dependencies = [
+-    { name = "numpy", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+-    { name = "pillow", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+-    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
++    { name = "numpy" },
++    { name = "pillow" },
++    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
+ ]
+ wheels = [
+     { url = "https://download-r2.pytorch.org/whl/cu128/torchvision-0.24.0-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:5d6bcd7393774c82531f7ec411f352129fe8c302bba7765c372398a71d5df4a8", upload-time = "2025-10-15T14:15:54Z" },
+@@ -2436,15 +2294,13 @@ name = "torchvision"
+ version = "0.24.0"
+ source = { registry = "https://pypi.org/simple" }
+ resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'darwin'",
+-    "platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'linux'",
+-    "platform_machine != 'x86_64' and sys_platform == 'darwin'",
+-    "platform_machine != 'x86_64' and sys_platform != 'darwin' and sys_platform != 'linux'",
++    "sys_platform == 'darwin'",
++    "sys_platform != 'darwin' and sys_platform != 'linux'",
+ ]
+ dependencies = [
+-    { name = "numpy", marker = "sys_platform != 'linux'" },
+-    { name = "pillow", marker = "sys_platform != 'linux'" },
+-    { name = "torch", version = "2.9.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
++    { name = "numpy" },
++    { name = "pillow" },
++    { name = "torch", version = "2.9.0", source = { registry = "https://pypi.org/simple" } },
+ ]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/47/ef/81e4e69e02e2c4650b30e8c11c8974f946682a30e0ab7e9803a831beff76/torchvision-0.24.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:c61d40bcd2e2451e932902a702ad495ba1ec6f279e90b1e15cef2bb55dc911e2", size = 1891726, upload-time = "2025-10-15T15:51:16.977Z" },
+@@ -2456,13 +2312,13 @@ name = "torchvision"
+ version = "0.24.0+cu128"
+ source = { registry = "https://download.pytorch.org/whl/cu128" }
+ resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'linux'",
+-    "platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'linux'",
++    "platform_machine == 'aarch64' and platform_python_implementation != 'CPython' and sys_platform == 'linux'",
++    "platform_machine != 'aarch64' and sys_platform == 'linux'",
+ ]
+ dependencies = [
+-    { name = "numpy", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+-    { name = "pillow", marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
+-    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "platform_machine != 'aarch64' and sys_platform == 'linux'" },
++    { name = "numpy" },
++    { name = "pillow" },
++    { name = "torch", version = "2.9.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
+ ]
+ wheels = [
+     { url = "https://download-r2.pytorch.org/whl/cu128/torchvision-0.24.0%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:e505bd83ee10edb94523d0b805a08f50b8862b58d2cc6f02d14cd4e7ef9302bc", upload-time = "2025-10-15T14:05:29Z" },
+@@ -2510,25 +2366,10 @@ wheels = [
+     { url = "https://files.pythonhosted.org/packages/6a/6b/2f416568b3c4c91c96e5a365d164f8a4a4a88030aa8ab4644181fdadce97/transformers-4.57.3-py3-none-any.whl", hash = "sha256:c77d353a4851b1880191603d36acb313411d3577f6e2897814f333841f7003f4", size = 11993463, upload-time = "2025-11-25T15:51:26.493Z" },
+ ]
+ 
+-[[package]]
+-name = "triton"
+-version = "3.5.0"
+-source = { registry = "https://download.pytorch.org/whl/cu128" }
+-resolution-markers = [
+-    "platform_machine == 'aarch64' and sys_platform == 'linux'",
+-]
+-wheels = [
+-    { url = "https://download-r2.pytorch.org/whl/triton-3.5.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:9b82b46df35ae9e0b85a382d99a076e6ebea23a3a5dbaca7dc24a7571e6bebad", upload-time = "2026-01-22T23:05:48Z" },
+-]
+-
+ [[package]]
+ name = "triton"
+ version = "3.5.0"
+ source = { registry = "https://pypi.org/simple" }
+-resolution-markers = [
+-    "platform_machine == 'x86_64' and sys_platform == 'linux'",
+-    "platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'linux'",
+-]
+ wheels = [
+     { url = "https://files.pythonhosted.org/packages/87/9b/30988039e1e84df7554fba24e6a734d2d0e847af33cabdf9b532b3c51456/triton-3.5.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:7da21fccceafc163e3a5e857abe34351ef76345af06cabf9637a914742671f0b", size = 159946647, upload-time = "2025-10-15T19:15:56.325Z" },
+     { url = "https://files.pythonhosted.org/packages/f5/3a/e991574f3102147b642e49637e0281e9bb7c4ba254edb2bab78247c85e01/triton-3.5.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:c9e71db82261c4ffa3921cd050cd5faa18322d2d405c30eb56084afaff3b0833", size = 170476535, upload-time = "2025-10-13T16:38:05.18Z" },

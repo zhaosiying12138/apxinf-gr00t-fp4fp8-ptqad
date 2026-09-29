@@ -4,6 +4,7 @@ data/
 third_party/
 results/**/*.bin
 results/**/*.pt
+results/**/*.safetensors
 results/**/*.npz
 results/**/rollouts/
 results/**/videos/
@@ -26,3 +27,4 @@ build/
 
 # ---- paper build intermediates (keep final html + zhihu pkg) ----
 paper/_build/
+setup/recovery-env.sh

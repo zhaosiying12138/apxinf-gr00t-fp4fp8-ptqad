@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "upstream_repository": "https://github.com/NVIDIA/Isaac-GR00T.git",
+  "upstream_commit": "51d4c89f72fda44cbf77285c6a8114b52676b8a1",
+  "local_runtime_commit": "74204f03343228240ca06e5a4bc91f8f1cb7213f",
+  "runtime_patch": "patches/gr00t-recovery-runtime.patch",
+  "runtime_patch_sha256": "77c4d6952ce6b6aa6e4810d94320bb8ae6487032ec721292a0d8fbb2a082878b",
+  "runtime_patch_scope": [
+    "gr00t",
+    "pyproject.toml",
+    "uv.lock"
+  ],
+  "libero_commit": "8f1084e3132a39270c3a13ebe37270a43ece2a01",
+  "python": "3.12.14",
+  "training_torch": "2.9.0+cu128",
+  "training_torchvision": "0.24.0+cu128",
+  "training_transformers": "4.57.3",
+  "verification": "Installed environment snapshot; all lock hashes checked; patch applied forward to an archive of pinned upstream, and reverse-check passed on both the rebuilt archive and actual runtime. Shell syntax validated; clean dependency installation not executed.",
+  "lock_sha256": {
+    "libero-environment.json": "bc2c32d73a6c921f3ecfcd9db187543e6821532dab0f05b46d0a659372bc3862",
+    "media7-environment.json": "409d2e13a013d5d9ea7ffb878642085cd614049415b019fe8cd9732d608584ca",
+    "recovery-environment.json": "12eb63570c42c8180b34d6ff8f8ae7b43ecd767dbcf4f72f991ef4cf1543c65b",
+    "libero-py312.txt": "5dd571cd7386d50b70a4fb4107a1c7ce106f7b2394e4cf94b647879e177c2f20",
+    "media7-linux-64.explicit.txt": "f32d98f0dac16e8fcd14cabb55ee6e75b584cd1c3f7529a953e27f2374f47514",
+    "recovery-py312.txt": "22f6eccb25d59d4075f62679ec51ef91d21b2e7368a8f0319061a6da8f9674fe"
+  }
+}
