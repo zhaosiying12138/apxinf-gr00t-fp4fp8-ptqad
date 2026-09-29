@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "base": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang",
+  "rank": 32,
+  "alpha": 64.0,
+  "scope": "head+lang_all",
+  "architecture": {
+    "language_layers": 16,
+    "dit_layers": 32,
+    "vl_layers": 4
+  },
+  "parameter_dtype": "torch.float32",
+  "compute_dtype": "bfloat16",
+  "base_config_sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+  "base_statistics_sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+  "base_recipe_sha256": "85d81b7b6577a80233487cc9cc1b3062e94b018fdf9589e87b96c47419accf90",
+  "initial_adapter": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/train_qad/checkpoint-500",
+  "optimizer_resumed": false,
+  "probe_weight": 0.0,
+  "probe_every": 4,
+  "probe_cache": null,
+  "probe_cache_sha256": null,
+  "probe_action_mask": null,
+  "objective": "demo flow loss",
+  "normalization": "frozen base statistics",
+  "seed": 42,
+  "activation_checkpointing": {
+    "implementation": "torch.non_reentrant_per_block",
+    "blocks": {
+      "language": 16,
+      "dit": 32,
+      "vl": 4
+    },
+    "preserve_rng_state": true,
+    "eval_mode_gradients_supported": true,
+    "kv_cache": false,
+    "parameter_dtypes_changed": false
+  },
+  "recovery_source_sha256": {
+    "rl/lora_qad.py": "e74b776e2fd0552597eea292afd0041450afba209aa20d6c08439d9e7cf0acce",
+    "rl/probe_distill.py": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6",
+    "rl/lora_scope.py": "7eab74419c2ec0d1aec886446fb96c0daedfafb060db7fe842660124a022bb40",
+    "rl/recovery_batch.py": "ba14aa6ad2eaff8259b7e306a705cb1ecd507de4d1fa42e4d33e9fb3f0e6495e",
+    "rl/gr00t_runtime.py": "92f61fd9d36c68136394095ac151df46255b9f3308b18efc81b4426d057e1fa0",
+    "rl/activation_checkpoint.py": "d29938bffac2566e567bc758c8dc1999743a3f33f1df77ad94b61eb1ddd45ff6",
+    "rl/runtime_metrics.py": "7db4128201f7bfa78a5f745ce8a0d1942e86219e6d90108499ceb1e76ac3b3a3"
+  },
+  "protocol_sha256": "705d3217ffc73bc2ae17875c4b1f0a2012022dbc942c30152b64581a7cffb5f5",
+  "micro_batch": 1,
+  "gradient_accumulation_steps": 16,
+  "effective_global_batch": 16,
+  "upstream_global_batch_size_cli": 1,
+  "trainable_parameters": 58580992,
+  "lora_linear_modules": 364,
+  "budget_note": "Equal continuation demo examples/optimizer steps; OPD adds probe forward/backward compute"
+}

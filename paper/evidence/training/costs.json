@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "status": "complete",
+  "created_utc": "2026-09-29T06:14:05.842637+00:00",
+  "protocol_sha256": "705d3217ffc73bc2ae17875c4b1f0a2012022dbc942c30152b64581a7cffb5f5",
+  "training": {
+    "qad": {
+      "status": "completed",
+      "optimizer_steps": 500,
+      "demonstration_window_draws": 8000,
+      "wall_seconds": 2807.6738812320036,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 14287280128,
+          "max_memory_reserved_bytes": 14715715584,
+          "memory_allocated_bytes_at_end": 13300271616,
+          "memory_reserved_bytes_at_end": 14715715584
+        }
+      ],
+      "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1758,
+          "parameters": 3202596992,
+          "bytes": 12810387968,
+          "trainable_parameters": 58580992
+        }
+      },
+      "compute_dtype": "bfloat16",
+      "micro_batch": 1,
+      "gradient_accumulation_steps": 16,
+      "effective_global_batch": 16,
+      "trainable_parameters": 58580992,
+      "lora_linear_modules": 364,
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/train_qad/checkpoint-500",
+      "initial_adapter": null
+    },
+    "continued_qad": {
+      "status": "completed",
+      "optimizer_steps": 100,
+      "demonstration_window_draws": 1600,
+      "wall_seconds": 615.3633754679977,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 14287280128,
+          "max_memory_reserved_bytes": 14715715584,
+          "memory_allocated_bytes_at_end": 13300271616,
+          "memory_reserved_bytes_at_end": 14715715584
+        }
+      ],
+      "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1758,
+          "parameters": 3202596992,
+          "bytes": 12810387968,
+          "trainable_parameters": 58580992
+        }
+      },
+      "compute_dtype": "bfloat16",
+      "micro_batch": 1,
+      "gradient_accumulation_steps": 16,
+      "effective_global_batch": 16,
+      "trainable_parameters": 58580992,
+      "lora_linear_modules": 364,
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/continued_qad/checkpoint-100",
+      "initial_adapter": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/train_qad/checkpoint-500",
+      "logged_teacher_backward_passes": 0,
+      "scheduled_teacher_backward_passes": 0,
+      "teacher_schedule_note": "Scheduled count derives from completed updates and verified source; logger records only selected updates, not all probe calls."
+    },
+    "qad_opd": {
+      "status": "completed",
+      "optimizer_steps": 100,
+      "demonstration_window_draws": 1600,
+      "wall_seconds": 746.6074354410011,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 14293573632,
+          "max_memory_reserved_bytes": 14715715584,
+          "memory_allocated_bytes_at_end": 13300271616,
+          "memory_reserved_bytes_at_end": 14715715584
+        }
+      ],
+      "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1758,
+          "parameters": 3202596992,
+          "bytes": 12810387968,
+          "trainable_parameters": 58580992
+        }
+      },
+      "compute_dtype": "bfloat16",
+      "micro_batch": 1,
+      "gradient_accumulation_steps": 16,
+      "effective_global_batch": 16,
+      "trainable_parameters": 58580992,
+      "lora_linear_modules": 364,
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/qad_opd/checkpoint-100",
+      "initial_adapter": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/train_qad/checkpoint-500",
+      "logged_teacher_backward_passes": 80,
+      "scheduled_teacher_backward_passes": 400,
+      "teacher_schedule_note": "Scheduled count derives from completed updates and verified source; logger records only selected updates, not all probe calls."
+    }
+  },
+  "collection": {
+    "wall_seconds": 898.0755798816681,
+    "timing_scope": "serial ten-task collection loop including server loads, rollouts and server shutdown",
+    "episodes": 20,
+    "tasks": 10,
+    "captured_observations": 154,
+    "cuda_peak_memory": null,
+    "cuda_peak_note": "Collection wrapper does not record allocator peaks"
+  },
+  "teacher_labeling": {
+    "elapsed_seconds": 24.04636025428772,
+    "timing_scope": "checkpoint loading and teacher labeling, before cache serialization",
+    "cuda_peak_memory": [
+      {
+        "device_index": 0,
+        "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "max_memory_allocated_bytes": 13327141376,
+        "max_memory_reserved_bytes": 13570670592,
+        "memory_allocated_bytes_at_end": 12587730944,
+        "memory_reserved_bytes_at_end": 13570670592
+      }
+    ],
+    "cuda_peak_scope": "PyTorch allocator peaks for this labeling process",
+    "model_dtype": "float32",
+    "autocast_dtype": "bfloat16",
+    "requested_probes": 160,
+    "actual_probes": 154,
+    "source_observations_per_task": {
+      "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": 16,
+      "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": 16,
+      "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": 16,
+      "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": 16,
+      "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": 15,
+      "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": 16,
+      "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": 16,
+      "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": 15,
+      "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": 16,
+      "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": 12
+    },
+    "cache_identity": {
+      "bytes": 252960381,
+      "sha256": "8bba18163bc6c9d4233413abd0c730e3ff97c39fdd25463c16abe89a2df1d1a3"
+    }
+  },
+  "export_reported_seconds": {
+    "qad": 24.686626195907593,
+    "continued_qad": 23.528684616088867,
+    "qad_opd": 25.245288133621216
+  },
+  "comparison": {
+    "same_initial_adapter": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/train_qad/checkpoint-500",
+    "initial_adapter_weight_files": {
+      "model-00001-of-00003.safetensors": {
+        "bytes": 4987981264,
+        "sha256": "920764b5c76f806218a6546ecba505b2229a099310f7b234873c8d216c5a88ef"
+      },
+      "model-00002-of-00003.safetensors": {
+        "bytes": 4997341208,
+        "sha256": "99587adfea07e3c4c5df495119479e0669f97da5e85f723d88192e5f3d538cdb"
+      },
+      "model-00003-of-00003.safetensors": {
+        "bytes": 2825302008,
+        "sha256": "56e19655f2c51f6bea53cda1dac654f062271a6a5083558ae0567173ce7a8d7a"
+      }
+    },
+    "same_frozen_base": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang",
+    "same_demo_and_update_budget": true,
+    "continuation_wall_ratio_opd_over_continued": 1.2132789587504933,
+    "equal_total_compute": false
+  },
+  "excluded_from_formal_cost_comparison": [
+    "initial QAD smoke",
+    "OPD smoke",
+    "calibration",
+    "baking",
+    "heldout evaluation",
+    "collector audit"
+  ],
+  "accounting_notes": [
+    "Training, collection and labeling retain their producer timing scopes; do not sum them as a measured end-to-end wall clock.",
+    "Teacher labeling elapsed includes checkpoint/input hashing, configuration and observation reading, model loading and labeling, but ends before cache serialization. Export elapsed is a producer field, not process end-to-end timing.",
+    "Training timing includes checkpoint saving; the three arms can have different save counts. This is measured stage cost, not a pure per-update compute benchmark.",
+    "Allocator peaks are process-local PyTorch measurements; collection peaks were not recorded and are null.",
+    "Both continuation manifests name the same adapter; current adapter bytes match the completed QAD export. Training did not record a separate initial-adapter weight digest at start.",
+    "Training and teacher source hashes are producer-attested and verified. Collection records protocol SHA but not its own source SHA; archived wrapper source is a collector-time snapshot.",
+    "Weights, observation tensors and teacher cache are hashed/checked but are not copied into this lightweight evidence package.",
+    "Demonstration window draws are derived from completed optimizer steps times configured effective batch, not an independent microbatch counter or a count of distinct samples.",
+    "Teacher backward fields count student backward passes against cached teacher velocity targets; the BF16 teacher labels under no_grad and is never updated.",
+    "Public verification checks copied metadata/logs and recorded identities without opening private model, observation or cache tensor files; the collector-time tensor hash checks cannot be independently repeated from this lightweight package."
+  ],
+  "evidence_manifest": "evidence_manifest.json"
+}

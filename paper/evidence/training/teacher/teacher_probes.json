@@ -1,0 +1,866 @@
+{
+  "teacher": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+  "teacher_config_sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+  "teacher_statistics_sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+  "teacher_weights": {
+    "model-00001-of-00002.safetensors": {
+      "bytes": 4990519232,
+      "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+    },
+    "model-00002-of-00002.safetensors": {
+      "bytes": 1919980184,
+      "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+    }
+  },
+  "source_observation_files": [
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000000.pt",
+      "bytes": 1621793,
+      "sha256": "3ad31cbe7a8ec9544ff8876884f1618c2fb47e649d80e23ad5fa44f930c1eb67"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000000.pt",
+      "bytes": 1621857,
+      "sha256": "2f63445bd6abd9d6faaca8dee89e016e853fe8bed4ae83d1f676eb4f07b220b2"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000000.pt",
+      "bytes": 1621857,
+      "sha256": "9e7d2b71f8a8d8ca5756cbf30b261b26b346d296304e2a8e7c3fc256ed79f471"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000000.pt",
+      "bytes": 1621793,
+      "sha256": "5180919557b6b6dd44498d1ebb57180d006af2bcb2c1f75598ac1362b9c86db9"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000000.pt",
+      "bytes": 1621857,
+      "sha256": "d2e3e3423d3d15ba380017959fdb1bc969d9ff814b6f3d01d59600035593a8be"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000000.pt",
+      "bytes": 1621857,
+      "sha256": "9451be5b8664e10178f81939394f9aa1c87b6d64d096b62b0f4a206f34cd1f30"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000000.pt",
+      "bytes": 1621857,
+      "sha256": "36032b65d0214cff189ad5b5cedfd620378ce9625995c4346e5080b70b9535b8"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000000.pt",
+      "bytes": 1621985,
+      "sha256": "4a4b0ca8006336fbc11d56ba4e2decfbe2bdcdbadd209ae5589c247a72610dc1"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000000.pt",
+      "bytes": 1621985,
+      "sha256": "de82b91072330c5923333527ba8b48c59cb0dba02c1a7b3f58a72772d17fc329"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000000.pt",
+      "bytes": 1621985,
+      "sha256": "579e729e2ff9bb1e875efaf7da2d04effde9cb977b01f50adc7e1b96802b527c"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000001.pt",
+      "bytes": 1621793,
+      "sha256": "7708055291c168b8b76605369f5251f370adca5817c8326ce79a5e125fda33e6"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000001.pt",
+      "bytes": 1621857,
+      "sha256": "6620018bb079c791e19a8c0cabd5796071e2e8ac16693a6fa60f4bc08a2f1bee"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000001.pt",
+      "bytes": 1621857,
+      "sha256": "c397d1e7e5b76b61a8d928ab57fcdd47baaf2512e17e31a14c0a14939742d32a"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000001.pt",
+      "bytes": 1621793,
+      "sha256": "49d648eb554cb0f1b1f63ac06360a4e03647f3d09a074ccd7eb68f0360382dea"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000001.pt",
+      "bytes": 1621857,
+      "sha256": "cebe0645e57e41d65a3978dd65245c1803ca75f13cdc727c3cc3385affd02b8c"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000001.pt",
+      "bytes": 1621857,
+      "sha256": "3ce4c66bab5156dc9b12b4f346890897b85c7e3d2a6402a77e480d4f4cea612b"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000001.pt",
+      "bytes": 1621857,
+      "sha256": "c5c1f648ab7d6a929021c2675d8e33ddd2b787ae3d71d97ec1863844aa2efb21"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000001.pt",
+      "bytes": 1621985,
+      "sha256": "0a4b7c04ab7269bafa91d8c419cf6e2bbfa4b26a2389455a9f0da91692587485"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000001.pt",
+      "bytes": 1621985,
+      "sha256": "2d01b58cf8b26c97a906d32b65143bae1be459b39c233efed05f05d0f07872be"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000001.pt",
+      "bytes": 1621985,
+      "sha256": "32e711b3df5342b9f91e6446ede1b8849e1a6c86e3408ddf4e24e7221563d2cd"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000002.pt",
+      "bytes": 1621793,
+      "sha256": "abcc862ecf4b2209b13958688c56e61bb80edf87c1551e022bf7e22369a2c260"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000002.pt",
+      "bytes": 1621857,
+      "sha256": "07c9e5d916c0adad412e27fa9073a033dfe548225cc0602fa1a7ac36eb6531fd"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000002.pt",
+      "bytes": 1621857,
+      "sha256": "b713c18f7053e1ff96b38ede8fe272af4f9fbb7eb13e98db38bc6dd1b0e517a7"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000002.pt",
+      "bytes": 1621793,
+      "sha256": "547b566caba2e860a614eebf1a8d8dd55c4d9ed0750f3d8ca576b2c0278da994"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000002.pt",
+      "bytes": 1621857,
+      "sha256": "5735c7462bc8a3575871b9d4064292b443d1c92cf402000abc7fe14945f59ff3"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000002.pt",
+      "bytes": 1621857,
+      "sha256": "257a318dace9e3d64f9d4a1478c387d6ca7af7f118e3b11c04517607df5d9c5f"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000002.pt",
+      "bytes": 1621857,
+      "sha256": "0c2c766efb0e354722ee80cd5d3f5358c77b0a6a20a2fe556d5f830ea12339d6"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000002.pt",
+      "bytes": 1621985,
+      "sha256": "298203bf63dbfe123c54269dc86e3f610b7c59b3df45f0ec9cfd12e5452dd013"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000002.pt",
+      "bytes": 1621985,
+      "sha256": "b6dd85b510497efb3b45361c36de21da319a6501c7354bc4c2da3eb29feeddec"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000002.pt",
+      "bytes": 1621985,
+      "sha256": "524ffac991ba358f4b03751c10d67fc115e47fd29b2db6cfe186e52546335f76"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000003.pt",
+      "bytes": 1621793,
+      "sha256": "f05ca4dbed08cd3014c18d6c0b25cc7bb2abb341e1d5b4974bf3bfb6f8acc44b"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000003.pt",
+      "bytes": 1621857,
+      "sha256": "bdd4aff19130a28c891b3e89afe7204e8ccb5ddf48c17287084eddb94cfed666"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000003.pt",
+      "bytes": 1621857,
+      "sha256": "1592f7062ee9ce948929a7783652dc2c223458be3e074c5247da9f8002e99891"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000003.pt",
+      "bytes": 1621793,
+      "sha256": "619dab01036c547eab6a1c244fb5a3898978bd97660bc8f22c03722b07d5b833"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000003.pt",
+      "bytes": 1621857,
+      "sha256": "9fd4df55fd25bf427d8c02c3bf5e6606d8116ca5d3c821865fc6cbe835642199"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000003.pt",
+      "bytes": 1621857,
+      "sha256": "bd4ab5de6fbfb1cfc04e913db851b0552d4ffe6ae636d01b2c110c6c1e9cd340"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000003.pt",
+      "bytes": 1621857,
+      "sha256": "5858cd26d191810e4391e6767b0a3db38bca0057084d29752bfc9309b94bb06e"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000003.pt",
+      "bytes": 1621985,
+      "sha256": "af7f8ff5b764b0ac1e76152eb7aae055caae4e318395f04f698defe975a8d88d"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000003.pt",
+      "bytes": 1621985,
+      "sha256": "45d8c35098b53e004e9f403defb2f7a9a68b39a925c0c033ad54dc0a8c37a991"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000003.pt",
+      "bytes": 1621985,
+      "sha256": "e4197ac7db616b367dec551581890cda01dbaeb8666743bcc31bb6f4b97c0dd1"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000004.pt",
+      "bytes": 1621793,
+      "sha256": "10ed1ded14bc282cf5f264824c790f5454c105142aa215322050fe3215b6cc84"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000004.pt",
+      "bytes": 1621857,
+      "sha256": "cc7414d63b4b7a824a30ea8cd5e8c7f9a387925f1e284bd74fb88cf8bcce6a0f"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000004.pt",
+      "bytes": 1621857,
+      "sha256": "3c2f98a23593cf0544078da7e7d363ca5c0389dc9a0e3228fe2d57c15ba8b7fd"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000004.pt",
+      "bytes": 1621793,
+      "sha256": "0b2edba5fa94d73647fe78200fd2c731c7d3e45ba40612ae6d4270d849586fe7"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000004.pt",
+      "bytes": 1621857,
+      "sha256": "72d75e79cacc5154853ec079192877fd7a22d3dc4da5a7f1280145f184b76094"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000004.pt",
+      "bytes": 1621857,
+      "sha256": "f5a90f1adee0bae901e5e0c6d628e5274c2d5b5718174e1dcf4e7d71fd69d9dc"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000004.pt",
+      "bytes": 1621857,
+      "sha256": "80cc13571b4b9a70ccf77282f250f8650a1efa5754340123008358f59136dc48"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000004.pt",
+      "bytes": 1621985,
+      "sha256": "f8f14db1f473e68c7e35981dbe2982a5ac0e09638edf205e640c9dafa22f7427"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000004.pt",
+      "bytes": 1621985,
+      "sha256": "58d9496ea28c47ba9edab12f03e84ff87a424903457a6e56c5fe19c4d8778bc0"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000004.pt",
+      "bytes": 1621985,
+      "sha256": "ace0930e3354e66d8729e07cfb3d6a1722d37599469e033bd8adde8e399902e3"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000005.pt",
+      "bytes": 1621793,
+      "sha256": "3039e5845895b8e4efa590411b4e54d0b6eee75e45a5da5f482e5c77acd7349d"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000005.pt",
+      "bytes": 1621857,
+      "sha256": "701965445bef70d9301844df174bba8394c62a6164095247d53a6634212eca49"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000005.pt",
+      "bytes": 1621857,
+      "sha256": "6bb0b5e3923bfb14f1cbd1d8eaf93e37ea8bb9969dfefd3044276d6986b5c59e"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000005.pt",
+      "bytes": 1621793,
+      "sha256": "b2a765a2a88936ae60167720b7b951f3e81dc46ce94872ff2135ab64b9ca246c"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000005.pt",
+      "bytes": 1621857,
+      "sha256": "04ff176fa642169046d3731168bd5ac4bb428bf2a5d2506412825dff360745cc"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000005.pt",
+      "bytes": 1621857,
+      "sha256": "ef18a9b8938621195c4a7bf24b5bfccda82a9e4ee85928191b0851ce185499b0"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000005.pt",
+      "bytes": 1621857,
+      "sha256": "49530978d8369b46ad57600c7cf4a0d3ce12d23938f773dd7e6741d013634762"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000005.pt",
+      "bytes": 1621985,
+      "sha256": "89f3b412aaea20d2bc32e0870b49003d26f3b69dc4ee343296518a3bf875e395"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000005.pt",
+      "bytes": 1621985,
+      "sha256": "0901383ea1425915fe9392e282d6b2f5089d337e7cefcda775f18d73286aa400"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000005.pt",
+      "bytes": 1621985,
+      "sha256": "07107f80a4906c2090abb5b8b444258b722398a66c7b962fb3dbf9f8f24207f7"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000006.pt",
+      "bytes": 1621793,
+      "sha256": "589f1e25c2fd9f680eb4a074519db8ea7c1074ed23b437b575d4c18d6818a63c"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000006.pt",
+      "bytes": 1621857,
+      "sha256": "285d8a67e924dea766abdea734476939b1c36c112d302e1562ce9601449fe442"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000006.pt",
+      "bytes": 1621857,
+      "sha256": "6d21a066a82ffacb6171d76b5e1f4c9260da75ba4de1f743eea80702d69c3ba0"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000006.pt",
+      "bytes": 1621793,
+      "sha256": "3c71c2d6621e0c743da117cf46dbbd8b27c99c8e44cd5f9f3410e994e0c7078f"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000006.pt",
+      "bytes": 1621857,
+      "sha256": "ba5acdc81a24ee4000de8fde6932a7e80833a7af5cc65b9d62fb3f5ec334891d"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000006.pt",
+      "bytes": 1621857,
+      "sha256": "f150a651275c067f8dae964b1c0d513d40e42975b3493b5106a76cda8df549a5"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000006.pt",
+      "bytes": 1621857,
+      "sha256": "b7c63a64ea16866d470e7ba182c503386f6ad0effdfa64cf8930ec1158b54a00"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000006.pt",
+      "bytes": 1621985,
+      "sha256": "532cf86405af7e2c96a18b460b0a6ed010699eaf7cf82fdb55c3b2eb7714fcb5"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000006.pt",
+      "bytes": 1621985,
+      "sha256": "8d6d257f83a78eef517baceaa0a6becff2c36cf5c96d4a205bbf947e362cf527"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000006.pt",
+      "bytes": 1621985,
+      "sha256": "dd696558b8a96ddd94f41a7d97a1db4d1f999adb6d42b40628fb3e89a60dac46"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000007.pt",
+      "bytes": 1621793,
+      "sha256": "7930551e6a8d2456a8eb3b961ebdb9c43ecedb964fb698dc52c43af224b0a851"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000007.pt",
+      "bytes": 1621857,
+      "sha256": "bd7bfc10f6a17565ffb82707196565e7d28a916b2c132ffbebb0bff7fda4e47d"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000007.pt",
+      "bytes": 1621857,
+      "sha256": "b0c154a4b584105561afa56c47111909b1bcbb450ba8abcbc6417354eb96422f"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000007.pt",
+      "bytes": 1621793,
+      "sha256": "2860299565aebe98b321d3decc4a5fd4178d0b02b018fea5cf0c8a7e597d374c"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000007.pt",
+      "bytes": 1621857,
+      "sha256": "23fe2e2d6362463e4ae198c2ed25ce750ea34e0cab13aafb7adc09ecadb08a4b"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000007.pt",
+      "bytes": 1621857,
+      "sha256": "54b54c51d86a9ae7ccc2858a96c97c5f5c15b97240882a49cf196440c44b0fc6"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000007.pt",
+      "bytes": 1621857,
+      "sha256": "0bb15d1ae058d2baeb0087a1cbf6ee21439daa06d9bbff6c0f298905663e1fb6"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000007.pt",
+      "bytes": 1621985,
+      "sha256": "a1e67b0d390b854f0f2b163ebafa9522c1ed30543777776b312b75a8001cdd41"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000007.pt",
+      "bytes": 1621985,
+      "sha256": "97fcbcfeaa3d62ec70d381df7f157e56e4be0ba0284d2e2d9fbfcd4fdc4a18fd"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000007.pt",
+      "bytes": 1621985,
+      "sha256": "e386b9d4ccaff8f0578ed08d91660335c338179c2a196e8ad658a2d0fddc143a"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000008.pt",
+      "bytes": 1621793,
+      "sha256": "3c68c2c1d5aab8ca279457faff07f3edde395796d26cb7c3936fdbb5d14a19c9"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000008.pt",
+      "bytes": 1621857,
+      "sha256": "c29434a3eed40b07984c53077c6ef5ff6cd6b4ee596cba17372f28943eaad612"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000008.pt",
+      "bytes": 1621857,
+      "sha256": "5379e95813ac138a3aadde2a725e411d90a653f0249dc2dde961eee092833605"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000008.pt",
+      "bytes": 1621793,
+      "sha256": "fab9d171d31c220e4568bd0b5ca8188b8adb3422bb3a5b8dd02f14e23c4eeb22"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000008.pt",
+      "bytes": 1621857,
+      "sha256": "08ca69471ebca4f28f2965490ccfdc10d39b65799eebacc9cf33a6e7198443b6"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000008.pt",
+      "bytes": 1621857,
+      "sha256": "890e47edcfc7646b69a0050b16fdeca28a9304b7b7c272cbfb5f9c4911594774"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000008.pt",
+      "bytes": 1621857,
+      "sha256": "a8b33b2156631f32c57196d2fb27c97f1c77ff1f469f0b14345b82c70b7418c3"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000008.pt",
+      "bytes": 1621985,
+      "sha256": "bd68bfe41d551cb8250a153363ec1156372fbe5c60cbf8c2dbf85d030c863e90"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000008.pt",
+      "bytes": 1621985,
+      "sha256": "e1e423ae27b493c1b88cda7a6de758a375ce380873f941bbdf2d50b03920cd74"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000008.pt",
+      "bytes": 1621985,
+      "sha256": "49e84052bf7109230dfe41993586603db000297bd7d7eeb7ff9a8fc81d26f8ab"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000009.pt",
+      "bytes": 1621793,
+      "sha256": "0ac69969e4c5d5542c0a2b2f0b06a428f3476ef1913443fd3f06db1f71b705bf"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000009.pt",
+      "bytes": 1621857,
+      "sha256": "52106bf9cc603c6e7ba528a42a2271ce2d63514b9175100e88fb12b32f42a86c"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000009.pt",
+      "bytes": 1621857,
+      "sha256": "c93fdb0156914eed317777562eba8d0e5ab6bb0a474e9e5309646c2148e45540"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000009.pt",
+      "bytes": 1621793,
+      "sha256": "c3692d80084459a10b910b6e936ba6580de19b7699918e4aa3815448f70b8981"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000009.pt",
+      "bytes": 1621857,
+      "sha256": "d683702604c6503e646ef531b0f1b13533b1f85bc1ce00b406b92d483ae7d21f"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000009.pt",
+      "bytes": 1621857,
+      "sha256": "f20453dd5ff8ee30f94173e4e382d9a58b0b94be515222cabd97f5649df6b2de"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000009.pt",
+      "bytes": 1621857,
+      "sha256": "2da7fb74782da346cb58f2f398f6b4c655e0c48f636f5a074fce6d68a3bc65d2"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000009.pt",
+      "bytes": 1621985,
+      "sha256": "8a3682e8e8407803f98b18fecd0a4f04193dfbe0abd50d648526bf3d82a23a42"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000009.pt",
+      "bytes": 1621985,
+      "sha256": "6e114c057f8b3b284718af518466a1eabce1a5d36cf41a051adfc11eef7a6788"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000009.pt",
+      "bytes": 1621985,
+      "sha256": "54365e051d20c994f2f4da6e9797646a07ec7ec24bb579561cb6524eb3d134d9"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000010.pt",
+      "bytes": 1621793,
+      "sha256": "5f311a4da193aeff928dbeda667c9edd41944bf328cfcb1e1578084ac6c2a381"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000010.pt",
+      "bytes": 1621857,
+      "sha256": "7052dea6715bfc30feb839864d1c048c2802876c985a780312b7c6ebc3178e31"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000010.pt",
+      "bytes": 1621857,
+      "sha256": "474c465ee8e6f1b6e8cecd0e1aa0b75a13bcc5df932b619fe3ccc3b13ee6c18b"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000010.pt",
+      "bytes": 1621793,
+      "sha256": "c124e62448fdb4b338836b050c2eda186eebb65735b9b7a1b452aa6d8132569b"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000010.pt",
+      "bytes": 1621857,
+      "sha256": "26e95938314d13cd81356dfa4048d9148f94f49eea22774bf7a8dbdc75bfb4b7"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000010.pt",
+      "bytes": 1621857,
+      "sha256": "ad1257c528305d42003765dab23e9f9afe6300e8535b00d7cd06493251f2cc15"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000010.pt",
+      "bytes": 1621857,
+      "sha256": "18f9db15529fe1b599106525522adde3f89482dd9615ca9e8151f5cc2b30f5c1"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000010.pt",
+      "bytes": 1621985,
+      "sha256": "c7c9a22446c4b7d701a36719d570d6c95f98079d5137a0cb1d7365ee588e9dad"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000010.pt",
+      "bytes": 1621985,
+      "sha256": "009b971099386d8fcd9feccead7f3c85c65005b7ca7f4f5c4ea3108c87188106"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000010.pt",
+      "bytes": 1621985,
+      "sha256": "df9c8e3d1ca864067d6097e3d9c6c28aa3f86166cbbca18af8f361f80227b765"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000011.pt",
+      "bytes": 1621793,
+      "sha256": "3a3d635e71c8dc0d8837ad539828cd2bdaadb06ecc16dd3e6c0e65fd96c4fe28"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000011.pt",
+      "bytes": 1621857,
+      "sha256": "e3f71a135cc8713772da5b4ff4e771cfab62ca1d7b52730cbd686211b86dc1b6"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000011.pt",
+      "bytes": 1621857,
+      "sha256": "1812309571c8b1d18b2f395cdc83e46efa733f8c147509fd916d1b3790f75c34"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000011.pt",
+      "bytes": 1621793,
+      "sha256": "bcadc2995cdbd5d0013ffe39e72ecf2d4c6c610770bccc0db7b2e32866c91992"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000011.pt",
+      "bytes": 1621857,
+      "sha256": "bebad09c3579b92f484424efa82fc0426bc5202c52c1d22a84ff48d5264ef60e"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000011.pt",
+      "bytes": 1621857,
+      "sha256": "12cc50cae7c5e3aca01455c6a240adb51ee9b05dc6fbba6f7bc56c2d0ceddb28"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000011.pt",
+      "bytes": 1621857,
+      "sha256": "b1a0a966add736b7cbc906ea6be9b2aba32efd5b5df45ca2ebca2b657c0503fe"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000011.pt",
+      "bytes": 1621985,
+      "sha256": "bf35d0191d7cbf664b096081ff6bf85b52b57e828574c577a1dd5a954e8a3b52"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000011.pt",
+      "bytes": 1621985,
+      "sha256": "4ebbd2bcc09aa93b64826445a83b9fd92849f427d4acfe13be2d162923030590"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000011.pt",
+      "bytes": 1621985,
+      "sha256": "d44251cf77d9f9fdea342e3dfee0755a2d4ca3cfaf0ae60ab722e466370e9556"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000012.pt",
+      "bytes": 1621793,
+      "sha256": "1b6d8835c349065014c8adcb20fbb51fa43aab81403c741ff3ae4454e0803176"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000012.pt",
+      "bytes": 1621857,
+      "sha256": "b67699277adf14e60c95f295f52ab133841236fdf922470ec9b53aeec3c18b65"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000012.pt",
+      "bytes": 1621857,
+      "sha256": "836c88f34e4a07e2ec8fefe78c23cf4de9575e151755dde1af00840906af278f"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000012.pt",
+      "bytes": 1621793,
+      "sha256": "101632bb6c189b1b323a53513789b6f9753ff53116599673245e3887127168ef"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000012.pt",
+      "bytes": 1621857,
+      "sha256": "4bba9f9f4548fd913040eaa8800fa7d1150c67b2f272e325e2a1fa0077c7049c"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000012.pt",
+      "bytes": 1621857,
+      "sha256": "7358a8caa13fcfb31a932d0805dff9389dacf1afade561ccd9c34fd44af93344"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000012.pt",
+      "bytes": 1621857,
+      "sha256": "02d586e57ee2f1ad8074847ba6cd259bd67c46499cd8c05993f388548dc6b5a0"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000012.pt",
+      "bytes": 1621985,
+      "sha256": "a7606907f708d38f4e26a7cea4c796d981801e81a67403c2c4cd01b43aaf9ae7"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000012.pt",
+      "bytes": 1621985,
+      "sha256": "6b51e9a532e01d7af86cf9246ca7909d858e7117af03eb78f614dac47cd74ada"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000013.pt",
+      "bytes": 1621793,
+      "sha256": "3adaf767819fc7ee4c09542f52faf812c00d98d2779d04fd39900f95405e89a3"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000013.pt",
+      "bytes": 1621857,
+      "sha256": "702644ca52fe8556e11860bf7d9e7ace03a3334cbf36964e930f4b15c35a2b77"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000013.pt",
+      "bytes": 1621857,
+      "sha256": "396dfe58323559af58ba04127196fd224f98f5e2fe0df9723608b0cc8bb29c50"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000013.pt",
+      "bytes": 1621793,
+      "sha256": "765ba4da6d2c91f63e7e1c1a1bd32d1d963e7b4fe8ea293e8059f411c8855d22"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000013.pt",
+      "bytes": 1621857,
+      "sha256": "70eb53c40777fcbff48bed78c7a9c232b4ba8e99d1849cb024ff0e60c17d73f5"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000013.pt",
+      "bytes": 1621857,
+      "sha256": "2dc2d20eaa7f71e44954fb00ff2d3a66c07d3d4a86a6dc053ff44ab5d8f1d470"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000013.pt",
+      "bytes": 1621857,
+      "sha256": "9179200ce57b74ced142a44f359084c269934a4142a420b541a23c591aa3eb4b"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000013.pt",
+      "bytes": 1621985,
+      "sha256": "f10a242050629a0e919182f347961dffc03748e3802b553579b54f36cd1c74e6"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000013.pt",
+      "bytes": 1621985,
+      "sha256": "6b836331e0c03cae616f4bb06ef06f0b13557546474db15eaeb48a3b0b41f513"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000014.pt",
+      "bytes": 1621793,
+      "sha256": "5c3dffafd49e63b32c100fa5f6370df326d77d0816076fbbfcea4fd494bfd497"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000014.pt",
+      "bytes": 1621857,
+      "sha256": "909b1b027182e15f15c5b2c92563f932cba4b2ad5b33c3cf3a69a8bc6b768f99"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000014.pt",
+      "bytes": 1621857,
+      "sha256": "83499d027755bd92fab8b32cf66c63c36ba980cc8111167ccaa3717cbb27afd8"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000014.pt",
+      "bytes": 1621793,
+      "sha256": "39ad0d82e648a554a4b27348fa558857f6fabd89a1e8bca19a794462ac710f5e"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000014.pt",
+      "bytes": 1621857,
+      "sha256": "2a6b2ae7af4a8b303a9e0879463e4bf43a521b0390f1fdb174a81e34c7543b95"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000014.pt",
+      "bytes": 1621857,
+      "sha256": "bcf95f082933072ec1b472219f423e4cd92ff498eb06c0b4abbb948a87451920"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000014.pt",
+      "bytes": 1621857,
+      "sha256": "18b43f9d2f5bf4cc001b9050aacbb3400ecc5a8022a8b51495f9168ffa82dfac"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000014.pt",
+      "bytes": 1621985,
+      "sha256": "1fd39b6a477dfc7e00449cf0c06371a579d4ac06e89600e8b4e28cb478a1f664"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000014.pt",
+      "bytes": 1621985,
+      "sha256": "003d885d7c0ca0768c600af54acab1e2ed8b158a2801dc98fb618792889b005d"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000015.pt",
+      "bytes": 1621793,
+      "sha256": "50e6e7affdccd91863159ef4a93a2e44db77c862c1ee5eba60e69f79bd0157b8"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000015.pt",
+      "bytes": 1621857,
+      "sha256": "39e4085e480edd299308df476053dd4fdc3a79ef3fcdcec6934db51a118d676d"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000015.pt",
+      "bytes": 1621857,
+      "sha256": "b984def4def2144ff06d224bc7b2ac9379f4b0aa54102d5e44ba6f25812690a9"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000015.pt",
+      "bytes": 1621793,
+      "sha256": "b78357df656d488ff75d5a5735f8ae21ae4c0d64684d5eb3467f7f20c4c69ce5"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000015.pt",
+      "bytes": 1621857,
+      "sha256": "8fc251193d6da174955c770b39057e6ab3527bc73fcfd856970b02381fa8c853"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000015.pt",
+      "bytes": 1621857,
+      "sha256": "b44a6ac9711a213d781c3ffb97b046998749884f2b5419d1bf3f0147561d82da"
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000015.pt",
+      "bytes": 1621985,
+      "sha256": "6781defa368c9b82de90144b1dd332ea89a13e2a35bdcd3e8512b6dc97ec9156"
+    }
+  ],
+  "labeling_implementation_sha256": "acc4d9f1981a452817bff8448a53b6ad2c41216c9b703c45e09aa15a1a1befc1",
+  "replay_implementation_sha256": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6",
+  "architecture": {
+    "language_layers": 16,
+    "dit_layers": 32,
+    "vl_layers": 4
+  },
+  "model_dtype": "float32",
+  "flow_config": {
+    "noise_beta_alpha": 1.5,
+    "noise_beta_beta": 1.0,
+    "noise_s": 0.999,
+    "num_timestep_buckets": 1000,
+    "action_horizon": 40,
+    "max_action_dim": 132,
+    "state_history_length": 1
+  },
+  "autocast_dtype": "bfloat16",
+  "eval_mode": true,
+  "source_kind": "student_rollout",
+  "seed": 20260929,
+  "count": 154,
+  "requested_count": 160,
+  "objective": "masked velocity MSE at shared full interpolated action/noise/time",
+  "action_mask": {
+    "embodiment": "libero_sim",
+    "horizon": 16,
+    "dimensions": 7,
+    "keys": [
+      "x",
+      "y",
+      "z",
+      "roll",
+      "pitch",
+      "yaw",
+      "gripper"
+    ],
+    "key_dimensions": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "delta_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "policy": "prefix horizon and concatenated processor action keys; exclude padding"
+  },
+  "cuda_peak_memory": [
+    {
+      "device_index": 0,
+      "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "max_memory_allocated_bytes": 13327141376,
+      "max_memory_reserved_bytes": 13570670592,
+      "memory_allocated_bytes_at_end": 12587730944,
+      "memory_reserved_bytes_at_end": 13570670592
+    }
+  ],
+  "timing_scope": "checkpoint loading and teacher labeling, before cache serialization",
+  "cuda_peak_scope": "PyTorch allocator peaks for this labeling process",
+  "elapsed_seconds": 24.04636025428772
+}
