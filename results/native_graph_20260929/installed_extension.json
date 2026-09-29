@@ -1,0 +1,7 @@
+{
+  "native_extensions": {
+    "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so": "6bcdfca6841fe5db885effb4ccca1a7850d03a1fe7e0a359723dfe606fc206b1"
+  },
+  "execution_mode_getter_present": true,
+  "instances_created": 0
+}

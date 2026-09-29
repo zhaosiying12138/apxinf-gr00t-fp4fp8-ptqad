@@ -1,0 +1,8 @@
+# scale_layout=hw output=column_major_f32 secondary_scale=1 timing=mean_of_50_cuda_event_iterations quantization=outside_timing
+# gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120 vram=23.9GB driver=13030 runtime=13030 cublasLt=130600 cuda_ver=13.3
+# verify mode M=128 N=256 K=256; fp64 decoded-input reference; atol=1e-4 rtol=1e-4
+# verify bf16   slayout=hw      ok=1  verify_maxabs=0.000000 verify_maxrel=0.000016 checked=32768 failed=0
+# verify fp8    slayout=hw      ok=1  verify_maxabs=0.000000 verify_maxrel=0.000011 checked=32768 failed=0
+# verify nvfp4  slayout=hw      ok=1  verify_maxabs=0.000000 verify_maxrel=0.000000 checked=32768 failed=0
+# verify mxfp4  slayout=hw      ok=0 heuristic: 7 algos=0
+# verification_summary verified=3 failed=0 unavailable=1; unavailable formats are not validated

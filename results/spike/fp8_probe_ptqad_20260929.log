@@ -1,0 +1,8 @@
+gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120
+shape M=512 N=2048 K=2048; deterministic full A/B initialized; completed matmul status checked
+e4m3xe4m3 -> f32             heur=0 algos=4  matmul=0 cuda_launch=no error cuda_sync=no error
+e4m3xe4m3 -> bf16            heur=0 algos=4  matmul=0 cuda_launch=no error cuda_sync=no error
+e4m3xe4m3 -> f16             heur=0 algos=4  matmul=0 cuda_launch=no error cuda_sync=no error
+e4m3xe4m3 -> e4m3            heur=15 algos=0  => NO ALGO
+e4m3xe4m3 -> e4m3 +Dscale    heur=15 algos=0  => NO ALGO
+probe completed: execution_failures=0; NO ALGO remains an unavailable descriptor combination

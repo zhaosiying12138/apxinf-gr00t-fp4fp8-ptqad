@@ -1,0 +1,27 @@
+{
+  "pack_input_manifest.json": {
+    "source": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/pack_input_manifest.json",
+    "bytes": 1597,
+    "sha256": "de2fed1c1f5db06fe588d69d2439df4949fa1712c9e4edb6936611a4860ff79b"
+  },
+  "producer_manifest.json": {
+    "source": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/producer_manifest.json",
+    "bytes": 43416,
+    "sha256": "32da473880152a3a07215804a94675322e619ff6329675ed5e1e948ab743312d"
+  },
+  "packed_manifest.json": {
+    "source": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/manifest.json",
+    "bytes": 19429,
+    "sha256": "04dd7c439ba3295a951e71504893a1499cb5ec146637e80884960e6cc7590ec9"
+  },
+  "overlay_manifest.json": {
+    "source": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/overlay_manifest.json",
+    "bytes": 1735,
+    "sha256": "032ee78bdce80c1c7b33d4f3ca6aff1f73114bd548b37daa9cc5e6e72b88ffc3"
+  },
+  "pack.log": {
+    "source": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/pack.log",
+    "bytes": 231,
+    "sha256": "8b6fdc5663723c526e0b120a16f563f493d9ff5ca6e6ef86d30d01bc9b6eb5a3"
+  }
+}

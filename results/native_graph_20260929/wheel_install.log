@@ -1,0 +1,7 @@
+Using Python 3.12.14 environment at: /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv
+Resolved 1 package in 1ms
+Prepared 1 package in 60ms
+Uninstalled 1 package in 1ms
+Installed 1 package in 0.55ms
+ - apxinf-py==0.1.0 (from file:///home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/target/wheel/wheels/apxinf_py-0.1.0-cp312-cp312-linux_x86_64.whl#sha256=301c23f0302c25f3ba7949ac9476f2838fedd0be1ee09714ffacf6ada094a1ff)
+ + apxinf-py==0.1.0 (from file:///home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/target/wheel/wheels/apxinf_py-0.1.0-cp312-cp312-linux_x86_64.whl)

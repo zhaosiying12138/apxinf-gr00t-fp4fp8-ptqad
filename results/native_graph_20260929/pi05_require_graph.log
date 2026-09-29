@@ -1,0 +1,33 @@
+CUDA 0: NVIDIA GeForce RTX 5090 Laptop GPU (compute 12.0, sm100-family, 82 SMs)
+[apxinf] PI0.5 model_variant=nvfp4_static
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 2560] w4=2560x2048 routed=fp4
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 32768] w4=32768x2048 routed=fp4
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 2560] w4=2560x2048 routed=fp4
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 32768] w4=32768x2048 routed=fp4
+noise_index=0 elements=1600 max_abs=0
+noise_index=1 elements=1600 max_abs=0
+noise_index=0 elements=1600 max_abs=0
+NVFP4 full-model RequireGraph PASS: 2 eager references, 3 changed-input replays; no implicit-plan allocation
+	Command being timed: "./target/wheel/release/examples/pi05_fp4_graph_smoke /home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model 10"
+	User time (seconds): 36.45
+	System time (seconds): 50.87
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:29.23
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 28545016
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 420
+	Minor (reclaiming a frame) page faults: 34964084
+	Voluntary context switches: 13603
+	Involuntary context switches: 488
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

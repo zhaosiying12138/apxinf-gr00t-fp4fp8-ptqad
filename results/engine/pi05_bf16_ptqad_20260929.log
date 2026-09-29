@@ -1,0 +1,53 @@
+CUDA 0: NVIDIA GeForce RTX 5090 Laptop GPU (compute 12.0, sm100-family, 82 SMs)
+[apxinf] PI0.5 model_variant=bf16
+{
+  "model_type": "pi05",
+  "variant": "bf16",
+  "variant_verification": {
+    "status": "native_model_variant_verified",
+    "native_model_variant": "bf16",
+    "policy_value": "bf16",
+    "limitation": null
+  },
+  "execution_mode": {
+    "after_warmup": "graph",
+    "after_each_timed_sample": [
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph"
+    ],
+    "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+  },
+  "n": 30,
+  "model_ms_p50": 47.49366000032751,
+  "total_ms_p50": 48.6514910007827,
+  "all_outputs_finite": true
+}
+Saved /home/zhaosiying/codebase/fp4vla/results/engine/pi05_bf16_ptqad_20260929.json

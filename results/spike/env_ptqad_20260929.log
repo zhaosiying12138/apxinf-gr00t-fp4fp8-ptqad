@@ -1,0 +1,2 @@
+# scale_layout=hw output=column_major_f32 secondary_scale=1 timing=mean_of_50_cuda_event_iterations quantization=outside_timing
+# gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120 vram=23.9GB driver=13030 runtime=13030 cublasLt=130600 cuda_ver=13.3

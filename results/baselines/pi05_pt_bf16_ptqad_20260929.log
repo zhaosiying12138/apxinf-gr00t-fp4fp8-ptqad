@@ -1,0 +1,36 @@
+/home/zhaosiying/codebase/fp4vla/baselines/.venv-pi05/lib/python3.12/site-packages/torch/backends/__init__.py:46: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  self.setter(val)
+WARNING:lerobot.configs.policies:Device 'mps' is not available. Switching to 'cuda'.
+WARNING:root:Vision embedding key might need handling: paligemma_with_expert.paligemma.model.vision_tower.vision_model.embeddings.patch_embedding.bias
+WARNING:root:Vision embedding key might need handling: paligemma_with_expert.paligemma.model.vision_tower.vision_model.embeddings.patch_embedding.weight
+{
+  "model": "lerobot/pi05_libero_base",
+  "dtype_config": "bfloat16",
+  "parameter_dtype_elements": {
+    "bfloat16": 3609853952,
+    "float32": 533550864
+  },
+  "timing_scope": {
+    "entrypoint": "PI05Policy.predict_action_chunk",
+    "included": [
+      "internal_image_resize_and_normalize",
+      "vision_language_backbone",
+      "action_denoising",
+      "action_unpadding"
+    ],
+    "excluded": [
+      "model_loading",
+      "synthetic_input_generation",
+      "sentencepiece_tokenization",
+      "initial_host_to_device",
+      "finite_output_validation",
+      "environment_state_normalization",
+      "environment_action_denormalization",
+      "simulator",
+      "network"
+    ]
+  },
+  "n": 30,
+  "latency_ms_mean": 244.27699040000638
+}
+Saved /home/zhaosiying/codebase/fp4vla/results/baselines/pi05_pt_bf16_ptqad_20260929.json

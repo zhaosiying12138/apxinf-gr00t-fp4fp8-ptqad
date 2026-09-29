@@ -1,0 +1,23 @@
+# gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120 driver=13030 runtime=13030 cublasLt=130600
+# deterministic_inputs=v1 weight_tensor_scale=0.25 output=row_major timing=CUDA_event_true_median samples=30 warmup=10
+# fp4=online_activation_quantize+rowmajor_scaled_adapter; bf16=prepared_GEMM; preparation_and_reference_checks_excluded; per_case=all_activation_bytes+21_sampled_outputs
+shape,M,N,K,samples,warmup,weight_tensor_scale,fp4_us_p50,bf16_us_p50,speedup,fp4_check_max_abs,bf16_check_max_abs,status
+gemma-1152,522,1152,1152,0,0,0.25,,,,0,0,verified_samples
+gemma-1152,778,1152,1152,0,0,0.25,,,,0,0,verified_samples
+gemma-1152,2048,1152,1152,0,0,0.25,,,,0,0,verified_samples
+mlp-3072x1024,522,3072,1024,0,0,0.25,,,,0,0,verified_samples
+mlp-3072x1024,778,3072,1024,0,0,0.25,,,,0,0,verified_samples
+mlp-3072x1024,2048,3072,1024,0,0,0.25,,,,0,0,verified_samples
+mlp-4096x1024,522,4096,1024,0,0,0.25,,,,0,0,verified_samples
+mlp-4096x1024,778,4096,1024,0,0,0.25,,,,0,0,verified_samples
+mlp-4096x1024,2048,4096,1024,0,0,0.25,,,,0,0,verified_samples
+big-16384x2048,522,16384,2048,0,0,0.25,,,,0,0,verified_samples
+big-16384x2048,778,16384,2048,0,0,0.25,,,,0,0,verified_samples
+big-16384x2048,2048,16384,2048,0,0,0.25,,,,0,0,verified_samples
+attn-2048x2048,522,2048,2048,0,0,0.25,,,,0,0,verified_samples
+attn-2048x2048,778,2048,2048,0,0,0.25,,,,0,0,verified_samples
+attn-2048x2048,2048,2048,2048,0,0,0.25,,,,0,0,verified_samples
+geglu-4304x1152,522,4304,1152,0,0,0.25,,,,0,0,verified_samples
+geglu-4304x1152,778,4304,1152,0,0,0.25,,,,0,0,verified_samples
+geglu-4304x1152,2048,4304,1152,0,0,0.25,,,,0,0,verified_samples
+# completed=18 unavailable=0; unavailable cases have no timing or speedup

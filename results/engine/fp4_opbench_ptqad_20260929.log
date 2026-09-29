@@ -1,0 +1,4 @@
+# gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120 driver=13030 runtime=13030 cublasLt=130600
+# deterministic_inputs=v1 weight_tensor_scale=0.25 output=row_major timing=CUDA_event_true_median samples=30 warmup=10
+# fp4=online_activation_quantize+rowmajor_scaled_adapter; bf16=prepared_GEMM; preparation_and_reference_checks_excluded; per_case=all_activation_bytes+21_sampled_outputs
+# completed=18 unavailable=0; unavailable cases have no timing or speedup

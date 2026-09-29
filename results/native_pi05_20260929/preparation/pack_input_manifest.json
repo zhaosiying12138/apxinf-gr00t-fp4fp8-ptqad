@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "input_frozen",
+  "created_utc": "2026-09-29T03:25:53.291661+00:00",
+  "source_checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base/model.safetensors",
+  "source": {
+    "bytes": 14467165872,
+    "sha256": "21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4"
+  },
+  "source_code_sha256": {
+    "exp/prepare_native_pi05.sh": "ef3779ad01a03f8309460a339aa2c921a2ca4eae06f6e0cdb4a38fabc86c8c88",
+    "exp/prepare_native_pi05.py": "d52581871d0355c152241b9e80b0ee812d28c0f1b8c880874fd44f8ca649a425",
+    "quant/nvfp4_convert_packed.py": "3ebcf229b94d4235378a7f64ce8809eb17595a25f79a150d7e23ce7c7d443022",
+    "quant/nvfp4_convert.py": "0d9df84c8ba58caebef2dc1d681409abe0429174162482af2a162b93d8dd9352",
+    "quant/fp4_quant.py": "639be33aed86990ad7cca1c860a4eb38e3dcba91e147c84c9d26921b57ae0387"
+  },
+  "command": [
+    "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/bin/python",
+    "/home/zhaosiying/codebase/fp4vla/quant/nvfp4_convert_packed.py",
+    "--ckpt",
+    "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base/model.safetensors",
+    "--out",
+    "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed",
+    "--scope",
+    "all",
+    "--lang-depth",
+    "18",
+    "--act-depth",
+    "18",
+    "--vision-depth",
+    "27",
+    "--chunk-rows",
+    "512"
+  ],
+  "cpu_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2"
+  },
+  "git_head": "69f88df96b8efa0330bdc615fe9c90a2b3f46148",
+  "git_dirty": true
+}

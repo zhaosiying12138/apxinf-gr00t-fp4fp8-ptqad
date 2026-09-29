@@ -1,0 +1,16 @@
+opened 812 source tensors (lazy CPU reads)
+  lang 0
+  lang 8
+  lang 16
+  act 0
+  act 8
+  act 16
+  vision 0
+  vision 9
+  vision 18
+{
+ "tensors": 99,
+ "mean_rel_frob": 0.09596,
+ "orig_bytes": 6432030720,
+ "packed_bytes": 904504320
+}

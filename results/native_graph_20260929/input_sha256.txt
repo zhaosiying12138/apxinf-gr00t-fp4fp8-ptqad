@@ -1,0 +1,4 @@
+7e47345c105a31cfb16f5463443fea29906dee8d23c0ee99121cbd8845e642e3  /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/target/wheel/wheels/apxinf_py-0.1.0-cp312-cp312-linux_x86_64.whl
+b571e4b4820ccd43dc3a6ffb2dc05a686602ad6b01084ed4a3b919ce25b3e607  /home/zhaosiying/codebase/fp4vla/patches/apxinf-fp4vla-engine.patch
+f81c952db476bb9a58106ef8f0dca6bed6f1853228f0836664202fbd4125016d  /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench
+874f2632c29f57cd222bc4134f8611dd6c020a240521878c9614b3dbd82be000  /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/target/wheel/release/examples/pi05_fp4_graph_smoke

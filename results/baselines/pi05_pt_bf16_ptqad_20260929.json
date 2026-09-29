@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "model": "lerobot/pi05_libero_base",
+  "engine": "pytorch-lerobot",
+  "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base",
+  "checkpoint_sha256": {
+    "calibration.json": "0accf5914cd5243497c8c674ec27c7725043a445ab9a9fd5effabed686c7e6e1",
+    "config.json": "4d59e79adda2b1467e00f4c76390d95bfe05e9f1eff5f4da08aa493d6fe08651",
+    "model.safetensors": "21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4",
+    "norm_stats.json": "b3a44bb2810436fb62917decaea58bd4d9110255df527dea21e8fd40c960bd84",
+    "paligemma_tokenizer.model": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6",
+    "policy_postprocessor.json": "eab7a5deb97c59e7224da9247b4a4fe07371bcb5a4f41818e3881461fbaf0872",
+    "policy_preprocessor.json": "3b82ad181de39a25bab881b31d04f800c18ad629c894fcbe2f4d3699559a27db"
+  },
+  "policy_source_sha256": "8faec89af9d31f5c2f0e12b4ea369d2af6bf0c25050a13adcaefbd9b8aa03b69",
+  "script_sha256": "16e8da8f98b9ebe5b672473e5f6b8637136ac8ea428fb7fcd82e7aeeb0fd5e25",
+  "shared_helper_sha256": "f2ade088e3eff3c5a38781888c9fc58524d887925d941600422d2aa191be04a3",
+  "torch": "2.9.0+cu128",
+  "transformers": "5.5.4",
+  "lerobot": "0.6.1",
+  "strict_loaded_keys": 813,
+  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+  "device": "cuda:0",
+  "dtype_config": "bfloat16",
+  "dtype_policy": "lerobot_bfloat16_with_fp32_vision_norm_projector_and_action_time_heads",
+  "parameter_dtype_elements": {
+    "bfloat16": 3609853952,
+    "float32": 533550864
+  },
+  "compute_dtype": {
+    "outer_autocast": false,
+    "linear_io_signatures": {
+      "input=float32;weight=float32;output=float32": 899,
+      "input=bfloat16;weight=bfloat16;output=bfloat16": 1386
+    },
+    "observation_pass": "untimed_first_inference"
+  },
+  "timing_scope": {
+    "entrypoint": "PI05Policy.predict_action_chunk",
+    "included": [
+      "internal_image_resize_and_normalize",
+      "vision_language_backbone",
+      "action_denoising",
+      "action_unpadding"
+    ],
+    "excluded": [
+      "model_loading",
+      "synthetic_input_generation",
+      "sentencepiece_tokenization",
+      "initial_host_to_device",
+      "finite_output_validation",
+      "environment_state_normalization",
+      "environment_action_denormalization",
+      "simulator",
+      "network"
+    ]
+  },
+  "input_contract": {
+    "synthetic": true,
+    "prompt": "put the moka pot on the stove",
+    "token_count": 10,
+    "token_recipe": "BOS + prompt-only SentencePiece tokens + EOS; no state-to-text preprocessing",
+    "images": [
+      "image:256x256",
+      "image2:256x256"
+    ],
+    "empty_camera": "omitted; native preprocessing inserts padding and false mask",
+    "state": "synthetic 8-vector; predict_action_chunk does not use it directly"
+  },
+  "batch_size": 1,
+  "seed": 7,
+  "n": 30,
+  "warmup": 10,
+  "untimed_first_inferences": 1,
+  "load_s": 68.2331001959974,
+  "num_inference_steps": 10,
+  "chunk_size": 50,
+  "latency_ms_mean": 244.27699040000638,
+  "latency_ms_p50": 243.16224050198798,
+  "latency_ms_p99": 260.58645332719607,
+  "lat_all_ms": [
+    242.31839799904265,
+    240.46504899888532,
+    238.51553699932992,
+    237.15610900399042,
+    244.06074999569682,
+    261.85352799802786,
+    246.82123600359773,
+    251.60343400057172,
+    249.0211160038598,
+    245.90437300503254,
+    257.4843049951596,
+    239.52847799955634,
+    241.65309199452167,
+    238.79588400450302,
+    244.76923199836165,
+    237.34857499948703,
+    235.49799299507868,
+    244.7206470023957,
+    244.321858001058,
+    242.49869999766815,
+    234.42841200449038,
+    243.75077400327427,
+    249.8291550000431,
+    240.2579740009969,
+    237.46254299476277,
+    242.5737070007017,
+    250.7179569947766,
+    256.85250999958953,
+    249.8621320046368,
+    238.2362540010945
+  ],
+  "quantile_method": "numpy.percentile linear",
+  "hz_mean": 4.093713445390368,
+  "vram_alloc_gb": 8.83824348449707,
+  "vram_reserved_gb": 9.13671875,
+  "vram_scope": "PyTorch allocator peak after warmup; excludes other processes",
+  "action_shape": [
+    1,
+    50,
+    7
+  ],
+  "all_outputs_finite": true,
+  "tf32": false,
+  "compile_model": false
+}

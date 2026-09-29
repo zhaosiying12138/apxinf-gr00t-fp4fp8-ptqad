@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "model_dir": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model",
+  "source_checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base/model.safetensors",
+  "source_sha256": "21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4",
+  "packed_dir": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed",
+  "producer_manifest_sha256": "32da473880152a3a07215804a94675322e619ff6329675ed5e1e948ab743312d",
+  "copied_metadata": {
+    ".gitattributes": {
+      "bytes": 1519,
+      "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+    },
+    "README.md": {
+      "bytes": 4255,
+      "sha256": "7a1fc74649adc4fa60c53abb20b59cb48405bf175a149b54389c29f35f415fec"
+    },
+    "calibration.json": {
+      "bytes": 47106,
+      "sha256": "0accf5914cd5243497c8c674ec27c7725043a445ab9a9fd5effabed686c7e6e1"
+    },
+    "config.json": {
+      "bytes": 1715,
+      "sha256": "4d59e79adda2b1467e00f4c76390d95bfe05e9f1eff5f4da08aa493d6fe08651"
+    },
+    "norm_stats.json": {
+      "bytes": 1914,
+      "sha256": "b3a44bb2810436fb62917decaea58bd4d9110255df527dea21e8fd40c960bd84"
+    },
+    "paligemma_tokenizer.model": {
+      "bytes": 4264023,
+      "sha256": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6"
+    },
+    "policy_postprocessor.json": {
+      "bytes": 448,
+      "sha256": "eab7a5deb97c59e7224da9247b4a4fe07371bcb5a4f41818e3881461fbaf0872"
+    },
+    "policy_preprocessor.json": {
+      "bytes": 1034,
+      "sha256": "3b82ad181de39a25bab881b31d04f800c18ad629c894fcbe2f4d3699559a27db"
+    }
+  },
+  "note": "Original base/fp4 link is untouched; AutoPolicy loads this new directory."
+}

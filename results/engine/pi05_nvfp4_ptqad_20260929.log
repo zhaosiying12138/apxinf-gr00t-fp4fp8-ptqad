@@ -1,0 +1,57 @@
+CUDA 0: NVIDIA GeForce RTX 5090 Laptop GPU (compute 12.0, sm100-family, 82 SMs)
+[apxinf] PI0.5 model_variant=nvfp4_static
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 2560] w4=2560x2048 routed=fp4
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 32768] w4=32768x2048 routed=fp4
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 2560] w4=2560x2048 routed=fp4
+[fp4-route] hit: x=[522, 2048] w_bf16=[2048, 32768] w4=32768x2048 routed=fp4
+{
+  "model_type": "pi05",
+  "variant": "nvfp4_static",
+  "variant_verification": {
+    "status": "native_model_variant_verified",
+    "native_model_variant": "nvfp4_static",
+    "policy_value": "nvfp4_static",
+    "limitation": null
+  },
+  "execution_mode": {
+    "after_warmup": "graph",
+    "after_each_timed_sample": [
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph"
+    ],
+    "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+  },
+  "n": 30,
+  "model_ms_p50": 35.821509001834784,
+  "total_ms_p50": 36.98456049824017,
+  "all_outputs_finite": true
+}
+Saved /home/zhaosiying/codebase/fp4vla/results/engine/pi05_nvfp4_ptqad_20260929.json

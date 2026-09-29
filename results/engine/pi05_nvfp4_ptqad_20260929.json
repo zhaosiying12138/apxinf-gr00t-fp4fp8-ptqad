@@ -1,0 +1,2287 @@
+{
+  "n": 30,
+  "warmup": 10,
+  "untimed_first_inferences": 1,
+  "lat_model_ms": [
+    35.80589600460371,
+    35.83712199906586,
+    35.57306600123411,
+    35.491059003106784,
+    35.36068100220291,
+    35.463226995489094,
+    35.36077599710552,
+    35.57362299761735,
+    35.747617002925836,
+    36.35693599790102,
+    36.360817997774575,
+    35.6203999981517,
+    35.70881500490941,
+    36.46148400002858,
+    38.99499199906131,
+    36.739481998665724,
+    34.899322999990545,
+    36.643230996560305,
+    36.161480005830526,
+    35.96738600026583,
+    35.97278999950504,
+    35.77786400273908,
+    36.38482799578924,
+    36.650091999035794,
+    36.80463800264988,
+    35.58570799941663,
+    35.68473699851893,
+    35.777624005277175,
+    36.07307299535023,
+    35.942259994044434
+  ],
+  "lat_total_ms": [
+    36.97732900036499,
+    36.941825004760176,
+    36.67723100079456,
+    36.62550800072495,
+    36.531316000036895,
+    36.65110600559274,
+    36.88857799716061,
+    36.99179199611535,
+    36.93425499659497,
+    37.515947995416354,
+    37.43592200044077,
+    36.7821819963865,
+    36.81686599884415,
+    37.58681899489602,
+    40.24457799823722,
+    37.86835900245933,
+    35.95889500138583,
+    37.78482699999586,
+    37.24254600092536,
+    37.12456799985375,
+    37.14157800277462,
+    36.878139995678794,
+    37.48530599841615,
+    37.89502599829575,
+    38.15133000171045,
+    36.678543998277746,
+    36.74763100570999,
+    36.90002000075765,
+    37.265017002937384,
+    37.3797620050027
+  ],
+  "lat_wrapper_ms": [
+    36.99238900298951,
+    36.952554000890814,
+    36.685267004941124,
+    36.63403000246035,
+    36.539403001370374,
+    36.660245998064056,
+    36.896716002956964,
+    37.00037499947939,
+    36.942168000678066,
+    37.525243998970836,
+    37.44502199697308,
+    36.79254999588011,
+    36.82544900220819,
+    37.59501099557383,
+    40.25656000158051,
+    37.87635600019712,
+    35.966609000752214,
+    37.793251998664346,
+    37.25102099997457,
+    37.13375200459268,
+    37.14874800061807,
+    36.88709299603943,
+    37.49377600615844,
+    37.903985001321416,
+    38.15929799748119,
+    36.687250998511445,
+    36.75576400564751,
+    36.90905700204894,
+    37.273239002388436,
+    37.388885000837035
+  ],
+  "action_shape": [
+    50,
+    7
+  ],
+  "all_outputs_finite": true,
+  "first_token_count": 10,
+  "first_observation_sha256": "e2741420e9bc5850af7001d65e14d9ac39bb2183f9d8e5316d66a7138fe5e928",
+  "first_actions": [
+    [
+      -0.36244022846221924,
+      0.16911786794662476,
+      -0.36632490158081055,
+      0.007336437702178955,
+      -0.012250438332557678,
+      0.10448181629180908,
+      0.9566407203674316
+    ],
+    [
+      -0.3690203130245209,
+      0.189328134059906,
+      -0.35900217294692993,
+      0.00961795449256897,
+      -0.013020500540733337,
+      0.1029992401599884,
+      0.9722626209259033
+    ],
+    [
+      -0.36244022846221924,
+      0.189328134059906,
+      -0.36632490158081055,
+      0.011211887001991272,
+      -0.010881423950195312,
+      0.10448181629180908,
+      0.9722626209259033
+    ],
+    [
+      -0.352570116519928,
+      0.18690288066864014,
+      -0.3443566560745239,
+      0.011586934328079224,
+      -0.007031098008155823,
+      0.09632769227027893,
+      0.9761680364608765
+    ],
+    [
+      -0.3163796663284302,
+      0.1925618052482605,
+      -0.3297111392021179,
+      0.008211538195610046,
+      -0.004977583885192871,
+      0.08977970480918884,
+      0.9800735712051392
+    ],
+    [
+      -0.286769300699234,
+      0.19013655185699463,
+      -0.2894359827041626,
+      0.006898887455463409,
+      -0.0037369132041931152,
+      0.08125495910644531,
+      0.9644516706466675
+    ],
+    [
+      -0.26209399104118347,
+      0.1925618052482605,
+      -0.24366873502731323,
+      0.004804886877536774,
+      -0.0023679137229919434,
+      0.06914734840393066,
+      0.9800735712051392
+    ],
+    [
+      -0.21767842769622803,
+      0.1925618052482605,
+      -0.22170042991638184,
+      0.003711014986038208,
+      -0.004079163074493408,
+      0.05526372790336609,
+      0.9722626209259033
+    ],
+    [
+      -0.1946481466293335,
+      0.1610337495803833,
+      -0.17959457635879517,
+      0.002648383378982544,
+      -0.0031379759311676025,
+      0.045488059520721436,
+      0.9722626209259033
+    ],
+    [
+      -0.1420074701309204,
+      0.1295056939125061,
+      -0.1521342396736145,
+      0.00021059811115264893,
+      -0.0009988993406295776,
+      0.033318668603897095,
+      0.9722626209259033
+    ],
+    [
+      -0.1420074701309204,
+      0.12505948543548584,
+      -0.13931941986083984,
+      0.001460745930671692,
+      0.0009690523147583008,
+      0.037889912724494934,
+      0.9566407203674316
+    ],
+    [
+      -0.13213735818862915,
+      0.12869733572006226,
+      -0.12467390298843384,
+      -0.001227065920829773,
+      0.0023166686296463013,
+      0.04474678635597229,
+      0.9683570861816406
+    ],
+    [
+      -0.14365249872207642,
+      0.16345900297164917,
+      -0.11918187141418457,
+      0.0007106587290763855,
+      0.004979819059371948,
+      0.05333331227302551,
+      0.9761680364608765
+    ],
+    [
+      -0.1420074701309204,
+      0.1772019863128662,
+      -0.10316330194473267,
+      0.00027310848236083984,
+      0.004134878516197205,
+      0.053765714168548584,
+      0.9839789867401123
+    ],
+    [
+      -0.15352261066436768,
+      0.19094496965408325,
+      -0.11140143871307373,
+      0.0006481558084487915,
+      0.0018246769905090332,
+      0.05666908621788025,
+      0.9800735712051392
+    ],
+    [
+      -0.18477803468704224,
+      0.21034687757492065,
+      -0.13931941986083984,
+      0.002648383378982544,
+      0.002017199993133545,
+      0.057147830724716187,
+      0.9683570861816406
+    ],
+    [
+      -0.22096848487854004,
+      0.2111552357673645,
+      -0.17593324184417725,
+      0.003585994243621826,
+      -0.002966850996017456,
+      0.0674176812171936,
+      0.9683570861816406
+    ],
+    [
+      -0.23906368017196655,
+      0.20226269960403442,
+      -0.21803909540176392,
+      0.005898766219615936,
+      -0.0001004934310913086,
+      0.06951797008514404,
+      0.9761680364608765
+    ],
+    [
+      -0.24564379453659058,
+      0.18447768688201904,
+      -0.24549943208694458,
+      0.008477196097373962,
+      -0.0034802258014678955,
+      0.06822073459625244,
+      0.9644516706466675
+    ],
+    [
+      -0.26044896245002747,
+      0.15052437782287598,
+      -0.23268461227416992,
+      0.00927416980266571,
+      -0.003437444567680359,
+      0.06822073459625244,
+      0.9800735712051392
+    ],
+    [
+      -0.286769300699234,
+      0.15052437782287598,
+      -0.24183803796768188,
+      0.00786774605512619,
+      -0.00600433349609375,
+      0.06584244966506958,
+      0.9722626209259033
+    ],
+    [
+      -0.3163796663284302,
+      0.1424403190612793,
+      -0.23634594678878784,
+      0.005492471158504486,
+      -0.012164875864982605,
+      0.061919838190078735,
+      0.9761680364608765
+    ],
+    [
+      -0.32624977827072144,
+      0.11576271057128906,
+      -0.22170042991638184,
+      0.00555497407913208,
+      -0.015245139598846436,
+      0.05070793628692627,
+      0.9566407203674316
+    ],
+    [
+      -0.30979958176612854,
+      0.09433984756469727,
+      -0.20156288146972656,
+      0.003648504614830017,
+      -0.012592688202857971,
+      0.039001837372779846,
+      0.9683570861816406
+    ],
+    [
+      -0.29499438405036926,
+      0.06584334373474121,
+      -0.18966341018676758,
+      0.005617484450340271,
+      -0.008571222424507141,
+      0.030600637197494507,
+      0.9644516706466675
+    ],
+    [
+      -0.2801892161369324,
+      0.05917394161224365,
+      -0.17135649919509888,
+      0.008305303752422333,
+      -0.005234271287918091,
+      0.024176180362701416,
+      0.9722626209259033
+    ],
+    [
+      -0.2703190743923187,
+      0.05695080757141113,
+      -0.16952580213546753,
+      0.009446054697036743,
+      -0.002881288528442383,
+      0.022199437022209167,
+      0.9683570861816406
+    ],
+    [
+      -0.25715890526771545,
+      0.07130008935928345,
+      -0.14664220809936523,
+      0.009742975234985352,
+      -0.0014267116785049438,
+      0.020469769835472107,
+      0.9683570861816406
+    ],
+    [
+      -0.23577368259429932,
+      0.08241575956344604,
+      -0.1146051287651062,
+      0.006648853421211243,
+      -0.00044274330139160156,
+      0.016763359308242798,
+      0.9761680364608765
+    ],
+    [
+      -0.2308385968208313,
+      0.10606181621551514,
+      -0.0976712703704834,
+      0.0053987056016922,
+      2.785027027130127e-05,
+      0.01775173842906952,
+      0.9683570861816406
+    ],
+    [
+      -0.24399876594543457,
+      0.1489076018333435,
+      -0.0926368236541748,
+      0.0030234307050704956,
+      0.0009476542472839355,
+      0.025905847549438477,
+      0.9761680364608765
+    ],
+    [
+      -0.25715890526771545,
+      0.18205243349075317,
+      -0.10682469606399536,
+      0.004211068153381348,
+      0.0007979273796081543,
+      0.03356575965881348,
+      0.9644516706466675
+    ],
+    [
+      -0.286769300699234,
+      0.23783284425735474,
+      -0.12009721994400024,
+      0.0032734572887420654,
+      0.00045567750930786133,
+      0.040607959032058716,
+      0.9566407203674316
+    ],
+    [
+      -0.29334935545921326,
+      0.2677440047264099,
+      -0.1374887228012085,
+      0.0020233169198036194,
+      -0.0032663196325302124,
+      0.05076970160007477,
+      0.9761680364608765
+    ],
+    [
+      -0.31144458055496216,
+      0.27582818269729614,
+      -0.15304958820343018,
+      0.001210719347000122,
+      -0.0019400864839553833,
+      0.04956512153148651,
+      0.9722626209259033
+    ],
+    [
+      -0.30815455317497253,
+      0.2742113471031189,
+      -0.17318719625473022,
+      0.0009606853127479553,
+      -0.004207506775856018,
+      0.05262291431427002,
+      0.9644516706466675
+    ],
+    [
+      -0.31308960914611816,
+      0.2645103335380554,
+      -0.19057875871658325,
+      0.0008981823921203613,
+      -0.0076300352811813354,
+      0.05820181965827942,
+      0.9722626209259033
+    ],
+    [
+      -0.31473463773727417,
+      0.24025803804397583,
+      -0.21986979246139526,
+      0.0009606853127479553,
+      -0.010453611612319946,
+      0.06031373143196106,
+      0.9605461359024048
+    ],
+    [
+      -0.32953980565071106,
+      0.21196359395980835,
+      -0.25465285778045654,
+      0.004961155354976654,
+      -0.020036667585372925,
+      0.06049904227256775,
+      0.9605461359024048
+    ],
+    [
+      -0.3163796663284302,
+      0.19579541683197021,
+      -0.2747904658317566,
+      0.012174412608146667,
+      -0.023288071155548096,
+      0.060838788747787476,
+      0.9722626209259033
+    ],
+    [
+      -0.29499438405036926,
+      0.19741225242614746,
+      -0.26563698053359985,
+      0.02015043795108795,
+      -0.01935216784477234,
+      0.05547994375228882,
+      0.9722626209259033
+    ],
+    [
+      -0.2703190743923187,
+      0.22408980131149292,
+      -0.2381766438484192,
+      0.021838143467903137,
+      -0.014988452196121216,
+      0.05095502734184265,
+      0.9722626209259033
+    ],
+    [
+      -0.27689915895462036,
+      0.258043110370636,
+      -0.20430892705917358,
+      0.017712652683258057,
+      -0.01079586148262024,
+      0.04789723455905914,
+      0.9722626209259033
+    ],
+    [
+      -0.285124272108078,
+      0.25319260358810425,
+      -0.17318719625473022,
+      0.011047810316085815,
+      -0.01404726505279541,
+      0.04765014350414276,
+      0.9722626209259033
+    ],
+    [
+      -0.3196696937084198,
+      0.24025803804397583,
+      -0.1667797565460205,
+      0.00761771947145462,
+      -0.019694417715072632,
+      0.04134923219680786,
+      0.9722626209259033
+    ],
+    [
+      -0.32953980565071106,
+      0.22166460752487183,
+      -0.1631184220314026,
+      0.004961155354976654,
+      -0.024657070636749268,
+      0.04073150455951691,
+      0.9722626209259033
+    ],
+    [
+      -0.3361198902130127,
+      0.20630472898483276,
+      -0.16037237644195557,
+      0.004273578524589539,
+      -0.026026085019111633,
+      0.03628380596637726,
+      0.9683570861816406
+    ],
+    [
+      -0.3361198902130127,
+      0.1860945224761963,
+      -0.17135649919509888,
+      0.004211068153381348,
+      -0.01986554265022278,
+      0.03529542684555054,
+      0.9761680364608765
+    ],
+    [
+      -0.3394099473953247,
+      0.1578000783920288,
+      -0.1557956337928772,
+      0.002523370087146759,
+      -0.009683549404144287,
+      0.035913169384002686,
+      0.9800735712051392
+    ],
+    [
+      -0.34928005933761597,
+      0.145673930644989,
+      -0.1667797565460205,
+      0.0008356720209121704,
+      -0.005576521158218384,
+      0.03628380596637726,
+      0.9605461359024048
+    ]
+  ],
+  "first_actions_scope": "Untimed synthetic observation for numerical inspection only; not a task-success measurement.",
+  "sample_token_counts": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "quantile_method": "numpy.percentile linear",
+  "execution_mode": {
+    "after_warmup": "graph",
+    "after_each_timed_sample": [
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph"
+    ],
+    "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+  },
+  "power_w_mean": 172.85250000000002,
+  "power_w_max": 176.94,
+  "vram_mb_peak": 18458.0,
+  "telemetry": {
+    "nvidia_smi_device": "0",
+    "samples": [
+      {
+        "monotonic_s": 42008.150029363,
+        "power_w": 167.36,
+        "utilization_percent": 94.0,
+        "memory_mib": 18458.0
+      },
+      {
+        "monotonic_s": 42008.446857389,
+        "power_w": 175.93,
+        "utilization_percent": 95.0,
+        "memory_mib": 18458.0
+      },
+      {
+        "monotonic_s": 42008.749448441,
+        "power_w": 171.18,
+        "utilization_percent": 95.0,
+        "memory_mib": 18458.0
+      },
+      {
+        "monotonic_s": 42009.050480408,
+        "power_w": 176.94,
+        "utilization_percent": 95.0,
+        "memory_mib": 18458.0
+      }
+    ],
+    "errors": [],
+    "scope": "Whole selected GPU during timing phase, including input preparation; not isolated process power/VRAM.",
+    "device_mapping": "nvidia-smi device selection is explicit and may differ from CUDA_VISIBLE_DEVICES remapping."
+  },
+  "model_ms_p50": 35.821509001834784,
+  "model_ms_p99": 38.359789340102,
+  "model_ms_mean": 36.0260342664939,
+  "total_ms_p50": 36.98456049824017,
+  "total_ms_p99": 39.637536079244455,
+  "total_ms_mean": 37.203426800018256,
+  "wrapper_ms_p50": 36.99638200123445,
+  "wrapper_ms_p99": 39.64835402039171,
+  "wrapper_ms_mean": 37.212369000675004,
+  "hz_p50": 27.03830967648197,
+  "schema_version": 2,
+  "model_dir": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model",
+  "model_type": "pi05",
+  "variant": "nvfp4_static",
+  "variant_requested": "nvfp4_static",
+  "variant_verification": {
+    "status": "native_model_variant_verified",
+    "native_model_variant": "nvfp4_static",
+    "policy_value": "nvfp4_static",
+    "limitation": null
+  },
+  "load_s": 81.92868568200356,
+  "policy_metadata": {
+    "model_type": "pi05",
+    "action_horizon": 50,
+    "action_dim": 7,
+    "model_action_dim": 32,
+    "num_flow_steps": null,
+    "flow_start_time": null,
+    "num_views": 2,
+    "image_size": [
+      224,
+      224
+    ],
+    "image_keys": [
+      "base_0_rgb",
+      "left_wrist_0_rgb"
+    ],
+    "state_key": null,
+    "prompt_key": "prompt",
+    "discrete_state": false,
+    "state_normalized": false,
+    "input_pipeline": [
+      "image_stack",
+      "tokenize"
+    ],
+    "output_pipeline": [
+      "trim",
+      "unnormalize"
+    ],
+    "normalization": {
+      "state": "absent",
+      "action": "quantile/resolved"
+    },
+    "model_variant": "nvfp4_static"
+  },
+  "constructor_kwargs": {
+    "device": "cuda:0",
+    "seed": 0,
+    "model_variant": "nvfp4_static",
+    "norm_stats": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+    "tokenizer_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model"
+  },
+  "seed": 7,
+  "model_seed": 0,
+  "device": "cuda:0",
+  "gpu_identity": {
+    "command": [
+      "nvidia-smi",
+      "-i",
+      "0",
+      "--query-gpu=name,uuid,driver_version,memory.total",
+      "--format=csv,noheader,nounits"
+    ],
+    "stdout": "NVIDIA GeForce RTX 5090 Laptop GPU, GPU-64aae36b-ef77-b0d4-b1c7-f7ab17a729f1, 610.74, 24463",
+    "error": null
+  },
+  "cuda_visible_devices": null,
+  "checkpoint_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model",
+    "files": {
+      "calibration.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/calibration.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/calibration.json",
+        "bytes": 47106,
+        "sha256": "0accf5914cd5243497c8c674ec27c7725043a445ab9a9fd5effabed686c7e6e1"
+      },
+      "config.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/config.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/config.json",
+        "bytes": 1715,
+        "sha256": "4d59e79adda2b1467e00f4c76390d95bfe05e9f1eff5f4da08aa493d6fe08651"
+      },
+      "model.safetensors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/model.safetensors",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base/model.safetensors",
+        "bytes": 14467165872,
+        "sha256": "21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4"
+      },
+      "norm_stats.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+        "bytes": 1914,
+        "sha256": "b3a44bb2810436fb62917decaea58bd4d9110255df527dea21e8fd40c960bd84"
+      },
+      "paligemma_tokenizer.model": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+        "bytes": 4264023,
+        "sha256": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6"
+      },
+      "policy_postprocessor.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_postprocessor.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_postprocessor.json",
+        "bytes": 448,
+        "sha256": "eab7a5deb97c59e7224da9247b4a4fe07371bcb5a4f41818e3881461fbaf0872"
+      },
+      "policy_preprocessor.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_preprocessor.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_preprocessor.json",
+        "bytes": 1034,
+        "sha256": "3b82ad181de39a25bab881b31d04f800c18ad629c894fcbe2f4d3699559a27db"
+      }
+    }
+  },
+  "asset_identity": {
+    "norm_stats": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+      "bytes": 1914,
+      "sha256": "b3a44bb2810436fb62917decaea58bd4d9110255df527dea21e8fd40c960bd84"
+    },
+    "tokenizer_path": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+      "bytes": 4264023,
+      "sha256": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6"
+    }
+  },
+  "packed_identity": {
+    "producer_manifest": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/producer_manifest.json",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/producer_manifest.json",
+      "bytes": 43416,
+      "sha256": "32da473880152a3a07215804a94675322e619ff6329675ed5e1e948ab743312d"
+    },
+    "manifest": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/manifest.json",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/manifest.json",
+      "bytes": 19429,
+      "sha256": "04dd7c439ba3295a951e71504893a1499cb5ec146637e80884960e6cc7590ec9"
+    },
+    "files": {
+      "paligemma_with_expert.paligemma.model.language_model.layers.0.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.0.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.0.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "7fe4826aa34b873651656d4edbe1e3ee06befd12fc74328433fc2f6bbfd75e08"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.0.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.0.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.0.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "480487f7a6dc94cb74311df4b6327e5e11af087ecb83289ba3f23901400bc0f3"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.0.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.0.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.0.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "3c84f6adca1e442cc9ebdac22aceae0c213e4c55968b16235c9fdec2955f8ff9"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.0.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.0.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.0.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "8faaa0b26334eff9fc1a78c7f56e4ca34296ceeab9338d2657974fa06ce5f0c1"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.1.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.1.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.1.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "5898754376b216e385792a0f3198189b0d527f8a3b118689d041679cf7a58d59"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.1.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.1.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.1.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "f69268e7602e274b88d33ca232572129b901055fc36ce0bc8c58f6bb3f823b2a"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.1.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.1.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.1.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "51f60a81ef46c17875cb84d1c3e701548e98da828099e33817d283244f8a4620"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.1.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.1.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.1.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "fe67db44cec91219341f5fa872c49cd53f3dde2040518c9279d157b7b4b251d2"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.2.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.2.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.2.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "233cca5628c46dc40a4bba607aa3cf560f5f4a4f11639f11997e424805722923"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.2.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.2.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.2.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "a043036da603d3f36ffe867ad79a2ff29a7d139203dda0391a18a54894926d69"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.2.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.2.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.2.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "bec56e73119d48858e5170b77b9ff110798a36557c654b8ef37f34e7cbf40971"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.2.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.2.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.2.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "aeddb02b4760b2d3be41a3ad762e18fd03236eabe77930c77cae34df4bbf3f30"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.3.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.3.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.3.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "6b53c697b59531452d9e9c411255fcc57c0c3a9e2d5025268a841f5c25ba8e7d"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.3.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.3.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.3.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "68be1858d5bbb68dbd0792ae97957bf777dc8c182d7ed6d8bf07bf3a70061e78"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.3.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.3.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.3.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "4978ff3d3a0df6de876f715c89840a049d47854c1ad4bac0a4e9db6dd38e0af0"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.3.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.3.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.3.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "ae67efbdabbf531382a0f8225e015900a61ef9d40d4c1e8d761babfb5fff2d74"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.4.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.4.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.4.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "7ae05d4f58583444df35905ceb7ffb1d71f8b3a046f3c45a110b2b5d24c9a50d"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.4.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.4.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.4.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "04d90ecf1685ea0db331ca70462dd16cce556c0dd50be718313b850fe154a276"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.4.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.4.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.4.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "39c991c7fc2e51522f5ed9d389f73d53af28416b1e267544578d70329252396b"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.4.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.4.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.4.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "edce7bc6680e4d72c4986422fbc9f18dec03edf8b661ab781d7577473cd27ee1"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.5.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.5.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.5.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "273efccc10eade7321a6e41b469b52ef387fe96ac849fbe417171bc8725dc0f2"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.5.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.5.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.5.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "3d24ae741367668e3b7eda743399addb6918ce08e3cb42f7215e6904dbb1d7e2"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.5.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.5.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.5.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "c52adb5e621f5f59eb468dc3e44c71206752b95a4396065e7fb639ec9c201226"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.5.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.5.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.5.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "c0c37ffe1bfb52eccd428cc4d384b92c7f68e01ca6316685567a9eb898d09f2c"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.6.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.6.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.6.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "298b5f64c890961beb5d7c4e0e4a1c730240a7cd79c19195b910a43178b839dd"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.6.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.6.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.6.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "8eed9b0c13504c81e52b264b94efbdef379c21e86bd26f206ab54e96f518d8de"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.6.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.6.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.6.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "9a610b2b042a459aaebcf96158033b56da481a8d6c28c5cc978bf383d1238a08"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.6.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.6.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.6.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "cb5df5381f294aed36643d368d90ab78c6798918e22d1abb98f7207ba6280c04"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.7.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.7.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.7.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "7e7c472917a77e80141c9b9aa116a7eccd7e225722c3ad8143e5470d64df0a90"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.7.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.7.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.7.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "e54b2c00a74b269b2ac31fad882a2fe4c8f1b571c12410403a643c35b35e3ad2"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.7.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.7.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.7.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "eaa8a4acc7ea987f092340f17f6735ebc17b9b950694378049ecee71126ee8dc"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.7.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.7.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.7.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "03abaa7d1492cbdbe34d5a6cd9160bf2b44105111c6ab48d31150bcedeeaae36"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.8.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.8.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.8.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "baac846595fa9392ebdd84cc40a5d69f9bb25449af14dbf7c908217b4c355569"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.8.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.8.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.8.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "443efd9ac9d1fac7bfea7650cee9980a1f15d35bcefe8a117a6d40270e3cd72d"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.8.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.8.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.8.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "89991a440f01b95b351e8bf47e372408c60a97da6cbd003e31844a2693398fe6"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.8.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.8.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.8.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "f536af4d3658974ace3353c568f5a26316ea418a976dc2e93150226d8615e0ba"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.9.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.9.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.9.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "ec4c600c79b79920008321dbab226158f041e2d5d0e819e452d7f88fb06e9371"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.9.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.9.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.9.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "b9a230bfc5ea1ff6cebe8df40c2f230e729ed26e72fbc1cd1d27c6078fc442cb"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.9.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.9.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.9.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "112494c15955171e55e14d22d30c054cf60b621be4d0657f32c5ff63b1eefddb"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.9.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.9.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.9.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "718870fd288a8097887273a88f10ed6097d30a20a222ac01a386e5c7779a922b"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.10.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.10.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.10.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "33b0f8a2a022f4411f96298049412f0a62b5f40e46952f97db167eb9b7eac7b3"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.10.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.10.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.10.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "439ff1c643a4cb40d86c68c74f46949c7f8f65e5112057932fe1e00fdbc0e9d5"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.10.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.10.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.10.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "864cd721d82d71a519f93f2dc9d916b612ff6f4dd72f0c87313cc05e7382a065"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.10.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.10.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.10.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "70ce741729c948952375c31b642d3fcc3af66b78f6a08235b9e61db2ea21508f"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.11.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.11.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.11.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "3e8e95b7614170ae3b844260a321a35b84373f7d3b9f2953658a39d1d9002a31"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.11.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.11.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.11.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "31383ed54703c74b58f796499f119f54b7b2aad9a698cf3e85fa39bf1d6119ad"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.11.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.11.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.11.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "a9dfb7316592dcc2755a4c9634d8d5d1b49d42668241f10cf9b9020731d53d92"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.11.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.11.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.11.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "36787f808733f1a11b815d5a39f65bcfea327da0eae38644522177cb945f2e78"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.12.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.12.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.12.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "f7afc121436c4f51c0c552d9e3458bdaa3b876cc2373c0b9d0fa09bca1b8fdca"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.12.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.12.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.12.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "01c2b8b871c70fa8fcd2b9e6b5ee8063a4d5dbe997e5a96d4442c3f92efd8723"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.12.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.12.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.12.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "f824cea930e71be0d4c16c02aeaed0b86d78ae097c759f7dc0252bbe680d5810"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.12.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.12.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.12.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "b5b626ee05e9cfb74ad5f53c183ed74939e981973115584196160a05f59e17a2"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.13.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.13.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.13.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "423b3b167be826c801d22e978e4d2d8164db3e2fed9fd18248de680bfe1ca896"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.13.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.13.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.13.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "d29cd76f8c8042f12a1d25de214909a53d5984b32669f9481c47155164466537"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.13.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.13.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.13.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "11559ba62289c686b5a664638f74f1e0f80ea1a1232bdda998106cf767c587b4"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.13.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.13.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.13.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "2359567ea296ba1bf7057bd69168825fd072ddd0bad0ed34dba915f413ae37df"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.14.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.14.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.14.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "8e6d9759fc5dddeed525dd7e4ee3887a1db9c8828e85b5b5570b74211525f949"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.14.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.14.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.14.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "a4002e110a479dc104e17aceb65c4dd6d70eb593e7790ef16f47a6dc10288d52"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.14.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.14.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.14.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "c2cb109b0730fd09dc1ebb714a016c7275dfff70d5594774111d581a03b99bc4"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.14.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.14.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.14.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "7497fac504f8c2d637e1fcd709d5ad514cd2e8a40c4c4cf5becedeb156e6f6e0"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.15.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.15.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.15.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "1d7ce439470728448ecdf2443ca8a6428d327c2567e9958412f3a2c69d0ce502"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.15.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.15.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.15.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "a2170c49cd3923fdc32c0024b411067b228f59e8b0ecbf3629a2ac473a1c2387"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.15.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.15.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.15.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "1ffd5c7d2c223fc5e145865d414f5dea591deaff5682134f6ae468bb72b6d58b"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.15.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.15.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.15.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "7b29f34aa033a54f8773e0052f6340bccc9497fe19392f128abbc5dafd75e61f"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.16.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.16.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.16.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "2fea4de360a4a15117a478e8018ce7877b73d3b9b8b7556b1a69e9a01e9ae15c"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.16.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.16.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.16.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "e4b644cbead4199789406f84986244ad8b1b41d9d39b91778327fac1157c59c7"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.16.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.16.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.16.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "7f7bde7acaa9fbf33c37470e3c102ce2c27b43afe226467177242a70b97b582e"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.16.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.16.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.16.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "72f450596973ce6a70f9c9cf26d26a1d8b577673dfdfbaca051437e6daedec76"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.17.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.17.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.17.qkv.weight.packed.u8",
+        "bytes": 2621440,
+        "sha256": "0e0ecc355bee17b7afb578b862eb21a182d472df74bb7b6df5a20453a7a55bbf"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.17.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.17.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.17.qkv.weight.scale.u8",
+        "bytes": 327680,
+        "sha256": "349aa9d290d8697449af83616bcaeba7cd446e1e91764b7248fc357bd94a2688"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.17.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.17.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.17.gate_up.weight.packed.u8",
+        "bytes": 33554432,
+        "sha256": "ee18c83876b9d6c8e0ddb4aa44c4f4f2fe97a58d046379cf8f114ccacde125e8"
+      },
+      "paligemma_with_expert.paligemma.model.language_model.layers.17.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.language_model.layers.17.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.language_model.layers.17.gate_up.weight.scale.u8",
+        "bytes": 4194304,
+        "sha256": "5a1ef6aafad0c74c85ca0a6bc10131d97afe36a96aa42801af95e536f434b560"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.0.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.0.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.0.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "e708f849e82503e5cfee55ec259bfe377174ba6f6c608d652524093cbf455731"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.0.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.0.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.0.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "0824697b42dfef9d9ec37d9d4af9554f320e72fe3c66d9ce5133cbb4f02e1993"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.0.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.0.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.0.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "b516273e49b13a6e33eae24e330910c884040b487a453058d9220f3dc235ca93"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.0.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.0.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.0.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "35f7e9047d28821823d13613c0b6724bf275905752eaa87ff0b9c8e8624bab1c"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.1.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.1.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.1.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "e6e925a405defcb165a4edf1c9c1160f1c7ff197556c0cb6aa20eca60043f874"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.1.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.1.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.1.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "e4f3f176c9c0daef2da8191002db4584f2e6a794b18a6833b4bc3907d1cdd7c5"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.1.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.1.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.1.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "1e9f5e2e869e45c7062ad00363eca03c996038419724399a6f38716babd0c1d1"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.1.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.1.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.1.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "51b77ae18dbc9e09cf9d7c02dceceeff5532f64b9f6b15bbcb5eeecf3c8cbd12"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.2.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.2.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.2.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "aeb0ba032546ed337153005691b51a729a6849ec31d72eb6f6e2567ccb653015"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.2.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.2.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.2.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "93b13b6c2ae9c4e2a259e9661d9d80c09bc1c17adb5a004fb6c9c61d15b5975b"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.2.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.2.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.2.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "ebddc57ce3925200638eb0d71c3b06ce33b23c568a91b6ed5fc4bc6234907ee8"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.2.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.2.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.2.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "2e509211bba76dbd081dbafd33a05cc509a559c941e5af7427402f093cb843da"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.3.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.3.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.3.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "33a56c263593a851e8839766f110b5c97fc5f88f317b82469f40c709d429376b"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.3.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.3.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.3.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "6da17ef68264b35f0c8762bf9002b775256754ad4e65eadc0c83a0e8b58a70d7"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.3.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.3.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.3.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "8069bd35a8661160d748a5570e0e9a01cf6b7a0d61b91ab888dc122c37161af4"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.3.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.3.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.3.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "df16db747f617278009f7ed4b028e880727623f3ac45afe413fcbff2272ad04b"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.4.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.4.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.4.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "45f57f520d161e17b8dafb2032db7b80dbd239ffd05e9f24e1a9ac89e2ddef4b"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.4.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.4.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.4.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "df3c35cb750e3e60b3f2ad263ca3ac1100c397482cd0ad7897e0a8eb55fa0455"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.4.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.4.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.4.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "35d2f3e1f3ecc1cb92b089db4adfdb736ae9d603f2abb98875908af2c5fed2c5"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.4.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.4.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.4.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "6b905d0b3c46a79b398508940c30f28efa0395b60c271525e97cd578689a4228"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.5.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.5.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.5.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "7e21c96609ce524d955db410a05f8a810a614f751e553ceb0c20eb33cabc782f"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.5.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.5.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.5.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "420adc0c38600ef2af80f97dc7f166d7efaa590ede1c06c6f83c4a22fa2a30b6"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.5.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.5.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.5.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "53110e64ec0c9944a96629290174ae2adc3468884cd0ad6bb39e6d8fb4094037"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.5.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.5.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.5.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "08164a47c2aafbf9be2de3a54c67d187a78a09938b9cd57be151e7b9d3ff5145"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.6.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.6.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.6.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "0c1403dea8c8009520ccef95482a2ea7c3c831a6bc7da9a4e25f3a8b0d2bfec0"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.6.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.6.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.6.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "1c7221c31af1ab4c28595ad50beb29820eb7cafedf7d6be72af9eb51ffc0f5a4"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.6.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.6.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.6.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "ab9880aabba2acd2912cb5c49745a11d793e4cbacd42e565f98deb394f0d9dec"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.6.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.6.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.6.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "fd538fc3dd4a1c9508ffc0b7103ce3461c7cf0baa4062d80fe74d44084a3de95"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.7.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.7.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.7.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "49ba191728e13dabb6b33101984faee70906f4e7bad0560e1b066b037005210c"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.7.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.7.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.7.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "6ba9abad302bbfcd7f3da5962e0a940a38d0c8029615e5bba32b7d26ddb95a38"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.7.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.7.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.7.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "0f980a19dcd34933e945c03521e94abee8ffa1510d9769c7fc2e39e89da14339"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.7.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.7.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.7.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "dea9ff0c5484b69f923d842958d62db811839a0a881116cbe31299961448f2e7"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.8.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.8.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.8.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "da167f9f5a9c1f7ed398d74df778af443b9ecd574dd1390444c710d285cadf9e"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.8.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.8.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.8.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "8ba723aebf8cf20a1ca58f3a6d79890b2dfc9b9f138503c2a603f5e3354b1455"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.8.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.8.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.8.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "e42c312e4b052f8b1d33da5019be736dc762b06b3096cba934659fd647828c0f"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.8.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.8.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.8.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "633099ec73c1e8c91e6cc4db6cc6852d0f1c594d99b4020386d5f481a9314af9"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.9.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.9.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.9.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "c7a9ac89d795647468eb43a5aced9d0817f46f555d3727bcca66bb6c3d53f81e"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.9.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.9.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.9.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "a88eb19753f749656f4ce511c47b0164c3bbddb585c28aa0137f918bea895e92"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.9.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.9.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.9.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "eae9caff2d1f7997507ffe05c9236d52e62680c4476261d9244775d456d29b13"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.9.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.9.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.9.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "0106a62ae86541efa4e67a0635913b7dbb0bee8d4484590ec2c98b239720437c"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.10.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.10.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.10.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "e8ddd0f8f799384e0675c2cb369b8fdc1293cec7792b95889744f9874cfc2b13"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.10.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.10.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.10.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "8c6b6970bf0a2916a6b3bbdec8b8e64d941dea8bcd879a9ffd0a95017b302e5d"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.10.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.10.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.10.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "a49a9d48dd14d21b6059d83b0a2e6d9289f0537ab44c26c4fce30e66fa1b28b1"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.10.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.10.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.10.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "8baf88f7e8a68272299de18d4336bff576633ee26ed9397762619164e98163ab"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.11.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.11.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.11.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "226501b44d59bac8f992162c008bc8cdf95672aeeac963967d58778c0a18e5db"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.11.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.11.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.11.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "f3f54bff0f013c5f1d64753368ca4507b3f13e0cf15d6ce2c1545ac34c6d8cd3"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.11.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.11.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.11.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "aa2624ccbe5ee6238697a9165ce88be7e92b75018f2d23f9234f5841a3a8e798"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.11.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.11.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.11.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "10f3a9cc0c4fa634dcacd37b773ed15473bf2b0605291db8267688e338e29c81"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.12.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.12.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.12.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "162cb18456427d59883d303a3fd641ee89c9b73c14dac187f24963bfb43b8144"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.12.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.12.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.12.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "c8e15e4680fe44934d298c6e94f0d7b9395a4a0c25e4e9fd74c0224b12a67a2a"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.12.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.12.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.12.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "304fa43d0416756f09102d8836dbe6382a98f3962b65596d28a621a764678686"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.12.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.12.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.12.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "b0e18d6f8a796c92e203aa006427ca34628633b40900ef9479e1d116d963029a"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.13.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.13.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.13.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "6336c05184fa11174186c572120d2b069de4b4401f5e1ddc071b1b4f53bf8136"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.13.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.13.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.13.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "864effcd5982e796fcdb28e48a8b3026879393bf9b3ac3ecbc299a48e6aa9ea7"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.13.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.13.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.13.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "1a9cc9d714b59c1aacde871106adefcbf2ad3cceb549f4df9313db26903c60a1"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.13.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.13.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.13.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "d87e12a2d9f51076304870609528c9d8cabe35bcb6413bfc7ca1d0e81182461a"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.14.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.14.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.14.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "693b6c78e93f4a6f6d006615b70e8b92164de9323b109b66251245d4ad78dda9"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.14.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.14.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.14.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "158f447bdf6d0b223971f110d4dd408b7ea2af2e482954eb5dc46ae8c4cadd36"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.14.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.14.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.14.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "92b3319e875d9c396dd3fb84b353c1e851055993e62edb25982410e749cee5ad"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.14.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.14.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.14.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "787631d6ad7bc594322c2b53bbffac6105f556973e21e1c0cb428d53b42f948a"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.15.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.15.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.15.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "0d4dc4ba9e648dc49b05099323bdecf02bdc50a2fe0590e8077dc52ce9f2664a"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.15.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.15.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.15.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "fcda39e9f2efabecc387ceddd1fc569ba3dd7efa6140833ca482c4922ab02202"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.15.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.15.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.15.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "89f74b9ca0d1d6f78fc90ea56af5c92192f6295cdc099561789d1711a93a0887"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.15.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.15.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.15.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "7f5fc533454d74797a005dae7510bf03df7975e936172327640e90e6b17bdaa7"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.16.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.16.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.16.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "92d2fc47cf6b935f0175cc95799039f71ab0415b02f859805ff7bec72868284e"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.16.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.16.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.16.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "94447efc425c8d429f2ba753b73fdecb179461a1de29d32c28aa85d3c32b04ae"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.16.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.16.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.16.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "87e1aef27431e22863b0135bc8d0611b3b52d1fbcecd06768d81917060b1f4b7"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.16.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.16.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.16.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "124c5f3792b254667d26639614bfcee9f077f20c3949505ecb056752d7d5f186"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.17.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.17.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.17.qkv.weight.packed.u8",
+        "bytes": 1310720,
+        "sha256": "bd76a03484bcd6260e7bcd6c2dee4eefbe5d002e8d929008edfcae1fb311e889"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.17.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.17.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.17.qkv.weight.scale.u8",
+        "bytes": 163840,
+        "sha256": "28076098007c2819bb633bde22337694cfffeaf4695867f690a23048f9c06872"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.17.gate_up.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.17.gate_up.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.17.gate_up.weight.packed.u8",
+        "bytes": 4194304,
+        "sha256": "f03c3332aed92ab857dd763c051d1f6cedd1457a28d6c3d6f2aa37094649c9d9"
+      },
+      "paligemma_with_expert.gemma_expert.model.layers.17.gate_up.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.gemma_expert.model.layers.17.gate_up.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.gemma_expert.model.layers.17.gate_up.weight.scale.u8",
+        "bytes": 524288,
+        "sha256": "2cb1c68bc6504e03da72bfad8f0e31c633f5be87d1360a62e38ec6ddae0646f5"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.0.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.0.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.0.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "c2d59bb0232a6f80d1971591b69980d2f2475c32cd7dedfdfa82a54bb7e47545"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.0.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.0.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.0.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "02ea36891a1cb080049b0d91e3404327bc3b1f5dec62217a3564d6f8d331e32d"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.1.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.1.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.1.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "fbd95f6a4441b82d99a545eb9010d208031a09d246a47028d5878d47eefdf307"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.1.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.1.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.1.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "d8ca653a0766f13e568e1dbfa7e0dd0d7e2922af56a797b8de18f5595b7b9924"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.2.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.2.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.2.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "e12e3580262178c59827eead026f78035a1843dc625c9ec71c2318e8e3901807"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.2.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.2.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.2.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "306141e0b1054949aef2518f96041d26b7f4c0fcc51a213b1232ca3d63388e63"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.3.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.3.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.3.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "2e77fe40abd38c88ea7907befe3b915d3c98e69cfbaa7b290418bfd2bc006686"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.3.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.3.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.3.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "5607080ddace0126d34066be3a521ea5d2fff25e0c3d8b28e6af7c945d2bd855"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.4.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.4.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.4.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "243a035769a6d4e64e676d7ab1180eb46bd0001e23512a93fc9cd538280fcc72"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.4.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.4.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.4.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "0898706eb8ddc5e9f6f22c75412efee52b736a625844c60e25ff61da7833cb1c"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.5.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.5.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.5.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "6686e0b4a56100cc43b0438325bf6b5fbe3dee9910de9484edf010024ad89d53"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.5.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.5.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.5.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "85ed5fcbbc768692160527ad57f2d6384023331a6116dcdb954601aa7faf344b"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.6.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.6.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.6.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "7cea8b7b381e129528bfe99ef9b5bbb8f3c2cf42e60f6350824b310913659fe7"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.6.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.6.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.6.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "333ca57860e489048d2820fcb9a39170e189dc7c3d03ec2826fc4d5e45078bff"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.7.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.7.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.7.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "b62448ae20d59be09e31883608ece657213571d17b84f143e9aafaccc755ed77"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.7.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.7.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.7.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "622958b8d35787e52cb8e9ff00c6436cb751bd35bfea932a20b2e923aa0714c1"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.8.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.8.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.8.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "75ad927c7d7eaeecd30f5d8426bfea4afa871b48b51cd1a547733fbc8b6c3404"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.8.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.8.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.8.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "4d4c517d07b6d85fb1ab7107d01e29b48b860e40e59820deabf1d4b060707769"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.9.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.9.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.9.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "06ee4878f816c6d20e9ccee73ccfbedd2f0c5cd867e2e1803f75eefbd5a51c90"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.9.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.9.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.9.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "4ee2d1211f156f3da3d9afc3538e413e0974a3dde9fdbae0d11ef35fbb5598c7"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.10.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.10.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.10.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "33b4cf54b1a813d94653f6bce24936641605e194af6f08a8d210438c5c826c99"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.10.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.10.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.10.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "4d458b0c733f23ac58f341069ce906965977ded17dbdde7f7dd06882b4d484d2"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.11.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.11.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.11.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "db71ffe80df1c2b2ae5637514f4fc6c0f7c097cfd400cc41664f0d5299b044d7"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.11.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.11.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.11.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "15bf77de0832886f1b1d944292711094c4ac7dcc4cd0c9b1786f8e2f493a8bc2"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.12.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.12.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.12.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "308c0882c9f520efb27f37dc2949e5c587b0a034e02cd52719ebe3add74f09ee"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.12.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.12.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.12.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "c4c8cf85fa6c12b5b6c1fc94b48b5ddcdc9133855736df49dc33496805c6cfb9"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.13.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.13.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.13.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "d6da4dcb4af6873d0cc3c793ec3c47d670ba276413e1c4cecced92dfff638695"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.13.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.13.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.13.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "4ee5dbb66ef88e08f0d18027696e12e0470aa9d58fbaace881cc34b81cc52e59"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.14.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.14.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.14.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "5b6973d913ff8045aeb5ecee9b3bf8d2afc016e0f7840a955ff80aa9b4d69a6a"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.14.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.14.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.14.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "9befb1717f5b43e0567c3126a7e00db43384a4f8cf18c12d8166e70ee69696d2"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.15.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.15.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.15.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "2aa6389f0e1e4f0ad493bb4b81f0d53e31e446a0722f8fe25acbe79961c3ba31"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.15.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.15.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.15.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "2fcc8367189bfe41c6809616f161a02476b774b7446bfaad1e140797660aebc2"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.16.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.16.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.16.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "f03ef3371081e42097d4acd7f86e9ac577a84b5b1f747fd02401a0d1c3e35a5d"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.16.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.16.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.16.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "ff447cf0b12dddd44918a96152c25f5764b32ccc1aa7cc55df1068db43e74237"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.17.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.17.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.17.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "06599246d92f7920535b44f7137a78d64078d5a0c65dc1b9777e8e0d517f1404"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.17.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.17.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.17.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "5d230c1b9394f1b6a967333763b943073f1ed8b2d2e30a747ce238d61c80e748"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.18.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.18.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.18.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "60c263366b560038bdc0d55d835c2aca82d4978f562e2661dbb83610d5fc5ee0"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.18.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.18.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.18.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "8b989c8af666e10f71ae3531912e3d83203485c1a6193759d0448eb3b70d3fce"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.19.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.19.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.19.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "af77298506dd20bb30f7d3e6983d847de03ead397e9ed497c366e0e278165445"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.19.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.19.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.19.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "d2ca2c0363cca8377144b789e2760d2ad550845db1bafb4953dbbb02eeafecde"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.20.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.20.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.20.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "7aafc059bf97b2ffaba0820f15b8602206bc1770914bbbb46082ea047e60ff9f"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.20.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.20.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.20.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "9b051ced6828813d26b290be07cb9dd902c120aff37b3a2fefa3eecb2aae6e2d"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.21.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.21.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.21.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "41506d556b519d6477389d3aad846c6e88ad9f3688ba5664ecf67a9bd20b5b0d"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.21.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.21.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.21.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "be4ea93e07ab5e1148dc6e3f6aaeede52e1004108cf8ea594b5ea47b47bafc7c"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.22.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.22.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.22.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "cc1106ba0d62ae7a16dcc66ff4747514be96ecbde3724552ce49a8aaea6f8eea"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.22.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.22.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.22.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "24ad917557af71b8c2b298baa33f593cb36b4a110ccbadf25ef7b5fd767a3972"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.23.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.23.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.23.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "dbb0f2f86c85df170b65d6d4569323e113c28db0e89d63b9021ccbcbed9b70f7"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.23.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.23.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.23.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "75698bac4dea29c2d218357e7edb9f7ed80fd3cbe36d9cf16fc6ce36b91c814d"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.24.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.24.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.24.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "fe55c373a24c91815cc1a54727d6fd5b1134c6b39673b33af037be709480bf24"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.24.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.24.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.24.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "05d0398cc0166820e793edc6cb7963fee0d7b4bc9a1564129451cbf49688f2e9"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.25.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.25.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.25.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "0ffebafeead0be43aaf60d4420a3d6315a7683edabce4b8d3a1625381e28ed3f"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.25.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.25.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.25.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "dca9229cd65154b529f37cced6dff8dd07f549532e5986f70a1a50ba0be59175"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.26.qkv.weight.packed.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.26.qkv.weight.packed.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.26.qkv.weight.packed.u8",
+        "bytes": 1990656,
+        "sha256": "29827c82a89151faea5bc7abc0f1124b90660af16defb59a7fcb30bbe0bc4bb2"
+      },
+      "paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.26.qkv.weight.scale.u8": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/fp4/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.26.qkv.weight.scale.u8",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/packed/paligemma_with_expert.paligemma.model.vision_tower.vision_model.encoder.layers.26.qkv.weight.scale.u8",
+        "bytes": 248832,
+        "sha256": "5dd1ad16e986a98eb16b3ab12e1043aae7c88c7b6d07186203266b83a6a3d234"
+      }
+    },
+    "note": "Engine retains BF16 source weights; artifact bytes are not measured VRAM savings."
+  },
+  "runtime_identity": {
+    "packages": {
+      "apxinf": "0.1.0",
+      "apxinf-py": "0.1.0",
+      "apxinf-robo": "0.1.0",
+      "numpy": "2.5.3",
+      "pillow": "12.3.0",
+      "sentencepiece": null,
+      "transformers": "4.57.3"
+    },
+    "imported_python_sources": {
+      "apxinf": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/__init__.py",
+        "bytes": 4815,
+        "sha256": "4aa5730a96071ca34a58de5d28adb453d3be239e08be53fd88d796e6d1eae210"
+      },
+      "apxinf._tactics": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/_tactics.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/_tactics.py",
+        "bytes": 2285,
+        "sha256": "0d583927d70a493223c71d3e5bf01341d83dbcaed7683c8c9e18964250bc04d6"
+      },
+      "apxinf.calibration": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/calibration.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/calibration.py",
+        "bytes": 17690,
+        "sha256": "fc84d8d703ae8159a08e92297e3d9fef69b87ab24278599260a68e3e6c245d64"
+      },
+      "apxinf.checkpoints": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/__init__.py",
+        "bytes": 2197,
+        "sha256": "66ddd372f0f1bb1332b6524c45048d763f2423f6ffa4cf75234b1d7797063a45"
+      },
+      "apxinf.checkpoints.descriptor": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/descriptor.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/descriptor.py",
+        "bytes": 3104,
+        "sha256": "46d18ad15ea9da91ef383c37778cac6cc57bac086cfc40ed5b672ff9ea1495ae"
+      },
+      "apxinf.checkpoints.layout": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/layout.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/layout.py",
+        "bytes": 21839,
+        "sha256": "a54f3557cc32df0cb1f34c00a748838fbfa90b1b432f16426398629860320b6d"
+      },
+      "apxinf.checkpoints.lerobot": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/lerobot.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/lerobot.py",
+        "bytes": 10302,
+        "sha256": "ad21519445ce6a8d898dfff0110e946eb55c0859788119eb0856902ad6a56bd1"
+      },
+      "apxinf.checkpoints.metadata": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/metadata.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/metadata.py",
+        "bytes": 11669,
+        "sha256": "ce3a1f1da48bc4375bc957639f3992ff86fe0666cda38ac7f964378a0f259cef"
+      },
+      "apxinf.checkpoints.norm_stats": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/norm_stats.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/norm_stats.py",
+        "bytes": 1187,
+        "sha256": "273dc4efd2e52cf74d6992b16076220a905ed0dc7487c7da918b23fb23600205"
+      },
+      "apxinf.checkpoints.openpi": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/openpi.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/openpi.py",
+        "bytes": 3027,
+        "sha256": "7a0e4279b861d438aa04cea875a244c4ec416544016ecf19bd0ec77da91e3ddf"
+      },
+      "apxinf.checkpoints.preflight": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/preflight.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/preflight.py",
+        "bytes": 19857,
+        "sha256": "a4eae83ec1e33d6e7ee3953935abb3ec581309fb476b000cdd37eb3b160391fa"
+      },
+      "apxinf.checkpoints.safetensors_state": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/safetensors_state.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/safetensors_state.py",
+        "bytes": 3377,
+        "sha256": "bca11f9dcd9179fc75abda65009c89f83fc6b9fe2f354bbcabff656695555023"
+      },
+      "apxinf.checkpoints.torch_state": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/torch_state.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/torch_state.py",
+        "bytes": 9512,
+        "sha256": "a226e512c511ea6fbe1b26b3e4be35410b7da41e640cc19d73c43e5986fdc751"
+      },
+      "apxinf.policies": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/__init__.py",
+        "bytes": 2346,
+        "sha256": "eebfc9893b3d89b7d976f65181b7a0b5c03beed23379f5e296ea0c85abb7dafa"
+      },
+      "apxinf.policies.auto": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/auto.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/auto.py",
+        "bytes": 3873,
+        "sha256": "072593b1189c59c109c6c49a0bd7ba141f5acaab66b94e6956d91f0acb5d5096"
+      },
+      "apxinf.policies.base": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/base.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/base.py",
+        "bytes": 6747,
+        "sha256": "5e216cdadc6b2e4e1c4d1dd19b7c1585d0dd4dbc6330d82ff3a0b3e1545fdc6a"
+      },
+      "apxinf.policies.impls": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/__init__.py",
+        "bytes": 1321,
+        "sha256": "c1b8517b390c4fa9168ecaa88de6de648032395232cd5e091b20172d70c8b4eb"
+      },
+      "apxinf.policies.impls.gr00t": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/gr00t.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/gr00t.py",
+        "bytes": 25135,
+        "sha256": "9a8549a6a0be1149edcf8c002afa625b9aa7f38eeb2e9334cd14b4ada2cd110d"
+      },
+      "apxinf.policies.impls.pi05": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi05.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi05.py",
+        "bytes": 44711,
+        "sha256": "a487081d5847e233f883d4581ac412de7008f20975b525fb83f1c1731a3e6183"
+      },
+      "apxinf.policies.impls.pi0fast": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi0fast.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi0fast.py",
+        "bytes": 37919,
+        "sha256": "67e360bc016d29dc3c578707cbb2831c65f98d8c88ce3d08a5dca3ae9dce5d34"
+      },
+      "apxinf.policies.impls.qwen_drive": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/qwen_drive.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/qwen_drive.py",
+        "bytes": 25107,
+        "sha256": "33387df31175f6aa50749d0aa5c384793d123cb7e6110122681bbf625c57de48"
+      },
+      "apxinf.policies.impls.walloss": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/walloss.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/walloss.py",
+        "bytes": 25831,
+        "sha256": "3b8b4dbe635fb3ece3231a2790e1c5149e1648c199096727073cfba33f09d458"
+      },
+      "apxinf.policies.registry": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/registry.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/registry.py",
+        "bytes": 1910,
+        "sha256": "a5e78a4234ebc3983077c93f91f45dd11a6e821c4abc1b8ed485ec5ce68b5ee3"
+      },
+      "apxinf.processors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/__init__.py",
+        "bytes": 1299,
+        "sha256": "2c3c54e6d5870055b415b978d688c47e25c91354dfe4a1fa6b79b2b599de9df6"
+      },
+      "apxinf.processors.base": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/base.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/base.py",
+        "bytes": 8753,
+        "sha256": "181f55367c05d9f07ccf249915d068fd98da4f587c4174d06595f15ef9913cad"
+      },
+      "apxinf.processors.noise": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/noise.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/noise.py",
+        "bytes": 1808,
+        "sha256": "c6d25d2c0649e3d3cc50bfe8cd15c360bbbcd7cd698cffc8278edb5a24565181"
+      },
+      "apxinf.processors.normalize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/normalize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/normalize.py",
+        "bytes": 12270,
+        "sha256": "1eab2cc10d87c254a7b31ffa45087a39da6f2be7b0d507d9f274a2f99c9587be"
+      },
+      "apxinf.processors.resize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/resize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/resize.py",
+        "bytes": 8248,
+        "sha256": "abe3a501b5a071b429d5ac1dbe0440f479eae540936e6c2f80b4aee93908382a"
+      },
+      "apxinf.processors.tokenize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/tokenize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/tokenize.py",
+        "bytes": 7385,
+        "sha256": "bef3adafb63d840dd64366ff632c1c658394c546bd66093099753a4a31358756"
+      },
+      "apxinf.processors.transforms": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/transforms.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/transforms.py",
+        "bytes": 10431,
+        "sha256": "69f70eec8380b450043504b7b3c2aeaa386004eba67f26800780c575cb7a1b11"
+      },
+      "apxinf_py": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/__init__.py",
+        "bytes": 119,
+        "sha256": "2328a616eec98d4e4f29dd23a463d2aa3e30caa65767fe83143de8aca05b2fdb"
+      }
+    },
+    "native_extensions": {
+      "apxinf_py.apxinf_py": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so",
+        "bytes": 49728296,
+        "sha256": "6bcdfca6841fe5db885effb4ccca1a7850d03a1fe7e0a359723dfe606fc206b1"
+      }
+    },
+    "workspace_rust_sources": {
+      "crates/apxinf-py/src/lib.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-py/src/lib.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-py/src/lib.rs",
+        "bytes": 51405,
+        "sha256": "16dc5816e7a5e9d40773aae8e194a46ab3afaeabd7b095837581075eb73bb9a6"
+      },
+      "crates/apxinf-model/src/pi05/model_runner/runner.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model_runner/runner.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model_runner/runner.rs",
+        "bytes": 30901,
+        "sha256": "cc67b7d2f4be959cf973b5a80d6daa88776eb2746b293118d99e46541e1902e8"
+      },
+      "crates/apxinf-model/src/pi05/model/model.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model/model.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model/model.rs",
+        "bytes": 8284,
+        "sha256": "41772ab78a2b937d42943cd234c87e05b4a0643f7efad6d608cac1bc5bf61c33"
+      },
+      "crates/apxinf-model/src/pi05/load.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/load.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/load.rs",
+        "bytes": 6291,
+        "sha256": "c9df99364f385ab334eadc7633ef3d8129c43024e0d649ba1e6f3943c3e20134"
+      },
+      "crates/apxinf-model/src/gr00t/vla_runtime.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/vla_runtime.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/vla_runtime.rs",
+        "bytes": 12347,
+        "sha256": "2e9201381bbcfc304934a40a4cfbd20587daf316a323ff0d810d842ac8472f3a"
+      },
+      "crates/apxinf-model/src/gr00t/executor.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/executor.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/executor.rs",
+        "bytes": 98111,
+        "sha256": "47226c21a6a567f832d54ae6bd99b5ba868057841b41907f35452701aa3db3a5"
+      },
+      "crates/apxinf-cuda/src/transfers.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/transfers.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/transfers.rs",
+        "bytes": 6124,
+        "sha256": "46b63afb8968ae76f7e83163164712558af03eea203443259028e8c2674ed84a"
+      }
+    },
+    "benchmark_script": {
+      "path": "/home/zhaosiying/codebase/fp4vla/exp/bench_engine.py",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/exp/bench_engine.py",
+      "bytes": 23323,
+      "sha256": "425721abf9989820deb8a21d073f3151c773fc548ae8a35b64889157033d71e3"
+    },
+    "limitation": "Imported SO hash is authoritative. Workspace Rust hashes record inspected source, not a proof that this SO was compiled from those exact files; retain build provenance separately."
+  },
+  "timing_scope": {
+    "entrypoint": "AutoPolicy.infer",
+    "policy_class": "Pi05Policy",
+    "model_ms": "Blocking native model call through host float32 action return; includes native input transfers, GPU work, synchronization and D2H.",
+    "total_ms": "Policy internal preprocessing/tokenization, blocking native model, postprocessing/decoding; no simulator or network.",
+    "wrapper_ms": "External perf_counter around policy.infer; input construction and additional finite checks excluded.",
+    "synchronization": "Native binding returns completed host f32 arrays. Inspected pi05 host-return transfer and GR00T executor synchronize CUDA before D2H. These are wall-clock API times, not CUDA-event kernel times.",
+    "limitation": "Cross-library input/tokenization/precision paths differ; report separately, not as a matched end-to-end speedup."
+  },
+  "input_contract": {
+    "synthetic": true,
+    "image_shape": [
+      256,
+      256,
+      3
+    ],
+    "image_dtype": "uint8",
+    "prompt": "put the moka pot on the stove",
+    "batch_size": 1
+  }
+}

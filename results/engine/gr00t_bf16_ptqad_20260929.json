@@ -1,0 +1,826 @@
+{
+  "n": 30,
+  "warmup": 10,
+  "untimed_first_inferences": 1,
+  "lat_model_ms": [
+    27.126951004902367,
+    27.667014001053758,
+    27.132918999996036,
+    27.218028997594956,
+    27.063321002060547,
+    27.66782999970019,
+    27.141524995386135,
+    27.269986996543594,
+    27.549648999411147,
+    27.348088995495345,
+    27.313172002322972,
+    27.165516003151424,
+    27.145339001435786,
+    27.046158000302967,
+    27.214813999307808,
+    26.97252899815794,
+    27.2466840033303,
+    27.311876001476776,
+    27.224038996791933,
+    27.487960003782064,
+    27.79138799814973,
+    27.50867100257892,
+    27.39463100442663,
+    27.07226300117327,
+    27.336332001141272,
+    27.095801997347735,
+    27.239217997703236,
+    27.18378199642757,
+    27.116155994008295,
+    27.733376999094617
+  ],
+  "lat_total_ms": [
+    30.040799996641,
+    30.758399996557273,
+    29.978553000546526,
+    30.237888000556268,
+    30.04101999977138,
+    30.534319994330872,
+    29.916125000454485,
+    30.41911200125469,
+    31.320602000050712,
+    30.54405299917562,
+    30.42250499856891,
+    30.64453099796083,
+    30.40152099856641,
+    30.096345995843876,
+    31.3983250016463,
+    30.546478999895044,
+    31.129242001043167,
+    30.428753001615405,
+    30.18644500116352,
+    31.346019000920933,
+    30.74813100101892,
+    31.09817700169515,
+    30.033760995138437,
+    29.946174996439368,
+    30.08028299518628,
+    29.967463997309096,
+    31.30773400334874,
+    30.592848001106177,
+    29.930338998383377,
+    30.8157840045169
+  ],
+  "lat_wrapper_ms": [
+    30.072440997173544,
+    30.823246997897513,
+    30.00855700520333,
+    30.273990996647626,
+    30.07426599651808,
+    30.56662699964363,
+    29.951257005450316,
+    30.456095999397803,
+    31.362175999674946,
+    30.57910299685318,
+    30.554169999959413,
+    30.68291700037662,
+    30.43867600354133,
+    30.132310996123124,
+    31.440368002222385,
+    30.585521999455523,
+    31.166061002295464,
+    30.463165996479802,
+    30.221783003071323,
+    31.41937200416578,
+    30.78270799596794,
+    31.135270997765474,
+    30.06574000028195,
+    29.97822500037728,
+    30.115945999568794,
+    29.99987699877238,
+    31.33511600026395,
+    30.625860999862198,
+    30.036896998353768,
+    30.84743100043852
+  ],
+  "action_shape": [
+    16,
+    7
+  ],
+  "all_outputs_finite": true,
+  "first_token_count": null,
+  "first_observation_sha256": "4e3c2281e61fe5e70c1f6dc43a3c2a0ede84e01debc595a766bf9d04fe5bc6e0",
+  "first_actions": [
+    [
+      0.009252071380615234,
+      0.029830489307641983,
+      -0.0022266979794949293,
+      -0.007317938841879368,
+      -0.001944581395946443,
+      -0.008306439034640789,
+      1.0
+    ],
+    [
+      0.0003256797790527344,
+      0.025973012670874596,
+      0.006078443024307489,
+      -0.008011647500097752,
+      -0.0005165993352420628,
+      -0.009329997934401035,
+      1.0
+    ],
+    [
+      0.0037589073181152344,
+      0.023500271141529083,
+      0.012307298369705677,
+      -0.008011647500097752,
+      -0.000291128468234092,
+      -0.011669563129544258,
+      1.0
+    ],
+    [
+      0.0010123252868652344,
+      0.014004945755004883,
+      0.021442953497171402,
+      -0.006392994895577431,
+      -0.000291128468234092,
+      -0.011669563129544258,
+      1.0
+    ],
+    [
+      0.0037589073181152344,
+      0.021522078663110733,
+      0.04096003621816635,
+      -0.004427488427609205,
+      0.001061696675606072,
+      -0.014009127393364906,
+      0.99609375
+    ],
+    [
+      0.010625362396240234,
+      0.016378777101635933,
+      0.0405447781085968,
+      -0.0030400720424950123,
+      0.003917660564184189,
+      -0.013424236327409744,
+      1.0
+    ],
+    [
+      0.011312007904052734,
+      0.005300896242260933,
+      0.04179054871201515,
+      -0.0023463640827685595,
+      0.0015126382932066917,
+      -0.011084672063589096,
+      1.0
+    ],
+    [
+      0.005132198333740234,
+      0.010048559866845608,
+      0.0314091220498085,
+      -0.0008433297043666244,
+      0.0016629522433504462,
+      -0.009914889931678772,
+      1.0
+    ],
+    [
+      0.009595394134521484,
+      0.000948871485888958,
+      0.02393449656665325,
+      -0.0026932181790471077,
+      0.002113893860951066,
+      -0.007575324736535549,
+      1.0
+    ],
+    [
+      0.0010123252868652344,
+      0.012422391213476658,
+      0.016459869220852852,
+      -0.0023463640827685595,
+      0.004669230431318283,
+      -0.010207335464656353,
+      0.986328125
+    ],
+    [
+      0.006505489349365234,
+      -0.0065682618878781796,
+      0.017290383577346802,
+      -0.0023463640827685595,
+      0.0027151494286954403,
+      -0.01196200866252184,
+      1.0
+    ],
+    [
+      -0.0003609657287597656,
+      0.0021357873920351267,
+      0.0056631858460605145,
+      -0.003618162125349045,
+      0.0006107549415901303,
+      -0.007575324736535549,
+      1.0
+    ],
+    [
+      -0.0003609657287597656,
+      -0.007359539158642292,
+      0.008985241875052452,
+      -0.0014214197872206569,
+      0.004650440998375416,
+      -0.011084672063589096,
+      1.0
+    ],
+    [
+      0.0003256797790527344,
+      -0.019228696823120117,
+      0.011476784944534302,
+      -0.0009589476976543665,
+      0.004518916364759207,
+      -0.009914889931678772,
+      1.0
+    ],
+    [
+      0.0010123252868652344,
+      -0.03861498832702637,
+      0.012722555547952652,
+      -0.0001496215700171888,
+      0.002113893860951066,
+      -0.010499780997633934,
+      1.0
+    ],
+    [
+      -0.008600711822509766,
+      -0.05404489487409592,
+      0.0189514122903347,
+      0.0010065586538985372,
+      0.002414521761238575,
+      -0.015763800591230392,
+      1.0
+    ]
+  ],
+  "first_actions_scope": "Untimed synthetic observation for numerical inspection only; not a task-success measurement.",
+  "sample_token_counts": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "quantile_method": "numpy.percentile linear",
+  "execution_mode": {
+    "after_warmup": "cuda-graph",
+    "after_each_timed_sample": [
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph",
+      "cuda-graph"
+    ],
+    "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+  },
+  "power_w_mean": 125.02000000000001,
+  "power_w_max": 159.59,
+  "vram_mb_peak": 10358.0,
+  "telemetry": {
+    "nvidia_smi_device": "0",
+    "samples": [
+      {
+        "monotonic_s": 42040.074294042,
+        "power_w": 83.25,
+        "utilization_percent": 83.0,
+        "memory_mib": 10358.0
+      },
+      {
+        "monotonic_s": 42040.350806172,
+        "power_w": 112.64,
+        "utilization_percent": 86.0,
+        "memory_mib": 10358.0
+      },
+      {
+        "monotonic_s": 42040.63009213,
+        "power_w": 144.6,
+        "utilization_percent": 82.0,
+        "memory_mib": 10358.0
+      },
+      {
+        "monotonic_s": 42040.906219566,
+        "power_w": 159.59,
+        "utilization_percent": 83.0,
+        "memory_mib": 10358.0
+      }
+    ],
+    "errors": [],
+    "scope": "Whole selected GPU during timing phase, including input preparation; not isolated process power/VRAM.",
+    "device_mapping": "nvidia-smi device selection is explicit and may differ from CUDA_VISIBLE_DEVICES remapping."
+  },
+  "model_ms_p50": 27.231628497247584,
+  "model_ms_p99": 27.774564808423747,
+  "model_ms_mean": 27.292834033141844,
+  "total_ms_p50": 30.425629000092158,
+  "total_ms_p99": 31.383156261435943,
+  "total_ms_mean": 30.49705783269019,
+  "wrapper_ms_p50": 30.508667998219607,
+  "wrapper_ms_p99": 31.43427916278597,
+  "wrapper_ms_mean": 30.53983929979343,
+  "hz_p50": 32.86702799133491,
+  "schema_version": 2,
+  "model_dir": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+  "model_type": "gr00t",
+  "variant": "bf16",
+  "variant_requested": "bf16",
+  "variant_verification": {
+    "status": "explicit_precision_metadata_only",
+    "native_model_variant": null,
+    "policy_value": "bf16",
+    "limitation": "GR00T runtime does not expose its native model variant/dtype inventory; precision is an explicit constructor contract, not an independently inspected parameter dtype."
+  },
+  "load_s": 23.541999166001915,
+  "policy_metadata": {
+    "model_type": "gr00t",
+    "action_horizon": 16,
+    "model_action_horizon": 40,
+    "model_action_dim": 132,
+    "action_dim": 7,
+    "num_views": 2,
+    "image_keys": [
+      "observation/image",
+      "observation/wrist_image"
+    ],
+    "state_key": "observation/state",
+    "prompt_key": "prompt",
+    "state_dim": 8,
+    "noise_mode": "stream",
+    "seed": 0,
+    "precision": "bf16",
+    "embodiment": "libero_sim"
+  },
+  "constructor_kwargs": {
+    "device": "cuda:0",
+    "seed": 0,
+    "precision": "bf16",
+    "backbone": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B"
+  },
+  "seed": 7,
+  "model_seed": 0,
+  "device": "cuda:0",
+  "gpu_identity": {
+    "command": [
+      "nvidia-smi",
+      "-i",
+      "0",
+      "--query-gpu=name,uuid,driver_version,memory.total",
+      "--format=csv,noheader,nounits"
+    ],
+    "stdout": "NVIDIA GeForce RTX 5090 Laptop GPU, GPU-64aae36b-ef77-b0d4-b1c7-f7ab17a729f1, 610.74, 24463",
+    "error": null
+  },
+  "cuda_visible_devices": null,
+  "checkpoint_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+    "files": {
+      "config.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json",
+        "bytes": 2266,
+        "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+      },
+      "embodiment_id.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/embodiment_id.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/embodiment_id.json",
+        "bytes": 2145,
+        "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+      },
+      "model-00001-of-00002.safetensors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00001-of-00002.safetensors",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00001-of-00002.safetensors",
+        "bytes": 4990519232,
+        "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+      },
+      "model-00002-of-00002.safetensors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00002-of-00002.safetensors",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00002-of-00002.safetensors",
+        "bytes": 1919980184,
+        "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+      },
+      "model.safetensors.index.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model.safetensors.index.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model.safetensors.index.json",
+        "bytes": 104985,
+        "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+      },
+      "processor_config.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/processor_config.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/processor_config.json",
+        "bytes": 26935,
+        "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+      },
+      "statistics.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/statistics.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/statistics.json",
+        "bytes": 4298413,
+        "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+      },
+      "trainer_state.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/trainer_state.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/trainer_state.json",
+        "bytes": 8936930,
+        "sha256": "8a651906567c9c7661523962098dcdaee6d83dea18b8ab9220d149233bad7c87"
+      },
+      "wandb_config.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/wandb_config.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/wandb_config.json",
+        "bytes": 60,
+        "sha256": "38259142c90fd6e81f3e26205e7dd771318b9848d6bd20da16ddb90982fa3ca1"
+      }
+    }
+  },
+  "asset_identity": {
+    "backbone": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B",
+      "files": {
+        "chat_template.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/chat_template.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/chat_template.json",
+          "bytes": 5502,
+          "sha256": "6f8a6a55027e3da5160105556cda5dd69f6423f1c32645f6730d32de7773d0c4"
+        },
+        "config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/config.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/config.json",
+          "bytes": 1505,
+          "sha256": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b"
+        },
+        "generation_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/generation_config.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/generation_config.json",
+          "bytes": 269,
+          "sha256": "1e241830b48b397cb0900101421df5450baddc7adf01e5fc86b5615865f3bae4"
+        },
+        "merges.txt": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/merges.txt",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/merges.txt",
+          "bytes": 1671839,
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+        },
+        "model.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/model.safetensors",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/model.safetensors",
+          "bytes": 4877470304,
+          "sha256": "fa5a6e6ef4fce40216b185cc48a3b24d31637ac3e2ba69c107ed1f389c1e6ede"
+        },
+        "preprocessor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/preprocessor_config.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/preprocessor_config.json",
+          "bytes": 390,
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+        },
+        "tokenizer.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/tokenizer.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/tokenizer.json",
+          "bytes": 7032403,
+          "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7"
+        },
+        "tokenizer_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/tokenizer_config.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/tokenizer_config.json",
+          "bytes": 10868,
+          "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399"
+        },
+        "video_preprocessor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/video_preprocessor_config.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/video_preprocessor_config.json",
+          "bytes": 385,
+          "sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+        },
+        "vocab.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B/vocab.json",
+          "resolved_path": "/home/zhaosiying/.cache/huggingface/hub/models--nvidia--Cosmos-Reason2-2B/snapshots/9ce19a195e423419c349abfc86fd07178b230561/vocab.json",
+          "bytes": 2776833,
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        }
+      }
+    }
+  },
+  "packed_identity": null,
+  "runtime_identity": {
+    "packages": {
+      "apxinf": "0.1.0",
+      "apxinf-py": "0.1.0",
+      "apxinf-robo": "0.1.0",
+      "numpy": "2.5.3",
+      "pillow": "12.3.0",
+      "sentencepiece": null,
+      "transformers": "4.57.3"
+    },
+    "imported_python_sources": {
+      "apxinf": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/__init__.py",
+        "bytes": 4815,
+        "sha256": "4aa5730a96071ca34a58de5d28adb453d3be239e08be53fd88d796e6d1eae210"
+      },
+      "apxinf._tactics": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/_tactics.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/_tactics.py",
+        "bytes": 2285,
+        "sha256": "0d583927d70a493223c71d3e5bf01341d83dbcaed7683c8c9e18964250bc04d6"
+      },
+      "apxinf.calibration": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/calibration.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/calibration.py",
+        "bytes": 17690,
+        "sha256": "fc84d8d703ae8159a08e92297e3d9fef69b87ab24278599260a68e3e6c245d64"
+      },
+      "apxinf.checkpoints": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/__init__.py",
+        "bytes": 2197,
+        "sha256": "66ddd372f0f1bb1332b6524c45048d763f2423f6ffa4cf75234b1d7797063a45"
+      },
+      "apxinf.checkpoints.descriptor": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/descriptor.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/descriptor.py",
+        "bytes": 3104,
+        "sha256": "46d18ad15ea9da91ef383c37778cac6cc57bac086cfc40ed5b672ff9ea1495ae"
+      },
+      "apxinf.checkpoints.layout": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/layout.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/layout.py",
+        "bytes": 21839,
+        "sha256": "a54f3557cc32df0cb1f34c00a748838fbfa90b1b432f16426398629860320b6d"
+      },
+      "apxinf.checkpoints.lerobot": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/lerobot.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/lerobot.py",
+        "bytes": 10302,
+        "sha256": "ad21519445ce6a8d898dfff0110e946eb55c0859788119eb0856902ad6a56bd1"
+      },
+      "apxinf.checkpoints.metadata": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/metadata.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/metadata.py",
+        "bytes": 11669,
+        "sha256": "ce3a1f1da48bc4375bc957639f3992ff86fe0666cda38ac7f964378a0f259cef"
+      },
+      "apxinf.checkpoints.norm_stats": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/norm_stats.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/norm_stats.py",
+        "bytes": 1187,
+        "sha256": "273dc4efd2e52cf74d6992b16076220a905ed0dc7487c7da918b23fb23600205"
+      },
+      "apxinf.checkpoints.openpi": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/openpi.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/openpi.py",
+        "bytes": 3027,
+        "sha256": "7a0e4279b861d438aa04cea875a244c4ec416544016ecf19bd0ec77da91e3ddf"
+      },
+      "apxinf.checkpoints.preflight": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/preflight.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/preflight.py",
+        "bytes": 19857,
+        "sha256": "a4eae83ec1e33d6e7ee3953935abb3ec581309fb476b000cdd37eb3b160391fa"
+      },
+      "apxinf.checkpoints.safetensors_state": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/safetensors_state.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/safetensors_state.py",
+        "bytes": 3377,
+        "sha256": "bca11f9dcd9179fc75abda65009c89f83fc6b9fe2f354bbcabff656695555023"
+      },
+      "apxinf.checkpoints.torch_state": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/torch_state.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/torch_state.py",
+        "bytes": 9512,
+        "sha256": "a226e512c511ea6fbe1b26b3e4be35410b7da41e640cc19d73c43e5986fdc751"
+      },
+      "apxinf.policies": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/__init__.py",
+        "bytes": 2346,
+        "sha256": "eebfc9893b3d89b7d976f65181b7a0b5c03beed23379f5e296ea0c85abb7dafa"
+      },
+      "apxinf.policies.auto": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/auto.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/auto.py",
+        "bytes": 3873,
+        "sha256": "072593b1189c59c109c6c49a0bd7ba141f5acaab66b94e6956d91f0acb5d5096"
+      },
+      "apxinf.policies.base": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/base.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/base.py",
+        "bytes": 6747,
+        "sha256": "5e216cdadc6b2e4e1c4d1dd19b7c1585d0dd4dbc6330d82ff3a0b3e1545fdc6a"
+      },
+      "apxinf.policies.impls": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/__init__.py",
+        "bytes": 1321,
+        "sha256": "c1b8517b390c4fa9168ecaa88de6de648032395232cd5e091b20172d70c8b4eb"
+      },
+      "apxinf.policies.impls.gr00t": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/gr00t.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/gr00t.py",
+        "bytes": 25135,
+        "sha256": "9a8549a6a0be1149edcf8c002afa625b9aa7f38eeb2e9334cd14b4ada2cd110d"
+      },
+      "apxinf.policies.impls.pi05": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi05.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi05.py",
+        "bytes": 44711,
+        "sha256": "a487081d5847e233f883d4581ac412de7008f20975b525fb83f1c1731a3e6183"
+      },
+      "apxinf.policies.impls.pi0fast": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi0fast.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi0fast.py",
+        "bytes": 37919,
+        "sha256": "67e360bc016d29dc3c578707cbb2831c65f98d8c88ce3d08a5dca3ae9dce5d34"
+      },
+      "apxinf.policies.impls.qwen_drive": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/qwen_drive.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/qwen_drive.py",
+        "bytes": 25107,
+        "sha256": "33387df31175f6aa50749d0aa5c384793d123cb7e6110122681bbf625c57de48"
+      },
+      "apxinf.policies.impls.walloss": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/walloss.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/walloss.py",
+        "bytes": 25831,
+        "sha256": "3b8b4dbe635fb3ece3231a2790e1c5149e1648c199096727073cfba33f09d458"
+      },
+      "apxinf.policies.registry": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/registry.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/registry.py",
+        "bytes": 1910,
+        "sha256": "a5e78a4234ebc3983077c93f91f45dd11a6e821c4abc1b8ed485ec5ce68b5ee3"
+      },
+      "apxinf.processors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/__init__.py",
+        "bytes": 1299,
+        "sha256": "2c3c54e6d5870055b415b978d688c47e25c91354dfe4a1fa6b79b2b599de9df6"
+      },
+      "apxinf.processors.base": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/base.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/base.py",
+        "bytes": 8753,
+        "sha256": "181f55367c05d9f07ccf249915d068fd98da4f587c4174d06595f15ef9913cad"
+      },
+      "apxinf.processors.noise": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/noise.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/noise.py",
+        "bytes": 1808,
+        "sha256": "c6d25d2c0649e3d3cc50bfe8cd15c360bbbcd7cd698cffc8278edb5a24565181"
+      },
+      "apxinf.processors.normalize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/normalize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/normalize.py",
+        "bytes": 12270,
+        "sha256": "1eab2cc10d87c254a7b31ffa45087a39da6f2be7b0d507d9f274a2f99c9587be"
+      },
+      "apxinf.processors.resize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/resize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/resize.py",
+        "bytes": 8248,
+        "sha256": "abe3a501b5a071b429d5ac1dbe0440f479eae540936e6c2f80b4aee93908382a"
+      },
+      "apxinf.processors.tokenize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/tokenize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/tokenize.py",
+        "bytes": 7385,
+        "sha256": "bef3adafb63d840dd64366ff632c1c658394c546bd66093099753a4a31358756"
+      },
+      "apxinf.processors.transforms": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/transforms.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/transforms.py",
+        "bytes": 10431,
+        "sha256": "69f70eec8380b450043504b7b3c2aeaa386004eba67f26800780c575cb7a1b11"
+      },
+      "apxinf_py": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/__init__.py",
+        "bytes": 119,
+        "sha256": "2328a616eec98d4e4f29dd23a463d2aa3e30caa65767fe83143de8aca05b2fdb"
+      }
+    },
+    "native_extensions": {
+      "apxinf_py.apxinf_py": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so",
+        "bytes": 49728296,
+        "sha256": "6bcdfca6841fe5db885effb4ccca1a7850d03a1fe7e0a359723dfe606fc206b1"
+      }
+    },
+    "workspace_rust_sources": {
+      "crates/apxinf-py/src/lib.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-py/src/lib.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-py/src/lib.rs",
+        "bytes": 51405,
+        "sha256": "16dc5816e7a5e9d40773aae8e194a46ab3afaeabd7b095837581075eb73bb9a6"
+      },
+      "crates/apxinf-model/src/pi05/model_runner/runner.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model_runner/runner.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model_runner/runner.rs",
+        "bytes": 30901,
+        "sha256": "cc67b7d2f4be959cf973b5a80d6daa88776eb2746b293118d99e46541e1902e8"
+      },
+      "crates/apxinf-model/src/pi05/model/model.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model/model.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model/model.rs",
+        "bytes": 8284,
+        "sha256": "41772ab78a2b937d42943cd234c87e05b4a0643f7efad6d608cac1bc5bf61c33"
+      },
+      "crates/apxinf-model/src/pi05/load.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/load.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/load.rs",
+        "bytes": 6291,
+        "sha256": "c9df99364f385ab334eadc7633ef3d8129c43024e0d649ba1e6f3943c3e20134"
+      },
+      "crates/apxinf-model/src/gr00t/vla_runtime.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/vla_runtime.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/vla_runtime.rs",
+        "bytes": 12347,
+        "sha256": "2e9201381bbcfc304934a40a4cfbd20587daf316a323ff0d810d842ac8472f3a"
+      },
+      "crates/apxinf-model/src/gr00t/executor.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/executor.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/executor.rs",
+        "bytes": 98111,
+        "sha256": "47226c21a6a567f832d54ae6bd99b5ba868057841b41907f35452701aa3db3a5"
+      },
+      "crates/apxinf-cuda/src/transfers.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/transfers.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/transfers.rs",
+        "bytes": 6124,
+        "sha256": "46b63afb8968ae76f7e83163164712558af03eea203443259028e8c2674ed84a"
+      }
+    },
+    "benchmark_script": {
+      "path": "/home/zhaosiying/codebase/fp4vla/exp/bench_engine.py",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/exp/bench_engine.py",
+      "bytes": 23323,
+      "sha256": "425721abf9989820deb8a21d073f3151c773fc548ae8a35b64889157033d71e3"
+    },
+    "limitation": "Imported SO hash is authoritative. Workspace Rust hashes record inspected source, not a proof that this SO was compiled from those exact files; retain build provenance separately."
+  },
+  "timing_scope": {
+    "entrypoint": "AutoPolicy.infer",
+    "policy_class": "Gr00tPolicy",
+    "model_ms": "Blocking native model call through host float32 action return; includes native input transfers, GPU work, synchronization and D2H.",
+    "total_ms": "Policy internal preprocessing/tokenization, blocking native model, postprocessing/decoding; no simulator or network.",
+    "wrapper_ms": "External perf_counter around policy.infer; input construction and additional finite checks excluded.",
+    "synchronization": "Native binding returns completed host f32 arrays. Inspected pi05 host-return transfer and GR00T executor synchronize CUDA before D2H. These are wall-clock API times, not CUDA-event kernel times.",
+    "limitation": "Cross-library input/tokenization/precision paths differ; report separately, not as a matched end-to-end speedup."
+  },
+  "input_contract": {
+    "synthetic": true,
+    "image_shape": [
+      256,
+      256,
+      3
+    ],
+    "image_dtype": "uint8",
+    "prompt": "put the moka pot on the stove",
+    "batch_size": 1
+  }
+}

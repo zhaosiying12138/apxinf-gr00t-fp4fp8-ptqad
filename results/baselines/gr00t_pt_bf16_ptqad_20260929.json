@@ -1,0 +1,188 @@
+{
+  "schema_version": 2,
+  "model": "nvidia/GR00T-N1.7-LIBERO",
+  "engine": "pytorch-official",
+  "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+  "checkpoint_sha256": {
+    "config.json": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+    "embodiment_id.json": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35",
+    "model-00001-of-00002.safetensors": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff",
+    "model-00002-of-00002.safetensors": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703",
+    "model.safetensors.index.json": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59",
+    "processor_config.json": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121",
+    "statistics.json": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+    "trainer_state.json": "8a651906567c9c7661523962098dcdaee6d83dea18b8ab9220d149233bad7c87",
+    "wandb_config.json": "38259142c90fd6e81f3e26205e7dd771318b9848d6bd20da16ddb90982fa3ca1"
+  },
+  "script_sha256": "f2ade088e3eff3c5a38781888c9fc58524d887925d941600422d2aa191be04a3",
+  "backbone": "/home/zhaosiying/codebase/fp4vla/weights/nvidia/Cosmos-Reason2-2B",
+  "policy_source_sha256": "ad1183a3ce1ebed6cace4a9cb8c5a123e823a0760ebf46f3694639a5ad1521ec",
+  "architecture": {
+    "language_layers": 16,
+    "dit_layers": 32,
+    "vl_layers": 4
+  },
+  "strict_loading_info": {
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "mismatched_keys": [],
+    "error_msgs": []
+  },
+  "torch": "2.9.0+cu128",
+  "transformers": "4.57.3",
+  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+  "device": "cuda:0",
+  "dtype_config": "bfloat16",
+  "dtype_policy": "all_model_parameters_bfloat16",
+  "parameter_dtype_elements": {
+    "bfloat16": 3144016000
+  },
+  "compute_dtype": {
+    "outer_autocast": false,
+    "linear_io_signatures": {
+      "input=bfloat16;weight=bfloat16;output=bfloat16": 1153
+    },
+    "observation_pass": "untimed_first_inference"
+  },
+  "timing_scope": {
+    "entrypoint": "Gr00tPolicy.get_action",
+    "included": [
+      "processor",
+      "backbone",
+      "action_head",
+      "action_device_to_host",
+      "action_decoding",
+      "policy_validation"
+    ],
+    "excluded": [
+      "model_loading",
+      "synthetic_input_generation",
+      "finite_output_validation",
+      "simulator",
+      "network"
+    ]
+  },
+  "input_contract": {
+    "synthetic": true,
+    "image_keys": [
+      "image",
+      "wrist_image"
+    ],
+    "image_shape": [
+      1,
+      1,
+      224,
+      224,
+      3
+    ],
+    "image_dtype": "uint8",
+    "state_elements": 8,
+    "prompt": "put the moka pot on the stove"
+  },
+  "batch_size": 1,
+  "seed": 7,
+  "n": 50,
+  "warmup": 10,
+  "untimed_first_inferences": 1,
+  "load_s": 13.753375744003279,
+  "latency_ms_mean": 90.48091667951667,
+  "latency_ms_p50": 89.29748899754486,
+  "latency_ms_p99": 116.50593947051668,
+  "lat_all_ms": [
+    88.83809899998596,
+    93.80026000144426,
+    86.64901899464894,
+    85.50169399677543,
+    88.96278899919707,
+    88.26374699856387,
+    92.5755969947204,
+    90.43637099966872,
+    87.36260399746243,
+    83.5079790049349,
+    97.69329000118887,
+    90.0424089995795,
+    89.64848299365258,
+    93.18115499627311,
+    90.12205399631057,
+    86.18466299958527,
+    86.25822499743663,
+    92.36222400068073,
+    83.3639599950402,
+    89.34429800137877,
+    87.27469199948246,
+    88.27793200180167,
+    89.25067999371095,
+    84.92432499770075,
+    89.94730499398429,
+    89.5181810046779,
+    87.966447994404,
+    83.42696500039892,
+    83.59992999612587,
+    88.00949500437127,
+    91.41671300312737,
+    92.37182100332575,
+    97.90724400227191,
+    98.23057500034338,
+    133.82288099819561,
+    94.13446999678854,
+    97.5282139988849,
+    98.48218400293263,
+    95.76793800079031,
+    93.01843000139343,
+    88.85166099935304,
+    89.83678100048564,
+    85.01984500617255,
+    85.63332100311527,
+    89.98274499754189,
+    87.41627699782839,
+    87.6403250003932,
+    89.84314600093057,
+    84.96040900354274,
+    85.88598100322997
+  ],
+  "quantile_method": "numpy.percentile linear",
+  "hz_mean": 11.052054252964735,
+  "vram_alloc_gb": 5.946319580078125,
+  "vram_reserved_gb": 6.041015625,
+  "vram_scope": "PyTorch allocator peak after warmup; excludes other processes",
+  "action_shapes": {
+    "x": [
+      1,
+      16,
+      1
+    ],
+    "y": [
+      1,
+      16,
+      1
+    ],
+    "z": [
+      1,
+      16,
+      1
+    ],
+    "roll": [
+      1,
+      16,
+      1
+    ],
+    "pitch": [
+      1,
+      16,
+      1
+    ],
+    "yaw": [
+      1,
+      16,
+      1
+    ],
+    "gripper": [
+      1,
+      16,
+      1
+    ]
+  },
+  "all_outputs_finite": true,
+  "tf32": false,
+  "compile_model": false
+}

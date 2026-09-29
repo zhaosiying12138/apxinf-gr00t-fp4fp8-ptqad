@@ -1,0 +1,1089 @@
+{
+  "n": 30,
+  "warmup": 10,
+  "untimed_first_inferences": 1,
+  "lat_model_ms": [
+    46.74285899818642,
+    46.80533600185299,
+    46.64027300168527,
+    46.679468992806505,
+    46.88497300230665,
+    48.62814300577156,
+    49.809605996415485,
+    50.62508099945262,
+    49.22747900127433,
+    48.26046900416259,
+    48.06774900498567,
+    47.62190900510177,
+    47.559245002048556,
+    47.63875599746825,
+    47.28858399903402,
+    47.38396700122394,
+    47.07250899809878,
+    47.28923500078963,
+    47.12047000066377,
+    47.3463759990409,
+    46.903305999876466,
+    46.84478799754288,
+    47.54756100010127,
+    47.228331000951584,
+    47.43975900055375,
+    47.57244399661431,
+    49.2112689971691,
+    48.28462300065439,
+    48.39759999595117,
+    47.86436999711441
+  ],
+  "lat_total_ms": [
+    47.95571699651191,
+    47.88559400185477,
+    48.078084000735544,
+    47.97574400436133,
+    47.96994499338325,
+    50.13293000229169,
+    51.34882499987725,
+    51.75282400159631,
+    50.37131600693101,
+    49.36412099777954,
+    49.210999997740146,
+    48.71211499994388,
+    48.82155000086641,
+    48.726533001172356,
+    48.38674300117418,
+    48.51322800095659,
+    48.29966500255978,
+    48.96118200122146,
+    48.33127500023693,
+    48.46862300473731,
+    48.074010002892464,
+    47.995339999033604,
+    48.595307001960464,
+    48.634452003170736,
+    48.533285000303295,
+    48.66852999839466,
+    50.267029997485224,
+    49.34739799500676,
+    49.44428999442607,
+    48.86702899966622
+  ],
+  "lat_wrapper_ms": [
+    47.961937001673505,
+    47.894919000100344,
+    48.08466300164582,
+    47.98420600127429,
+    47.977795999031514,
+    50.141050000092946,
+    51.354595001612324,
+    51.760966001893394,
+    50.3790980001213,
+    49.3722559986054,
+    49.21818099683151,
+    48.72110399446683,
+    48.83078300190391,
+    48.73503200360574,
+    48.39558299863711,
+    48.52558599668555,
+    48.307969998859335,
+    48.97389799589291,
+    48.33886599953985,
+    48.4771900009946,
+    48.08295299881138,
+    48.003598996729124,
+    48.602642003970686,
+    48.64238799927989,
+    48.54036500182701,
+    48.67704700154718,
+    50.27562699979171,
+    49.35601499892073,
+    49.451068000053056,
+    48.874278996663634
+  ],
+  "action_shape": [
+    50,
+    7
+  ],
+  "all_outputs_finite": true,
+  "first_token_count": 10,
+  "first_observation_sha256": "e2741420e9bc5850af7001d65e14d9ac39bb2183f9d8e5316d66a7138fe5e928",
+  "first_actions": [
+    [
+      -0.39863067865371704,
+      0.2087300419807434,
+      -0.37730902433395386,
+      0.006492584943771362,
+      -0.03937391936779022,
+      0.18404614925384521,
+      0.9917899370193481
+    ],
+    [
+      -0.41508087515830994,
+      0.23702436685562134,
+      -0.38463181257247925,
+      0.007117658853530884,
+      -0.04553445428609848,
+      0.18454033136367798,
+      0.9956954717636108
+    ],
+    [
+      -0.4085007905960083,
+      0.24995893239974976,
+      -0.38097041845321655,
+      0.009664833545684814,
+      -0.04382319748401642,
+      0.17959845066070557,
+      0.9917899370193481
+    ],
+    [
+      -0.3920505940914154,
+      0.24995893239974976,
+      -0.3681555986404419,
+      0.009758591651916504,
+      -0.034924641251564026,
+      0.17366820573806763,
+      0.999600887298584
+    ],
+    [
+      -0.36244022846221924,
+      0.2548094391822815,
+      -0.3461873531341553,
+      0.007023900747299194,
+      -0.024657070636749268,
+      0.16674956679344177,
+      0.9956954717636108
+    ],
+    [
+      -0.32953980565071106,
+      0.2628934979438782,
+      -0.3114042282104492,
+      0.0056487396359443665,
+      -0.022261306643486023,
+      0.1499471366405487,
+      0.9956954717636108
+    ],
+    [
+      -0.29334935545921326,
+      0.2742113471031189,
+      -0.2747904658317566,
+      0.004679873585700989,
+      -0.024143695831298828,
+      0.13166218996047974,
+      0.999600887298584
+    ],
+    [
+      -0.2505788505077362,
+      0.27259451150894165,
+      -0.23451530933380127,
+      0.0027734041213989258,
+      -0.022261306643486023,
+      0.10769402980804443,
+      0.9956954717636108
+    ],
+    [
+      -0.21932345628738403,
+      0.24025803804397583,
+      -0.20156288146972656,
+      0.0016482695937156677,
+      -0.020036667585372925,
+      0.09262129664421082,
+      0.999600887298584
+    ],
+    [
+      -0.17326289415359497,
+      0.1990290880203247,
+      -0.1704411506652832,
+      0.0005231350660324097,
+      -0.01053917407989502,
+      0.07866045832633972,
+      0.9956954717636108
+    ],
+    [
+      -0.17490792274475098,
+      0.19417858123779297,
+      -0.15762633085250854,
+      -0.0002894550561904907,
+      -0.007715597748756409,
+      0.08187270164489746,
+      0.9917899370193481
+    ],
+    [
+      -0.1617477536201477,
+      0.214388906955719,
+      -0.13931941986083984,
+      -0.001164563000202179,
+      -0.00185452401638031,
+      0.0941038429737091,
+      0.9917899370193481
+    ],
+    [
+      -0.17161786556243896,
+      0.24995893239974976,
+      -0.1374887228012085,
+      -0.0007895156741142273,
+      0.00039149820804595947,
+      0.10967078804969788,
+      0.9956954717636108
+    ],
+    [
+      -0.18148797750473022,
+      0.27582818269729614,
+      -0.12833529710769653,
+      -0.00035196542739868164,
+      -0.0003143996000289917,
+      0.11238881945610046,
+      0.9917899370193481
+    ],
+    [
+      -0.18971306085586548,
+      0.2871459126472473,
+      -0.13657337427139282,
+      -3.94284725189209e-05,
+      -0.002752944827079773,
+      0.11263591051101685,
+      0.9956954717636108
+    ],
+    [
+      -0.21438837051391602,
+      0.30978137254714966,
+      -0.16861045360565186,
+      0.001273222267627716,
+      -0.0065177083015441895,
+      0.11930745840072632,
+      0.999600887298584
+    ],
+    [
+      -0.2489338219165802,
+      0.31948238611221313,
+      -0.20247822999954224,
+      0.002523370087146759,
+      -0.011737063527107239,
+      0.1296854317188263,
+      0.9956954717636108
+    ],
+    [
+      -0.27196410298347473,
+      0.2984636425971985,
+      -0.23634594678878784,
+      0.004586115479469299,
+      -0.018496543169021606,
+      0.1336389183998108,
+      0.999600887298584
+    ],
+    [
+      -0.2801892161369324,
+      0.2709776759147644,
+      -0.2528221607208252,
+      0.005992531776428223,
+      -0.022261306643486023,
+      0.1346273124217987,
+      0.9956954717636108
+    ],
+    [
+      -0.29170435667037964,
+      0.23702436685562134,
+      -0.2528221607208252,
+      0.006617605686187744,
+      -0.024999335408210754,
+      0.12919121980667114,
+      0.9956954717636108
+    ],
+    [
+      -0.3229597508907318,
+      0.23864120244979858,
+      -0.2638062834739685,
+      0.005742497742176056,
+      -0.031844377517700195,
+      0.13413313031196594,
+      0.9956954717636108
+    ],
+    [
+      -0.34928005933761597,
+      0.22004777193069458,
+      -0.24549943208694458,
+      0.003648504614830017,
+      -0.0404006689786911,
+      0.11930745840072632,
+      0.9917899370193481
+    ],
+    [
+      -0.3591502010822296,
+      0.18528610467910767,
+      -0.23451530933380127,
+      0.002710893750190735,
+      -0.043480947613716125,
+      0.1017637848854065,
+      0.9917899370193481
+    ],
+    [
+      -0.3394099473953247,
+      0.15375804901123047,
+      -0.21437770128250122,
+      0.002710893750190735,
+      -0.04005841910839081,
+      0.08520844578742981,
+      0.9917899370193481
+    ],
+    [
+      -0.31308960914611816,
+      0.12910151481628418,
+      -0.19881683588027954,
+      0.003585994243621826,
+      -0.03424014151096344,
+      0.07211247086524963,
+      0.9917899370193481
+    ],
+    [
+      -0.2884142994880676,
+      0.1012113094329834,
+      -0.1786792278289795,
+      0.004461102187633514,
+      -0.026026085019111633,
+      0.0593639612197876,
+      0.9956954717636108
+    ],
+    [
+      -0.27854418754577637,
+      0.11212486028671265,
+      -0.16494905948638916,
+      0.005867511034011841,
+      -0.022090181708335876,
+      0.058114975690841675,
+      0.9917899370193481
+    ],
+    [
+      -0.2653840184211731,
+      0.13476037979125977,
+      -0.1438961625099182,
+      0.006398826837539673,
+      -0.019181042909622192,
+      0.05555716156959534,
+      0.9956954717636108
+    ],
+    [
+      -0.2341286540031433,
+      0.1448655128479004,
+      -0.11048609018325806,
+      0.0033359676599502563,
+      -0.011565938591957092,
+      0.04857674241065979,
+      0.9956954717636108
+    ],
+    [
+      -0.22261351346969604,
+      0.16911786794662476,
+      -0.09034848213195801,
+      0.0017107799649238586,
+      -0.005319833755493164,
+      0.047217726707458496,
+      0.9917899370193481
+    ],
+    [
+      -0.23741865158081055,
+      0.2168141007423401,
+      -0.08668708801269531,
+      0.001460745930671692,
+      -0.002838507294654846,
+      0.05626755952835083,
+      0.9917899370193481
+    ],
+    [
+      -0.2637389898300171,
+      0.26936084032058716,
+      -0.09904426336288452,
+      0.001273222267627716,
+      -0.0027957260608673096,
+      0.07347148656845093,
+      0.9917899370193481
+    ],
+    [
+      -0.2999294400215149,
+      0.3243327736854553,
+      -0.1292506456375122,
+      0.001398243010044098,
+      -0.009341299533843994,
+      0.09187999367713928,
+      0.9956954717636108
+    ],
+    [
+      -0.31144458055496216,
+      0.35020190477371216,
+      -0.1438961625099182,
+      0.0007106587290763855,
+      -0.018667668104171753,
+      0.09558641910552979,
+      0.9956954717636108
+    ],
+    [
+      -0.31473463773727417,
+      0.35990291833877563,
+      -0.15854167938232422,
+      0.0004606321454048157,
+      -0.023288071155548096,
+      0.09904572367668152,
+      0.999600887298584
+    ],
+    [
+      -0.31473463773727417,
+      0.35020190477371216,
+      -0.1786792278289795,
+      -0.0001644417643547058,
+      -0.024828195571899414,
+      0.09953993558883667,
+      0.9956954717636108
+    ],
+    [
+      -0.3229597508907318,
+      0.34050101041793823,
+      -0.19149410724639893,
+      -0.0005394890904426575,
+      -0.027737349271774292,
+      0.10522308945655823,
+      0.9917899370193481
+    ],
+    [
+      -0.3394099473953247,
+      0.3178655505180359,
+      -0.22719252109527588,
+      0.0010857060551643372,
+      -0.037662655115127563,
+      0.11263591051101685,
+      0.9917899370193481
+    ],
+    [
+      -0.352570116519928,
+      0.29361313581466675,
+      -0.26197564601898193,
+      0.004148565232753754,
+      -0.049641482532024384,
+      0.11733070015907288,
+      0.9917899370193481
+    ],
+    [
+      -0.3361198902130127,
+      0.2839122414588928,
+      -0.26929837465286255,
+      0.009758591651916504,
+      -0.05237949639558792,
+      0.11238881945610046,
+      0.9917899370193481
+    ],
+    [
+      -0.30650952458381653,
+      0.29361313581466675,
+      -0.2638062834739685,
+      0.017337605357170105,
+      -0.05032598227262497,
+      0.10497599840164185,
+      0.9956954717636108
+    ],
+    [
+      -0.283479243516922,
+      0.32594960927963257,
+      -0.23634594678878784,
+      0.019712895154953003,
+      -0.04382319748401642,
+      0.10003411769866943,
+      0.9956954717636108
+    ],
+    [
+      -0.2801892161369324,
+      0.3550524115562439,
+      -0.20156288146972656,
+      0.015618652105331421,
+      -0.038689419627189636,
+      0.09509223699569702,
+      0.999600887298584
+    ],
+    [
+      -0.2982844412326813,
+      0.3485850691795349,
+      -0.18325597047805786,
+      0.009914860129356384,
+      -0.04005841910839081,
+      0.09138581156730652,
+      0.999600887298584
+    ],
+    [
+      -0.33282986283302307,
+      0.32594960927963257,
+      -0.17501789331436157,
+      0.005461215972900391,
+      -0.046561211347579956,
+      0.08619683980941772,
+      0.9917899370193481
+    ],
+    [
+      -0.34599003195762634,
+      0.3146318793296814,
+      -0.16861045360565186,
+      0.004148565232753754,
+      -0.04861472547054291,
+      0.08347880840301514,
+      0.9917899370193481
+    ],
+    [
+      -0.3558601438999176,
+      0.2903795838356018,
+      -0.17227184772491455,
+      0.004242323338985443,
+      -0.051694996654987335,
+      0.07816627621650696,
+      0.9956954717636108
+    ],
+    [
+      -0.352570116519928,
+      0.2645103335380554,
+      -0.17318719625473022,
+      0.0030859410762786865,
+      -0.042796432971954346,
+      0.07291552424430847,
+      0.9917899370193481
+    ],
+    [
+      -0.34928005933761597,
+      0.24187487363815308,
+      -0.1667797565460205,
+      0.001335732638835907,
+      -0.029106348752975464,
+      0.07285374402999878,
+      0.9917899370193481
+    ],
+    [
+      -0.3558601438999176,
+      0.2135804295539856,
+      -0.16494905948638916,
+      0.0004606321454048157,
+      -0.02020779252052307,
+      0.06951797008514404,
+      0.987884521484375
+    ]
+  ],
+  "first_actions_scope": "Untimed synthetic observation for numerical inspection only; not a task-success measurement.",
+  "sample_token_counts": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "quantile_method": "numpy.percentile linear",
+  "execution_mode": {
+    "after_warmup": "graph",
+    "after_each_timed_sample": [
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph",
+      "graph"
+    ],
+    "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+  },
+  "power_w_mean": 156.266,
+  "power_w_max": 172.89,
+  "vram_mb_peak": 15716.0,
+  "telemetry": {
+    "nvidia_smi_device": "0",
+    "samples": [
+      {
+        "monotonic_s": 41914.172150382,
+        "power_w": 107.26,
+        "utilization_percent": 96.0,
+        "memory_mib": 15716.0
+      },
+      {
+        "monotonic_s": 41914.470790895,
+        "power_w": 158.9,
+        "utilization_percent": 96.0,
+        "memory_mib": 15716.0
+      },
+      {
+        "monotonic_s": 41914.816362631,
+        "power_w": 172.89,
+        "utilization_percent": 96.0,
+        "memory_mib": 15716.0
+      },
+      {
+        "monotonic_s": 41915.108646176,
+        "power_w": 171.58,
+        "utilization_percent": 96.0,
+        "memory_mib": 15716.0
+      },
+      {
+        "monotonic_s": 41915.402768507,
+        "power_w": 170.7,
+        "utilization_percent": 96.0,
+        "memory_mib": 15716.0
+      }
+    ],
+    "errors": [],
+    "scope": "Whole selected GPU during timing phase, including input preparation; not isolated process power/VRAM.",
+    "device_mapping": "nvidia-smi device selection is explicit and may differ from CUDA_VISIBLE_DEVICES remapping."
+  },
+  "model_ms_p50": 47.49366000032751,
+  "model_ms_p99": 50.38859324857185,
+  "model_ms_mean": 47.732884633296635,
+  "total_ms_p50": 48.6514910007827,
+  "total_ms_p99": 51.63566429109778,
+  "total_ms_mean": 48.923122833609035,
+  "wrapper_ms_p50": 48.659717500413535,
+  "wrapper_ms_p99": 51.643118411811884,
+  "wrapper_ms_mean": 48.93138873303542,
+  "hz_p50": 20.554354644216602,
+  "schema_version": 2,
+  "model_dir": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model",
+  "model_type": "pi05",
+  "variant": "bf16",
+  "variant_requested": "bf16",
+  "variant_verification": {
+    "status": "native_model_variant_verified",
+    "native_model_variant": "bf16",
+    "policy_value": "bf16",
+    "limitation": null
+  },
+  "load_s": 82.93573088700214,
+  "policy_metadata": {
+    "model_type": "pi05",
+    "action_horizon": 50,
+    "action_dim": 7,
+    "model_action_dim": 32,
+    "num_flow_steps": null,
+    "flow_start_time": null,
+    "num_views": 2,
+    "image_size": [
+      224,
+      224
+    ],
+    "image_keys": [
+      "base_0_rgb",
+      "left_wrist_0_rgb"
+    ],
+    "state_key": null,
+    "prompt_key": "prompt",
+    "discrete_state": false,
+    "state_normalized": false,
+    "input_pipeline": [
+      "image_stack",
+      "tokenize"
+    ],
+    "output_pipeline": [
+      "trim",
+      "unnormalize"
+    ],
+    "normalization": {
+      "state": "absent",
+      "action": "quantile/resolved"
+    },
+    "model_variant": "bf16"
+  },
+  "constructor_kwargs": {
+    "device": "cuda:0",
+    "seed": 0,
+    "model_variant": "bf16",
+    "norm_stats": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+    "tokenizer_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model"
+  },
+  "seed": 7,
+  "model_seed": 0,
+  "device": "cuda:0",
+  "gpu_identity": {
+    "command": [
+      "nvidia-smi",
+      "-i",
+      "0",
+      "--query-gpu=name,uuid,driver_version,memory.total",
+      "--format=csv,noheader,nounits"
+    ],
+    "stdout": "NVIDIA GeForce RTX 5090 Laptop GPU, GPU-64aae36b-ef77-b0d4-b1c7-f7ab17a729f1, 610.74, 24463",
+    "error": null
+  },
+  "cuda_visible_devices": null,
+  "checkpoint_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model",
+    "files": {
+      "calibration.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/calibration.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/calibration.json",
+        "bytes": 47106,
+        "sha256": "0accf5914cd5243497c8c674ec27c7725043a445ab9a9fd5effabed686c7e6e1"
+      },
+      "config.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/config.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/config.json",
+        "bytes": 1715,
+        "sha256": "4d59e79adda2b1467e00f4c76390d95bfe05e9f1eff5f4da08aa493d6fe08651"
+      },
+      "model.safetensors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/model.safetensors",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/pi05_libero_base/model.safetensors",
+        "bytes": 14467165872,
+        "sha256": "21b8711787c4a75861b02cff6aa81675a3a943d32b435a68262ac4461e476ba4"
+      },
+      "norm_stats.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+        "bytes": 1914,
+        "sha256": "b3a44bb2810436fb62917decaea58bd4d9110255df527dea21e8fd40c960bd84"
+      },
+      "paligemma_tokenizer.model": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+        "bytes": 4264023,
+        "sha256": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6"
+      },
+      "policy_postprocessor.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_postprocessor.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_postprocessor.json",
+        "bytes": 448,
+        "sha256": "eab7a5deb97c59e7224da9247b4a4fe07371bcb5a4f41818e3881461fbaf0872"
+      },
+      "policy_preprocessor.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_preprocessor.json",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/policy_preprocessor.json",
+        "bytes": 1034,
+        "sha256": "3b82ad181de39a25bab881b31d04f800c18ad629c894fcbe2f4d3699559a27db"
+      }
+    }
+  },
+  "asset_identity": {
+    "norm_stats": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/norm_stats.json",
+      "bytes": 1914,
+      "sha256": "b3a44bb2810436fb62917decaea58bd4d9110255df527dea21e8fd40c960bd84"
+    },
+    "tokenizer_path": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/weights/native_pi05_20260929/model/paligemma_tokenizer.model",
+      "bytes": 4264023,
+      "sha256": "8986bb4f423f07f8c7f70d0dbe3526fb2316056c17bae71b1ea975e77a168fc6"
+    }
+  },
+  "packed_identity": null,
+  "runtime_identity": {
+    "packages": {
+      "apxinf": "0.1.0",
+      "apxinf-py": "0.1.0",
+      "apxinf-robo": "0.1.0",
+      "numpy": "2.5.3",
+      "pillow": "12.3.0",
+      "sentencepiece": null,
+      "transformers": "4.57.3"
+    },
+    "imported_python_sources": {
+      "apxinf": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/__init__.py",
+        "bytes": 4815,
+        "sha256": "4aa5730a96071ca34a58de5d28adb453d3be239e08be53fd88d796e6d1eae210"
+      },
+      "apxinf._tactics": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/_tactics.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/_tactics.py",
+        "bytes": 2285,
+        "sha256": "0d583927d70a493223c71d3e5bf01341d83dbcaed7683c8c9e18964250bc04d6"
+      },
+      "apxinf.calibration": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/calibration.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/calibration.py",
+        "bytes": 17690,
+        "sha256": "fc84d8d703ae8159a08e92297e3d9fef69b87ab24278599260a68e3e6c245d64"
+      },
+      "apxinf.checkpoints": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/__init__.py",
+        "bytes": 2197,
+        "sha256": "66ddd372f0f1bb1332b6524c45048d763f2423f6ffa4cf75234b1d7797063a45"
+      },
+      "apxinf.checkpoints.descriptor": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/descriptor.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/descriptor.py",
+        "bytes": 3104,
+        "sha256": "46d18ad15ea9da91ef383c37778cac6cc57bac086cfc40ed5b672ff9ea1495ae"
+      },
+      "apxinf.checkpoints.layout": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/layout.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/layout.py",
+        "bytes": 21839,
+        "sha256": "a54f3557cc32df0cb1f34c00a748838fbfa90b1b432f16426398629860320b6d"
+      },
+      "apxinf.checkpoints.lerobot": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/lerobot.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/lerobot.py",
+        "bytes": 10302,
+        "sha256": "ad21519445ce6a8d898dfff0110e946eb55c0859788119eb0856902ad6a56bd1"
+      },
+      "apxinf.checkpoints.metadata": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/metadata.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/metadata.py",
+        "bytes": 11669,
+        "sha256": "ce3a1f1da48bc4375bc957639f3992ff86fe0666cda38ac7f964378a0f259cef"
+      },
+      "apxinf.checkpoints.norm_stats": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/norm_stats.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/norm_stats.py",
+        "bytes": 1187,
+        "sha256": "273dc4efd2e52cf74d6992b16076220a905ed0dc7487c7da918b23fb23600205"
+      },
+      "apxinf.checkpoints.openpi": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/openpi.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/openpi.py",
+        "bytes": 3027,
+        "sha256": "7a0e4279b861d438aa04cea875a244c4ec416544016ecf19bd0ec77da91e3ddf"
+      },
+      "apxinf.checkpoints.preflight": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/preflight.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/preflight.py",
+        "bytes": 19857,
+        "sha256": "a4eae83ec1e33d6e7ee3953935abb3ec581309fb476b000cdd37eb3b160391fa"
+      },
+      "apxinf.checkpoints.safetensors_state": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/safetensors_state.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/safetensors_state.py",
+        "bytes": 3377,
+        "sha256": "bca11f9dcd9179fc75abda65009c89f83fc6b9fe2f354bbcabff656695555023"
+      },
+      "apxinf.checkpoints.torch_state": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/torch_state.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/checkpoints/torch_state.py",
+        "bytes": 9512,
+        "sha256": "a226e512c511ea6fbe1b26b3e4be35410b7da41e640cc19d73c43e5986fdc751"
+      },
+      "apxinf.policies": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/__init__.py",
+        "bytes": 2346,
+        "sha256": "eebfc9893b3d89b7d976f65181b7a0b5c03beed23379f5e296ea0c85abb7dafa"
+      },
+      "apxinf.policies.auto": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/auto.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/auto.py",
+        "bytes": 3873,
+        "sha256": "072593b1189c59c109c6c49a0bd7ba141f5acaab66b94e6956d91f0acb5d5096"
+      },
+      "apxinf.policies.base": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/base.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/base.py",
+        "bytes": 6747,
+        "sha256": "5e216cdadc6b2e4e1c4d1dd19b7c1585d0dd4dbc6330d82ff3a0b3e1545fdc6a"
+      },
+      "apxinf.policies.impls": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/__init__.py",
+        "bytes": 1321,
+        "sha256": "c1b8517b390c4fa9168ecaa88de6de648032395232cd5e091b20172d70c8b4eb"
+      },
+      "apxinf.policies.impls.gr00t": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/gr00t.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/gr00t.py",
+        "bytes": 25135,
+        "sha256": "9a8549a6a0be1149edcf8c002afa625b9aa7f38eeb2e9334cd14b4ada2cd110d"
+      },
+      "apxinf.policies.impls.pi05": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi05.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi05.py",
+        "bytes": 44711,
+        "sha256": "a487081d5847e233f883d4581ac412de7008f20975b525fb83f1c1731a3e6183"
+      },
+      "apxinf.policies.impls.pi0fast": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi0fast.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/pi0fast.py",
+        "bytes": 37919,
+        "sha256": "67e360bc016d29dc3c578707cbb2831c65f98d8c88ce3d08a5dca3ae9dce5d34"
+      },
+      "apxinf.policies.impls.qwen_drive": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/qwen_drive.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/qwen_drive.py",
+        "bytes": 25107,
+        "sha256": "33387df31175f6aa50749d0aa5c384793d123cb7e6110122681bbf625c57de48"
+      },
+      "apxinf.policies.impls.walloss": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/walloss.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/impls/walloss.py",
+        "bytes": 25831,
+        "sha256": "3b8b4dbe635fb3ece3231a2790e1c5149e1648c199096727073cfba33f09d458"
+      },
+      "apxinf.policies.registry": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/registry.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/policies/registry.py",
+        "bytes": 1910,
+        "sha256": "a5e78a4234ebc3983077c93f91f45dd11a6e821c4abc1b8ed485ec5ce68b5ee3"
+      },
+      "apxinf.processors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/__init__.py",
+        "bytes": 1299,
+        "sha256": "2c3c54e6d5870055b415b978d688c47e25c91354dfe4a1fa6b79b2b599de9df6"
+      },
+      "apxinf.processors.base": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/base.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/base.py",
+        "bytes": 8753,
+        "sha256": "181f55367c05d9f07ccf249915d068fd98da4f587c4174d06595f15ef9913cad"
+      },
+      "apxinf.processors.noise": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/noise.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/noise.py",
+        "bytes": 1808,
+        "sha256": "c6d25d2c0649e3d3cc50bfe8cd15c360bbbcd7cd698cffc8278edb5a24565181"
+      },
+      "apxinf.processors.normalize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/normalize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/normalize.py",
+        "bytes": 12270,
+        "sha256": "1eab2cc10d87c254a7b31ffa45087a39da6f2be7b0d507d9f274a2f99c9587be"
+      },
+      "apxinf.processors.resize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/resize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/resize.py",
+        "bytes": 8248,
+        "sha256": "abe3a501b5a071b429d5ac1dbe0440f479eae540936e6c2f80b4aee93908382a"
+      },
+      "apxinf.processors.tokenize": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/tokenize.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/tokenize.py",
+        "bytes": 7385,
+        "sha256": "bef3adafb63d840dd64366ff632c1c658394c546bd66093099753a4a31358756"
+      },
+      "apxinf.processors.transforms": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/transforms.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/python/apxinf/apxinf/processors/transforms.py",
+        "bytes": 10431,
+        "sha256": "69f70eec8380b450043504b7b3c2aeaa386004eba67f26800780c575cb7a1b11"
+      },
+      "apxinf_py": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/__init__.py",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/__init__.py",
+        "bytes": 119,
+        "sha256": "2328a616eec98d4e4f29dd23a463d2aa3e30caa65767fe83143de8aca05b2fdb"
+      }
+    },
+    "native_extensions": {
+      "apxinf_py.apxinf_py": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/lib/python3.12/site-packages/apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so",
+        "bytes": 49728296,
+        "sha256": "6bcdfca6841fe5db885effb4ccca1a7850d03a1fe7e0a359723dfe606fc206b1"
+      }
+    },
+    "workspace_rust_sources": {
+      "crates/apxinf-py/src/lib.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-py/src/lib.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-py/src/lib.rs",
+        "bytes": 51405,
+        "sha256": "16dc5816e7a5e9d40773aae8e194a46ab3afaeabd7b095837581075eb73bb9a6"
+      },
+      "crates/apxinf-model/src/pi05/model_runner/runner.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model_runner/runner.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model_runner/runner.rs",
+        "bytes": 30901,
+        "sha256": "cc67b7d2f4be959cf973b5a80d6daa88776eb2746b293118d99e46541e1902e8"
+      },
+      "crates/apxinf-model/src/pi05/model/model.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model/model.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model/model.rs",
+        "bytes": 8284,
+        "sha256": "41772ab78a2b937d42943cd234c87e05b4a0643f7efad6d608cac1bc5bf61c33"
+      },
+      "crates/apxinf-model/src/pi05/load.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/load.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/load.rs",
+        "bytes": 6291,
+        "sha256": "c9df99364f385ab334eadc7633ef3d8129c43024e0d649ba1e6f3943c3e20134"
+      },
+      "crates/apxinf-model/src/gr00t/vla_runtime.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/vla_runtime.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/vla_runtime.rs",
+        "bytes": 12347,
+        "sha256": "2e9201381bbcfc304934a40a4cfbd20587daf316a323ff0d810d842ac8472f3a"
+      },
+      "crates/apxinf-model/src/gr00t/executor.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/executor.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-model/src/gr00t/executor.rs",
+        "bytes": 98111,
+        "sha256": "47226c21a6a567f832d54ae6bd99b5ba868057841b41907f35452701aa3db3a5"
+      },
+      "crates/apxinf-cuda/src/transfers.rs": {
+        "path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/transfers.rs",
+        "resolved_path": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/transfers.rs",
+        "bytes": 6124,
+        "sha256": "46b63afb8968ae76f7e83163164712558af03eea203443259028e8c2674ed84a"
+      }
+    },
+    "benchmark_script": {
+      "path": "/home/zhaosiying/codebase/fp4vla/exp/bench_engine.py",
+      "resolved_path": "/home/zhaosiying/codebase/fp4vla/exp/bench_engine.py",
+      "bytes": 23323,
+      "sha256": "425721abf9989820deb8a21d073f3151c773fc548ae8a35b64889157033d71e3"
+    },
+    "limitation": "Imported SO hash is authoritative. Workspace Rust hashes record inspected source, not a proof that this SO was compiled from those exact files; retain build provenance separately."
+  },
+  "timing_scope": {
+    "entrypoint": "AutoPolicy.infer",
+    "policy_class": "Pi05Policy",
+    "model_ms": "Blocking native model call through host float32 action return; includes native input transfers, GPU work, synchronization and D2H.",
+    "total_ms": "Policy internal preprocessing/tokenization, blocking native model, postprocessing/decoding; no simulator or network.",
+    "wrapper_ms": "External perf_counter around policy.infer; input construction and additional finite checks excluded.",
+    "synchronization": "Native binding returns completed host f32 arrays. Inspected pi05 host-return transfer and GR00T executor synchronize CUDA before D2H. These are wall-clock API times, not CUDA-event kernel times.",
+    "limitation": "Cross-library input/tokenization/precision paths differ; report separately, not as a matched end-to-end speedup."
+  },
+  "input_contract": {
+    "synthetic": true,
+    "image_shape": [
+      256,
+      256,
+      3
+    ],
+    "image_dtype": "uint8",
+    "prompt": "put the moka pot on the stove",
+    "batch_size": 1
+  }
+}
