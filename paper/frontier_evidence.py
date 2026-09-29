@@ -62,22 +62,37 @@ def validate_frontier(paper,paired=None):
     plan_path=mapping.resolve(comparison['plan']);plan=load(plan_path)
     require(plan_path==paper/'evidence/frontier/plan.json','Unexpected published frontier plan path')
     require(plan.get('version')==1 and plan.get('status')=='frozen' and plan.get('reference_selection_uses_heldout') is False,'Frontier plan was not development-only frozen')
-    require(set(plan['source_files'])==set(f.SOURCES),'Frozen frontier implementation set differs')
+    protocol_record=f.protocol_record(plan)
+    explicit='recovery_protocol' in plan
+    # Source keys are repository-relative; the original absolute paths are
+    # identities only. The map supplies the archived protocol bytes.
+    protocol_keys=[name for name,record in plan['source_files'].items() if record==protocol_record]
+    require(len(protocol_keys)==1,'Ambiguous frozen recovery protocol source')
+    expected_sources=set(f.SOURCES)|({protocol_keys[0]} if explicit else set())
+    require(set(plan['source_files'])==expected_sources,'Frozen frontier implementation set differs')
     for name,record in plan['source_files'].items():
         copy=mapping.resolve(record);current=ROOT/name
         require(digest(copy)==digest(current),'Frozen frontier implementation changed: '+name)
     require(mapping.resolve(comparison['implementation'])==mapping.resolve(plan['source_files']['eval/compare_ptq_frontier.py']),'Comparison implementation differs from frozen plan')
+    recovery_path=mapping.resolve(protocol_record);contract=f.protocol_contract(recovery_path)
     protocol=load(mapping.resolve(plan['source_files']['exp/ptq_frontier_protocol.json']))
-    require(plan['heldout_protocol']==protocol['heldout'],'Frozen heldout protocol differs')
-    protocol_hash=plan['source_files']['exp/recovery_protocol.json']['sha256']
-    selected=plan['selected_recipe'];order=f.ORDER[:f.ORDER.index(selected)+1]
-    require(selected in f.ORDER[2:] and plan['references']==order[1:-1],'Frontier references omit a completed development predecessor')
+    require(plan['heldout_protocol']==(contract['heldout'] if explicit else protocol['heldout']),'Frozen heldout protocol differs')
+    protocol_hash=protocol_record['sha256']
+    selected=plan['selected_recipe'];order,references=f.selection_order(selected,recovery_path if explicit else None)
+    require(plan['references']==references,'Frontier references omit a frozen development candidate')
+    require(comparison.get('selected_recipe',selected)==selected and comparison.get('reference_order',references)==references,
+            'Frontier comparison selection/order differs from frozen plan')
     selection=load(mapping.resolve(plan['selection']))
     development=paper/'evidence/frontier/development'
     require(set(plan['development_sources'])==set(selection['source_sha256']),'Frozen development source set differs')
     for name,record in plan['development_sources'].items():
         require(mapping.resolve(record)==development/name,'Development source mapping differs')
-    require(f.audit_development(development,order)==selection,'Published development evidence does not reproduce selection')
+    audited=f.audit_development(development,order,recovery_path if explicit else None)
+    if explicit:
+        # The copied selection must keep its original path spelling unchanged.
+        require(selection.get('protocol_file')==protocol_record['path'],'Selection names another frozen protocol')
+        audited['protocol_file']=selection['protocol_file']
+    require(audited==selection,'Published development evidence does not reproduce selection')
     require(selection['selected_recipe']==selected and selection['selection_uses_heldout'] is False,'Frozen selection differs')
     for name in order:
         folder=development/name;manifest=load(folder/'eval_manifest.json');tasks=load(folder/'task_results.json')
@@ -131,18 +146,24 @@ def validate_frontier(paper,paired=None):
             require(expected_budget['known_alias_deduplicated']=={'source_bytes':source,'base_bytes':target},'Derived alias budget differs')
     main_path=mapping.resolve(comparison['main_comparison']);main_root=paper/'evidence/frontier/main'
     require(main_path==main_root/'paired_comparison.json','Unexpected main comparison mapping')
-    main=load(main_path);require(f.compare_round(main_root)==main,'Copied five-arm frontier evidence does not reproduce')
+    main=load(main_path)
+    protocol_paths={protocol_record['path']:recovery_path}
+    require(f.compare_round(main_root,protocol_paths)==main,'Copied five-arm frontier evidence does not reproduce')
     if paired is not None:require(main==paired,'Frontier refers to another five-arm experiment')
     collection=mapping.resolve(comparison['collection_manifest']);collection_data=load(collection)
     require(collection==main_root/'collection/eval_manifest.json','Collection mapping differs')
-    require(all(collection_data.get(k)==v for k,v in {'purpose':'collection','seed':110000,'episodes':2,'tasks':f.TASKS,'init_state_indices':[2,3],'protocol_sha256':protocol_hash,'initial_state_protocol':'libero10_official_bank_v1','n_envs':1,'settle_steps':10}.items()),'Collection protocol differs')
+    collection_expected=contract['collection']
+    require(all(collection_data.get(k)==v for k,v in {'purpose':'collection','seed':collection_expected['seed'],
+            'episodes':collection_expected['episodes_per_task'],'tasks':f.TASKS,
+            'init_state_indices':collection_expected['init_state_indices'],'protocol_sha256':protocol_hash,
+            'initial_state_protocol':collection_expected['initial_state_protocol'],'n_envs':1,'settle_steps':10}.items()),'Collection protocol differs')
     run=load(paper/'evidence/frontier/run_manifest.json')
     require(any(path==paper/'evidence/frontier/run_manifest.json' for _,path in mapping.files.values()),'Reference run manifest lacks source mapping')
     require(all(run[k]==comparison[k] for k in ('plan','main_comparison','collection_manifest')),'Reference run was not bound to this frozen plan/main experiment')
     base_manifest=None;references={};expected_sources=set()
     for name in [*f.ARMS,*plan['references']]:
         is_main=name in f.ARMS;folder=(main_root if is_main else paper/'evidence/frontier/references')/('heldout_'+name)
-        manifest,arm=f.read_heldout(folder,protocol_hash)
+        manifest,arm=(f.read_heldout(folder,protocol_hash,plan['heldout_protocol']) if explicit else f.read_heldout(folder,protocol_hash))
         if name=='bf16':base_manifest=manifest
         f.pair(arm['episodes'],main['arms']['bf16']['episodes'],name)
         require(all(manifest.get(k)==base_manifest.get(k) for k in (*f.FIELDS,'gr00t','server_python','rollout_python','server_seed_offset')),'Frontier arm execution protocol differs')

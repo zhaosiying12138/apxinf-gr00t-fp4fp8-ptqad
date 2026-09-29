@@ -171,7 +171,11 @@ def capture_records(captures,required,package_inputs):
     return checked
 
 
-def check_pairing(data):
+def check_pairing(data,protocol_file=None):
+    sys.path.insert(0,str(P.parent/'eval'))
+    from compare_ptq_frontier import protocol_contract
+    expected=protocol_contract(protocol_file or P.parent/'exp/recovery_protocol.json')['heldout']
+    indices=expected['init_state_indices']
     require(data.get('environment_pairing_verified') is True,'Environment pairing has not passed')
     order={'bf16','ptq','qad','continued_qad','qad_opd'}
     require(set(data['arms'])==order,'Exactly five completed heldout arms are required')
@@ -184,25 +188,25 @@ def check_pairing(data):
             require(type(actual['success']) is bool,'Episode outcome must be Boolean')
             require({k:v for k,v in actual.items() if k!='success'}=={k:v for k,v in expected.items() if k!='success'},
                     f'Unpaired environment initial state: {name}')
-            require(actual['init_state_index'] in range(10,20),'Heldout initial-state index outside declared partition')
+            require(actual['init_state_index'] in indices,'Heldout initial-state index outside declared partition')
             for field in ('initial_state_sha256','restored_state_sha256','init_state_bank_sha256'):
                 require(re.fullmatch(r'[0-9a-f]{64}',actual[field]) is not None,'Invalid initial-state hash')
         require(sum(x['success'] for x in episodes)==arm['successes'],'Episode outcome count differs')
         for task,record in arm['per_task'].items():
             task_rows=[x for x in episodes if x['task']==task]
-            require({x['init_state_index'] for x in task_rows}==set(range(10,20)) and len(task_rows)==10,
+            require({x['init_state_index'] for x in task_rows}==set(indices) and len(task_rows)==10,
                     'Heldout initial states repeated or missing')
             require(sum(x['success'] for x in task_rows)==record['successes'],'Task success count differs')
 
 
-def check_training_costs(runtime, package_inputs):
+def check_training_costs(runtime, package_inputs,protocol_file=None):
     """Recompute public costs, then bind them to the evaluated weight identities."""
     from collect_training_costs import verify_published
     folder=P/'evidence/training'
     costs=verify_published(folder)
     require(costs.get('status')=='complete' and set(costs['training'])=={'qad','continued_qad','qad_opd'},
             'Exactly three completed formal training stages are required')
-    require(costs['protocol_sha256']==sha(P.parent/'exp/recovery_protocol.json'),
+    require(costs['protocol_sha256']==sha(protocol_file or P.parent/'exp/recovery_protocol.json'),
             'Training costs used a different frozen protocol')
     manifest=load(folder/'evidence_manifest.json')
     records={row['published_path']:row for row in manifest['files']}
@@ -235,7 +239,7 @@ def check_training_costs(runtime, package_inputs):
     return costs
 
 
-def validate(write_report=True):
+def validate(write_report=True,protocol_file=None):
     sections=sorted((P/'sections').glob('*.md'))
     require({path.name for path in sections}=={
         '01-摘要与引言.md','02-背景与相关工作.md','03-方法.md','04-实验.md','05-讨论与结论.md',
@@ -277,7 +281,13 @@ def validate(write_report=True):
         require(identity['sha256']==sha(script) and identity['bytes']==script.stat().st_size,'Engine benchmark source differs from its recorded run')
         package_inputs.add(script)
     from make_figs import paired_rows, budget_rows
-    paired,_=paired_rows();check_pairing(paired);budget_rows()
+    sys.path.insert(0,str(P.parent/'eval'))
+    from compare_ptq_frontier import recorded_protocol
+    baseline_manifest=load(P/'evidence/heldout_bf16/eval_manifest.json')
+    protocol_file=recorded_protocol(baseline_manifest,P.parent,protocol_file)
+    protocol_paths={baseline_manifest['protocol_file']:protocol_file} if baseline_manifest.get('protocol_file') else None
+    package_inputs.add(protocol_file)
+    paired,_=paired_rows();check_pairing(paired,protocol_file);budget_rows()
     source_names={f'heldout_{arm}/{name}.json' for arm in ('bf16','ptq','qad','continued_qad','qad_opd')
                   for name in ('eval_manifest','task_results','summary')}
     require(set(paired['source_files'])==source_names, 'Paired source evidence set differs')
@@ -286,7 +296,7 @@ def validate(write_report=True):
     require(paired['implementation_sha256']==sha(P.parent/'eval/compare_recovery.py'), 'Paired comparison used different implementation bytes')
     sys.path.insert(0,str(P.parent/'eval'))
     from compare_recovery import compare_round
-    require(compare_round(P/'evidence')==paired, 'Copied heldout evidence does not reproduce the reported comparison')
+    require(compare_round(P/'evidence',protocol_paths)==paired, 'Copied heldout evidence does not reproduce the reported comparison')
     from frontier_evidence import validate_frontier
     _,frontier_files=validate_frontier(P,paired)
     package_inputs.update(frontier_files)
@@ -334,7 +344,7 @@ def validate(write_report=True):
     for arm,checkpoint in runtime['checkpoints'].items():
         evaluated=load(P/'evidence'/('heldout_'+arm)/'eval_manifest.json')
         require(Path(checkpoint['path']).resolve()==Path(evaluated['checkpoint']).resolve(),f'Runtime checkpoint does not match evaluated {arm}')
-        require(evaluated['protocol_sha256']==sha(P.parent/'exp/recovery_protocol.json'),f'Evaluated protocol differs from current publication: {arm}')
+        require(evaluated['protocol_sha256']==sha(protocol_file),f'Evaluated protocol differs from current publication: {arm}')
         files=checkpoint['files']
         require(files and any(row['name'].endswith('.safetensors') for row in files),f'Checkpoint has no recorded weights: {arm}')
         require(len({row['name'] for row in files})==len(files),f'Duplicate checkpoint file identity: {arm}')
@@ -342,7 +352,7 @@ def validate(write_report=True):
             require(Path(row['name']).name==row['name'] and type(row['bytes']) is int and row['bytes']>0 and
                     re.fullmatch(r'[0-9a-f]{64}',row['sha256']),f'Invalid checkpoint file identity: {arm}')
     for path,row in runtime['source_files'].items():package_inputs.add(check_record({'path':path,**row},P.parent))
-    training_costs=check_training_costs(runtime,package_inputs)
+    training_costs=check_training_costs(runtime,package_inputs,protocol_file)
     report={'passed':True,'source_sections':len(sections),'figures':len(figures),'required_figure_references':len(required),
             'verified_screenshots':len(checks),'code_blocks_preserved':len(code(source)),'offline_html':True,
             'table_of_contents_links':len(page.anchors),'screenshots':checks,'training_cost_evidence_verified':True,

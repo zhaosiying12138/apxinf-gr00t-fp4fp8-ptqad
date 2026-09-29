@@ -17,6 +17,7 @@ import tempfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'eval'))
 from compare_recovery import ARMS, compare_round
+from compare_ptq_frontier import recorded_protocol, protocol_contract
 
 NAMES=('paired_comparison.json',)+tuple(
     f'heldout_{arm}/{name}.json' for arm in ARMS
@@ -37,26 +38,33 @@ def destination(root,name):
     return path
 
 
-def audit(round_dir,recorded):
-    actual=compare_round(round_dir)
+def audit(round_dir,recorded,protocol_file=None):
+    manifest=json.loads((Path(round_dir)/'heldout_bf16/eval_manifest.json').read_text())
+    protocol=recorded_protocol(manifest,ROOT,protocol_file)
+    expected=protocol_contract(protocol)['heldout']
+    protocol_paths={manifest['protocol_file']:protocol} if manifest.get('protocol_file') else None
+    actual=compare_round(round_dir,protocol_paths)
     require(actual==recorded,'Five-arm comparison does not reproduce')
     require(actual.get('environment_pairing_verified') is True,'Pairing not verified')
     for arm,row in actual['arms'].items():
         require(row['count']==100 and len(row['episodes'])==100,'Incomplete heldout arm: '+arm)
         require(len(row['per_task'])==10 and all(v['episodes']==10 for v in row['per_task'].values()),
                 'Not ten tasks with ten episodes: '+arm)
-        require(all(type(e['success']) is bool and e['init_state_index'] in range(10,20)
+        require(all(type(e['success']) is bool and e['init_state_index'] in expected['init_state_indices']
                     for e in row['episodes']),'Invalid outcome/bank index: '+arm)
+        for task in row['per_task']:
+            require([e['init_state_index'] for e in row['episodes'] if e['task']==task]==expected['init_state_indices'],
+                    'Heldout states repeated, reordered or missing: '+arm+'/'+task)
     return actual
 
 
-def collect(round_dir,out):
+def collect(round_dir,out,protocol_file=None):
     origin=Path(round_dir).resolve(strict=True)
     # Keep the unresolved spelling long enough to reject symlink destinations.
     output=Path(out).absolute();destination(output,'paired_comparison.json')
     require(output.resolve()!=origin,'Source round cannot be its own publication output')
     recorded=json.loads((origin/'paired_comparison.json').read_text())
-    audit(origin,recorded)
+    audit(origin,recorded,protocol_file)
     output.parent.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='pairing-copy-',dir=output.parent) as temp:
         stage=Path(temp);identities={}
@@ -67,7 +75,7 @@ def collect(round_dir,out):
             shutil.copyfile(source,target)
             require(digest(source)==expected and digest(target)==expected,'Source changed during byte copy: '+name)
             identities[name]={'sha256':expected,'bytes':target.stat().st_size}
-        audit(stage,recorded)
+        audit(stage,recorded,protocol_file)
         # Check every destination before installing any file. Identical existing
         # copies are accepted so retrying does not destroy unrelated evidence.
         for name,identity in identities.items():
@@ -82,7 +90,7 @@ def collect(round_dir,out):
                 # Same-parent staging makes hard-link installation atomic and
                 # refuses a racing existing destination without replacement.
                 os.link(stage/name,target)
-        audit(output,recorded)
+        audit(output,recorded,protocol_file)
     return {'status':'complete','scope':'Sixteen byte-identical original JSON files; three complete comparisons checked, no raw logs or model tensors copied.',
             'source_round':str(origin),'output':str(output),'files':identities}
 
@@ -91,6 +99,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--round',required=True,help='Completed run_onpolicy_round output')
     parser.add_argument('--out',required=True,help='Publication evidence directory; differing existing files are rejected')
-    args=parser.parse_args();print(json.dumps(collect(args.round,args.out),indent=2))
+    parser.add_argument('--protocol-file',help='Explicit portable copy of the recorded protocol; SHA must match')
+    args=parser.parse_args();print(json.dumps(collect(args.round,args.out,args.protocol_file),indent=2))
 
 if __name__=='__main__':main()

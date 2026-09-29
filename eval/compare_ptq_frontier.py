@@ -12,7 +12,7 @@ import subprocess
 import struct
 import sys
 
-from compare_development import ORDER, audit_development
+from compare_development import ORDER, audit_development, load_protocol as load_development_protocol
 from compare_recovery import ARMS, compare_round
 from run_recovery_eval import TASKS, validate_resets, parse_log
 
@@ -24,7 +24,8 @@ SOURCES=('eval/compare_ptq_frontier.py','eval/compare_development.py','eval/comp
 META=('config.json','statistics.json','processor_config.json','embodiment_id.json',
       'model.safetensors.index.json')
 FIELDS=('seed','episodes','tasks','n_envs','n_action_steps','max_episode_steps',
-        'initial_state_protocol','init_state_indices','settle_steps','protocol_sha256')
+        'initial_state_protocol','init_state_indices','settle_steps','protocol_sha256',
+        'task_seed_stride','episode_seed_stride','server_seed_offset')
 
 
 def need(ok,message):
@@ -55,6 +56,68 @@ def write_new(path,data):
     with path.open('x') as stream:json.dump(data,stream,indent=2);stream.write('\n')
 
 
+def protocol_contract(path):
+    """Normalize a specific frozen protocol; never select a newer one implicitly."""
+    path=Path(path);data=load(path);parts=data.get('partitions',data)
+    runtime=data.get('fixed_runtime',{})
+    result={}
+    for purpose in ('development','collection','heldout'):
+        row=parts[purpose];indices=row['init_state_indices'];episodes=row['episodes_per_task']
+        need(type(row['seed']) is int and type(episodes) is int and episodes>0 and
+             isinstance(indices,list) and len(indices)==episodes and
+             all(type(x) is int and 0<=x<50 for x in indices) and len(set(indices))==len(indices),
+             'Invalid frozen '+purpose+' partition')
+        result[purpose]={'seed':row['seed'],'episodes_per_task':episodes,'tasks':row.get('tasks',runtime.get('tasks',10)),
+            'init_state_indices':indices,'n_envs':runtime.get('n_envs',1),
+            'n_action_steps':runtime.get('n_action_steps',8),'max_episode_steps':runtime.get('max_episode_steps',720),
+            'settle_steps':runtime.get('settle_steps',data.get('initial_states',{}).get('settle_steps',10)),
+            'initial_state_protocol':data.get('initial_state_protocol',data.get('initial_states',{}).get('protocol'))}
+        need(result[purpose]['tasks']==10 and result[purpose]['n_envs']==1 and result[purpose]['settle_steps']==10 and
+             result[purpose]['initial_state_protocol']=='libero10_official_bank_v1','Unsupported frozen evaluation contract')
+    need(result['heldout']['episodes_per_task']==10,'Publication requires ten heldout episodes per task')
+    need(not(set(result['heldout']['init_state_indices']) &
+             (set(result['development']['init_state_indices'])|set(result['collection']['init_state_indices']))),
+         'Heldout bank overlaps development or collection')
+    return result
+
+
+def protocol_record(plan):
+    """Old plans explicitly mean v2; new plans carry their protocol identity."""
+    record=plan.get('recovery_protocol',plan['source_files'].get('exp/recovery_protocol.json'))
+    need(record is not None and record in plan['source_files'].values(),'Recovery protocol is not bound to frozen sources')
+    return record
+
+
+def recorded_protocol(manifest,root=None,protocol_path=None):
+    """Resolve only bytes matching the recorded SHA, including portable copies."""
+    root=Path(root or ROOT)
+    candidates=([Path(protocol_path)] if protocol_path is not None else
+                [root/'exp/recovery_protocol.json',root/'exp/recovery_protocol_v3_high_fp4.json'])
+    matched=[path for path in candidates if path.is_file() and sha(path)==manifest.get('protocol_sha256')]
+    need(len(matched)==1,'Recorded protocol has no unique matching frozen source; pass an explicit protocol copy')
+    return matched[0]
+
+
+def source_names(protocol_path=None):
+    if protocol_path is None:return SOURCES
+    path=Path(protocol_path).resolve();need(path.is_relative_to(ROOT.resolve()),'Frozen protocol must be inside the repository')
+    return tuple(dict.fromkeys((*SOURCES,path.relative_to(ROOT.resolve()).as_posix())))
+
+
+def selection_order(selected,protocol_path=None):
+    if protocol_path is None:
+        need(selected in ORDER[2:],'Development has not selected a promoted recipe')
+        order=ORDER[:ORDER.index(selected)+1]
+    else:
+        info=load_development_protocol(protocol_path)
+        if info['high_fp4_rule']:
+            order=info['order'];need(selected in order[1:],'Development has no qualifying pressure recipe')
+        else:
+            need(selected in ORDER[2:],'Development has not selected a promoted recipe')
+            order=ORDER[:ORDER.index(selected)+1]
+    return order,[name for name in order[1:] if name!=selected]
+
+
 def checkpoint_identity(folder,recipe=None):
     folder=Path(folder).resolve(strict=True)
     need(not any(c in str(folder) for c in '\t\r\n'),'Checkpoint path has control characters')
@@ -78,21 +141,21 @@ def checkpoint_identity(folder,recipe=None):
     return {'path':str(folder),'recipe':recipe,'metadata':metadata,'weights':weights}
 
 
-def checked_selection(selection_path,development_root):
+def checked_selection(selection_path,development_root,protocol_path=None):
     selection=load(selection_path)
     need(selection.get('selection_uses_heldout') is False,'Selection must explicitly exclude heldout')
     selected=selection.get('selected_recipe')
-    need(selected in ORDER[2:],'Development has not selected a promoted recipe')
-    arms=list(selection['arms']);expected=ORDER[:ORDER.index(selected)+1]
-    need(set(arms)==set(expected),'Selection must contain exactly the completed prefix through the first selected level')
-    audited=audit_development(development_root,expected)
+    expected,references=selection_order(selected,protocol_path)
+    arms=list(selection['arms'])
+    need(set(arms)==set(expected),'Selection must contain exactly the declared completed development set')
+    audited=audit_development(development_root,expected,protocol_path)
     need(selection==audited,'Selection does not reproduce from current audited development records')
     for name in expected:
         manifest=load(Path(development_root)/name/'eval_manifest.json')
-        need(manifest['protocol_sha256']==sha(ROOT/'exp/recovery_protocol.json'),'Development used another recovery protocol')
+        need(manifest['protocol_sha256']==sha(protocol_path or ROOT/'exp/recovery_protocol.json'),'Development used another recovery protocol')
         tasks=load(Path(development_root)/name/'task_results.json')
         need(all(type(v) is bool for row in tasks.values() for v in row['results']),'Development outcomes must be Boolean')
-    return selection,expected[1:-1]
+    return selection,references
 
 
 def encoding_budget(memory):
@@ -150,9 +213,9 @@ def budget_for(folder,name,inventory):
     return result,proof
 
 
-def freeze(selection_path,development_root,budget_path):
+def freeze(selection_path,development_root,budget_path,protocol_path=None):
     selection_path=Path(selection_path).resolve();development_root=Path(development_root).resolve()
-    selection,names=checked_selection(selection_path,development_root)
+    selection,names=checked_selection(selection_path,development_root,protocol_path)
     inventory=load(budget_path);residual=inventory['recovery_residual']
     need(residual['dtype']=='bfloat16' and residual['bytes_per_element']==2 and
          residual['target_bytes']==2*residual['tensor_elements'],'Residual budget must include BF16 payload')
@@ -166,23 +229,29 @@ def freeze(selection_path,development_root,budget_path):
         actual=load(Path(checkpoints[name]['path'])/'ptq_recipe.json')
         need(Path(actual['base']).resolve()==Path(checkpoints['bf16']['path']),'PTQ source differs from BF16 development checkpoint')
         budgets[name],derivations[name]=budget_for(checkpoints[name]['path'],name,inventory)
-    return {'version':1,'status':'frozen','created_utc':datetime.now(timezone.utc).isoformat(),
+    result={'version':1,'status':'frozen','created_utc':datetime.now(timezone.utc).isoformat(),
             'reference_selection_uses_heldout':False,'selected_recipe':selection['selected_recipe'],'references':names,
             'development_root':str(development_root),'selection':identity(selection_path),
             'development_sources':{name:identity(development_root/name) for name in selection['source_sha256']},
-            'source_files':{name:identity(ROOT/name) for name in SOURCES},'budget_source':identity(budget_path),
+            'source_files':{name:identity(ROOT/name) for name in source_names(protocol_path)},'budget_source':identity(budget_path),
             'checkpoints':checkpoints,'budget_derivations':derivations,'encoding_budgets':budgets,'recovery_residual':residual,
-            'heldout_protocol':load(PROTOCOL)['heldout'],
+            'heldout_protocol':protocol_contract(protocol_path)['heldout'] if protocol_path else load(PROTOCOL)['heldout'],
             'note':'Checkpoint bytes are hashed at freeze and rechecked before evaluation/comparison. Freeze reads no heldout data.'}
+    if protocol_path:
+        result['recovery_protocol']=identity(protocol_path)
+        result['reference_rule']='Every other completed preregistered pressure candidate; no heldout selection'
+    return result
 
 
 def check_plan(path):
     plan=load(path)
     need(plan.get('version')==1 and plan.get('status')=='frozen' and plan.get('reference_selection_uses_heldout') is False,'Expected a frozen development-only plan')
     for record in [plan['selection'],plan['budget_source'],*plan['development_sources'].values(),*plan['source_files'].values()]:check_identity(record)
-    need(set(plan['source_files'])==set(SOURCES),'Plan source identity set differs')
-    need(plan['heldout_protocol']==load(PROTOCOL)['heldout'],'Plan heldout protocol differs')
-    selection,names=checked_selection(plan['selection']['path'],plan['development_root'])
+    recovery_path=protocol_record(plan)['path'] if 'recovery_protocol' in plan else None
+    need(set(plan['source_files'])==set(source_names(recovery_path)),'Plan source identity set differs')
+    expected=protocol_contract(recovery_path)['heldout'] if recovery_path else load(PROTOCOL)['heldout']
+    need(plan['heldout_protocol']==expected,'Plan heldout protocol differs')
+    selection,names=checked_selection(plan['selection']['path'],plan['development_root'],recovery_path)
     need(plan['references']==names and plan['selected_recipe']==selection['selected_recipe'],'Frozen reference list was changed')
     need(set(plan['checkpoints'])=={'bf16',*names,plan['selected_recipe']},'Plan checkpoint set differs')
     inventory=load(plan['budget_source']['path'])
@@ -197,9 +266,9 @@ def check_plan(path):
     return plan
 
 
-def read_heldout(folder,protocol_hash):
+def read_heldout(folder,protocol_hash,heldout_protocol=None):
     folder=Path(folder);manifest=load(folder/'eval_manifest.json');results=load(folder/'task_results.json');summary=load(folder/'summary.json')
-    expected=load(PROTOCOL)['heldout']
+    expected=heldout_protocol or load(PROTOCOL)['heldout']
     values={'purpose':'heldout','seed':expected['seed'],'episodes':10,'tasks':TASKS,
             'init_state_indices':expected['init_state_indices'],'protocol_sha256':protocol_hash,
             **{key:expected[key] for key in ('n_envs','n_action_steps','max_episode_steps','settle_steps','initial_state_protocol')}}
@@ -211,13 +280,13 @@ def read_heldout(folder,protocol_hash):
         need(result.get('returncode')==0 and len(result['results'])==10 and all(type(v) is bool for v in result['results']), 'Incomplete/non-Boolean heldout result: '+task)
         observed=parse_log(folder/(task+'.log'))
         need(all(result.get(key)==value for key,value in observed.items()),'Task JSON differs from raw log: '+task)
-        need(result.get('seed')==220000+1000*index,'Task seed differs')
-        resets=validate_resets(result,220000+1000*index,list(range(10,20)))
+        need(result.get('seed')==expected['seed']+1000*index,'Task seed differs')
+        resets=validate_resets(result,expected['seed']+1000*index,expected['init_state_indices'])
         for outcome,reset in zip(result['results'],resets):
             episodes.append({'task':task,**{k:reset[k] for k in ('episode_index','init_state_index','initial_state_sha256','restored_state_sha256','init_state_bank_sha256')},'success':outcome})
         per_task[task]={'episodes':10,'successes':sum(result['results']),'success_rate':sum(result['results'])/10}
     successes=sum(row['success'] for row in episodes)
-    need(summary['total_successes']==successes and summary['total_episodes']==100 and summary['purpose']=='heldout' and summary['seed']==220000 and summary['macro_success_rate']==sum(row['success_rate'] for row in per_task.values())/10,'Summary differs from verified episodes')
+    need(summary['total_successes']==successes and summary['total_episodes']==100 and summary['purpose']=='heldout' and summary['seed']==expected['seed'] and summary['macro_success_rate']==sum(row['success_rate'] for row in per_task.values())/10,'Summary differs from verified episodes')
     return manifest,{'count':100,'successes':successes,'macro_success_rate':sum(row['success_rate'] for row in per_task.values())/10,'episodes':episodes,'per_task':per_task}
 
 
@@ -231,9 +300,9 @@ def checked_main(plan,round_dir):
     round_dir=Path(round_dir).resolve()
     main=compare_round(round_dir)
     need(main==load(round_dir/'paired_comparison.json'),'Main five-arm comparison does not reproduce')
-    protocol_hash=plan['source_files']['exp/recovery_protocol.json']['sha256']
+    protocol=protocol_record(plan);protocol_hash=protocol['sha256']
     for arm in ARMS:
-        manifest,actual=read_heldout(round_dir/('heldout_'+arm),protocol_hash)
+        manifest,actual=read_heldout(round_dir/('heldout_'+arm),protocol_hash,plan['heldout_protocol'])
         need(actual==main['arms'][arm],'Main arm does not satisfy full 100-episode contract')
         pair(actual['episodes'],main['arms']['bf16']['episodes'],arm)
         if arm in ('bf16','ptq'):
@@ -241,7 +310,8 @@ def checked_main(plan,round_dir):
             need(Path(manifest['checkpoint']).resolve()==Path(expected),'Main arm checkpoint differs from frozen development selection')
     collection=round_dir/'collection/eval_manifest.json';record=load(collection)
     need(record['protocol_sha256']==protocol_hash and record['initial_state_protocol']=='libero10_official_bank_v1' and record['n_envs']==1 and record['settle_steps']==10,'Main collection provenance differs')
-    need(record['purpose']=='collection' and record['seed']==110000 and record['episodes']==2 and record['tasks']==TASKS and record['init_state_indices']==[2,3], 'Main collection protocol differs')
+    expected=protocol_contract(protocol['path'])['collection']
+    need(record['purpose']=='collection' and record['seed']==expected['seed'] and record['episodes']==expected['episodes_per_task'] and record['tasks']==TASKS and record['init_state_indices']==expected['init_state_indices'], 'Main collection protocol differs')
     for arm in ARMS:
         m=load(round_dir/('heldout_'+arm)/'eval_manifest.json')
         need(Path(m['collection_manifest']).resolve()==collection,'Main arm used a different collection manifest')
@@ -275,7 +345,7 @@ def compare(plan_path,round_dir,output_dir):
     references={};source_files={};merges={}
     for name in plan['references']:
         folder=output_dir/('heldout_'+name)
-        manifest,arm=read_heldout(folder,plan['source_files']['exp/recovery_protocol.json']['sha256'])
+        manifest,arm=read_heldout(folder,protocol_record(plan)['sha256'],plan['heldout_protocol'])
         need(all(manifest.get(key)==base_manifest.get(key) for key in (*FIELDS,'gr00t','server_python','rollout_python','server_seed_offset')),'Reference differs from main evaluation protocol')
         need(Path(manifest['checkpoint']).resolve()==Path(plan['checkpoints'][name]['path']),'Reference checkpoint differs from frozen plan')
         need(Path(manifest['collection_manifest']).resolve()==collection,'Reference used another collection manifest')
@@ -298,6 +368,7 @@ def compare(plan_path,round_dir,output_dir):
         for filename in ('eval_manifest.json','task_results.json','summary.json',*(task+'.log' for task in TASKS)):
             path=round_dir/('heldout_'+arm)/filename;source_files[str(path)]=identity(path)
     return {'version':1,'status':'complete','environment_pairing_verified':True,'plan':identity(plan_path),
+            'selected_recipe':selected,'reference_order':list(plan['references']),
             'main_comparison':identity(round_dir/'paired_comparison.json'),'collection_manifest':identity(collection),
             'references':references,'points':points,'observed_nondominated_points':descriptive,
             'source_files':source_files,'recovery_merge_manifests':merges,'implementation':identity(__file__),
@@ -311,8 +382,9 @@ def run(plan_path,round_dir,output_dir,port,dry_run=False):
     reference=load(round_dir/'heldout_bf16/eval_manifest.json');commands=[]
     for name in plan['references']:
         command=[sys.executable,str(ROOT/'eval/run_recovery_eval.py'),'--checkpoint',plan['checkpoints'][name]['path'],
-                 '--out',str(output_dir/('heldout_'+name)),'--purpose','heldout','--seed','220000','--episodes','10',
+                 '--out',str(output_dir/('heldout_'+name)),'--purpose','heldout','--seed',str(plan['heldout_protocol']['seed']),'--episodes','10',
                  '--port',str(port),'--collection-manifest',str(collection),'--gr00t',reference['gr00t']]
+        if 'recovery_protocol' in plan:command+=['--protocol-file',protocol_record(plan)['path']]
         for field in ('server_python','rollout_python'):
             if reference.get(field):command+=['--'+field.replace('_','-'),reference[field]]
         commands.append({'recipe':name,'command':command})
@@ -335,6 +407,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='mode',required=True)
     p=sub.add_parser('freeze');p.add_argument('--selection',required=True);p.add_argument('--development-root',required=True)
     p.add_argument('--budget',default=str(ROOT/'paper/evidence/recipe_inventory.json'));p.add_argument('--out',required=True)
+    p.add_argument('--protocol-file',help='Explicit frozen recovery protocol; omitted preserves the old ladder')
     p=sub.add_parser('check-plan');p.add_argument('--plan',required=True)
     for mode in ('run','compare'):
         p=sub.add_parser(mode);p.add_argument('--plan',required=True);p.add_argument('--round',required=True);p.add_argument('--out',required=True)
@@ -342,7 +415,7 @@ def main():
     args=parser.parse_args()
     if args.mode=='freeze':
         need(not Path(args.out).exists(),'Refusing existing frozen plan')
-        result=freeze(args.selection,args.development_root,args.budget);write_new(args.out,result)
+        result=freeze(args.selection,args.development_root,args.budget,args.protocol_file);write_new(args.out,result)
         print(json.dumps({'frozen_plan':str(Path(args.out).resolve()),'selected_recipe':result['selected_recipe'],'references':result['references']},indent=2))
     elif args.mode=='check-plan':
         result=check_plan(args.plan);print(json.dumps({'status':'verified','references':result['references']}))

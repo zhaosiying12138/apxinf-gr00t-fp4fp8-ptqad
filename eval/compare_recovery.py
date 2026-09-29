@@ -59,7 +59,7 @@ def _same_number(actual, expected):
     return _is_number(actual) and math.isclose(actual, expected, rel_tol=0, abs_tol=1e-12)
 
 
-def _validate_manifest(arm, manifest):
+def _validate_manifest(arm, manifest, protocol_paths=None):
     if not isinstance(manifest, dict):
         raise ValueError(f"{arm} manifest must be a JSON object")
     required = ("purpose", "tasks", "episodes", "seed", "init_state_indices",
@@ -98,7 +98,10 @@ def _validate_manifest(arm, manifest):
                 len(manifest["protocol_sha256"]) != 64 or
                 any(c not in "0123456789abcdef" for c in manifest["protocol_sha256"])):
             raise ValueError(f"{arm} versioned manifest has an invalid execution protocol")
-        protocol_path = Path(manifest["protocol_file"])
+        # A public byte-for-byte evidence copy can explicitly resolve the
+        # original path to its archived protocol. Never guess a replacement.
+        protocol_path = Path((protocol_paths or {}).get(
+            manifest["protocol_file"], manifest["protocol_file"]))
         if not protocol_path.is_file():
             raise ValueError(f"{arm} protocol file is missing: {protocol_path}")
         actual_protocol_sha = hashlib.sha256(protocol_path.read_bytes()).hexdigest()
@@ -195,7 +198,7 @@ def _recovery_relative_to_bf16(arms):
     }
 
 
-def compare_round(directory):
+def compare_round(directory, protocol_paths=None):
     directory = Path(directory)
     arms = {}
     reference = None
@@ -211,7 +214,7 @@ def compare_round(directory):
             path = folder / name
             source_files[str(path.relative_to(directory))] = {
                 "bytes": path.stat().st_size, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
-        versioned = _validate_manifest(arm, manifest)
+        versioned = _validate_manifest(arm, manifest, protocol_paths)
         all_versioned_protocols &= versioned
         if not isinstance(results, dict) or set(results) != set(TASKS):
             raise ValueError(f"{arm} is not a complete ten-task heldout evaluation")
