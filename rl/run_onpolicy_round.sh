@@ -64,15 +64,26 @@ python3 "$PROJECT/eval/run_recovery_eval.py" \
   --input-dir "$ROUND_OUT/collection/observations" --count 160 \
   --out "$ROUND_OUT/teacher_probes.pt" > "$ROUND_OUT/teacher_labeling.log" 2>&1
 
-# Verify the complete sequential teacher backward and checkpoint save at the
-# production micro/global batch before launching either continuation. This
+# Run one complete OPD schedule period, so the final optimizer update actually
+# executes teacher backward, and save at the production micro/global batch. This
 # adapter is discarded from all comparisons; both arms below still start from
 # the original QAD_ADAPTER, with the preregistered optimizer/update budgets.
+OPD_SMOKE_STEPS=${OPD_EVERY:-4}
 GR00T_BASE_CKPT="$PTQ_BASE" QAD_INIT_ADAPTER="$QAD_ADAPTER" \
-  QAD_OUT="$ROUND_OUT/opd_smoke" QAD_STEPS=2 QAD_SAVE_STEPS=2 \
+  QAD_OUT="$ROUND_OUT/opd_smoke" QAD_STEPS="$OPD_SMOKE_STEPS" QAD_SAVE_STEPS="$OPD_SMOKE_STEPS" \
   QAD_OPD_MSE_W="${OPD_WEIGHT:-1.0}" OPD_CACHE_PATH="$ROUND_OUT/teacher_probes.pt" \
   OPD_EVERY=${OPD_EVERY:-4} "$PY" "$PROJECT/rl/lora_qad.py" \
   > "$ROUND_OUT/opd_smoke.train.log" 2>&1
+python3 - "$ROUND_OUT/opd_smoke.train.log" "$OPD_SMOKE_STEPS" "$QAD_GLOBAL_BATCH" "$QAD_MICRO_BATCH" <<'PY'
+import math, re, sys
+from pathlib import Path
+path, period, batch, micro = sys.argv[1:]
+records = re.findall(r"\[opd\] step=(\d+) probe=\d+ mse=(\S+) weight=\S+ microbatch=1", Path(path).read_text())
+expected = int(batch) // int(micro)
+if len(records) != expected or any(int(step) != int(period) or not math.isfinite(float(mse)) or float(mse) < 0 for step, mse in records):
+    raise RuntimeError(f"OPD smoke did not execute {expected} finite teacher microbatch backward passes at update {period}")
+print(f"[round] OPD smoke verified {len(records)} teacher microbatch backward passes at update {period}", flush=True)
+PY
 
 # Shared frozen base and exact same initial LoRA tensors. Both arms start fresh
 # Adam states and LR schedules, and consume the same additional demo step budget.
