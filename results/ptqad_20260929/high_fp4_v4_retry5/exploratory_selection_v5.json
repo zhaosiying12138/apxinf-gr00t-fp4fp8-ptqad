@@ -1,0 +1,53 @@
+{
+  "status": "complete",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v5_exploratory_fp4.json",
+  "protocol_sha256": "6682801d8ff1e53416a9b7cdb8c7729342f4c268470065a6a0ff1e7efa702b60",
+  "selection_uses_heldout": false,
+  "selection_rule": "exploratory follow-up: highest-FP4 candidate with >=0.05 development drop and >=0.30 absolute; selected after v4 gate had no qualifying candidate",
+  "selected_recipe": "calib_category",
+  "qualifying_candidates": [
+    "head_lang_vision_category",
+    "calib_category"
+  ],
+  "pairing_sha256": "9740f9df9a77ffc84c2d6d044910c8164845d98f2b804525370dc2dea96cd2a3",
+  "arms": {
+    "bf16": {
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+      "successes": 46,
+      "episodes": 50,
+      "macro_success_rate": 0.92,
+      "pairing_sha256": "9740f9df9a77ffc84c2d6d044910c8164845d98f2b804525370dc2dea96cd2a3"
+    },
+    "head_lang_vision_category": {
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/high_fp4_v4_retry5/head_lang_vision_category",
+      "successes": 42,
+      "episodes": 50,
+      "macro_success_rate": 0.84,
+      "pairing_sha256": "9740f9df9a77ffc84c2d6d044910c8164845d98f2b804525370dc2dea96cd2a3"
+    },
+    "calib_category": {
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/high_fp4_v4_retry5/calib_category",
+      "successes": 43,
+      "episodes": 50,
+      "macro_success_rate": 0.86,
+      "pairing_sha256": "9740f9df9a77ffc84c2d6d044910c8164845d98f2b804525370dc2dea96cd2a3"
+    }
+  },
+  "parent_recipes": {
+    "head_lang_vision_category": "head_lang_vision",
+    "calib_category": "calib"
+  },
+  "category_parent_identities": {
+    "head_lang_vision_category": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/high_fp4_v3/head_lang_vision/ptq_recipe.json",
+      "bytes": 458348,
+      "sha256": "a43ae35014fd72e6c9cb36fbd7ddca73f4ecdf3076c66c39e8a725d1e0412001"
+    },
+    "calib_category": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/high_fp4_v3/calib/ptq_recipe.json",
+      "bytes": 468917,
+      "sha256": "fdcc254e869ff67b660f82aa9e40a64ea5b0170f57401e98d1e3176d8ca9a810"
+    }
+  },
+  "exploratory_followup": true
+}
