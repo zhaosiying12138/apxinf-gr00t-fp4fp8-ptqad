@@ -1,0 +1,594 @@
+{
+  "platform": {
+    "command": [
+      "uname",
+      "-a"
+    ],
+    "stdout": "Linux Admin 6.18.40.1-aenv-ublk-6.18.40.1 #1 SMP PREEMPT_DYNAMIC Mon Aug 17 05:08:17 CST 2026 x86_64 GNU/Linux\n"
+  },
+  "gpu": {
+    "command": [
+      "nvidia-smi",
+      "--query-gpu=name,driver_version,memory.total",
+      "--format=csv"
+    ],
+    "stdout": "name, driver_version, memory.total [MiB]\nNVIDIA GeForce RTX 5090 Laptop GPU, 610.74, 24463 MiB\n"
+  },
+  "project_head": {
+    "command": [
+      "git",
+      "-C",
+      "/home/zhaosiying/codebase/fp4vla",
+      "rev-parse",
+      "HEAD"
+    ],
+    "stdout": "ec2920d507a33e60785aa14cb1efa624712ef0c0\n"
+  },
+  "gr00t_head": {
+    "command": [
+      "git",
+      "-C",
+      "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T",
+      "rev-parse",
+      "HEAD"
+    ],
+    "stdout": "74204f03343228240ca06e5a4bc91f8f1cb7213f\n"
+  },
+  "training_packages": {
+    "command": [
+      "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
+      "-c",
+      "import importlib.metadata as m; print(\"\\n\".join(sorted(d.metadata[\"Name\"]+\"==\"+d.version for d in m.distributions())))"
+    ],
+    "stdout": "Farama-Notifications==0.0.4\nGitPython==3.1.50\nImageIO==2.37.3\nJinja2==3.1.6\nMarkupSafe==3.0.3\nPyYAML==6.0.3\nPygments==2.20.0\nabsl-py==2.4.0\naccelerate==1.13.0\naiohappyeyeballs==2.6.1\naiohttp==3.14.0\naiosignal==1.4.0\nalbucore==0.0.17\nalbumentations==1.4.18\nannotated-types==0.7.0\nantlr4-python3-runtime==4.9.3\nattrs==25.4.0\ncertifi==2026.2.25\ncffi==2.0.0\ncharset-normalizer==3.4.6\nclick==8.1.8\ncloudpickle==3.1.2\ncontourpy==1.3.2\ncryptography==48.0.0\ncycler==0.12.1\ndatasets==3.6.0\ndeepspeed==0.17.6\ndiffusers==0.35.1\ndill==0.3.8\ndm-tree==0.1.9\ndocstring_parser==0.17.0\neinops==0.8.1\neval_type_backport==0.3.1\nfilelock==3.25.2\nfonttools==4.62.1\nfrozenlist==1.8.0\nfsspec==2025.3.0\ngitdb==4.0.12\ngr00t==0.1.0\ngymnasium==1.2.2\nhf-xet==1.4.2\nhjson==3.1.0\nhuggingface_hub==0.36.2\nidna==3.11\nimportlib_metadata==8.7.1\ninquirerpy==0.3.4\njsonlines==4.0.0\nkiwisolver==1.5.0\nlazy-loader==0.5\nlmdb==1.7.5\nmarkdown-it-py==4.0.0\nmatplotlib==3.10.1\nmdurl==0.1.2\nml_dtypes==0.5.4\nmpmath==1.3.0\nmsgpack-numpy==0.4.8\nmsgpack==1.1.0\nmultidict==6.7.1\nmultiprocess==0.70.16\nnetworkx==3.4.2\nninja==1.13.0\nnumpy==1.26.4\nnvidia-cublas-cu12==12.8.4.1\nnvidia-cuda-cupti-cu12==12.8.90\nnvidia-cuda-nvrtc-cu12==12.8.93\nnvidia-cuda-runtime-cu12==12.8.90\nnvidia-cudnn-cu12==9.10.2.21\nnvidia-cufft-cu12==11.3.3.83\nnvidia-cufile-cu12==1.13.1.3\nnvidia-curand-cu12==10.3.9.90\nnvidia-cusolver-cu12==11.7.3.90\nnvidia-cusparse-cu12==12.5.8.93\nnvidia-cusparselt-cu12==0.7.1\nnvidia-nccl-cu12==2.27.5\nnvidia-nvjitlink-cu12==12.8.93\nnvidia-nvshmem-cu12==3.3.20\nnvidia-nvtx-cu12==12.8.90\nomegaconf==2.3.0\nonnx-ir==0.2.1\nonnx==1.20.1\nonnxscript==0.7.0\nopencv-python-headless==4.11.0.86\npackaging==26.0\npandas==2.2.3\npeft==0.17.1\npfzy==0.3.4\npillow==12.2.0\nplatformdirs==4.9.4\nprompt_toolkit==3.0.52\npropcache==0.4.1\nprotobuf==6.33.5\npsutil==7.2.2\npy-cpuinfo==9.0.0\npyarrow==23.0.1\npycparser==3.0\npydantic==2.12.5\npydantic_core==2.41.5\npyparsing==3.3.2\npython-dateutil==2.9.0.post0\npytz==2026.1.post1\npyzmq==27.0.1\nregex==2026.2.28\nrequests==2.34.2\nrich==14.3.3\nsafetensors==0.7.0\nscikit-image==0.25.2\nscipy==1.15.3\nsentry-sdk==2.55.0\nsetuptools==82.0.1\nshtab==1.8.0\nsix==1.17.0\nsmmap==5.0.3\nsympy==1.14.0\ntermcolor==3.2.0\ntifffile==2025.5.10\ntokenizers==0.22.2\ntorch==2.9.0+cu128\ntorchcodec==0.8.0\ntorchvision==0.24.0+cu128\ntqdm==4.67.3\ntransformers==4.57.3\ntriton==3.5.0\ntypeguard==4.5.1\ntyping-inspection==0.4.2\ntyping_extensions==4.15.0\ntyro==0.9.17\ntzdata==2025.3\nurllib3==2.6.3\nwandb==0.23.0\nwcwidth==0.6.0\nwrapt==2.1.2\nxxhash==3.6.0\nyarl==1.23.0\nzipp==3.23.0\n"
+  },
+  "rollout_packages": {
+    "command": [
+      "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python",
+      "-c",
+      "import importlib.metadata as m; print(\"\\n\".join(sorted(d.metadata[\"Name\"]+\"==\"+d.version for d in m.distributions())))"
+    ],
+    "stdout": "Farama-Notifications==0.0.6\nGitPython==3.1.62\nImageIO==2.37.4\nJinja2==3.1.6\nMarkdown==3.10.3\nMarkupSafe==3.0.3\nPyOpenGL==3.1.10\nPyYAML==6.0.3\nPygments==2.21.0\nWerkzeug==3.1.8\nabsl-py==2.5.0\nalbucore==0.0.17\nalbumentations==1.4.18\nannotated-types==0.8.0\nantlr4-python3-runtime==4.9.3\nattrs==26.1.0\nav==18.1.0\nbddl==1.0.1\ncertifi==2026.7.22\ncharset-normalizer==3.5.1\nclick==8.5.0\ncloudpickle==2.1.0\ncmake==4.4.3\ncontourpy==1.3.3\ncuda-bindings==13.4.3\ncuda-pathfinder==1.8.2\ncuda-toolkit==13.0.2\ncycler==0.12.1\ndm-tree==0.1.10\ndocker-pycreds==0.4.0\ndocstring_parser==0.18.0\neasydict==1.9\neinops==0.8.1\netils==1.14.0\neval_type_backport==0.4.0\nfastjsonschema==2.22.2\nfilelock==4.0.3\nfonttools==4.66.0\nfsspec==2026.9.0\nfuture==0.18.2\ngitdb==4.0.12\nglfw==2.10.2\ngrpcio==1.84.0\ngym-notices==0.1.0\ngym==0.25.2\ngymnasium==0.29.1\nh5py==3.16.0\nhf-xet==1.6.0\nhuggingface_hub==0.36.2\nhydra-core==1.3.2\nidna==3.20\niniconfig==2.3.0\njsonschema-specifications==2025.9.1\njsonschema==4.26.0\njupyter_core==5.9.1\njupytext==1.19.5\nkiwisolver==1.5.1\nlazy-loader==0.6\nlibero==0.1.0\nlibero==0.1.0\nllvmlite==0.47.0\nmarkdown-it-py==4.2.0\nmatplotlib==3.9.4\nmdit-py-plugins==0.6.1\nmdurl==0.1.2\nmpmath==1.3.0\nmsgpack-numpy==0.4.8\nmsgpack==1.1.0\nmujoco==3.3.1\nnbformat==5.11.1\nnetworkx==3.7\nnumba==0.65.1\nnumpy==1.26.4\nnvidia-cublas-cu12==12.8.4.1\nnvidia-cublas==13.1.1.3\nnvidia-cuda-cupti-cu12==12.8.90\nnvidia-cuda-cupti==13.0.85\nnvidia-cuda-nvrtc-cu12==12.8.93\nnvidia-cuda-nvrtc==13.0.88\nnvidia-cuda-runtime-cu12==12.8.90\nnvidia-cuda-runtime==13.0.96\nnvidia-cudnn-cu12==9.10.2.21\nnvidia-cudnn-cu13==9.20.0.48\nnvidia-cufft-cu12==11.3.3.83\nnvidia-cufft==12.0.0.61\nnvidia-cufile-cu12==1.13.1.3\nnvidia-cufile==1.15.1.6\nnvidia-curand-cu12==10.3.9.90\nnvidia-curand==10.4.0.35\nnvidia-cusolver-cu12==11.7.3.90\nnvidia-cusolver==12.0.4.66\nnvidia-cusparse-cu12==12.5.8.93\nnvidia-cusparse==12.6.3.3\nnvidia-cusparselt-cu12==0.7.1\nnvidia-cusparselt-cu13==0.8.1\nnvidia-nccl-cu12==2.27.5\nnvidia-nccl-cu13==2.29.7\nnvidia-nvjitlink-cu12==12.8.93\nnvidia-nvjitlink==13.0.88\nnvidia-nvshmem-cu12==3.3.20\nnvidia-nvshmem-cu13==3.4.5\nnvidia-nvtx-cu12==12.8.90\nnvidia-nvtx==13.0.85\nomegaconf==2.3.1\nopencv-python-headless==5.0.0.93\nopencv-python==4.10.0.84\npackaging==26.3\npandas==3.0.6\npettingzoo==1.27.0\npillow==12.3.0\nplatformdirs==4.11.12\npluggy==1.6.0\nprotobuf==7.36.2\npsutil==7.2.2\npydantic==2.13.5\npydantic_core==2.46.5\npyparsing==3.3.3\npytest==9.1.1\npython-dateutil==2.9.0.post0\npyzmq==27.2.0\nreferencing==0.37.0\nregex==2026.9.10\nrequests==2.34.2\nrobomimic==0.2.0\nrobosuite==1.4.0\nrpds-py==2026.6.3\nsafetensors==0.8.0\nscikit-image==0.26.0\nscipy==1.17.1\nsentry-sdk==2.70.0\nsetproctitle==1.3.7\nsetuptools==69.5.1\nsix==1.17.0\nsmmap==5.0.3\nsympy==1.14.0\ntensorboard-data-server==0.7.2\ntensorboard==2.21.0\ntermcolor==3.3.0\nthop==0.1.1-2209072238\ntianshou==0.5.1\ntifffile==2026.9.20\ntokenizers==0.22.2\ntorch==2.9.0\ntorchvision==0.24.0\ntqdm==4.70.1\ntraitlets==5.16.1\ntransformers==4.57.3\ntriton==3.5.0\ntypeguard==4.6.0\ntyping-inspection==0.4.4\ntyping_extensions==4.16.0\ntyro==1.0.16\nurllib3==2.8.0\nwandb==0.18.7\nwebsockets==17.1\nwheel==0.48.0\nwrapt==2.4.1\nzipp==4.1.0\n"
+  },
+  "source_files": {
+    "baselines/bench_gr00t_pt.py": {
+      "bytes": 10174,
+      "sha256": "f2ade088e3eff3c5a38781888c9fc58524d887925d941600422d2aa191be04a3"
+    },
+    "baselines/bench_pi05_lerobot.py": {
+      "bytes": 9274,
+      "sha256": "16e8da8f98b9ebe5b672473e5f6b8637136ac8ea428fb7fcd82e7aeeb0fd5e25"
+    },
+    "eval/compare_development.py": {
+      "bytes": 4602,
+      "sha256": "278d852eb06f4f4752600c3b3f5e15006ff0a68913bfdb5cb4e43d783e9d5857"
+    },
+    "eval/compare_ptq_frontier.py": {
+      "bytes": 24690,
+      "sha256": "d6321c221a0dfa792256ea411e1511bb6fa6b0aa91666da8ba690801f9dbb938"
+    },
+    "eval/compare_recovery.py": {
+      "bytes": 6468,
+      "sha256": "49ad903a090d1ce5f8a6c848c6bbfd159965413da707167366373f3a71799949"
+    },
+    "eval/rollout_seeded.py": {
+      "bytes": 4318,
+      "sha256": "37e08b98bb313978548f9a4b85f438a2f46e77e269a427d2b119c886daf138fa"
+    },
+    "eval/run_gr00t_server_fp4vla.py": {
+      "bytes": 9622,
+      "sha256": "c56b1fd09b1d81a2c6b0c74693196942603450a05947da02f2ac4583079d2b92"
+    },
+    "eval/run_recovery_eval.py": {
+      "bytes": 12347,
+      "sha256": "ca13ac96ad31ea764c4d5e7426bff6533b3cb30146a8db6e5907744572d25620"
+    },
+    "eval/serve_recovery.py": {
+      "bytes": 1211,
+      "sha256": "1202847f769e025d7318b5f09df2c9643f0ec8c9db843862c3093a4d78e3e047"
+    },
+    "exp/bench_engine.py": {
+      "bytes": 23323,
+      "sha256": "425721abf9989820deb8a21d073f3151c773fc548ae8a35b64889157033d71e3"
+    },
+    "exp/prepare_native_pi05.py": {
+      "bytes": 9162,
+      "sha256": "d52581871d0355c152241b9e80b0ee812d28c0f1b8c880874fd44f8ca649a425"
+    },
+    "exp/prepare_native_pi05.sh": {
+      "bytes": 433,
+      "sha256": "ef3779ad01a03f8309460a339aa2c921a2ca4eae06f6e0cdb4a38fabc86c8c88"
+    },
+    "exp/ptq_frontier_protocol.json": {
+      "bytes": 1617,
+      "sha256": "e4ad7da7cccbeb372f23e5f38fe5aabb8362cffac623336b2ac0b5b5ea1eaf56"
+    },
+    "exp/recipe_inventory.py": {
+      "bytes": 9025,
+      "sha256": "753d8f0ca96130a09e359e76641660da460e8b6b8e8a28650c1d328f7f4924fb"
+    },
+    "exp/recovery_protocol.json": {
+      "bytes": 3580,
+      "sha256": "705d3217ffc73bc2ae17875c4b1f0a2012022dbc942c30152b64581a7cffb5f5"
+    },
+    "exp/reproduce_ptqad.sh": {
+      "bytes": 9118,
+      "sha256": "a2e07a8bf39de9215a66909d454eafb8bb1286ecbfc39bafa76a2541b57937f1"
+    },
+    "exp/run_development.py": {
+      "bytes": 12250,
+      "sha256": "8c546ad0a725ec6ee863c3250874aed61a7b23e46189f0884b07abb3cf80c0f9"
+    },
+    "exp/run_development.sh": {
+      "bytes": 373,
+      "sha256": "8f1c4d5e51cc5aa599b8f15855cbad7a691447578ea236b13eba276d4c7e6b81"
+    },
+    "exp/run_native_graph_gates.sh": {
+      "bytes": 3243,
+      "sha256": "abff143f3c4ac4bb96408668b1c03ffd81726409e7adb4131b006a8e490b47e3"
+    },
+    "exp/run_ptq_frontier.sh": {
+      "bytes": 532,
+      "sha256": "4e03e8e6e3344157e057ddbebb6df94e4a77d56bde7da3c116530165e147dc7a"
+    },
+    "paper/capture_runtime.py": {
+      "bytes": 6278,
+      "sha256": "904ed2d66d4eee8d000fe798652df9adfe57ee98a8c9c7d5b91e5ee7ad99d3cb"
+    },
+    "patches/apxinf-fp4vla-engine.patch": {
+      "bytes": 92068,
+      "sha256": "b571e4b4820ccd43dc3a6ffb2dc05a686602ad6b01084ed4a3b919ce25b3e607"
+    },
+    "patches/gr00t-recovery-runtime.patch": {
+      "bytes": 65436,
+      "sha256": "77c4d6952ce6b6aa6e4810d94320bb8ae6487032ec721292a0d8fbb2a082878b"
+    },
+    "quant/fp4_quant.py": {
+      "bytes": 7804,
+      "sha256": "639be33aed86990ad7cca1c860a4eb38e3dcba91e147c84c9d26921b57ae0387"
+    },
+    "quant/nvfp4_convert.py": {
+      "bytes": 5228,
+      "sha256": "0d9df84c8ba58caebef2dc1d681409abe0429174162482af2a162b93d8dd9352"
+    },
+    "quant/nvfp4_convert_packed.py": {
+      "bytes": 6867,
+      "sha256": "3ebcf229b94d4235378a7f64ce8809eb17595a25f79a150d7e23ce7c7d443022"
+    },
+    "quant/ptq/awq.py": {
+      "bytes": 4325,
+      "sha256": "150089ee6533114b7842bbba82819f35930da87c17f2788eaf5a1964ce17ea81"
+    },
+    "quant/ptq/bake.py": {
+      "bytes": 21778,
+      "sha256": "984ec31ade6000cc4c8744a47757c25a51538f0e008c2d4bcad803f94d51d14e"
+    },
+    "quant/ptq/collector.py": {
+      "bytes": 9083,
+      "sha256": "52a51eed665d1fbe8a337af7bcf49b458e954ec0c667c35abb29334e71791926"
+    },
+    "quant/ptq/folds.py": {
+      "bytes": 3647,
+      "sha256": "89e2c22802993f8e973c842fa11f20019084b651ece10b4ad614ee10cc917009"
+    },
+    "quant/ptq/quantizers.py": {
+      "bytes": 3939,
+      "sha256": "e7310601f5cb0a80d13c7a7be79714bc8ea4a85b03866968ef493646df6acfd2"
+    },
+    "quant/ptq/verify_calibration.py": {
+      "bytes": 12291,
+      "sha256": "79f01c9d497ef13b47d5277570e396ccd0ea22fe79faa1d974b68547193e126b"
+    },
+    "quant/torch_fp4.py": {
+      "bytes": 4767,
+      "sha256": "b8f1d073b7904e08c11d9d2c2dba8998e60acb80e0a317098ccfca8890a468e9"
+    },
+    "rl/activation_checkpoint.py": {
+      "bytes": 2310,
+      "sha256": "d29938bffac2566e567bc758c8dc1999743a3f33f1df77ad94b61eb1ddd45ff6"
+    },
+    "rl/capture_onpolicy.py": {
+      "bytes": 6441,
+      "sha256": "478195fa8971b628f080339e51b89eb99986be19cebbcafab01fbd04d628a68c"
+    },
+    "rl/gr00t_runtime.py": {
+      "bytes": 5031,
+      "sha256": "92f61fd9d36c68136394095ac151df46255b9f3308b18efc81b4426d057e1fa0"
+    },
+    "rl/lora_inventory.py": {
+      "bytes": 1918,
+      "sha256": "e09ef64c92e2e7715e838720c5d47f39789c51caa66a6233e38c9d4ff4642f9d"
+    },
+    "rl/lora_merge_bake.py": {
+      "bytes": 11254,
+      "sha256": "5666cb8c2f38a2095152bb30dbf313789aa7141ddc8e6d2d3bc1e0df4586ea49"
+    },
+    "rl/lora_qad.py": {
+      "bytes": 17408,
+      "sha256": "e74b776e2fd0552597eea292afd0041450afba209aa20d6c08439d9e7cf0acce"
+    },
+    "rl/lora_scope.py": {
+      "bytes": 590,
+      "sha256": "7eab74419c2ec0d1aec886446fb96c0daedfafb060db7fe842660124a022bb40"
+    },
+    "rl/opd_probe_cache.py": {
+      "bytes": 8438,
+      "sha256": "acc4d9f1981a452817bff8448a53b6ad2c41216c9b703c45e09aa15a1a1befc1"
+    },
+    "rl/probe_distill.py": {
+      "bytes": 9288,
+      "sha256": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6"
+    },
+    "rl/recovery_batch.py": {
+      "bytes": 1060,
+      "sha256": "ba14aa6ad2eaff8259b7e306a705cb1ecd507de4d1fa42e4d33e9fb3f0e6495e"
+    },
+    "rl/run_onpolicy_round.sh": {
+      "bytes": 6695,
+      "sha256": "ebfec9be5b241873e058d3a571da16b13e22cdd41bab2c886384b46d19a72627"
+    },
+    "rl/runtime_metrics.py": {
+      "bytes": 1457,
+      "sha256": "7db4128201f7bfa78a5f745ce8a0d1942e86219e6d90108499ceb1e76ac3b3a3"
+    },
+    "rl/scoped_quant.py": {
+      "bytes": 1964,
+      "sha256": "6b61b0fb4dcb33ce72690405fbd522ddd01c3f7abcaca574a38742aa50b8eca1"
+    },
+    "setup/02_build_engine.sh": {
+      "bytes": 2108,
+      "sha256": "0640efc559be10fda397a20a09e900c598bd83e6b73ea355be8d8cdf8bd6c284"
+    },
+    "setup/03_download_weights.sh": {
+      "bytes": 3838,
+      "sha256": "e333e1c104cd0dba23ca793f690dbd597724d204a1e629519e670abf5c6bee5b"
+    },
+    "setup/05_restore_all.sh": {
+      "bytes": 1527,
+      "sha256": "65edc9a1f2caffa9e722701ca29e44847d2856beed621e7d9c0b2f8c8e0a7a47"
+    },
+    "setup/06_install_recovery.sh": {
+      "bytes": 6468,
+      "sha256": "053d94a46d6776639a0bb390f402374405af4e04f5b1d2712ba445d188302e01"
+    },
+    "setup/locks/manifest.json": {
+      "bytes": 2560,
+      "sha256": "ff134f2b3dfbc28a8b40096fa6e243a9e39c53dd24c57f1638786a8bbf0068d6"
+    },
+    "setup/locks/model-sources.json": {
+      "bytes": 15082,
+      "sha256": "438d6cdb76a5f6bfb09245939792f6009f7d4f365ffc14fd6b1be03c72b1d1a7"
+    },
+    "setup/verify_weights.py": {
+      "bytes": 2982,
+      "sha256": "d4d64e9fc82748e1c46e5a243dfb4833d2629e811a50503d05b2b71772999d7c"
+    }
+  },
+  "checkpoints": {
+    "bf16": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+      "files": [
+        {
+          "name": "config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        {
+          "name": "embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        {
+          "name": "model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+        },
+        {
+          "name": "model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+        },
+        {
+          "name": "model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        },
+        {
+          "name": "processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        {
+          "name": "statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        {
+          "name": "trainer_state.json",
+          "bytes": 8936930,
+          "sha256": "8a651906567c9c7661523962098dcdaee6d83dea18b8ab9220d149233bad7c87"
+        },
+        {
+          "name": "wandb_config.json",
+          "bytes": 60,
+          "sha256": "38259142c90fd6e81f3e26205e7dd771318b9848d6bd20da16ddb90982fa3ca1"
+        }
+      ]
+    },
+    "ptq": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_lang",
+      "files": [
+        {
+          "name": "bake_manifest.json",
+          "bytes": 1213,
+          "sha256": "3428908fa2e0da636a1066b4af0399afbc6df942065a55dd6a0b05d72b4d4113"
+        },
+        {
+          "name": "config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        {
+          "name": "embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        {
+          "name": "model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "c2e26f9a0540bdfc7cff8c4b11d38620df0e0f2dc4193ac92d7591b76cf44b76"
+        },
+        {
+          "name": "model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "285357c193c4a91f025352797b963eec198e4f7a66bcf907b80d52e21003bf2d"
+        },
+        {
+          "name": "model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        },
+        {
+          "name": "processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        {
+          "name": "ptq_recipe.json",
+          "bytes": 452633,
+          "sha256": "85d81b7b6577a80233487cc9cc1b3062e94b018fdf9589e87b96c47419accf90"
+        },
+        {
+          "name": "statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        {
+          "name": "trainer_state.json",
+          "bytes": 8936930,
+          "sha256": "8a651906567c9c7661523962098dcdaee6d83dea18b8ab9220d149233bad7c87"
+        },
+        {
+          "name": "wandb_config.json",
+          "bytes": 60,
+          "sha256": "38259142c90fd6e81f3e26205e7dd771318b9848d6bd20da16ddb90982fa3ca1"
+        }
+      ]
+    },
+    "qad": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/qad",
+      "files": [
+        {
+          "name": "bake_manifest.json",
+          "bytes": 1213,
+          "sha256": "3428908fa2e0da636a1066b4af0399afbc6df942065a55dd6a0b05d72b4d4113"
+        },
+        {
+          "name": "config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        {
+          "name": "embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        {
+          "name": "merge_manifest.json",
+          "bytes": 64649,
+          "sha256": "b38ee6405387b11881cee8187b14e906cb22f55eec9f4bd7ecfd6e9f0c0c492e"
+        },
+        {
+          "name": "model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "786cd0f58ab57a7be988bb9380f4dfaaedc8713157bae54627a7a7b5cd6d358b"
+        },
+        {
+          "name": "model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "9e2f33b37d9f4cd418c187ce8f92d2e36e49244be89816c6c57c2329d2c7fc24"
+        },
+        {
+          "name": "model.safetensors.index.json",
+          "bytes": 104949,
+          "sha256": "b3b2d9cd50338bbda18822f765389a4c841a044f1a44adf14178d74432bedfa5"
+        },
+        {
+          "name": "processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        {
+          "name": "ptq_recipe.json",
+          "bytes": 452633,
+          "sha256": "85d81b7b6577a80233487cc9cc1b3062e94b018fdf9589e87b96c47419accf90"
+        },
+        {
+          "name": "recovery_manifest.json",
+          "bytes": 2272,
+          "sha256": "e06cdf43efed6eee10aac65d2a4f755044c3dcd11b812016890e86845faa4090"
+        },
+        {
+          "name": "statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        {
+          "name": "trainer_state.json",
+          "bytes": 8936930,
+          "sha256": "8a651906567c9c7661523962098dcdaee6d83dea18b8ab9220d149233bad7c87"
+        },
+        {
+          "name": "wandb_config.json",
+          "bytes": 60,
+          "sha256": "38259142c90fd6e81f3e26205e7dd771318b9848d6bd20da16ddb90982fa3ca1"
+        }
+      ]
+    },
+    "continued_qad": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/continued_qad_merged",
+      "files": [
+        {
+          "name": "bake_manifest.json",
+          "bytes": 1213,
+          "sha256": "3428908fa2e0da636a1066b4af0399afbc6df942065a55dd6a0b05d72b4d4113"
+        },
+        {
+          "name": "config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        {
+          "name": "embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        {
+          "name": "merge_manifest.json",
+          "bytes": 64679,
+          "sha256": "46999782dcc9fbcb6be9a85ef29f9980ae9735d91a462fe4c875b2f0b8b3e9c5"
+        },
+        {
+          "name": "model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "f29a39ff471ef36cf2d9563ce1618008769f5da07084ec4528caef5351fda6be"
+        },
+        {
+          "name": "model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "2fadb0c2c649a778c84e33b1119f0bd5104bf4276ee7dd8c3897561120bef125"
+        },
+        {
+          "name": "model.safetensors.index.json",
+          "bytes": 104949,
+          "sha256": "b3b2d9cd50338bbda18822f765389a4c841a044f1a44adf14178d74432bedfa5"
+        },
+        {
+          "name": "processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        {
+          "name": "ptq_recipe.json",
+          "bytes": 452633,
+          "sha256": "85d81b7b6577a80233487cc9cc1b3062e94b018fdf9589e87b96c47419accf90"
+        },
+        {
+          "name": "recovery_manifest.json",
+          "bytes": 2350,
+          "sha256": "0fa37b6ccca41879c195eb9d993bd798f73a40036e5571e8db24712470b4b9ee"
+        },
+        {
+          "name": "statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        {
+          "name": "trainer_state.json",
+          "bytes": 8936930,
+          "sha256": "8a651906567c9c7661523962098dcdaee6d83dea18b8ab9220d149233bad7c87"
+        },
+        {
+          "name": "wandb_config.json",
+          "bytes": 60,
+          "sha256": "38259142c90fd6e81f3e26205e7dd771318b9848d6bd20da16ddb90982fa3ca1"
+        }
+      ]
+    },
+    "qad_opd": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/round1/qad_opd_merged",
+      "files": [
+        {
+          "name": "bake_manifest.json",
+          "bytes": 1213,
+          "sha256": "3428908fa2e0da636a1066b4af0399afbc6df942065a55dd6a0b05d72b4d4113"
+        },
+        {
+          "name": "config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        {
+          "name": "embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        {
+          "name": "merge_manifest.json",
+          "bytes": 65490,
+          "sha256": "0514d2efbcd537c5a4932f383a55dd14b255ba34094f886f8f0817493c3ed65d"
+        },
+        {
+          "name": "model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "c69c51fe2b58b56cbbe7abf7185755d6f165779bd345788f2ef242bc6dabfd56"
+        },
+        {
+          "name": "model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "863d94bab4bee8851e168748889704c510c1c24121247f8eeb0e2f04abf7b453"
+        },
+        {
+          "name": "model.safetensors.index.json",
+          "bytes": 104949,
+          "sha256": "b3b2d9cd50338bbda18822f765389a4c841a044f1a44adf14178d74432bedfa5"
+        },
+        {
+          "name": "processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        {
+          "name": "ptq_recipe.json",
+          "bytes": 452633,
+          "sha256": "85d81b7b6577a80233487cc9cc1b3062e94b018fdf9589e87b96c47419accf90"
+        },
+        {
+          "name": "recovery_manifest.json",
+          "bytes": 3078,
+          "sha256": "4fa885685f5c16dc1b220dadb66eb76520a889cd9af526191c89d6992fdd1b61"
+        },
+        {
+          "name": "statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        {
+          "name": "trainer_state.json",
+          "bytes": 8936930,
+          "sha256": "8a651906567c9c7661523962098dcdaee6d83dea18b8ab9220d149233bad7c87"
+        },
+        {
+          "name": "wandb_config.json",
+          "bytes": 60,
+          "sha256": "38259142c90fd6e81f3e26205e7dd771318b9848d6bd20da16ddb90982fa3ca1"
+        }
+      ]
+    }
+  },
+  "source_selection": {
+    "policy": "explicit_public_allowlist_v1",
+    "additional_files": [],
+    "note": "Every source_files path must be included in the public repository; external source is restored from pinned upstream plus patches."
+  }
+}

@@ -1,0 +1,498 @@
+{
+  "kind": "CPU shape-derived encoding budget, not measured disk size or latency",
+  "base": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+  "bake_sha256": "ca57e1b76e953785e82e7ce30bbd791c83b35b53702f9fad51f0be508303b5b2",
+  "tied_aliases": {
+    "backbone.model.lm_head.weight": "backbone.model.model.language_model.embed_tokens.weight"
+  },
+  "eligible_predicate": ".weight, rank 2, input width divisible by 16",
+  "recipes": {
+    "rtn": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 3126722560,
+      "fp8_params": 0,
+      "bf16_params": 0,
+      "fraction_of_eligible_params": {
+        "nvfp4": 1.0,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.9049374331346158,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 1758783328,
+      "target_full_checkpoint_bytes": 2415700064,
+      "linear_compression_x": 3.555551738775636,
+      "full_checkpoint_compression_x": 2.86060424428585,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 1.758783328,
+      "target_bytes_by_format": {
+        "nvfp4": 1758783328
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "nvfp4": 2815557632
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 1.0,
+          "fp8": 0.0,
+          "bf16": 0.0
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.8955290405646791,
+          "fp8": 0.0,
+          "bf16": 0.0
+        },
+        "target_eligible_bytes": 1583753052,
+        "target_full_bytes": 2240669788,
+        "eligible_compression_x": 3.555551325939923,
+        "full_compression_x": 2.806318018690579,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    },
+    "fp8": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 1294073856,
+      "fp8_params": 1832648704,
+      "bf16_params": 0,
+      "fraction_of_eligible_params": {
+        "nvfp4": 0.4138754977992035,
+        "fp8": 0.5861245022007965,
+        "bf16": 0.0
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.3745314306157226,
+        "fp8": 0.5304060025188932,
+        "bf16": 0.0
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 2564084724,
+      "target_full_checkpoint_bytes": 3221001460,
+      "linear_compression_x": 2.438860565513825,
+      "full_checkpoint_compression_x": 2.1454078620628754,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 2.564084724,
+      "target_bytes_by_format": {
+        "nvfp4": 727917556,
+        "fp8": 1836167168
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "nvfp4": 1294073856,
+          "fp8": 1521483776
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 0.45961547413993764,
+          "fp8": 0.5403845258600624,
+          "bf16": 0.0
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.4115990045852184,
+          "fp8": 0.48393003597946066,
+          "bf16": 0.0
+        },
+        "target_eligible_bytes": 2252312052,
+        "target_full_bytes": 2909228788,
+        "eligible_compression_x": 2.5001487955453165,
+        "full_compression_x": 2.161408558150154,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    },
+    "mixed": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 1140850688,
+      "fp8_params": 1778647040,
+      "bf16_params": 207224832,
+      "fraction_of_eligible_params": {
+        "nvfp4": 0.3648710962062461,
+        "fp8": 0.5688534898344163,
+        "bf16": 0.06627541395933767
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.3301855132258938,
+        "fp8": 0.514776816920425,
+        "bf16": 0.05997510298829711
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 2838487616,
+      "target_full_checkpoint_bytes": 3495404352,
+      "linear_compression_x": 2.203090506631261,
+      "full_checkpoint_compression_x": 1.9769849665736183,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 2.838487616,
+      "target_bytes_by_format": {
+        "bf16": 414449664,
+        "fp8": 1782308864,
+        "nvfp4": 641729088
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "bf16": 207224832,
+          "fp8": 1467482112,
+          "nvfp4": 1140850688
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 0.40519528885992273,
+          "fp8": 0.5212047856245053,
+          "bf16": 0.0735999255155719
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.3628641482740546,
+          "fp8": 0.46675402160803253,
+          "bf16": 0.06591087068259195
+        },
+        "target_eligible_bytes": 2526714944,
+        "target_full_bytes": 3183631680,
+        "eligible_compression_x": 2.2286310046061137,
+        "full_compression_x": 1.9751128999947631,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    },
+    "aggr": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 2651062272,
+      "fp8_params": 268435456,
+      "bf16_params": 207224832,
+      "fraction_of_eligible_params": {
+        "nvfp4": 0.8478725634038986,
+        "fp8": 0.08585202263676378,
+        "bf16": 0.06627541395933767
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.7672716211519908,
+        "fp8": 0.07769070899432795,
+        "bf16": 0.05997510298829711
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 2174371440,
+      "target_full_checkpoint_bytes": 2831288176,
+      "linear_compression_x": 2.8759783195092004,
+      "full_checkpoint_compression_x": 2.440712999325576,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 2.17437144,
+      "target_bytes_by_format": {
+        "bf16": 414449664,
+        "nvfp4": 1491224176,
+        "fp8": 268697600
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "bf16": 207224832,
+          "nvfp4": 2339897344,
+          "fp8": 268435456
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 0.8310600065173874,
+          "fp8": 0.09534006796704064,
+          "bf16": 0.0735999255155719
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.744238370288192,
+          "fp8": 0.0853797995938952,
+          "bf16": 0.06591087068259195
+        },
+        "target_eligible_bytes": 1999341164,
+        "target_full_bytes": 2656257900,
+        "eligible_compression_x": 2.8164854329983675,
+        "full_compression_x": 2.3672520653962104,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    },
+    "head_ffn": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 1696727040,
+      "fp8_params": 1429995520,
+      "bf16_params": 0,
+      "fraction_of_eligible_params": {
+        "nvfp4": 0.5426535317543492,
+        "fp8": 0.4573464682456508,
+        "bf16": 0.0
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.4910674941072145,
+        "fp8": 0.4138699390274013,
+        "bf16": 0.0
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 2387137652,
+      "target_full_checkpoint_bytes": 3044054388,
+      "linear_compression_x": 2.6196416091718535,
+      "full_checkpoint_compression_x": 2.270117736148675,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 2.387137652,
+      "target_bytes_by_format": {
+        "nvfp4": 954410100,
+        "fp8": 1432727552
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "nvfp4": 1696727040,
+          "fp8": 1118830592
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 0.6026255760904986,
+          "fp8": 0.3973744239095014,
+          "bf16": 0.0
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.5396687039760611,
+          "fp8": 0.3558603365886179,
+          "bf16": 0.0
+        },
+        "target_eligible_bytes": 2075364980,
+        "target_full_bytes": 2732281716,
+        "eligible_compression_x": 2.7133132332222356,
+        "full_compression_x": 2.3013849425474104,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    },
+    "head_lang": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 1830944768,
+      "fp8_params": 1295777792,
+      "bf16_params": 0,
+      "fraction_of_eligible_params": {
+        "nvfp4": 0.5855795430727311,
+        "fp8": 0.4144204569272689,
+        "bf16": 0.0
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.5299128486043785,
+        "fp8": 0.37502458453023735,
+        "bf16": 0.0
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 2328155444,
+      "target_full_checkpoint_bytes": 2985072180,
+      "linear_compression_x": 2.686008417571967,
+      "full_checkpoint_compression_x": 2.314973119343466,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 2.328155444,
+      "target_bytes_by_format": {
+        "nvfp4": 1029907764,
+        "fp8": 1298247680
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "nvfp4": 1830944768,
+          "fp8": 984612864
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 0.6502956100740189,
+          "fp8": 0.3497043899259811,
+          "bf16": 0.0
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.5823586037730087,
+          "fp8": 0.3131704367916703,
+          "bf16": 0.0
+        },
+        "target_eligible_bytes": 2016382772,
+        "target_full_bytes": 2673299508,
+        "eligible_compression_x": 2.7926816982346248,
+        "full_compression_x": 2.3521614324106626,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    },
+    "head_lang_vision": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 2235957248,
+      "fp8_params": 890765312,
+      "bf16_params": 0,
+      "fraction_of_eligible_params": {
+        "nvfp4": 0.7151121358205826,
+        "fp8": 0.2848878641794173,
+        "bf16": 0.0
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.6471317405928909,
+        "fp8": 0.257805692541725,
+        "bf16": 0.0
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 2149970648,
+      "target_full_checkpoint_bytes": 2806887384,
+      "linear_compression_x": 2.9086188343162904,
+      "full_checkpoint_compression_x": 2.461930569566449,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 2.149970648,
+      "target_bytes_by_format": {
+        "nvfp4": 1257727704,
+        "fp8": 892242944
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "nvfp4": 2235957248,
+          "fp8": 579600384
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 0.7941436618406964,
+          "fp8": 0.20585633815930357,
+          "bf16": 0.0
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.7111787115587198,
+          "fp8": 0.18435032900595927,
+          "bf16": 0.0
+        },
+        "target_eligible_bytes": 1838197976,
+        "target_full_bytes": 2495114712,
+        "eligible_compression_x": 3.0633888936454796,
+        "full_compression_x": 2.5201374388753957,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    },
+    "calib": {
+      "all_checkpoint_params": 3455180928,
+      "linear_params": 3126722560,
+      "eligible_tensor_count": 472,
+      "excluded_tensor_count": 559,
+      "nvfp4_params": 3126722560,
+      "fp8_params": 0,
+      "bf16_params": 0,
+      "fraction_of_eligible_params": {
+        "nvfp4": 1.0,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "fraction_of_all_checkpoint_params": {
+        "nvfp4": 0.9049374331346158,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "source_tensor_bytes": 6910361856,
+      "eligible_source_bytes": 6253445120,
+      "excluded_source_bytes": 656916736,
+      "target_eligible_bytes": 1758783328,
+      "target_full_checkpoint_bytes": 2415700064,
+      "linear_compression_x": 3.555551738775636,
+      "full_checkpoint_compression_x": 2.86060424428585,
+      "bf16_GB": 6.25344512,
+      "quantized_GB": 1.758783328,
+      "target_bytes_by_format": {
+        "nvfp4": 1758783328
+      },
+      "storage_note": "Estimate: FP4 payload+one E4M3 scale/16+one FP32 tensor scale; FP8 payload+FP32 row scales; excludes alignment and runtime activations. Saved tensors are dequantized in original dtype.",
+      "known_tied_alias_deduplicated": {
+        "all_tensor_elements": 3144016000,
+        "eligible_tensor_elements": 2815557632,
+        "omitted_physical_alias_elements": 311164928,
+        "elements_by_format": {
+          "nvfp4": 2815557632
+        },
+        "fraction_of_eligible": {
+          "nvfp4": 1.0,
+          "fp8": 0.0,
+          "bf16": 0.0
+        },
+        "fraction_of_all": {
+          "nvfp4": 0.8955290405646791,
+          "fp8": 0.0,
+          "bf16": 0.0
+        },
+        "target_eligible_bytes": 1583753052,
+        "target_full_bytes": 2240669788,
+        "eligible_compression_x": 3.555551325939923,
+        "full_compression_x": 2.806318018690579,
+        "note": "Deduplicates only explicitly recorded tied embedding/lm_head aliases; no claim about unrecorded sharing or activation memory.",
+        "source_tensor_bytes": 6288032000
+      }
+    }
+  },
+  "recovery_residual": {
+    "kind": "shape_derived_independent_bf16_lora_encoding_budget",
+    "scope": "head+lang_all",
+    "rank": 32,
+    "alpha": 64,
+    "linear_modules": 364,
+    "tensor_elements": 58580992,
+    "dtype": "bfloat16",
+    "bytes_per_element": 2,
+    "target_bytes": 117161984,
+    "source_index_sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59",
+    "source_config_sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+    "linear_coverage_source": "results/ptqad_20260929/calibration/calib_meta.json",
+    "linear_coverage_sha256": "5e5dd98f31e70cd29c05d102097f0642e53a331c967f4132ba629a349d04eb28",
+    "note": "Same hypothetical separately stored residual budget for each base; does not assert all recipes underwent recovery or actual packed deployment."
+  },
+  "ladder": [
+    "fp8",
+    "head_ffn",
+    "head_lang",
+    "head_lang_vision",
+    "calib"
+  ]
+}

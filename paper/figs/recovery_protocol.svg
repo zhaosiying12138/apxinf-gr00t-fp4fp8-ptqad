@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="750" viewBox="0 0 1120 750" role="img" aria-label="从量化基座到 QAD，再到学生访问状态上的 OPD" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<rect width="100%" height="100%" fill="white"/>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">从量化基座到 QAD，再到学生访问状态上的 OPD</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">开发、采集与最终评测采用不相交的官方初态索引；实线表示数据或参数依赖。</tspan></text>
+<rect x="30" y="102" width="270" height="132" fill="#f0f6f8" stroke="#2368a0" rx="5"/>
+<text x="46" y="132" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">① PTQ 量化基座</tspan></text>
+<text x="46" y="161" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">冻结低比特取值 Wq 与偏置 b</tspan></text>
+<text x="46" y="183" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">配方与缩放清单固定</tspan></text>
+<rect x="395" y="102" width="300" height="132" fill="#f0f6f8" stroke="#2368a0" rx="5"/>
+<text x="411" y="132" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">② QAD：演示监督</tspan></text>
+<text x="411" y="161" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">只更新低秩 A、B</tspan></text>
+<text x="411" y="184" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Δy = (α/r) · (xA</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14">)B</tspan><tspan dy="-4.48" font-size="10.08">T</tspan></text>
+<text x="411" y="209" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">y = x(Wq)</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14"> + b + Δy</tspan></text>
+<rect x="790" y="102" width="300" height="132" fill="#f0f6f8" stroke="#2368a0" rx="5"/>
+<text x="806" y="132" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">③ 学生闭环轨迹</tspan></text>
+<text x="806" y="161" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">运行 QAD 策略并采集观测</tspan></text>
+<text x="806" y="183" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">保存完整动作端点及有效 mask</tspan></text>
+<polyline points="300,168 395,168" fill="none" stroke="#2368a0" stroke-width="2"/>
+<path d="M387,163 L395,168 L387,173" stroke="#2368a0" fill="none"/>
+<polyline points="695,168 790,168" fill="none" stroke="#2368a0" stroke-width="2"/>
+<path d="M782,163 L790,168 L782,173" stroke="#2368a0" fill="none"/>
+<rect x="790" y="285" width="300" height="128" fill="#f0f6f8" stroke="#258577" rx="5"/>
+<text x="806" y="315" fill="#258577" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">④ 未量化教师标注</tspan></text>
+<text x="806" y="344" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">师生共享噪声与时间步</tspan></text>
+<text x="806" y="366" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">缓存速度场、mask 和重放种子</tspan></text>
+<text x="806" y="388" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">教师无梯度；学生探针可求导</tspan></text>
+<polyline points="940,234 940,285" fill="none" stroke="#258577" stroke-width="2"/>
+<path d="M935,277 L940,285 L945,277" stroke="#258577" fill="none"/>
+<rect x="30" y="474" width="470" height="118" fill="#f0f6f8" stroke="#2368a0" rx="5"/>
+<text x="46" y="504" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">⑤ 对照：继续训练 QAD</tspan></text>
+<text x="46" y="533" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">从②的同一适配器开始；重置优化器</tspan></text>
+<text x="46" y="555" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">相同演示批量、额外步数与学习率计划</tspan></text>
+<rect x="620" y="474" width="470" height="118" fill="#f0f6f8" stroke="#258577" rx="5"/>
+<text x="636" y="504" fill="#258577" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">⑥ 实验：QAD + OPD</tspan></text>
+<text x="636" y="533" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">演示目标 + 有效动作上的教师 MSE</tspan></text>
+<text x="636" y="555" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">主损失与探针顺序反传，控制峰值显存</tspan></text>
+<polyline points="470,234 470,260 540,260 540,450 265,450 265,474" fill="none" stroke="#2368a0" stroke-width="2"/>
+<path d="M260,466 L265,474 L270,466" stroke="#2368a0" fill="none"/>
+<polyline points="620,234 620,260 725,260 725,474" fill="none" stroke="#2368a0" stroke-width="2"/>
+<path d="M720,466 L725,474 L730,466" stroke="#2368a0" fill="none"/>
+<polyline points="940,413 940,474" fill="none" stroke="#258577" stroke-width="2"/>
+<path d="M935,466 L940,474 L945,466" stroke="#258577" fill="none"/>
+<text x="31" y="303" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">共享起点与演示优化预算</tspan></text>
+<text x="31" y="334" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">OPD 另用教师标注和学生探针计算。</tspan></text>
+<text x="31" y="361" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">因此单独报告标注、训练耗时及峰值显存。</tspan></text>
+<text x="31" y="399" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">矩阵形状：x:[M,K]；A:[r,K]；B:[N,r]</tspan></text>
+<text x="31" y="425" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Wq:[N,K]；b:[N]；y、Δy:[M,N]（偏置按行广播）</tspan></text>
+<rect x="30" y="637" width="1060" height="88" fill="#e8f2ee" stroke="none" rx="5"/>
+<text x="52" y="668" fill="#258577" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">统一最终评测：BF16 · PTQ · QAD · 继续 QAD · QAD+OPD</tspan></text>
+<text x="52" y="698" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">配对任务和稳定后初态；同一执行预算。报告宏平均、实际分子分母及逐任务结果。</tspan></text>
+<polyline points="265,592 265,637" fill="none" stroke="#2368a0" stroke-width="2"/>
+<path d="M260,629 L265,637 L270,629" stroke="#2368a0" fill="none"/>
+<polyline points="855,592 855,637" fill="none" stroke="#258577" stroke-width="2"/>
+<path d="M850,629 L855,637 L860,629" stroke="#258577" fill="none"/>
+</svg>
