@@ -114,6 +114,7 @@ class V3PublicationProtocolTests(unittest.TestCase):
     def test_runtime_allowlist_carries_v3_protocol_and_orchestrator(self):
         self.assertIn('exp/recovery_protocol_v3_high_fp4.json',DEFAULT_SOURCE_FILES)
         self.assertIn('exp/run_high_fp4_v3.py',DEFAULT_SOURCE_FILES)
+        self.assertIn('exp/verify_teacher_cache_cpu.py',DEFAULT_SOURCE_FILES)
 
 
 if __name__=='__main__':unittest.main()
