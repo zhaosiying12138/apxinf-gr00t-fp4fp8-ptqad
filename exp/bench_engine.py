@@ -273,7 +273,19 @@ def benchmark(policy, args, sampler_factory=PowerSampler):
                 raise ValueError("Active state key requires a positive state_dim")
             observation[md["state_key"]] = rng.uniform(-.3, .3, md["state_dim"]).astype(np.float32)
         return observation
-    first = policy.infer(make_obs())
+    first_observation = make_obs()
+    observation_hash = hashlib.sha256()
+    for key, value in sorted(first_observation.items()):
+        if isinstance(value, np.ndarray):
+            header = {"key": key, "dtype": str(value.dtype), "shape": list(value.shape)}
+            payload = np.ascontiguousarray(value).tobytes()
+        else:
+            header = {"key": key, "type": type(value).__name__}
+            payload = str(value).encode("utf-8")
+        observation_hash.update(json.dumps(header, sort_keys=True).encode("utf-8"))
+        observation_hash.update(len(payload).to_bytes(8, "little"))
+        observation_hash.update(payload)
+    first = policy.infer(first_observation)
     shape = check_inference(first)
     first_tokens = len(first["token_ids"]) if "token_ids" in first else None
     for _ in range(args.warmup):
@@ -295,6 +307,9 @@ def benchmark(policy, args, sampler_factory=PowerSampler):
     result = {"n": args.samples, "warmup": args.warmup, "untimed_first_inferences": 1,
               "lat_model_ms": lat_model, "lat_total_ms": lat_total, "lat_wrapper_ms": lat_wrapper,
               "action_shape": shape, "all_outputs_finite": True, "first_token_count": first_tokens,
+              "first_observation_sha256": observation_hash.hexdigest(),
+              "first_actions": np.asarray(first["actions"]).tolist(),
+              "first_actions_scope": "Untimed synthetic observation for numerical inspection only; not a task-success measurement.",
               "sample_token_counts": token_counts, "quantile_method": "numpy.percentile linear",
               "power_w_mean": float(np.mean(power)) if power else None,
               "power_w_max": max(power) if power else None, "vram_mb_peak": max(memory) if memory else None,
