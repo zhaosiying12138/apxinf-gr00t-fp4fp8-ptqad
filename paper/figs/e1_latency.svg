@@ -1,1 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="168" viewBox="0 0 760 168" font-family="Noto Sans CJK SC,system-ui,sans-serif"><rect width="760" height="168" fill="white"/><text x="20" y="28" font-size="15" font-weight="600" fill="#1a1a2e">端到端延迟（batch-1, P50, ms）</text><text x="202" y="62" font-size="12" text-anchor="end" fill="#3c4a58">π0.5 · PyTorch</text><rect x="210" y="50" width="400" height="18" rx="3" fill="#c9d6e3"/><text x="616" y="62" font-size="12" fill="#1a1a2e">361.7 ms</text><text x="202" y="88" font-size="12" text-anchor="end" fill="#3c4a58">π0.5 · ApxInf BF16</text><rect x="210" y="76" width="55" height="18" rx="3" fill="#2f7fd1"/><text x="271" y="88" font-size="12" fill="#1a1a2e">49.6 ms</text><text x="202" y="114" font-size="12" text-anchor="end" fill="#3c4a58">GR00T N1.7 · PyTorch</text><rect x="210" y="102" width="118" height="18" rx="3" fill="#c9d6e3"/><text x="334" y="114" font-size="12" fill="#1a1a2e">106.9 ms</text><text x="202" y="140" font-size="12" text-anchor="end" fill="#3c4a58">GR00T N1.7 · ApxInf BF16</text><rect x="210" y="128" width="37" height="18" rx="3" fill="#2f7fd1"/><text x="253" y="140" font-size="12" fill="#1a1a2e">33.7 ms</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="635" viewBox="0 0 1120 635" role="img" aria-label="独立计时入口的 P50：调用边界分别标注" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<rect width="100%" height="100%" fill="white"/>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">独立计时入口的 P50：调用边界分别标注</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">batch = 1 · ms · PT 参考为 BF16 配置（π0.5 另含 FP32）· APX total = policy.infer</tspan></text>
+<path d="M295.0,98 L295.0,462" stroke="#d9e4e9" fill="none"/>
+<text x="295.0" y="485" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">0</tspan></text>
+<path d="M448.75,98 L448.75,462" stroke="#d9e4e9" fill="none"/>
+<text x="448.75" y="485" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">68</tspan></text>
+<path d="M602.5,98 L602.5,462" stroke="#d9e4e9" fill="none"/>
+<text x="602.5" y="485" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">136</tspan></text>
+<path d="M756.25,98 L756.25,462" stroke="#d9e4e9" fill="none"/>
+<text x="756.25" y="485" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">204</tspan></text>
+<path d="M910.0,98 L910.0,462" stroke="#d9e4e9" fill="none"/>
+<text x="910.0" y="485" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">272</tspan></text>
+<text x="30" y="138" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">π0.5 / PT action chunk</tspan></text>
+<rect x="295" y="116" width="549.1071428571429" height="31" fill="#a3b6c3" stroke="none" rx="5"/>
+<text x="854.1071428571429" y="130" fill="#183c4d" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">243.16 ms</tspan></text>
+<text x="854.1071428571429" y="150" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">n = 30</tspan></text>
+<text x="30" y="203" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">π0.5 / APX BF16 total</tspan></text>
+<rect x="295" y="181" width="109.86443110587055" height="31" fill="#2368a0" stroke="none" rx="5"/>
+<text x="414.86443110587055" y="195" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">48.65 ms</tspan></text>
+<text x="414.86443110587055" y="215" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">n = 30</tspan></text>
+<text x="30" y="268" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">GR00T / PT get_action</tspan></text>
+<rect x="295" y="246" width="201.65091811348947" height="31" fill="#a3b6c3" stroke="none" rx="5"/>
+<text x="506.65091811348947" y="260" fill="#183c4d" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">89.30 ms</tspan></text>
+<text x="506.65091811348947" y="280" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">n = 50</tspan></text>
+<text x="30" y="333" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">GR00T / APX BF16 total</tspan></text>
+<rect x="295" y="311" width="68.70692659922027" height="31" fill="#258577" stroke="none" rx="5"/>
+<text x="373.70692659922025" y="325" fill="#258577" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">30.43 ms</tspan></text>
+<text x="373.70692659922025" y="345" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">n = 30</tspan></text>
+<text x="30" y="398" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">π0.5 / APX FP4 total</tspan></text>
+<rect x="295" y="376" width="83.51825638343621" height="31" fill="#b97824" stroke="none" rx="5"/>
+<text x="388.5182563834362" y="390" fill="#b97824" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">36.98 ms</tspan></text>
+<text x="388.5182563834362" y="410" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">n = 30</tspan></text>
+<text x="30" y="523" fill="#2368a0" font-size="17" font-weight="600" text-anchor="start"><tspan dy="0" font-size="17">同一 APX π0.5 入口：BF16 / NVFP4 的实测耗时比 = 1.32</tspan></text>
+<rect x="30" y="545" width="1060" height="65" fill="#fff6e9" stroke="none" rx="5"/>
+<text x="48" y="571" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">π0.5 PT 未使用 state-to-text；输入准备与计算内容不同，浮点入口仅分别报告耗时。</tspan></text>
+<text x="48" y="594" fill="#b97824" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">跨入口不计算加速比；图中耗时比只比较同一 APX π0.5 接口的 BF16 与 NVFP4 路径。</tspan></text>
+</svg>

@@ -1,0 +1,193 @@
+{
+  "status": "incomplete_review_draft",
+  "not_final_publication": true,
+  "screenshots": 17,
+  "figures": 24,
+  "files": [
+    {
+      "path": "paper.html",
+      "sha256": "900333e22496331e353f84b8af74ffa6173cf056602c2567abbebdc0b14135c2",
+      "bytes": 8668550
+    },
+    {
+      "path": "zhihu/article.md",
+      "sha256": "7e2cf0cc7c2883d4cb66aa19c492712739d48de971a38f7cd2c023ff11ad25f8",
+      "bytes": 172018
+    },
+    {
+      "path": "meta.json",
+      "sha256": "208b2cece6b22f926f5ce2418223831a0c2f1de3bdf283ae25414f8c9d4b2ff3",
+      "bytes": 228
+    },
+    {
+      "path": "figures.json",
+      "sha256": "27975de514c56ae3ee0860dc1692a65a27c70a439e37748e455259bdff58d8a0",
+      "bytes": 9019
+    },
+    {
+      "path": "sections/01-摘要与引言.md",
+      "sha256": "99df57eff7c486ab31916b066a7b1a3555ebf49c6f97411c96613f4c67f51e09",
+      "bytes": 4867
+    },
+    {
+      "path": "sections/02-背景与相关工作.md",
+      "sha256": "3f83cdf22e92775b687d74288b88a4ef324279abd7c307b8cff6df8da13b5755",
+      "bytes": 15106
+    },
+    {
+      "path": "sections/03-方法.md",
+      "sha256": "334ba16bd840f60f894cd0c357ef5392bde4fed24ade10ac78cccf8c17240155",
+      "bytes": 31900
+    },
+    {
+      "path": "sections/04-实验.md",
+      "sha256": "b26d5780d0f775bdfa24d03f17e6b1bc56b0761e44b78c504259a436d1ff538b",
+      "bytes": 9337
+    },
+    {
+      "path": "sections/05-讨论与结论.md",
+      "sha256": "bbef5cf7a034bc8d87b71fb8b3326c6e845c5c5fc9a640b8c69ee9f4081204ac",
+      "bytes": 2669
+    },
+    {
+      "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
+      "sha256": "25e602d8ea1e9821400f56db9feecfadbd4cf1f6ea4a8dd5675cd70c9bbe2d08",
+      "bytes": 41536
+    },
+    {
+      "path": "sections/15-附录B-复现与证据索引.md",
+      "sha256": "763ff7067d61485886541a82bc729e8474322d2ad1ffd85db565fa0d7eb1c240",
+      "bytes": 32208
+    },
+    {
+      "path": "sections/15-附录C-执行基准与完整测量.md",
+      "sha256": "294977bdd0e4d76e432175825e8edcd8ba48e7d5cb611b6116bd562816f33545",
+      "bytes": 12618
+    },
+    {
+      "path": "sections/16-参考文献.md",
+      "sha256": "84dcc6943ff79284e8ab31f651006234fd2a62e4fc42fd32709f5e593e56beea",
+      "bytes": 12054
+    },
+    {
+      "path": "zhihu/images/shot_collect.png",
+      "sha256": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
+      "bytes": 349151
+    },
+    {
+      "path": "zhihu/images/gptq_block.png",
+      "sha256": "045260cb338429083207d3ec2b9b3fff44e7c03f9522c66dab23e3de1c6fd39e",
+      "bytes": 298057
+    },
+    {
+      "path": "zhihu/images/shot_bake.png",
+      "sha256": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
+      "bytes": 460385
+    },
+    {
+      "path": "zhihu/images/shot_probe.png",
+      "sha256": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
+      "bytes": 259228
+    },
+    {
+      "path": "zhihu/images/recovery_protocol.png",
+      "sha256": "4f29f1aed9cb7da454d96d5abe8e03df4d3248f658089a3cfab3e2a09c8c6e59",
+      "bytes": 364280
+    },
+    {
+      "path": "zhihu/images/shot_opdcache.png",
+      "sha256": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
+      "bytes": 309583
+    },
+    {
+      "path": "zhihu/images/swizzle_layout.png",
+      "sha256": "681461b2c1f14aa86f9e2f61907a1faea5b1e1a5228c838405d64415f7778558",
+      "bytes": 216797
+    },
+    {
+      "path": "zhihu/images/shot_verify.png",
+      "sha256": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db",
+      "bytes": 326669
+    },
+    {
+      "path": "zhihu/images/shot_fp8probe.png",
+      "sha256": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
+      "bytes": 283707
+    },
+    {
+      "path": "zhihu/images/shot_evalserver.png",
+      "sha256": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf",
+      "bytes": 278598
+    },
+    {
+      "path": "zhihu/images/shot_rollout.png",
+      "sha256": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170",
+      "bytes": 445539
+    },
+    {
+      "path": "zhihu/images/shot_qat.png",
+      "sha256": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
+      "bytes": 278520
+    },
+    {
+      "path": "zhihu/images/budget_ladder.png",
+      "sha256": "43a9ba72aeee541687a6bd9ec0729c11125e7fc80d0e888eb2151487bf4635aa",
+      "bytes": 347820
+    },
+    {
+      "path": "zhihu/images/ladder.png",
+      "sha256": "40c1146d1e398bb79e6eddcf26b12b93bf7beba8d10bec03bcb3ee1e4ee2de92",
+      "bytes": 152868
+    },
+    {
+      "path": "zhihu/images/shot_qad.png",
+      "sha256": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
+      "bytes": 423906
+    },
+    {
+      "path": "zhihu/images/shot_opd.png",
+      "sha256": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
+      "bytes": 382536
+    },
+    {
+      "path": "zhihu/images/ptq_frontier.png",
+      "sha256": "07560c34ab7acf18dcd02b3f22d0005480fe2e56963b189b270213127eb13735",
+      "bytes": 141757
+    },
+    {
+      "path": "zhihu/images/shot_packed.png",
+      "sha256": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
+      "bytes": 279477
+    },
+    {
+      "path": "zhihu/images/e1_latency.png",
+      "sha256": "fa164675b28844757083507a2c5f92742beb18b805c072f2c562ee8c6cfc6c20",
+      "bytes": 184607
+    },
+    {
+      "path": "zhihu/images/shot_pi05.png",
+      "sha256": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
+      "bytes": 247960
+    },
+    {
+      "path": "zhihu/images/shot_gr00t.png",
+      "sha256": "41567c4c73bedf5d4b89068e60d38a10f3cbdaf61d5b3440e21d7bf7df44ce88",
+      "bytes": 294040
+    },
+    {
+      "path": "zhihu/images/shot_nvfp4.png",
+      "sha256": "0215b53e09317e03eed6d7b980cd5845ef89d16f54d6059f46e3ff44fbed0bd0",
+      "bytes": 300991
+    },
+    {
+      "path": "zhihu/images/shot_gemm.png",
+      "sha256": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08",
+      "bytes": 305541
+    },
+    {
+      "path": "zhihu/images/shot_opbench.png",
+      "sha256": "c7db35ef39dd99022c6595b5f32a0730c84aea266f888f9084c9c96816be2f4d",
+      "bytes": 401815
+    }
+  ]
+}

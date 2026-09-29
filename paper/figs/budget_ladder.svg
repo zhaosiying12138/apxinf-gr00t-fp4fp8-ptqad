@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="775" viewBox="0 0 1420 775" role="img" aria-label="混合量化阶梯：完整权重的目标编码预算" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<rect width="100%" height="100%" fill="white"/>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">混合量化阶梯：完整权重的目标编码预算</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">GB = 10</tspan><tspan dy="-4.16" font-size="9.36">9</tspan><tspan dy="4.16" font-size="13"> 字节 · 含未量化张量与格式缩放 · 单独叠加相同的 BF16 LoRA 旁路预算</tspan></text>
+<rect x="30" y="91" width="18" height="18" fill="#2368a0" stroke="none" rx="5"/>
+<text x="58" y="106" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">物理张量口径</tspan></text>
+<rect x="267" y="91" width="18" height="18" fill="#258577" stroke="none" rx="5"/>
+<text x="295" y="106" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">已知共享别名去重</tspan></text>
+<rect x="555" y="91" width="18" height="18" fill="#b97824" stroke="none" rx="5"/>
+<text x="583" y="106" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">独立 BF16 旁路：117.16 MB</tspan></text>
+<text x="30" y="150" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">物理 checkpoint：保留两份共享权重</tspan></text>
+<text x="30" y="178" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">BF16 源字节分母：6.910 GB</tspan></text>
+<path d="M215.0,213 L215.0,640" stroke="#d9e4e9" fill="none"/>
+<text x="215.0" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">0</tspan></text>
+<path d="M300.39028533318356,213 L300.39028533318356,640" stroke="#d9e4e9" fill="none"/>
+<text x="300.39028533318356" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">1</tspan></text>
+<path d="M385.78057066636705,213 L385.78057066636705,640" stroke="#d9e4e9" fill="none"/>
+<text x="385.78057066636705" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">2</tspan></text>
+<path d="M471.17085599955055,213 L471.17085599955055,640" stroke="#d9e4e9" fill="none"/>
+<text x="471.17085599955055" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">3</tspan></text>
+<text x="30" y="247" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">fp8</tspan></text>
+<text x="30" y="269" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：41.39%</tspan></text>
+<rect x="215" y="231" width="275.0422337280007" height="23" fill="#2368a0" stroke="none" rx="0"/>
+<rect x="490.0422337280007" y="231" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="508.0467289719626" y="248" fill="#2368a0" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">3.338 GB</tspan></text>
+<text x="215" y="278" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.145× → 加旁路 2.070×</tspan></text>
+<text x="30" y="329" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">head_ffn</tspan></text>
+<text x="30" y="351" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：54.27%</tspan></text>
+<rect x="215" y="313" width="259.93267276104933" height="23" fill="#2368a0" stroke="none" rx="0"/>
+<rect x="474.93267276104933" y="313" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="492.9371680050112" y="330" fill="#2368a0" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">3.161 GB</tspan></text>
+<text x="215" y="360" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.270× → 加旁路 2.186×</tspan></text>
+<text x="30" y="411" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">head_lang</tspan></text>
+<text x="30" y="433" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：58.56%</tspan></text>
+<rect x="215" y="395" width="254.89616519034817" height="23" fill="#2368a0" stroke="none" rx="0"/>
+<rect x="469.89616519034814" y="395" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="487.90066043431" y="412" fill="#2368a0" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">3.102 GB</tspan></text>
+<text x="215" y="442" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.315× → 加旁路 2.228×</tspan></text>
+<text x="30" y="493" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">head_lang_vision</tspan></text>
+<text x="30" y="515" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：71.51%</tspan></text>
+<rect x="215" y="477" width="239.68091461787304" height="23" fill="#2368a0" stroke="none" rx="0"/>
+<rect x="454.68091461787304" y="477" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="472.6854098618349" y="494" fill="#2368a0" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">2.924 GB</tspan></text>
+<text x="215" y="524" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.462× → 加旁路 2.363×</tspan></text>
+<text x="30" y="575" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">calib</tspan></text>
+<text x="30" y="597" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：100.00%</tspan></text>
+<rect x="215" y="559" width="206.2773177443497" height="23" fill="#2368a0" stroke="none" rx="0"/>
+<rect x="421.2773177443497" y="559" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="439.2818129883116" y="576" fill="#2368a0" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">2.533 GB</tspan></text>
+<text x="215" y="606" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.861× → 加旁路 2.728×</tspan></text>
+<text x="735" y="150" fill="#258577" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">已知别名去重：共享权重仅计一次</tspan></text>
+<text x="735" y="178" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">BF16 源字节分母：6.288 GB</tspan></text>
+<path d="M920.0,213 L920.0,640" stroke="#d9e4e9" fill="none"/>
+<text x="920.0" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">0</tspan></text>
+<path d="M1005.3902853331836,213 L1005.3902853331836,640" stroke="#d9e4e9" fill="none"/>
+<text x="1005.3902853331836" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">1</tspan></text>
+<path d="M1090.780570666367,213 L1090.780570666367,640" stroke="#d9e4e9" fill="none"/>
+<text x="1090.780570666367" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">2</tspan></text>
+<path d="M1176.1708559995504,213 L1176.1708559995504,640" stroke="#d9e4e9" fill="none"/>
+<text x="1176.1708559995504" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">3</tspan></text>
+<text x="735" y="247" fill="#258577" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">fp8</tspan></text>
+<text x="735" y="269" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：45.96%</tspan></text>
+<rect x="920" y="231" width="248.41987630683167" height="23" fill="#258577" stroke="none" rx="0"/>
+<rect x="1168.4198763068316" y="231" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="1186.4243715507935" y="248" fill="#258577" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">3.026 GB</tspan></text>
+<text x="920" y="278" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.161× → 加旁路 2.078×</tspan></text>
+<text x="735" y="329" fill="#258577" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">head_ffn</tspan></text>
+<text x="735" y="351" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：60.26%</tspan></text>
+<rect x="920" y="313" width="233.3103153398803" height="23" fill="#258577" stroke="none" rx="0"/>
+<rect x="1153.3103153398804" y="313" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="1171.3148105838422" y="330" fill="#258577" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">2.849 GB</tspan></text>
+<text x="920" y="360" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.301× → 加旁路 2.207×</tspan></text>
+<text x="735" y="411" fill="#258577" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">head_lang</tspan></text>
+<text x="735" y="433" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：65.03%</tspan></text>
+<rect x="920" y="395" width="228.27380776917911" height="23" fill="#258577" stroke="none" rx="0"/>
+<rect x="1148.273807769179" y="395" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="1166.2783030131409" y="412" fill="#258577" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">2.790 GB</tspan></text>
+<text x="920" y="442" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.352× → 加旁路 2.253×</tspan></text>
+<text x="735" y="493" fill="#258577" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">head_lang_vision</tspan></text>
+<text x="735" y="515" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：79.41%</tspan></text>
+<rect x="920" y="477" width="213.05855719670402" height="23" fill="#258577" stroke="none" rx="0"/>
+<rect x="1133.058557196704" y="477" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="1151.0630524406658" y="494" fill="#258577" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">2.612 GB</tspan></text>
+<text x="920" y="524" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.520× → 加旁路 2.407×</tspan></text>
+<text x="735" y="575" fill="#258577" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">calib</tspan></text>
+<text x="735" y="597" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：100.00%</tspan></text>
+<rect x="920" y="559" width="191.33143253476382" height="23" fill="#258577" stroke="none" rx="0"/>
+<rect x="1111.3314325347637" y="559" width="10.004495243961882" height="23" fill="#b97824" stroke="none" rx="0"/>
+<text x="1129.3359277787256" y="576" fill="#258577" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">2.358 GB</tspan></text>
+<text x="920" y="606" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 2.806× → 加旁路 2.667×</tspan></text>
+<rect x="30" y="665" width="1360" height="83" fill="#fff6e9" stroke="none" rx="5"/>
+<text x="48" y="692" fill="#b97824" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">旁路：head+lang_all，rank = 32，364 个 Linear；两种口径均完整计入旁路。</tspan></text>
+<text x="48" y="716" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">各配方统一叠加相同旁路以比较预算，不表示每一级均完成恢复训练；该图不包含激活、优化器、对齐和运行时工作区。</tspan></text>
+<text x="48" y="738" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">当前闭环采用稠密 BF16 合并 checkpoint；此处是保留 packed 基座与独立旁路时的编码预算，不是已测文件或显存压缩。</tspan></text>
+</svg>
