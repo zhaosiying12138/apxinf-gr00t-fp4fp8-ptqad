@@ -1,0 +1,69 @@
+{
+  "version": 3,
+  "date": "2026-09-29",
+  "id": "high-fp4-stress-v3",
+  "question": "Can QAD followed by on-policy teacher distillation recover closed-loop success after extending NVFP4 over the visual-language path?",
+  "model": "GR00T-N1.7-LIBERO/libero_10",
+  "initial_state_protocol": "libero10_official_bank_v1",
+  "partitions": {
+    "development": {
+      "seed": 440000,
+      "init_state_indices": [4, 5, 6, 7, 8],
+      "episodes_per_task": 5,
+      "purpose": "select the pressure recipe and recovery settings before final evaluation"
+    },
+    "collection": {
+      "seed": 550000,
+      "init_state_indices": [20, 21, 22, 23],
+      "episodes_per_task": 4,
+      "purpose": "collect student-visited observations for the frozen QAD checkpoint"
+    },
+    "heldout": {
+      "seed": 660000,
+      "init_state_indices": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+      "episodes_per_task": 10,
+      "purpose": "single final paired read after all recipe and recovery choices are frozen"
+    },
+    "smoke": {
+      "seed": 770000,
+      "init_state_indices": [0],
+      "episodes_per_task": 1,
+      "purpose": "fixture and server validation only; never a reported score"
+    }
+  },
+  "fixed_runtime": {
+    "tasks": 10,
+    "n_envs": 1,
+    "task_seed_stride": 1000,
+    "episode_seed_stride": 1,
+    "n_action_steps": 8,
+    "max_episode_steps": 720,
+    "settle_steps": 10,
+    "settle_action": "seven raw simulator zeros including gripper; outside policy horizon",
+    "paired_scope": "environment initial-state hashes; policy noise is seeded per task, not per episode"
+  },
+  "selection": {
+    "development_only": true,
+    "pressure_candidates": ["head_lang_vision", "calib"],
+    "recovery_scope": "head+lang_all",
+    "qad_optimizer_steps": 500,
+    "continuation_optimizer_steps": 100,
+    "rank": 32,
+    "alpha": 64,
+    "effective_demo_batch": 16,
+    "opd_every": 4,
+    "opd_weights": [0.25, 1.0],
+    "same_budget_control": "continued_qad",
+    "rule": "Freeze the first pressure candidate whose development macro success is at least 0.20 below BF16 and at least 0.30 absolute; if both qualify, choose the higher FP4 candidate. If neither qualifies, report that the pre-registered pressure window was not reached rather than changing the threshold. Choose QAD/OPD settings only from development results."
+  },
+  "reporting": {
+    "primary": [
+      "successes and episode count",
+      "ten-task macro success",
+      "FP4 share of eligible and all checkpoint parameters",
+      "target encoding budget including the BF16 low-rank residual"
+    ],
+    "required_arms": ["bf16", "pressure_ptq", "qad", "continued_qad", "qad_opd"],
+    "heldout_freeze": "No heldout result may select a recipe, teacher weight, training length, checkpoint, or statistical test."
+  }
+}

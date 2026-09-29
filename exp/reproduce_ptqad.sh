@@ -16,6 +16,7 @@ BASE=${PTQAD_BASE:-$ROOT/weights/GR00T-N1.7-LIBERO/libero_10}
 DATASET=${QAD_DATASET:-$GROOT/demo_data/libero_demo}
 EVAL_RUNS_ROOT=${PTQAD_EVAL_RUNS_ROOT:-$RUN_DIR/evaluations}
 RECOVERY_RECIPE=${PTQAD_RECOVERY_RECIPE:-fp8}
+PROTOCOL_FILE=${PTQAD_PROTOCOL_FILE:-$ROOT/exp/recovery_protocol.json}
 case "$RECOVERY_RECIPE" in
   rtn|fp8|mixed|aggr|calib|head_ffn|head_lang|head_lang_vision) ;;
   *) printf 'Invalid recovery recipe: %s\n' "$RECOVERY_RECIPE"; exit 2 ;;
@@ -31,14 +32,35 @@ export QAD_ACTIVATION_CHECKPOINTING=${QAD_ACTIVATION_CHECKPOINTING:-1}
 RANK=${QAD_LORA_R:-32}
 ALPHA=${QAD_LORA_ALPHA:-64}
 LR=${QAD_LR:-0.0001}
-EPISODES=${PTQAD_EVAL_EPISODES:-10}
-DEV_EPISODES=${PTQAD_DEV_EPISODES:-2}
+EPISODES=${PTQAD_EVAL_EPISODES:-}
+DEV_EPISODES=${PTQAD_DEV_EPISODES:-}
 PORT_BASE=${PTQAD_PORT_BASE:-5610}
 export HF_HUB_OFFLINE=1
 export PYTHONHASHSEED=${PYTHONHASHSEED:-20260929}
 export LD_LIBRARY_PATH="${PTQAD_MEDIA_LIB:-$HOME/miniforge3/envs/media7/lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 [[ -x "$PY" && -d "$BASE" && -d "$DATASET" ]] || { printf '%s\n' 'Python, base or dataset unavailable'; exit 2; }
+[[ -f "$PROTOCOL_FILE" ]] || { printf 'Protocol file missing: %s\n' "$PROTOCOL_FILE"; exit 2; }
+# A versioned protocol owns the seed and episode count for every formal
+# partition.  Environment overrides remain available for an explicitly
+# documented protocol fork, but the default follows the selected JSON file.
+mapfile -t _PROTOCOL_VALUES < <("$PY" - "$PROTOCOL_FILE" <<'PY'
+import json, sys
+data = json.loads(open(sys.argv[1]).read())
+parts = data.get("partitions", data)
+for name in ("development", "collection", "heldout"):
+    item = parts.get(name, {})
+    print(int(item["seed"]))
+    print(int(item["episodes_per_task"]))
+PY
+)
+[[ ${#_PROTOCOL_VALUES[@]} -eq 6 ]] || { printf 'Protocol lacks seed/episode declarations for development, collection and heldout\n'; exit 2; }
+DEV_SEED=${PTQAD_DEV_SEED:-${_PROTOCOL_VALUES[0]}}
+DEV_EPISODES=${DEV_EPISODES:-${_PROTOCOL_VALUES[1]}}
+COLLECTION_SEED=${PTQAD_COLLECTION_SEED:-${_PROTOCOL_VALUES[2]}}
+COLLECTION_EPISODES=${PTQAD_COLLECTION_EPISODES:-${_PROTOCOL_VALUES[3]}}
+HELDOUT_SEED=${PTQAD_HELDOUT_SEED:-${_PROTOCOL_VALUES[4]}}
+EPISODES=${EPISODES:-${_PROTOCOL_VALUES[5]}}
 mkdir -p -- "$RUN_DIR/logs"
 if [[ ! -f "$RUN_DIR/run_parameters.json" ]]; then
   "$PY" - "$RUN_DIR/run_parameters.json" "$ROOT" "$BASE" "$DATASET" "$GROOT" "$CAL_SCOPE" \
@@ -126,18 +148,18 @@ evaluate() {
   [[ "$arm" == bf16 ]] && checkpoint="$BASE"
   local -a protocol
   case "$purpose" in
-    development) protocol=(--seed 330000 --episodes "$DEV_EPISODES") ;;
-    collection) protocol=(--seed 110000 --episodes 2) ;;
+    development) protocol=(--seed "$DEV_SEED" --episodes "$DEV_EPISODES") ;;
+    collection) protocol=(--seed "$COLLECTION_SEED" --episodes "$COLLECTION_EPISODES") ;;
     heldout)
-      protocol=(--seed 220000 --episodes "$EPISODES" --collection-manifest
+      protocol=(--seed "$HELDOUT_SEED" --episodes "$EPISODES" --collection-manifest
         "${PTQAD_COLLECTION_MANIFEST:-$EVAL_RUNS_ROOT/${RUN_ID}_collection_qad/eval_manifest.json}") ;;
     *) return 2 ;;
   esac
   [[ -x "$SIM_PY" ]] || { printf 'Simulation Python missing: %s\n' "$SIM_PY"; return 2; }
-  run_logged "eval-$purpose-$arm" "$PY" "$ROOT/eval/run_recovery_eval.py" \
+    run_logged "eval-$purpose-$arm" "$PY" "$ROOT/eval/run_recovery_eval.py" \
     --checkpoint "$checkpoint" --out "$EVAL_RUNS_ROOT/$tag" --purpose "$purpose" \
     --gr00t "$GROOT" --server-python "$PY" --rollout-python "$SIM_PY" \
-    --port "$((PORT_BASE + offset))" "${protocol[@]}"
+    --port "$((PORT_BASE + offset))" --protocol-file "$PROTOCOL_FILE" "${protocol[@]}"
   local actual_request=$EPISODES
   [[ "$purpose" == development ]] && actual_request=$DEV_EPISODES
   [[ "$purpose" == collection ]] && actual_request=2

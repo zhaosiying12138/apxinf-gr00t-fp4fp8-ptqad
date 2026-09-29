@@ -10,12 +10,29 @@ PY=${PTQAD_PYTHON:-${TRAIN_PYTHON:-$GR00T/.venv/bin/python}}
 : "${QAD_ADAPTER:?Set the initial QAD checkpoint containing lora_A/B}"
 : "${QAD_MERGED:?Set the initial QAD merged BF16 checkpoint}"
 : "${ROUND_OUT:?Set a new output directory}"
-COLLECTION_SEED=${COLLECTION_SEED:-110000}
-HELDOUT_SEED=${HELDOUT_SEED:-220000}
+COLLECTION_SEED=${COLLECTION_SEED:-}
+HELDOUT_SEED=${HELDOUT_SEED:-}
 EXTRA_STEPS=${EXTRA_STEPS:-100}
-COLLECTION_EPISODES=${COLLECTION_EPISODES:-2}
-HELDOUT_EPISODES=${HELDOUT_EPISODES:-10}
+COLLECTION_EPISODES=${COLLECTION_EPISODES:-}
+HELDOUT_EPISODES=${HELDOUT_EPISODES:-}
 PORT=${PORT:-5595}
+PROTOCOL_FILE=${PROTOCOL_FILE:-$PROJECT/exp/recovery_protocol.json}
+test -f "$PROTOCOL_FILE" || { echo "PROTOCOL_FILE does not exist: $PROTOCOL_FILE" >&2; exit 1; }
+mapfile -t _PROTOCOL_VALUES < <(python3 - "$PROTOCOL_FILE" <<'PY'
+import json, sys
+data = json.loads(open(sys.argv[1]).read())
+parts = data.get("partitions", data)
+for name in ("collection", "heldout"):
+    item = parts.get(name, {})
+    print(int(item["seed"]))
+    print(int(item["episodes_per_task"]))
+PY
+)
+[[ ${#_PROTOCOL_VALUES[@]} -eq 4 ]] || { echo "Protocol lacks collection/heldout seed and episode declarations" >&2; exit 1; }
+COLLECTION_SEED=${COLLECTION_SEED:-${_PROTOCOL_VALUES[0]}}
+COLLECTION_EPISODES=${COLLECTION_EPISODES:-${_PROTOCOL_VALUES[1]}}
+HELDOUT_SEED=${HELDOUT_SEED:-${_PROTOCOL_VALUES[2]}}
+HELDOUT_EPISODES=${HELDOUT_EPISODES:-${_PROTOCOL_VALUES[3]}}
 export QAD_MICRO_BATCH=${QAD_MICRO_BATCH:-1}
 export QAD_GLOBAL_BATCH=${QAD_GLOBAL_BATCH:-16}
 export QAD_LORA_SCOPE=${QAD_LORA_SCOPE:-head+lang_all}
@@ -58,6 +75,7 @@ cd "$GR00T"
 python3 "$PROJECT/eval/run_recovery_eval.py" \
   --checkpoint "$QAD_MERGED" --out "$ROUND_OUT/collection" --purpose collection \
   --seed "$COLLECTION_SEED" --episodes "$COLLECTION_EPISODES" --port "$PORT" \
+  --protocol-file "$PROTOCOL_FILE" \
   > "$ROUND_OUT/collection.log" 2>&1
 
 "$PY" "$PROJECT/rl/opd_probe_cache.py" --teacher "$BF16_TEACHER" \
@@ -111,6 +129,7 @@ for arm in bf16 ptq qad continued_qad qad_opd; do
   python3 "$PROJECT/eval/run_recovery_eval.py" \
     --checkpoint "$checkpoint" --out "$ROUND_OUT/heldout_$arm" --purpose heldout \
     --seed "$HELDOUT_SEED" --episodes "$HELDOUT_EPISODES" --port "$PORT" \
+    --protocol-file "$PROTOCOL_FILE" \
     --collection-manifest "$ROUND_OUT/collection/eval_manifest.json" \
     > "$ROUND_OUT/$arm.eval.log" 2>&1
 done

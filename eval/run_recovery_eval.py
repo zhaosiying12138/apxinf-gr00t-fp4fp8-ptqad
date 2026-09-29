@@ -34,6 +34,35 @@ INIT_INDICES = {"development": [0, 1], "collection": [2, 3],
                 "heldout": list(range(10, 20)), "smoke": [0]}
 
 
+def protocol_entry(path, purpose):
+    """Read a versioned bank partition from a protocol file.
+
+    The original protocol is kept as the default for backwards compatibility.
+    New studies pass an explicit file so that a new partition cannot be
+    silently evaluated under the old hard-coded indices.  Both the compact
+    ``{"partitions": {purpose: {...}}}`` form and the original top-level
+    purpose keys are accepted; all other fields remain provenance in the
+    manifest and are not interpreted here.
+    """
+    protocol = json.loads(Path(path).read_text())
+    partitions = protocol.get("partitions", protocol)
+    entry = partitions.get(purpose)
+    if not isinstance(entry, dict) or "init_state_indices" not in entry:
+        raise ValueError(f"Protocol {path} has no {purpose}.init_state_indices partition")
+    indices = entry["init_state_indices"]
+    if (not isinstance(indices, list) or not indices or
+            any(type(x) is not int for x in indices) or
+            len(set(indices)) != len(indices) or
+            any(x < 0 or x >= 50 for x in indices)):
+        raise ValueError(f"Protocol {path} has invalid {purpose}.init_state_indices")
+    return entry
+
+
+def protocol_partition(path, purpose):
+    """Return the validated initial-state indices for ``purpose``."""
+    return protocol_entry(path, purpose)["init_state_indices"]
+
+
 def validate_resets(result, seed, indices):
     """Fail closed: result-only logs cannot certify paired evaluation."""
     resets = result["resets"]
@@ -76,6 +105,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--seed", required=True, type=int)
     ap.add_argument("--purpose", required=True, choices=("development", "collection", "heldout", "smoke"))
+    ap.add_argument("--protocol-file", help="Versioned protocol JSON supplying the bank partition; defaults to exp/recovery_protocol.json")
     ap.add_argument("--collection-manifest", help="Required for heldout: prove disjoint reset seeds")
     ap.add_argument("--episodes", type=int, help="Default 2 development/collection, 10 heldout, 1 smoke")
     ap.add_argument("--init-state-indices", help="Explicit bank indices; formal purposes must match fixed partition")
@@ -86,10 +116,25 @@ def main():
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--task-count", type=int, default=10, help="Only reduce for smoke, never a ten-task score")
     args = ap.parse_args()
-    indices = [int(x) for x in args.init_state_indices.split(",")] if args.init_state_indices else INIT_INDICES[args.purpose]
-    if args.purpose != "smoke" and indices != INIT_INDICES[args.purpose]:
+    project = Path(__file__).resolve().parents[1]
+    protocol_path = Path(args.protocol_file).resolve() if args.protocol_file else project / "exp/recovery_protocol.json"
+    if not protocol_path.is_file():
+        ap.error(f"Protocol file does not exist: {protocol_path}")
+    protocol_data = protocol_entry(protocol_path, args.purpose) if args.protocol_file else None
+    protocol_indices = protocol_data["init_state_indices"] if protocol_data else INIT_INDICES[args.purpose]
+    indices = [int(x) for x in args.init_state_indices.split(",")] if args.init_state_indices else protocol_indices
+    if args.protocol_file and indices != protocol_indices:
+        ap.error("Explicit bank indices must exactly match the selected versioned protocol partition")
+    if protocol_data and protocol_data.get("seed") is not None and args.seed != int(protocol_data["seed"]):
+        ap.error(f"Seed {args.seed} does not match the selected protocol partition ({protocol_data['seed']})")
+    if (protocol_data and args.episodes is not None and
+            protocol_data.get("episodes_per_task") is not None and
+            args.episodes != int(protocol_data["episodes_per_task"])):
+        ap.error("episodes does not match the selected versioned protocol partition")
+    if not args.protocol_file and args.purpose != "smoke" and indices != INIT_INDICES[args.purpose]:
         ap.error("Formal evaluation must use the fixed official-bank partition")
-    args.episodes = args.episodes if args.episodes is not None else len(indices)
+    declared_episodes = protocol_data.get("episodes_per_task") if protocol_data else None
+    args.episodes = args.episodes if args.episodes is not None else (declared_episodes or len(indices))
     if args.episodes != len(indices) or len(set(indices)) != len(indices):
         ap.error("episodes must equal the number of unique official bank indices")
     if not 1 <= args.task_count <= 10 or not 1 <= args.episodes < 1000:
@@ -117,7 +162,6 @@ def main():
     with socket.socket() as check:
         check.bind(("127.0.0.1", args.port))  # refuse to attach to another server
     output.mkdir(parents=True)
-    project = Path(__file__).resolve().parents[1]
     gr00t = Path(args.gr00t).resolve()
     python = args.server_python or str(gr00t / ".venv/bin/python")
     rollout_python = args.rollout_python or str(gr00t / "gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python")
@@ -139,9 +183,8 @@ def main():
                      "ffmpeg_executable": ffmpeg, "media_library_dir": media,
                      "video_root": str(output / "videos"),
                      "paired_scope": "environment initial states; policy noise is seeded per task"})
-    protocol = project / "exp/recovery_protocol.json"
-    if protocol.exists():
-        manifest["protocol_sha256"] = hashlib.sha256(protocol.read_bytes()).hexdigest()
+    manifest["protocol_file"] = str(protocol_path)
+    manifest["protocol_sha256"] = hashlib.sha256(protocol_path.read_bytes()).hexdigest()
     (output / "eval_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     results = {}
     started = time.time()
