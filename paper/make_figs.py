@@ -399,9 +399,20 @@ def frontier_rows():
     if data.get('version')!=1 or data.get('status')!='complete' or data.get('environment_pairing_verified') is not True:
         raise ValueError('Frontier requires a completed, paired current comparison')
     points=data['points'];names=[row['name'] for row in points]
-    expected=['bf16','fp8','head_ffn','ptq','qad','continued_qad','qad_opd']
-    if names!=expected or set(data['references'])!={'fp8','head_ffn'}:
-        raise ValueError('Frontier requires all seven frozen current candidates')
+    # Older reports froze two references. Versioned studies carry their exact
+    # reference order so changing the study cannot silently relabel a point.
+    references=data.get('reference_order',['fp8','head_ffn'])
+    recipes={'fp8','head_ffn','head_lang','head_lang_vision','calib'}
+    selected=data.get('selected_recipe','head_lang')
+    if (not isinstance(references,list) or not references or
+        any(not isinstance(name,str) or name not in recipes for name in references) or
+        len(references)!=len(set(references)) or not isinstance(selected,str) or
+        selected not in recipes or selected in references):
+        raise ValueError('Frontier has invalid frozen recipe identities')
+    expected=['bf16',*references,'ptq','qad','continued_qad','qad_opd']
+    if names!=expected or set(data['references'])!=set(references):
+        raise ValueError('Frontier requires every frozen reference and recovery arm in order')
+    ptq=next(row for row in points if row['name']=='ptq')
     denominators={};residual=None
     for row in points:
         if row['count']!=100 or type(row['successes']) is not int or not 0<=row['successes']<=100:
@@ -425,7 +436,7 @@ def frontier_rows():
                 if cost['residual_bytes']<=0:raise ValueError('Recovered point omits residual bytes')
                 if residual is None:residual=cost['residual_bytes']
                 if cost['residual_bytes']!=residual:raise ValueError('Recovered residual costs differ')
-                if cost['base_bytes']!=points[3]['encoding_budget'][scope]['base_bytes']:
+                if cost['base_bytes']!=ptq['encoding_budget'][scope]['base_bytes']:
                     raise ValueError('Recovered point uses another PTQ base budget')
             elif cost['residual_bytes']!=0:raise ValueError('Pure PTQ/BF16 point includes a residual')
     return data,points
@@ -530,9 +541,10 @@ def frontier_label_layout(markers, bounds):
 
 
 def ptq_frontier():
-    _,points=frontier_rows()
-    s=SVG(1120,990,'纯 PTQ 与恢复策略：净编码预算—闭环成功率',
-          '七个冻结候选均为同协议 100 回合；描述本次观测，不代表全局 PTQ 最优或统计非劣性。')
+    data,points=frontier_rows()
+    footer=716+34*len(points)
+    s=SVG(1120,footer+36,'纯 PTQ 与恢复策略：净编码预算—闭环成功率',
+          f'{len(points)} 个冻结候选均为同协议 100 回合；描述本次观测，不代表全局 PTQ 最优或统计非劣性。')
     scope='known_alias_deduplicated';left,right,top,bottom=100,1040,124,505
     maximum=max(row['encoding_budget'][scope]['total_bytes']/1e9 for row in points)*1.06
     def x(value):return left+(right-left)*value/maximum
@@ -544,8 +556,9 @@ def ptq_frontier():
     s.line(left,top,left,bottom,INK);s.line(left,bottom,right,bottom,INK)
     s.text(left,103,'十任务宏平均成功率',15,BLUE,600)
     s.text(570,558,'已知共享副本去重后的净编码预算 / GB（1 GB = 10 亿字节）',15,anchor='middle')
-    labels={'bf16':'BF16','fp8':'fp8 纯 PTQ','head_ffn':'head_ffn 纯 PTQ','ptq':'head_lang 纯 PTQ',
+    labels={'bf16':'BF16','ptq':data.get('selected_recipe','head_lang')+' 纯 PTQ',
             'qad':'QAD','continued_qad':'继续 QAD','qad_opd':'QAD + OPD'}
+    labels.update({name:name+' 纯 PTQ' for name in data['references']})
     groups={}
     for i,row in enumerate(points):
         key=(row['encoding_budget'][scope]['total_bytes'],row['successes'])
@@ -582,7 +595,7 @@ def ptq_frontier():
         values=[chr(65+i),labels[row['name']],f'{row["successes"]}/{row["count"]}',f'{100*row["macro_success_rate"]:.1f}%',
                 f'{known["total_bytes"]/1e9:.6f}',f'{cost["physical"]["total_bytes"]/1e9:.6f}',f'{known["compression_x"]:.4f}×']
         for at,value in zip(columns,values):s.text(at,yy,value,14,anchor='start' if at<300 else 'end')
-    s.text(30,953,'预算含格式尺度、未量化张量及恢复残差；不等于 BF16 合并文件大小、实测显存或完整原生部署。',14,AMBER)
+    s.text(30,footer,'预算含格式尺度、未量化张量及恢复残差；不等于 BF16 合并文件大小、实测显存或完整原生部署。',14,AMBER)
     s.save('ptq_frontier')
 
 
