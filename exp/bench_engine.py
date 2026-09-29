@@ -157,6 +157,15 @@ def check_inference(result, expected_shape=None):
     return list(action.shape)
 
 
+def execution_mode(policy):
+    """Read the native prepared-plan mode; never infer it from latency."""
+    runner = getattr(policy, "model_runner", None)
+    value = getattr(runner, "execution_mode", None)
+    if value not in (None, "unprepared", "graph", "eager"):
+        raise ValueError(f"Unknown native execution mode: {value!r}")
+    return value
+
+
 def packed_identity(model_dir, checkpoint):
     folder = model_dir / "fp4"
     producer_file = folder / "producer_manifest.json"
@@ -291,6 +300,8 @@ def benchmark(policy, args, sampler_factory=PowerSampler):
     first_tokens = len(first["token_ids"]) if "token_ids" in first else None
     for _ in range(args.warmup):
         check_inference(policy.infer(make_obs()), shape)
+    mode_after_warmup = execution_mode(policy)
+    sample_modes = []
     lat_model, lat_total, lat_wrapper, token_counts = [], [], [], []
     with sampler_factory(args.telemetry_device) as telemetry:
         for _ in range(args.samples):
@@ -299,6 +310,7 @@ def benchmark(policy, args, sampler_factory=PowerSampler):
             result = policy.infer(observation)
             elapsed = (time.perf_counter() - started) * 1e3
             check_inference(result, shape)  # finite validation is outside the timers
+            sample_modes.append(execution_mode(policy))
             lat_model.append(float(result["timing"]["model_ms"]))
             lat_total.append(float(result["timing"]["total_ms"]))
             lat_wrapper.append(elapsed)
@@ -312,6 +324,9 @@ def benchmark(policy, args, sampler_factory=PowerSampler):
               "first_actions": first_actions.tolist(),
               "first_actions_scope": "Untimed synthetic observation for numerical inspection only; not a task-success measurement.",
               "sample_token_counts": token_counts, "quantile_method": "numpy.percentile linear",
+              "execution_mode": {"after_warmup": mode_after_warmup,
+                  "after_each_timed_sample": sample_modes,
+                  "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."},
               "power_w_mean": float(np.mean(power)) if power else None,
               "power_w_max": max(power) if power else None, "vram_mb_peak": max(memory) if memory else None,
               "telemetry": {"nvidia_smi_device": args.telemetry_device, "samples": telemetry.samples,
@@ -401,7 +416,7 @@ def main():
     # Only publish after successful inference AND cleanup. Exclusive creation
     # prevents a second invocation from replacing a completed result.
     publish_new(args.out, result)
-    print(json.dumps({k: result[k] for k in ("model_type", "variant", "variant_verification", "n", "model_ms_p50", "total_ms_p50", "all_outputs_finite")}, indent=2))
+    print(json.dumps({k: result[k] for k in ("model_type", "variant", "variant_verification", "execution_mode", "n", "model_ms_p50", "total_ms_p50", "all_outputs_finite")}, indent=2))
     print(f"Saved {args.out}")
 
 

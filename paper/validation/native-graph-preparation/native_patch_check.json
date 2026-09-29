@@ -1,0 +1,8 @@
+{
+  "patch": "/home/zhaosiying/codebase/fp4vla/patches/apxinf-fp4vla-engine.patch",
+  "sha256": "b571e4b4820ccd43dc3a6ffb2dc05a686602ad6b01084ed4a3b919ce25b3e607",
+  "bytes": 92068,
+  "applies_to_clean_HEAD": true,
+  "reverses_current_tree": true,
+  "base": "e07dbe98da914bc0a3df8c4bb4b7251c2a726f69"
+}

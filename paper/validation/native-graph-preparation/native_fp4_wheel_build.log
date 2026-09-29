@@ -1,0 +1,150 @@
+⚠️  Warning: You're building a library without activating pyo3's `extension-module` feature. See https://pyo3.rs/v0.22.6/building-and-distribution.html#the-extension-module-feature
+🐍 Found CPython 3.12 at /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/bin/python
+🔗 Found pyo3 bindings
+warning: field `max_seq_len` is never read
+  --> crates/apxinf-core/src/kv_cache.rs:37:5
+   |
+33 | pub struct CpuKVCache {
+   |            ---------- field in this struct
+...
+37 |     max_seq_len: usize,
+   |     ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `apxinf-core` (lib) generated 1 warning
+warning: apxinf-cuda@0.1.0: ApxInf CUDA architecture: sm_120 (explicit), CUTLASS: sm_120a
+warning: unreachable expression
+    --> crates/apxinf-cuda/src/kernels/attention.rs:2126:5
+     |
+2121 | /         return fa2_attention(
+2122 | |             ctx, q, k, v, 1, q_shape[0], key_tokens, q_shape[1], 1, q_shape[2],
+2123 | |         );
+     | |_________- any code following this expression is unreachable
+...
+2126 | /     {
+2127 | |         return cublas_mqa_bf16(ctx, q, k, v, key_tokens);
+2128 | |     }
+     | |_____^ unreachable expression
+     |
+     = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `cudaHostAllocDefault` should have an upper case name
+  --> crates/apxinf-cuda/src/ffi/cuda.rs:40:11
+   |
+40 | pub const cudaHostAllocDefault: u32 = 0;
+   |           ^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `CUDA_HOST_ALLOC_DEFAULT`
+   |
+   = note: `#[warn(non_upper_case_globals)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: constant `cudaHostAllocPortable` should have an upper case name
+  --> crates/apxinf-cuda/src/ffi/cuda.rs:41:11
+   |
+41 | pub const cudaHostAllocPortable: u32 = 1;
+   |           ^^^^^^^^^^^^^^^^^^^^^
+   |
+help: convert the identifier to upper case
+   |
+41 - pub const cudaHostAllocPortable: u32 = 1;
+41 + pub const CUDA_HOST_ALLOC_PORTABLE: u32 = 1;
+   |
+
+warning: constant `cudaHostAllocMapped` should have an upper case name
+  --> crates/apxinf-cuda/src/ffi/cuda.rs:42:11
+   |
+42 | pub const cudaHostAllocMapped: u32 = 2;
+   |           ^^^^^^^^^^^^^^^^^^^
+   |
+help: convert the identifier to upper case
+   |
+42 - pub const cudaHostAllocMapped: u32 = 2;
+42 + pub const CUDA_HOST_ALLOC_MAPPED: u32 = 2;
+   |
+
+warning: constant `cudaHostAllocWriteCombined` should have an upper case name
+  --> crates/apxinf-cuda/src/ffi/cuda.rs:43:11
+   |
+43 | pub const cudaHostAllocWriteCombined: u32 = 4;
+   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper case: `CUDA_HOST_ALLOC_WRITE_COMBINED`
+
+warning: `apxinf-cuda` (lib) generated 5 warnings (run `cargo fix --lib -p apxinf-cuda` to apply 4 suggestions)
+warning: unused import: `std::collections::HashMap`
+  --> crates/apxinf-model/src/pi05/model/blocks/fp4.rs:12:5
+   |
+12 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Shape`
+  --> crates/apxinf-model/src/pi05/model/blocks/fp4.rs:15:41
+   |
+15 | use apxinf_core::{DType, Error, Result, Shape, Tensor};
+   |                                         ^^^^^
+
+warning: unused import: `language_layer_bf16`
+  --> crates/apxinf-model/src/pi05/model/blocks/fp4.rs:19:5
+   |
+19 |     language_layer_bf16, vision_layer_bf16, vision_patch_embed_bf16,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `apxinf_cuda::buffer::CudaBuffer`
+  --> crates/apxinf-model/src/pi05/model/blocks/fp4.rs:24:5
+   |
+24 | use apxinf_cuda::buffer::CudaBuffer;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> crates/apxinf-model/src/pi05/fp4_weights.rs:114:17
+    |
+114 |             let mut packed = CudaBuffer::alloc(packed_bytes.len(), device)
+    |                 ----^^^^^^
+    |                 |
+    |                 help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> crates/apxinf-model/src/pi05/fp4_weights.rs:117:17
+    |
+117 |             let mut scale = CudaBuffer::alloc(scale_bytes.len(), device)
+    |                 ----^^^^^
+    |                 |
+    |                 help: remove this `mut`
+
+warning: associated function `from_map` is never used
+  --> crates/apxinf-model/src/gr00t/backbone/vision_weights.rs:59:12
+   |
+58 | impl Qwen3VLVisionWeights {
+   | ------------------------- associated function in this implementation
+59 |     pub fn from_map(cfg: &Qwen3VLConfig, mut tensors: HashMap<String, Tensor>) -> Result<Self> {
+   |            ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `rel_frob` is never read
+  --> crates/apxinf-model/src/pi05/fp4_weights.rs:25:9
+   |
+19 | pub struct Fp4TensorMeta {
+   |            ------------- field in this struct
+...
+25 |     pub rel_frob: Option<f64>,
+   |         ^^^^^^^^
+   |
+   = note: `Fp4TensorMeta` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `summary` is never read
+  --> crates/apxinf-model/src/pi05/fp4_weights.rs:31:9
+   |
+29 | pub struct Fp4Manifest {
+   |            ----------- field in this struct
+30 |     #[serde(default)]
+31 |     pub summary: Option<serde_json::Value>,
+   |         ^^^^^^^
+   |
+   = note: `Fp4Manifest` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: `apxinf-model` (lib) generated 9 warnings (run `cargo fix --lib -p apxinf-model` to apply 6 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.06s
+📖 Found type stub file at apxinf_py.pyi
+📦 Built wheel for CPython 3.12 to /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/target/wheel/wheels/apxinf_py-0.1.0-cp312-cp312-linux_x86_64.whl

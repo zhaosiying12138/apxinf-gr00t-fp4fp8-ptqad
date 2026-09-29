@@ -1,9 +1,9 @@
 diff --git a/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
 new file mode 100644
-index 0000000..f4f634a
+index 0000000..729ffd8
 --- /dev/null
 +++ b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
-@@ -0,0 +1,252 @@
+@@ -0,0 +1,207 @@
 +// cublaslt_fp4_adapter.cu — NVFP4 block-scaled GEMM adapter (FP4-VLA).
 +//
 +// Layout/semantics verified bit-exact against CPU reference on sm_120
@@ -22,82 +22,14 @@ index 0000000..f4f634a
 +#include <cuda_fp8.h>
 +#include <cuda_fp4.h>
 +#include <cublasLt.h>
-+#include <mutex>
-+
-+static cublasLtHandle_t fp4_lt_handle() {
-+    static cublasLtHandle_t handle = nullptr;
-+    static std::once_flag once;
-+    std::call_once(once, [] { cublasLtCreate(&handle); });
-+    return handle;
-+}
++#include "fp4_plan_cache.cuh"
 +
 +static cublasStatus_t fp4_gemm_colmajor_f16(
-+    int m, int n, int k,
-+    const void* a_packed,        // M*K/2 bytes, E2M1 pairs
-+    const void* b_packed,        // N*K/2 bytes
-+    const void* a_scale_swz,     // physical swizzle buffer (A rows)
-+    const void* b_scale_swz,     // physical swizzle buffer (B rows)
-+    __half* c,                   // MxN col-major, may alias across calls
-+    float tensor_scale_product, // product of A and B secondary FP32 scales
-+    void* workspace, size_t workspace_bytes,
-+    cudaStream_t stream)
-+{
-+    cublasLtMatmulDesc_t op = nullptr;
-+    cublasLtMatrixLayout_t la = nullptr, lb = nullptr, lc = nullptr;
-+    cublasLtMatmulPreference_t pref = nullptr;
-+    cublasLtMatmulHeuristicResult_t heur{};
-+    int nres = 0;
-+    cublasStatus_t st;
-+
-+    auto cleanup = [&]() {
-+        if (pref) cublasLtMatmulPreferenceDestroy(pref);
-+        if (lc) cublasLtMatrixLayoutDestroy(lc);
-+        if (lb) cublasLtMatrixLayoutDestroy(lb);
-+        if (la) cublasLtMatrixLayoutDestroy(la);
-+        if (op) cublasLtMatmulDescDestroy(op);
-+    };
-+
-+    st = cublasLtMatmulDescCreate(&op, CUBLAS_COMPUTE_32F, CUDA_R_32F);
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    cublasOperation_t t = CUBLAS_OP_T, nn = CUBLAS_OP_N;
-+    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_TRANSA, &t, sizeof(t));
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_TRANSB, &nn, sizeof(nn));
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+
-+    cublasLtMatmulMatrixScale_t mode = CUBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3;
-+    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_A_SCALE_MODE, &mode, sizeof(mode));
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_B_SCALE_MODE, &mode, sizeof(mode));
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_A_SCALE_POINTER, &a_scale_swz, sizeof(a_scale_swz));
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_B_SCALE_POINTER, &b_scale_swz, sizeof(b_scale_swz));
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+
-+    // col-major-only API (CUDA 13): A=KxM ld=K opT -> MxK; B=KxN ld=K; C=MxN
-+    st = cublasLtMatrixLayoutCreate(&la, CUDA_R_4F_E2M1, k, m, k);
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    st = cublasLtMatrixLayoutCreate(&lb, CUDA_R_4F_E2M1, k, n, k);
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    st = cublasLtMatrixLayoutCreate(&lc, CUDA_R_16F, m, n, m);
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+
-+    st = cublasLtMatmulPreferenceCreate(&pref);
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+    st = cublasLtMatmulPreferenceSetAttribute(pref, CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
-+                                              &workspace_bytes, sizeof(workspace_bytes));
-+    if (st != CUBLAS_STATUS_SUCCESS) { cleanup(); return st; }
-+
-+    cublasLtHandle_t lt = fp4_lt_handle();
-+    st = cublasLtMatmulAlgoGetHeuristic(lt, op, la, lb, lc, lc, pref, 1, &heur, &nres);
-+    if (st != CUBLAS_STATUS_SUCCESS || nres == 0) { cleanup(); return CUBLAS_STATUS_NOT_SUPPORTED; }
-+
-+    const float zero = 0.0f;
-+    st = cublasLtMatmul(lt, op, &tensor_scale_product, a_packed, la, b_packed, lb, &zero,
-+                        c, lc, c, lc, &heur.algo, workspace, workspace_bytes, stream);
-+    cleanup();
-+    return st;
++    int m, int n, int k, const void* a, const void* b,
++    const void* as, const void* bs, __half* c, float alpha,
++    void* workspace, size_t bytes, cudaStream_t stream) {
++    return fp4_resources::execute(m, n, k, a, b, as, bs, alpha, c,
++                                  workspace, bytes, stream, true);
 +}
 +
 +// Legacy raw adapter ABI: callers explicitly consume column-major output and
@@ -124,6 +56,23 @@ index 0000000..f4f634a
 +        return CUBLAS_STATUS_INVALID_VALUE;
 +    return fp4_gemm_colmajor_f16(n, m, k, b, a, bs, as, c, tensor_scale_product,
 +                                  workspace, workspace_bytes, stream);
++}
++
++// Explicit prepare/execute split for the native GraphWorkspace path.
++extern "C" cublasStatus_t apxinf_fp4_prepare_rowmajor_f16(
++    int m, int n, int k, const void* as, const void* bs,
++    size_t workspace_bytes, cudaStream_t stream) {
++    fp4_resources::Plan* plan = nullptr;
++    return fp4_resources::get(n, m, k, workspace_bytes, stream, bs, as, true, &plan);
++}
++
++extern "C" cublasStatus_t apxinf_fp4_gemm_rowmajor_prepared_f16(
++    int m, int n, int k, const void* a, const void* b,
++    const void* as, const void* bs, float alpha, __half* c,
++    void* workspace, size_t workspace_bytes, cudaStream_t stream) {
++    if (!isfinite(alpha) || alpha <= 0.f) return CUBLAS_STATUS_INVALID_VALUE;
++    return fp4_resources::execute(n, m, k, b, a, bs, as, alpha, c,
++                                  workspace, workspace_bytes, stream, false);
 +}
 +
 +// Swizzled-scale buffer size helper (matches fp4vla fp4_quant.swizzle_scales).
@@ -223,9 +172,15 @@ index 0000000..f4f634a
 +    const void* x, void* packed, void* scale_swz,
 +    int rows, int k, cudaStream_t stream)
 +{
-+    if (k % 16 != 0) return cudaErrorInvalidValue;
++    if (rows <= 0 || k <= 0 || k % 16 != 0) return cudaErrorInvalidValue;
 +    int kb = k / 16;
 +    int total = rows * kb;
++    // The physical scale tile contains padded rows/K blocks. A graph arena is
++    // reused storage, so every invocation must define those bytes as zero.
++    // This stream-ordered clear is captured/replayed with the quantizer.
++    size_t scale_bytes = 512ull * ((kb + 3ull) / 4) * ((rows + 127ull) / 128);
++    cudaError_t cleared = cudaMemsetAsync(scale_swz, 0, scale_bytes, stream);
++    if (cleared != cudaSuccess) return cleared;
 +    nvfp4_quantize_activation_kernel<<<(total + 255) / 256, 256, 0, stream>>>(
 +        (const __half*)x, (uint8_t*)packed, (uint8_t*)scale_swz, rows, kb);
 +    return cudaGetLastError();
@@ -274,7 +229,7 @@ index a730bf0..a115d04 100644
 +++ b/crates/apxinf-cuda/src/buffer.rs
 @@ -376,6 +376,11 @@ impl CudaBuffer {
      }
-
+ 
      /// Raw device pointer for crate-internal launch code.
 +    /// Raw device pointer for FFI interop from other crates.
 +    pub fn as_ptr(&self) -> *mut c_void {
@@ -286,18 +241,66 @@ index a730bf0..a115d04 100644
      }
 @@ -444,7 +449,7 @@ impl CudaBuffer {
      }
-
+ 
      /// Turn an owned CUDA allocation into a Tensor while preserving ownership.
 -    pub(crate) fn into_tensor(self, shape: Shape, dtype: DType) -> Tensor {
 +    pub fn into_tensor(self, shape: Shape, dtype: DType) -> Tensor {
          let device = Device::Cuda(self.device);
          let handle = GpuStorageHandle {
              ptr: self.ptr as usize,
+diff --git a/crates/apxinf-cuda/src/context.rs b/crates/apxinf-cuda/src/context.rs
+index f53fa92..cfb87cc 100644
+--- a/crates/apxinf-cuda/src/context.rs
++++ b/crates/apxinf-cuda/src/context.rs
+@@ -1,6 +1,6 @@
+ //! CUDA device and stream context.
+ 
+-use std::sync::{Arc, RwLock};
++use std::sync::{Arc, Mutex, RwLock};
+ 
+ use crate::cublas::CublasHandle;
+ use crate::device_caps::CudaDeviceCaps;
+@@ -38,6 +38,9 @@ pub struct CudaContext {
+     library_versions: CudaLibraryVersions,
+     tuning: RwLock<Arc<TuningSession>>,
+     gemm_plans: GemmPlanCache,
++    // One stream-ordered scratch buffer, shared by sequential FP4 GEMMs.
++    // The backend retained by a captured graph also retains this context.
++    fp4_workspace: Mutex<Option<crate::buffer::CudaBuffer>>,
+ }
+ 
+ impl CudaContext {
+@@ -61,6 +64,7 @@ impl CudaContext {
+             library_versions,
+             tuning: RwLock::new(Arc::new(TuningSession::inference(TacticStore::default()))),
+             gemm_plans: GemmPlanCache::default(),
++            fp4_workspace: Mutex::new(None),
+         })
+     }
+ 
+@@ -103,6 +107,17 @@ impl CudaContext {
+         &self.gemm_plans
+     }
+ 
++    pub(crate) fn fp4_workspace(&self, may_prepare: bool) -> Result<crate::buffer::CudaBuffer, String> {
++        let mut slot = self.fp4_workspace.lock().map_err(|_| "FP4 workspace lock poisoned")?;
++        if slot.is_none() {
++            if !may_prepare {
++                return Err("FP4 scratch must be prepared before graph capture".into());
++            }
++            *slot = Some(crate::buffer::CudaBuffer::alloc_on(self, 64 << 20)?);
++        }
++        Ok(slot.as_ref().expect("initialized FP4 scratch").clone())
++    }
++
+     pub fn synchronize(&self) -> Result<(), String> {
+         unsafe { ffi::check_cuda(ffi::cudaStreamSynchronize(self.stream.handle())) }
+     }
 diff --git a/crates/apxinf-cuda/src/ffi/cublaslt.rs b/crates/apxinf-cuda/src/ffi/cublaslt.rs
-index b95ae95..df5ae27 100644
+index b95ae95..14ef40f 100644
 --- a/crates/apxinf-cuda/src/ffi/cublaslt.rs
 +++ b/crates/apxinf-cuda/src/ffi/cublaslt.rs
-@@ -289,3 +289,51 @@ extern "C" {
+@@ -289,3 +289,70 @@ extern "C" {
          stream: cudaStream_t,
      ) -> cublasStatus_t;
  }
@@ -331,6 +334,25 @@ index b95ae95..df5ae27 100644
 +        workspace_bytes: usize,
 +        stream: cudaStream_t,
 +    ) -> cublasStatus_t;
++    pub fn apxinf_fp4_prepare_rowmajor_f16(
++        m: i32, n: i32, k: i32,
++        a_scale_swz: *const core::ffi::c_void,
++        b_scale_swz: *const core::ffi::c_void,
++        workspace_bytes: usize,
++        stream: cudaStream_t,
++    ) -> cublasStatus_t;
++    pub fn apxinf_fp4_gemm_rowmajor_prepared_f16(
++        m: i32, n: i32, k: i32,
++        a_packed: *const core::ffi::c_void,
++        b_packed: *const core::ffi::c_void,
++        a_scale_swz: *const core::ffi::c_void,
++        b_scale_swz: *const core::ffi::c_void,
++        tensor_scale_product: f32,
++        c: *mut core::ffi::c_void,
++        workspace: *mut core::ffi::c_void,
++        workspace_bytes: usize,
++        stream: cudaStream_t,
++    ) -> cublasStatus_t;
 +    pub fn apxinf_fp4_scale_buffer_bytes(rows: i32, k: i32) -> usize;
 +    pub fn apxinf_bf16_to_f16(
 +        x: *const core::ffi::c_void, y: *mut core::ffi::c_void, n: usize,
@@ -351,10 +373,10 @@ index b95ae95..df5ae27 100644
 +}
 diff --git a/crates/apxinf-cuda/src/kernels/fp4.rs b/crates/apxinf-cuda/src/kernels/fp4.rs
 new file mode 100644
-index 0000000..49963ec
+index 0000000..d6b65d9
 --- /dev/null
 +++ b/crates/apxinf-cuda/src/kernels/fp4.rs
-@@ -0,0 +1,114 @@
+@@ -0,0 +1,179 @@
 +//! NVFP4 linear operator: online-quantize an F16 activation to E2M1+swizzled
 +//! E4M3 scales, then run the block-scaled GEMM against an fp4 weight
 +//! (packed + physical-swizzle scales, from fp4vla offline artifacts).
@@ -377,7 +399,54 @@ index 0000000..49963ec
 +                       n: usize, stream: cudaStream_t) -> i32 {
 +    unsafe { ffi::apxinf_f16_to_bf16(x, y, n, stream) }
 +}
-+use apxinf_core::{DType, Error, Result, Shape, Tensor};
++use apxinf_core::{DType, Device, Error, Result, Shape, Tensor};
++
++/// Conservative arena reservation for one BF16 -> FP4 -> BF16 projection.
++/// Each of the five intermediates is independently aligned; the 64 MiB GEMM
++/// scratch is context-owned and deliberately not repeated in this sum.
++pub fn fp4_graph_buffer_bytes(m: usize, n: usize, k: usize) -> Result<usize> {
++    let overflow = || Error::Other("FP4 graph buffer size overflow".into());
++    if m == 0 || n == 0 || k == 0 || k % 16 != 0 {
++        return Err(Error::Other("FP4 graph buffer shape must be positive and K divisible by 16".into()));
++    }
++    let mk = m.checked_mul(k).ok_or_else(overflow)?;
++    let mn = m.checked_mul(n).ok_or_else(overflow)?;
++    let scale = (k / 16).checked_add(3).ok_or_else(overflow)? / 4;
++    let panels = m.checked_add(127).ok_or_else(overflow)? / 128;
++    let scale = scale.checked_mul(panels).and_then(|x| x.checked_mul(512)).ok_or_else(overflow)?;
++    let sizes = [mk.checked_mul(2).ok_or_else(overflow)?, mk / 2, scale,
++                 mn.checked_mul(2).ok_or_else(overflow)?, mn.checked_mul(2).ok_or_else(overflow)?];
++    sizes.into_iter().try_fold(0usize, |sum, size| {
++        let aligned = size.checked_add(255).ok_or_else(overflow)? & !255;
++        sum.checked_add(aligned).ok_or_else(overflow)
++    })
++}
++
++fn cast_16(ctx: &CudaContext, x: &Tensor, input: DType, output: DType) -> Result<Tensor> {
++    if x.dtype() != input || x.device() != Device::Cuda(ctx.device_id()) {
++        return Err(Error::Other("FP4 cast requires the declared dtype on the context device".into()));
++    }
++    let n = x.shape().dims().iter().try_fold(1usize, |v, d| v.checked_mul(*d))
++        .ok_or_else(|| Error::Other("FP4 cast element count overflow".into()))?;
++    let bytes = n.checked_mul(2).ok_or_else(|| Error::Other("FP4 cast byte count overflow".into()))?;
++    let out = crate::workspace::output_buffer(ctx, bytes)?;
++    let src = CudaBuffer::from_tensor(x).map_err(Error::Cuda)?;
++    let error = if input == DType::BF16 {
++        bf16_to_f16_ffi(src.ptr(), out.ptr(), n, ctx.stream().handle())
++    } else {
++        f16_to_bf16_ffi(src.ptr(), out.ptr(), n, ctx.stream().handle())
++    };
++    ffi::check_cuda(error).map_err(Error::Cuda)?;
++    Ok(out.into_tensor(Shape::new(x.shape().dims().to_vec()), output))
++}
++
++/// Same arithmetic as the hybrid model path, with all intermediates owned by
++/// the active graph arena during preparation/capture.
++pub fn fp4_linear_bf16(ctx: &CudaContext, x: &Tensor, w: &Fp4WeightView<'_>) -> Result<Tensor> {
++    let input = cast_16(ctx, x, DType::BF16, DType::F16)?;
++    let output = fp4_linear(ctx, &input, w)?;
++    cast_16(ctx, &output, DType::F16, DType::BF16)
++}
 +
 +/// A single NVFP4 weight matrix resident on device (borrowed views into the
 +/// artifact loader's buffers).
@@ -417,10 +486,10 @@ index 0000000..49963ec
 +    if w.packed.len() != w.rows * k / 2 || w.scale.len() != expected_scale_bytes {
 +        return Err(Error::Other("fp4_linear weight buffer size mismatch".into()));
 +    }
-+    let packed_bytes = CudaBuffer::alloc_on(ctx, m * k / 2).map_err(Error::Cuda)?;
++    let packed_bytes = crate::workspace::output_buffer(ctx, m * k / 2)?;
 +    let kb = k / 16;
 +    let scale_bytes = 512 * ((kb + 3) / 4) * ((m + 127) / 128);
-+    let scale_buf = CudaBuffer::alloc_on(ctx, scale_bytes).map_err(Error::Cuda)?;
++    let scale_buf = crate::workspace::output_buffer(ctx, scale_bytes)?;
 +
 +    let x_buf = CudaBuffer::from_tensor(x).map_err(Error::Cuda)?;
 +    unsafe {
@@ -439,10 +508,17 @@ index 0000000..49963ec
 +        }
 +    }
 +
-+    let out = CudaBuffer::alloc_on(ctx, m * w.rows * 2).map_err(Error::Cuda)?;
-+    let ws = CudaBuffer::alloc_on(ctx, 64 << 20).map_err(Error::Cuda)?;
++    let out = crate::workspace::output_buffer(ctx, m * w.rows * 2)?;
++    let may_prepare = crate::workspace::may_prepare_native_resources();
++    let ws = ctx.fp4_workspace(may_prepare).map_err(Error::Cuda)?;
 +    unsafe {
-+        let st = ffi::apxinf_fp4_gemm_rowmajor_scaled_f16(
++        if may_prepare {
++            ffi::check_cublas(ffi::apxinf_fp4_prepare_rowmajor_f16(
++                m as i32, w.rows as i32, k as i32,
++                scale_buf.ptr(), w.scale.ptr(), ws.len(), ctx.stream().handle(),
++            )).map_err(Error::Cuda)?;
++        }
++        let st = ffi::apxinf_fp4_gemm_rowmajor_prepared_f16(
 +            m as i32,
 +            w.rows as i32,
 +            k as i32,
@@ -466,6 +542,17 @@ index 0000000..49963ec
 +}
 +
 +#[cfg(test)]
++mod cpu_tests {
++    #[test]
++    fn fp4_graph_budget_cpu() {
++        assert_eq!(super::fp4_graph_buffer_bytes(2, 128, 16).unwrap(), 2048);
++        assert!(super::fp4_graph_buffer_bytes(0, 128, 16).is_err());
++        assert!(super::fp4_graph_buffer_bytes(2, 128, 17).is_err());
++        assert!(super::fp4_graph_buffer_bytes(usize::MAX, 128, 16).is_err());
++    }
++}
++
++#[cfg(test)]
 +mod fp4_contract_tests {
 +    include!("fp4_contract_tests.rs");
 +}
@@ -474,7 +561,7 @@ index 0849388..4f07924 100644
 --- a/crates/apxinf-cuda/src/kernels/gemm/fp8.rs
 +++ b/crates/apxinf-cuda/src/kernels/gemm/fp8.rs
 @@ -457,7 +457,14 @@ pub fn gemm_fp8(
-
+ 
  fn geglu_tuning_key(ctx: &CudaContext, m: usize, full_n: usize, k: usize) -> GemmTuningKey {
      let mut key = tuning_key(ctx, m, full_n, k);
 -    key.output_dtype = TuningDType::F8E4M3;
@@ -501,6 +588,21 @@ index 603455e..4f6ee2e 100644
  pub mod embedding;
  pub mod fused;
  pub mod gdn_policy;
+diff --git a/crates/apxinf-model/Cargo.toml b/crates/apxinf-model/Cargo.toml
+index 895092a..8e971e2 100644
+--- a/crates/apxinf-model/Cargo.toml
++++ b/crates/apxinf-model/Cargo.toml
+@@ -34,6 +34,10 @@ required-features = ["cuda"]
+ name = "pi05_auto_smoke"
+ required-features = ["cuda"]
+ 
++[[example]]
++name = "pi05_fp4_graph_smoke"
++required-features = ["cuda"]
++
+ [[example]]
+ name = "pi0_fast_smoke"
+ required-features = ["cuda"]
 diff --git a/crates/apxinf-model/src/auto.rs b/crates/apxinf-model/src/auto.rs
 index d453a05..5f56a42 100644
 --- a/crates/apxinf-model/src/auto.rs
@@ -762,7 +864,7 @@ index 2535650..3539f85 100644
 +++ b/crates/apxinf-model/src/pi05/load.rs
 @@ -63,6 +63,31 @@ pub(super) fn load_model_runner(
      eprintln!("[apxinf] PI0.5 model_variant={}", model_variant.as_str());
-
+ 
      let model = match model_variant {
 +        ModelVariantChoice::Nvfp4Static => {
 +            // NVFP4 hybrid: BF16 base weights + packed fp4 artifact
@@ -804,7 +906,7 @@ index efa9a5f..aced0e0 100644
 +#[cfg(feature = "cuda")]
  mod model_runner;
  mod weights;
-
+ 
 @@ -51,6 +53,7 @@ pub use backend::ImageLayout as Pi05ImageLayout;
  #[cfg(feature = "cuda")]
  pub use model::{
@@ -820,7 +922,7 @@ index 5ed7d05..30fa3f2 100644
 @@ -212,7 +212,7 @@ pub fn vision_layer_bf16(
      fused::bias_residual_bf16(ctx, &projection, weights.fc2.bias.as_ref(), &fused.hidden)
  }
-
+ 
 -trait QkvViews {
 +pub(in crate::pi05::model::blocks) trait QkvViews {
      fn key_2d(&self, tokens: usize, head_dim: usize) -> Result<Tensor>;
@@ -828,7 +930,7 @@ index 5ed7d05..30fa3f2 100644
  }
 @@ -243,9 +243,9 @@ pub(in crate::pi05::model) mod backbone {
      }
-
+ 
      pub struct Bf16StepModulation {
 -        attention: Vec<Tensor>,
 -        mlp: Vec<Tensor>,
@@ -842,18 +944,18 @@ index 5ed7d05..30fa3f2 100644
 @@ -274,7 +274,7 @@ pub(in crate::pi05::model) mod backbone {
              })
          }
-
+ 
 -        fn ctx(&self) -> &Context {
 +        pub(in crate::pi05::model) fn ctx(&self) -> &Context {
              self.backend.context()
          }
-
+ 
 diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
 new file mode 100644
-index 0000000..a88835a
+index 0000000..3132844
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
-@@ -0,0 +1,461 @@
+@@ -0,0 +1,448 @@
 +//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
 +//!
 +//! Design: keep the BF16 executor's weight layout and free-function topology;
@@ -888,25 +990,6 @@ index 0000000..a88835a
 +    }
 +}
 +
-+fn bf16_to_f16(ctx: &Context, x: &Tensor) -> Result<Tensor> {
-+    let dims = x.shape().dims();
-+    let n: usize = dims.iter().product();
-+    let dst = CudaBuffer::alloc_on(ctx, n * 2).map_err(Error::Cuda)?;
-+    let src = CudaBuffer::from_tensor(x).map_err(Error::Cuda)?;
-+    unsafe {
-+        let e = apxinf_cuda::kernels::fp4::bf16_to_f16_ffi(
-+            src.as_ptr() as *const _,
-+            dst.as_ptr() as *mut _,
-+            n,
-+            ctx.stream().handle() as *mut _,
-+        );
-+        if e != 0 {
-+            return Err(Error::Other(format!("bf16->f16 cast cudaError {e}")));
-+        }
-+    }
-+    Ok(dst.into_tensor(Shape::new(dims.to_vec()), DType::F16))
-+}
-+
 +/// The routing heart of the hybrid topology: fp4 GEMM when the weight has an
 +/// artifact tensor, BF16 GEMM otherwise.
 +pub fn gemm_maybe_fp4(
@@ -926,7 +1009,6 @@ index 0000000..a88835a
 +            x_bf16.shape().dims(), weight_bf16.shape().dims(), w4.rows, w4.k
 +        );
 +    }
-+    let x_f16 = bf16_to_f16(ctx, x_bf16)?;
 +    let view = apxinf_cuda::kernels::fp4::Fp4WeightView {
 +        packed: &w4.packed,
 +        scale: &w4.scale,
@@ -934,24 +1016,7 @@ index 0000000..a88835a
 +        rows: w4.rows,
 +        k: w4.k,
 +    };
-+    let out_f16 = apxinf_cuda::kernels::fp4::fp4_linear(ctx, &x_f16, &view)?;
-+    // back to BF16 for the rest of the BF16 topology
-+    let n: usize = out_f16.shape().dims().iter().product();
-+    let dst = CudaBuffer::alloc_on(ctx, n * 2).map_err(Error::Cuda)?;
-+    let src = CudaBuffer::from_tensor(&out_f16).map_err(Error::Cuda)?;
-+    unsafe {
-+        // f16->bf16: reuse the byte-symmetric path via a second kernel entry
-+        let e = apxinf_cuda::kernels::fp4::f16_to_bf16_ffi(
-+            src.as_ptr() as *const _,
-+            dst.as_ptr() as *mut _,
-+            n,
-+            ctx.stream().handle() as *mut _,
-+        );
-+        if e != 0 {
-+            return Err(Error::Other(format!("f16->bf16 cast cudaError {e}")));
-+        }
-+    }
-+    Ok(dst.into_tensor(Shape::new(out_f16.shape().dims().to_vec()), DType::BF16))
++    apxinf_cuda::kernels::fp4::fp4_linear_bf16(ctx, x_bf16, &view)
 +}
 +
 +/// Hybrid blocks: BF16 weights + optional fp4 tensors keyed by checkpoint name.
@@ -1308,7 +1373,31 @@ index 0000000..a88835a
 +impl PrepareBlocks for Fp4Blocks {
 +    fn backend(&self) -> &Arc<RuntimeBackend> { self.inner.backend() }
 +    fn workspace_requirements(&self, tokens: usize) -> Result<WorkspaceRequirements> {
-+        self.inner.workspace_requirements(tokens)
++        let mut requirements = self.inner.workspace_requirements(tokens)?;
++        let config = &self.inner.config;
++        let prefix_rows = config.num_views.checked_mul(config.patches_per_view())
++            .and_then(|n| n.checked_add(tokens))
++            .ok_or_else(|| Error::Other("FP4 prefix workspace shape overflow".into()))?;
++        // Count each artifact site conservatively. Last-prefix tail and
++        // interleaved gate-up exemptions may skip sites; over-reservation is
++        // safe, under-reservation would invalidate capture. The inner BF16
++        // requirement already covers all non-FP4 operators.
++        for (name, weight) in &self.fp4.0.tensors {
++            let (rows, repeats) = if name.starts_with(&format!("{LANG_TREE}.")) {
++                (prefix_rows, 1)
++            } else if name.starts_with(&format!("{ACT_TREE}.")) ||
++                name == "action_in_proj.weight" || name == "action_out_proj.weight" {
++                (config.action_horizon, config.num_flow_steps)
++            } else {
++                // Blocks::vision currently delegates to the BF16 topology.
++                continue;
++            };
++            let bytes = apxinf_cuda::kernels::fp4::fp4_graph_buffer_bytes(rows, weight.rows, weight.k)?;
++            requirements.bytes = bytes.checked_mul(repeats)
++                .and_then(|extra| requirements.bytes.checked_add(extra))
++                .ok_or_else(|| Error::Other("FP4 graph workspace capacity overflow".into()))?;
++        }
++        Ok(requirements)
 +    }
 +    fn raw_patch_dtype(&self) -> DType { self.inner.raw_patch_dtype() }
 +    fn preprocess(&self, images: &DeviceBuffer, patches: &Tensor, layout: Pi05ImageLayout) -> Result<()> {
@@ -1321,12 +1410,12 @@ index b407d88..dbaaeaf 100644
 +++ b/crates/apxinf-model/src/pi05/model/blocks/mod.rs
 @@ -3,10 +3,12 @@
  //! capture graphs, cache requests, or run the complete model schedule.
-
+ 
  pub(super) mod bf16;
 +pub(super) mod fp4;
  pub(super) mod fp8_static;
  pub(super) mod int8_dynamic;
-
+ 
  pub(super) use bf16::backbone::Bf16Blocks;
 +pub(in crate::pi05::model) use fp4::Fp4Blocks;
  pub use bf16::backbone::Bf16PrefixKvCache;
@@ -1349,7 +1438,7 @@ index ccada7c..8be8805 100644
  pub type Fp8StaticModel = std::sync::Arc<Pi05Model<blocks::Fp8StaticBlocks>>;
  pub type Int8DynamicModel = std::sync::Arc<Pi05Model<blocks::Int8DynamicBlocks>>;
 +pub type Nvfp4StaticModel = std::sync::Arc<Pi05Model<blocks::Fp4Blocks>>;
-
+ 
  impl<B: PrepareBlocks> Pi05Model<B> {
      pub(in crate::pi05) fn preprocess(
 diff --git a/crates/apxinf-model/src/pi05/model/model.rs b/crates/apxinf-model/src/pi05/model/model.rs
@@ -1384,7 +1473,7 @@ index e61bb5e..6f6c257 100644
 +        time_embeddings: Arc<Vec<Tensor>>,
 +    },
  }
-
+ 
  impl ModelVariant {
 @@ -108,19 +124,21 @@ impl ModelVariant {
              Self::Bf16 { .. } => "bf16",
@@ -1393,7 +1482,7 @@ index e61bb5e..6f6c257 100644
 +            Self::Nvfp4Static { .. } => "nvfp4_static",
          }
      }
-
+ 
      pub(in crate::pi05) fn input_dtype(&self) -> DType {
          match self {
              Self::Fp8Static { .. } => DType::F16,
@@ -1401,7 +1490,7 @@ index e61bb5e..6f6c257 100644
 +            Self::Bf16 { .. } | Self::Int8Dynamic { .. } | Self::Nvfp4Static { .. } => DType::BF16,
          }
      }
-
+ 
      pub(in crate::pi05) fn captured_patch_dtype(&self, raw_rgb: bool) -> DType {
          match (self, raw_rgb) {
              (Self::Fp8Static { .. }, true) => DType::F8E4M3,
@@ -1419,7 +1508,7 @@ index e61bb5e..6f6c257 100644
 +            } => model.infer(patches, token_ids, token_count, noise, time_embeddings),
          }
      }
-
+ 
 @@ -171,6 +193,10 @@ impl ModelVariant {
                  model,
                  time_embeddings,
@@ -1439,12 +1528,42 @@ index e61bb5e..6f6c257 100644
          }
      }
      pub(in crate::pi05) fn calibrate(
+diff --git a/crates/apxinf-py/apxinf_py.pyi b/crates/apxinf-py/apxinf_py.pyi
+index 199cc41..bfa118c 100644
+--- a/crates/apxinf-py/apxinf_py.pyi
++++ b/crates/apxinf-py/apxinf_py.pyi
+@@ -136,6 +136,8 @@ class Model:
+     @property
+     def device(self) -> str: ...
+     @property
++    def execution_mode(self) -> str: ...
++    @property
+     def action_dim(self) -> int: ...
+     @property
+     def action_horizon(self) -> int: ...
+diff --git a/crates/apxinf-py/src/lib.rs b/crates/apxinf-py/src/lib.rs
+index 34f5166..eab42df 100644
+--- a/crates/apxinf-py/src/lib.rs
++++ b/crates/apxinf-py/src/lib.rs
+@@ -1233,6 +1233,12 @@ impl ModelRunner {
+         Ok(self.model.vla().map_err(runtime_err)?.model_variant())
+     }
+ 
++    /// State of the existing implicit prepared plan; does not prepare or run.
++    #[getter]
++    fn execution_mode(&self) -> PyResult<&'static str> {
++        Ok(self.model.vla().map_err(runtime_err)?.execution_mode())
++    }
++
+     #[getter]
+     fn action_dim(&self) -> usize {
+         self.action_shape()[1]
 diff --git a/doc/model-layer-architecture.md b/doc/model-layer-architecture.md
 index 1083007..45ba8f9 100644
 --- a/doc/model-layer-architecture.md
 +++ b/doc/model-layer-architecture.md
 @@ -110,7 +110,7 @@ That guard checks PI0.5 only; a new family must enforce its own declared boundar
-
+ 
  | Family / contract | Current organization and limits |
  | --- | --- |
 -| PI0.5 / `VlaRuntime` | `model/`, `model_runner/`, `weights/`; explicit preparation policy/status, stale-plan checks and retained-resource tests; `model_variant` selects `auto`, `bf16`, `fp8_static`, `int8_dynamic` |
@@ -1452,11 +1571,132 @@ index 1083007..45ba8f9 100644
  | Qwen-Drive / `VlaRuntime` | Planning-only `model/`, `model_runner/`, `weights/`; one BF16 Blocks file; direct/reasoning planning; local GDN graphs only, full `prepare` explicitly unsupported. See [family contract](qwen-drive-planning.md). |
  | WallOSS / `VlaRuntime` | Existing `bf16_runtime.rs`, `bf16_executor.rs`, `fp8.rs` and weight files; not migrated to PI0.5's runner/variant or explicit preparation contract |
  | GR00T / `VlaRuntime` | Existing `vla_runtime.rs`, `executor.rs`, precision runtime/executor files and private `backbone/`; not migrated to PI0.5's explicit preparation contract |
+diff --git a/crates/apxinf-cuda/adapters/fp4_plan_cache.cuh b/crates/apxinf-cuda/adapters/fp4_plan_cache.cuh
+new file mode 100644
+index 0000000..abc0cd3
+--- /dev/null
++++ b/crates/apxinf-cuda/adapters/fp4_plan_cache.cuh
+@@ -0,0 +1,114 @@
++// Host-only execution-resource cache for the fixed NVFP4/F16 adapter contract.
++// Every plan is prepared outside capture. Shape, device, stream and scratch
++// capacity constrain reuse; dtype/layout/VEC16 scale mode are fixed below.
++#pragma once
++#include <cuda_runtime.h>
++#include <cublasLt.h>
++#include <cstdint>
++#include <map>
++#include <memory>
++#include <tuple>
++
++namespace fp4_resources {
++struct Plan {
++    cublasLtHandle_t handle = nullptr;
++    cublasLtMatmulDesc_t op = nullptr;
++    cublasLtMatrixLayout_t a = nullptr, b = nullptr, c = nullptr;
++    cublasLtMatmulHeuristicResult_t heuristic{};
++    ~Plan() {
++        if (c) cublasLtMatrixLayoutDestroy(c);
++        if (b) cublasLtMatrixLayoutDestroy(b);
++        if (a) cublasLtMatrixLayoutDestroy(a);
++        if (op) cublasLtMatmulDescDestroy(op);
++        if (handle) cublasLtDestroy(handle);
++    }
++    cublasStatus_t scales(const void* as, const void* bs) {
++        auto st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_A_SCALE_POINTER,
++                                                &as, sizeof(as));
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        return cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_B_SCALE_POINTER,
++                                              &bs, sizeof(bs));
++    }
++    cublasStatus_t prepare(int m, int n, int k, size_t bytes,
++                           const void* as, const void* bs) {
++        auto st = cublasLtCreate(&handle);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = cublasLtMatmulDescCreate(&op, CUBLAS_COMPUTE_32F, CUDA_R_32F);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        cublasOperation_t trans = CUBLAS_OP_T, normal = CUBLAS_OP_N;
++        st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_TRANSA, &trans, sizeof(trans));
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_TRANSB, &normal, sizeof(normal));
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        cublasLtMatmulMatrixScale_t mode = CUBLASLT_MATMUL_MATRIX_SCALE_VEC16_UE4M3;
++        st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_A_SCALE_MODE, &mode, sizeof(mode));
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = cublasLtMatmulDescSetAttribute(op, CUBLASLT_MATMUL_DESC_B_SCALE_MODE, &mode, sizeof(mode));
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = scales(as, bs);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = cublasLtMatrixLayoutCreate(&a, CUDA_R_4F_E2M1, k, m, k);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = cublasLtMatrixLayoutCreate(&b, CUDA_R_4F_E2M1, k, n, k);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = cublasLtMatrixLayoutCreate(&c, CUDA_R_16F, m, n, m);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        cublasLtMatmulPreference_t pref = nullptr;
++        st = cublasLtMatmulPreferenceCreate(&pref);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        st = cublasLtMatmulPreferenceSetAttribute(pref, CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
++                                                 &bytes, sizeof(bytes));
++        int count = 0;
++        if (st == CUBLAS_STATUS_SUCCESS)
++            st = cublasLtMatmulAlgoGetHeuristic(handle, op, a, b, c, c, pref, 1, &heuristic, &count);
++        cublasLtMatmulPreferenceDestroy(pref);
++        if (st != CUBLAS_STATUS_SUCCESS) return st;
++        return count ? CUBLAS_STATUS_SUCCESS : CUBLAS_STATUS_NOT_SUPPORTED;
++    }
++};
++
++using Key = std::tuple<int, std::uintptr_t, int, int, int, size_t>;
++// Match the existing static BF16 adapter's per-host-thread resource ownership.
++// No graph execution invokes this map; replay contains already captured work.
++static thread_local std::map<Key, std::unique_ptr<Plan>> plans;
++
++static cublasStatus_t get(int m, int n, int k, size_t bytes, cudaStream_t stream,
++                          const void* as, const void* bs, bool may_prepare, Plan** output) {
++    if (m <= 0 || n <= 0 || k <= 0 || k % 16 || !as || !bs)
++        return CUBLAS_STATUS_INVALID_VALUE;
++    int device = 0;
++    if (cudaGetDevice(&device) != cudaSuccess) return CUBLAS_STATUS_INTERNAL_ERROR;
++    Key key(device, reinterpret_cast<std::uintptr_t>(stream), m, n, k, bytes);
++    auto found = plans.find(key);
++    if (found != plans.end()) {
++        *output = found->second.get();
++        return CUBLAS_STATUS_SUCCESS;
++    }
++    if (!may_prepare) return CUBLAS_STATUS_NOT_INITIALIZED;
++    // Legacy standalone callers can prepare lazily, but never while recording.
++    cudaStreamCaptureStatus capturing;
++    if (cudaStreamIsCapturing(stream, &capturing) != cudaSuccess)
++        return CUBLAS_STATUS_INTERNAL_ERROR;
++    if (capturing != cudaStreamCaptureStatusNone) return CUBLAS_STATUS_NOT_INITIALIZED;
++    auto plan = std::make_unique<Plan>();
++    auto status = plan->prepare(m, n, k, bytes, as, bs);
++    if (status != CUBLAS_STATUS_SUCCESS) return status;
++    *output = plan.get();
++    plans.emplace(key, std::move(plan));
++    return CUBLAS_STATUS_SUCCESS;
++}
++
++static cublasStatus_t execute(int m, int n, int k, const void* a, const void* b,
++    const void* as, const void* bs, float alpha, __half* output,
++    void* workspace, size_t bytes, cudaStream_t stream, bool may_prepare) {
++    Plan* plan = nullptr;
++    auto status = get(m, n, k, bytes, stream, as, bs, may_prepare, &plan);
++    if (status != CUBLAS_STATUS_SUCCESS) return status;
++    status = plan->scales(as, bs);
++    if (status != CUBLAS_STATUS_SUCCESS) return status;
++    const float zero = 0.f;
++    // alpha and scale pointers belong to this call, never to the cached shape.
++    return cublasLtMatmul(plan->handle, plan->op, &alpha, a, plan->a, b, plan->b,
++        &zero, output, plan->c, output, plan->c, &plan->heuristic.algo, workspace, bytes, stream);
++}
++} // namespace fp4_resources
 diff --git a/crates/apxinf-cuda/src/kernels/fp4_contract_tests.rs b/crates/apxinf-cuda/src/kernels/fp4_contract_tests.rs
 new file mode 100644
+index 0000000..c90ff86
 --- /dev/null
 +++ b/crates/apxinf-cuda/src/kernels/fp4_contract_tests.rs
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,190 @@
 +// Self-contained composition regression: non-square row-major output and a
 +// non-unit secondary weight scale. No external checkpoint or /tmp gold files.
 +use super::*;
@@ -1550,11 +1790,182 @@ new file mode 100644
 +        }
 +    }
 +}
++
++#[test]
++#[ignore = "requires exclusive NVFP4-capable GPU; validates captured addresses and replay"]
++fn fp4_graph_replay_bf16_and_distinct_scales() {
++    let ctx = CudaContext::new(0).expect("CUDA context");
++    let (m, n, k) = (16usize, 64usize, 64usize);
++    let input_bytes = |value: f32| -> Vec<u8> {
++        (0..m*k).flat_map(|_| half::bf16::from_f32(value).to_le_bytes()).collect()
++    };
++    let x = upload(&ctx, &input_bytes(0.75))
++        .into_tensor(Shape::new(vec![m, k]), DType::BF16);
++    let packed = upload(&ctx, &vec![0x77; n*k/2]); // E2M1 +6 in both nibbles.
++    let kb = k/16;
++    let mut scale = vec![0; 512*((kb+3)/4)*((n+127)/128)];
++    for row in 0..n {
++        for block in 0..kb {
++            let offset = 512*((kb+3)/4)*(row/128) + 512*(block/4)
++                + 16*(row%32) + 4*((row/32)%4) + block%4;
++            scale[offset] = 0x20; // E4M3 0.125 => decoded weight 0.75.
++        }
++    }
++    let scale_two_bytes: Vec<u8> = scale.iter().map(|v| if *v == 0x20 { 0x28 } else { *v }).collect();
++    let scale = upload(&ctx, &scale);
++    let scale_two = upload(&ctx, &scale_two_bytes); // E4M3 0.25 => weight 1.5.
++    let w1 = Fp4WeightView {packed:&packed, scale:&scale, tscale:0.5, rows:n, k};
++    let w2 = Fp4WeightView {scale:&scale_two, tscale:2.0, ..w1};
++    let workspace = crate::workspace::GraphWorkspace::new(
++        2 * fp4_graph_buffer_bytes(m,n,k).unwrap(), ctx.device_id()).unwrap();
++    let dirty_arena = crate::workspace::with_workspace(&workspace,
++        || crate::workspace::output_buffer(&ctx, workspace.capacity())).unwrap();
++    dirty_arena.memset_async(0x7f, dirty_arena.len(), ctx.stream()).unwrap();
++    ctx.synchronize().unwrap();
++    drop(dirty_arena);
++    let invoke = || -> Result<(Tensor, Tensor)> {
++        Ok((fp4_linear_bf16(&ctx,&x,&w1)?, fp4_linear_bf16(&ctx,&x,&w2)?))
++    };
++    let prepared = crate::workspace::prepare_with_workspace(&workspace, invoke).unwrap();
++    ctx.synchronize().unwrap();
++    drop(prepared);
++    crate::graph::begin(&ctx, crate::graph::CaptureMode::ThreadLocal).unwrap();
++    let captured = crate::workspace::with_workspace(&workspace, invoke);
++    if let Err(error) = &captured {
++        crate::graph::abort(&ctx);
++        panic!("FP4 capture failed: {error}");
++    }
++    let outputs = captured.unwrap();
++    let graph = crate::graph::end(&ctx).expect("FP4 graph instantiate");
++    // Repeatedly change the same input allocation, including zero blocks.
++    // Both same-shape calls must keep their own alpha and arena scale address.
++    for input in [0.75f32, 1.5, 0.0, 0.75] {
++        CudaBuffer::from_tensor(&x).unwrap().copy_from_host(&input_bytes(input)).unwrap();
++        graph.replay().unwrap();
++        ctx.synchronize().unwrap();
++        for (output, weight, tensor_scale) in [(&outputs.0,0.75f32,0.5f32),(&outputs.1,1.5,2.0)] {
++            let expected = input * weight * k as f32 * tensor_scale;
++            let mut bytes = vec![0; m*n*2];
++            CudaBuffer::from_tensor(output).unwrap().copy_to_host(&mut bytes).unwrap();
++            for pair in bytes.chunks_exact(2) {
++                let got = half::bf16::from_le_bytes([pair[0],pair[1]]).to_f32();
++                assert_eq!(got, expected, "input={input}, tensor_scale={tensor_scale}");
++            }
++        }
++    }
++    eprintln!("FP4 graph capture/replay PASS: 4 changed-input replays, 2 scales, every output checked");
++}
++
++#[test]
++#[ignore = "requires exclusive CUDA GPU; checks every padded activation-scale byte"]
++fn fp4_activation_padding_zero_after_capture() {
++    let ctx = CudaContext::new(0).unwrap();
++    let (rows,k) = (3usize,48usize); // Both row and K-scale dimensions have padding.
++    let input: Vec<u8> = (0..rows*k)
++        .flat_map(|_| half::f16::from_f32(0.75).to_le_bytes()).collect();
++    let x = upload(&ctx,&input);
++    let packed = upload(&ctx,&vec![0xff;rows*k/2]);
++    let scales = upload(&ctx,&vec![0x7f;512]);
++    crate::graph::begin(&ctx,crate::graph::CaptureMode::ThreadLocal).unwrap();
++    let status = unsafe { ffi::apxinf_nvfp4_quantize_activation(
++        x.ptr(),packed.ptr(),scales.ptr(),rows as i32,k as i32,ctx.stream().handle()) };
++    if status != 0 { crate::graph::abort(&ctx); panic!("capture quantizer status={status}"); }
++    let graph = crate::graph::end(&ctx).unwrap();
++    let mut expected = vec![0u8;512];
++    for row in 0..rows {
++        for block in 0..k/16 {
++            expected[16*(row%32)+4*((row/32)%4)+block%4] = 0x20;
++        }
++    }
++    for poison in [0x7f,0xff] {
++        scales.memset_async(poison,scales.len(),ctx.stream()).unwrap();
++        graph.replay().unwrap();
++        ctx.synchronize().unwrap();
++        let mut got=vec![0u8;512];
++        scales.copy_to_host(&mut got).unwrap();
++        assert_eq!(got,expected,"padding changed after poison={poison}");
++    }
++    eprintln!("FP4 activation scale padding PASS: all 512 bytes, row/K padding, 2 poisoned replays");
++}
+diff --git a/crates/apxinf-model/examples/pi05_fp4_graph_smoke.rs b/crates/apxinf-model/examples/pi05_fp4_graph_smoke.rs
+new file mode 100644
+index 0000000..00dd773
+--- /dev/null
++++ b/crates/apxinf-model/examples/pi05_fp4_graph_smoke.rs
+@@ -0,0 +1,67 @@
++//! Minimal full-checkpoint NVFP4 eager/RequireGraph gate: one graph arena only.
++//! GPU-exclusive execution is required; compilation does not run inference.
++use std::path::PathBuf;
++
++use apxinf_core::{DType, Device, Tensor};
++use apxinf_model::{
++    AutoModel, ExecutionMode, ExecutionPolicy, LoadOptions, Observation, Pi05Config,
++    PreparationStatus, VisionObservation, VlaRequest,
++};
++
++fn main() -> Result<(), Box<dyn std::error::Error>> {
++    let args: Vec<_> = std::env::args().collect();
++    if !(2..=3).contains(&args.len()) {
++        return Err("usage: pi05_fp4_graph_smoke <checkpoint-directory> [token-count=10]".into());
++    }
++    let root = PathBuf::from(&args[1]);
++    let tokens: usize = args.get(2).map(|v| v.parse()).transpose()?.unwrap_or(10);
++    let config = Pi05Config::from_json_file(&root.join("config.json"))?;
++    let options = LoadOptions {
++        model_name: Some("pi05".into()),
++        model_variant: Some("nvfp4_static".into()),
++        ..LoadOptions::default()
++    };
++    let model = AutoModel::load_model(Device::Cuda(0), &root, &options)?;
++    let observation = Observation {
++        vision: VisionObservation::Patches(Tensor::zeros(
++            vec![config.num_views * config.patches_per_view(),
++                 3 * config.patch_size * config.patch_size], DType::F32)),
++        token_ids: vec![0; tokens], state: None, action_mask: None,
++    };
++    let shape = vec![config.action_horizon, config.action_dim];
++    let elements = shape.iter().product::<usize>();
++    let noise: Vec<Tensor> = [0.0f32, 0.125].into_iter()
++        .map(|v| Tensor::from_f32(shape.clone(), &vec![v; elements]))
++        .collect::<apxinf_core::Result<_>>()?;
++    let spec = observation.inference_spec();
++    let mut reference = Vec::new();
++    {
++        let eager = model.prepare_with_policy(&spec, ExecutionPolicy::Eager)?;
++        for value in &noise {
++            let output = eager.run(&VlaRequest::provided(&observation, value))?;
++            reference.push(apxinf_cuda::transfers::to_cpu(output.tensor())?.to_f32_vec()?);
++        }
++    } // Drop the eager plan before creating the sole captured graph.
++    let graph = model.prepare_for(
++        &VlaRequest::provided(&observation, &noise[0]), ExecutionPolicy::RequireGraph)?;
++    assert_eq!(graph.status(), PreparationStatus::Ready {
++        mode: ExecutionMode::Graph, fallback_reason: None,
++    });
++    for index in [0usize, 1, 0] {
++        let output = graph.run(&VlaRequest::provided(&observation, &noise[index]))?;
++        let values = apxinf_cuda::transfers::to_cpu(output.tensor())?.to_f32_vec()?;
++        let expected = &reference[index];
++        if values.len() != expected.len() || values.len() != elements ||
++            values.iter().chain(expected).any(|x| !x.is_finite()) {
++            return Err("nonfinite output or invalid action shape".into());
++        }
++        let max_abs = values.iter().zip(expected)
++            .map(|(a,b)| (a-b).abs()).fold(0.0f32, f32::max);
++        if max_abs > 0.01 {
++            return Err(format!("NVFP4 eager/graph mismatch: {max_abs}").into());
++        }
++        println!("noise_index={index} elements={} max_abs={max_abs}", values.len());
++    }
++    println!("NVFP4 full-model RequireGraph PASS: 2 eager references, 3 changed-input replays; no implicit-plan allocation");
++    Ok(())
++}
 diff --git a/doc/fp4-linear-contract.md b/doc/fp4-linear-contract.md
 new file mode 100644
+index 0000000..93c4ae9
 --- /dev/null
 +++ b/doc/fp4-linear-contract.md
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,80 @@
 +# NVFP4 linear operator contract
 +
 +The experimental PI0.5 `nvfp4_static` route uses `kernels::fp4::fp4_linear`.
@@ -1573,7 +1984,35 @@ new file mode 100644
 +exactly the row-major `[M,N]` result expected by Tensor; no output is relabeled
 +without a matching layout transformation. The original raw, column-major
 +adapter entry point remains available for standalone probes with unit tensor
-+scales. New Tensor callers use `apxinf_fp4_gemm_rowmajor_scaled_f16`.
++scales. Tensor callers explicitly prepare a cached plan with
++`apxinf_fp4_prepare_rowmajor_f16` outside capture, then execute through
++`apxinf_fp4_gemm_rowmajor_prepared_f16`.
++
++The BF16 model route preserves its original numerical sequence: BF16-to-F16
++cast, online activation quantization, scaled FP4 GEMM, F16-to-BF16 cast.
++All five intermediate/output buffers use the active `GraphWorkspace` arena.
++The model reserves the extra per-site bytes (including every action flow
++step) above its BF16 workspace. One persistent 64 MiB GEMM scratch allocation
++belongs to the CUDA context and is reused in stream order. The arena and
++context must outlive graph replay; the existing prepared-plan ownership keeps
++both alive. Normal eager execution still allocates its result tensors.
++
++The adapter caches descriptors and a heuristic-selected algorithm per host
++thread, CUDA device, stream, M/N/K and scratch capacity. Its dtype, layout and
++VEC16 scale mode are fixed by this interface. Resource creation is prohibited
++on an unprepared capture path. Each invocation updates its own scale pointers
++and supplies its tensor-scale product; neither values nor pointers are assumed
++equal merely because two layers have the same shape. Graph replay uses the
++captured CUDA nodes and does not enter the host cache.
++Preparation and capture run on the same host thread in the current synchronous
++runner; plans are thread-local. The map has no eviction until thread exit, so
++long-lived processes repeatedly creating new streams/shapes may retain extra
++library resources. The current gate covers one device/context; it does not
++qualify lower-level calls with mismatched devices or multi-GPU scheduling.
++
++Before each activation-quantization kernel, a stream-ordered clear initializes
++the complete physical scale tile, including row/K padding. This clear is part
++of the captured graph and must also run on replay of a reused/dirty arena.
 +
 +The maintained composition test uses two non-square shapes, asymmetric signed
 +values, zero blocks and non-unit tensor scales (1/32 and 2.5). It compares every
@@ -1582,12 +2021,28 @@ new file mode 100644
 +
 +```bash
 +APXINF_CUDA_ARCH=sm_120 CARGO_TARGET_DIR=target/wheel \
-+  cargo test -p apxinf-cuda fp4_contract_rowmajor_and_tensor_scale -- --ignored --nocapture
++  cargo test --release -p apxinf-cuda fp4_contract_rowmajor_and_tensor_scale -- --ignored --nocapture
++APXINF_CUDA_ARCH=sm_120 CARGO_TARGET_DIR=target/wheel \
++  cargo test --release -p apxinf-cuda fp4_graph_replay_bf16_and_distinct_scales -- --ignored --nocapture
++APXINF_CUDA_ARCH=sm_120 CARGO_TARGET_DIR=target/wheel \
++  cargo test --release -p apxinf-cuda fp4_activation_padding_zero_after_capture -- --ignored --nocapture
 +```
 +
-+Use `cargo test -p apxinf-cuda --no-run` to compile without running GPU tests.
-+This operator gate does not qualify a full model: it does not establish GR00T
-+native execution, LoRA residual deployment, model-level parity, closed-loop
-+success, CUDA Graph readiness or latency gains. The current route still uses
-+per-call allocations and BF16/F16 conversions. These limitations belong to the
-+experimental route rather than the generic VLA runtime contract.
++The second gate captures two equal-shape projections with different secondary
++scales and separate weight-scale buffers after poisoning the arena, then
++changes the same BF16 input allocation and checks every output on four replays,
++including an all-zero input. The third poisons the scale tile on each replay
++and checks every byte for three rows and K=48, including both padding axes.
++Compilation and the pure CPU arena
++size unit test do not establish that this GPU gate passes. After any adapter
++change, rerun all three gates, the full-model `pi05_fp4_graph_smoke` RequireGraph gate,
++and all affected operator/model benchmarks with fresh output identities.
++
++`ModelRunner.execution_mode` only reads the existing implicit plan state
++(`unprepared`, `graph` or `eager`); it does not initialize CUDA resources or
++execute inference. Record it after warmup when reporting native latency.
++
++These gates do not establish GR00T native NVFP4 execution, LoRA residual
++deployment, BF16-model parity, closed-loop success or latency gains. The
++experimental hybrid route retains BF16 weights alongside packed weights and
++still pays online activation quantization and both dtype conversions.

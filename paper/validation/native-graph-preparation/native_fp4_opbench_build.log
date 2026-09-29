@@ -1,0 +1,4 @@
+make: Entering directory '/home/zhaosiying/codebase/fp4vla/spike'
+/usr/local/cuda/bin/nvcc -O3 -std=c++17 -arch=sm_120 fp4_opbench.cu ../third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu -o fp4_opbench -lcublasLt -Xcompiler -pthread
+make: Leaving directory '/home/zhaosiying/codebase/fp4vla/spike'
+CPU self-test PASS: true median, finite deterministic encoding; no CUDA API called

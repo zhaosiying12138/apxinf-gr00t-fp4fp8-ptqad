@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-29T05:14:00.910956+00:00",
+  "status": "CPU_builds_passed_GPU_acceptance_pending",
+  "gpu_executed_by_repair_agent": false,
+  "wheel_installed_by_repair_agent": false,
+  "compiler_parallel_jobs": 1,
+  "cuda_arch": "sm_120",
+  "python_abi": "cp312",
+  "apx_base_commit": "e07dbe98da914bc0a3df8c4bb4b7251c2a726f69",
+  "source_sha256": {
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu": "266b37eb1bfb3c265a991747b50689ba55399edb73a59db587b5c53b4ebed812",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/fp4_plan_cache.cuh": "8bc6d82e1fae144e80ca3186643a9de8b7ffe6a0ff45677465a4ea8723b1eda4",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/context.rs": "40cd5ff8f960db96807bd6ea130725ca8f4bcf1994a71355217927aef36f48d0",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/ffi/cublaslt.rs": "ead1a516c9fc0c119285ab8da10b1b85e59f28fca8a0c8f2ad183241b1df2575",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/kernels/fp4.rs": "1b4e25c1f58ef0582f37192704a8c7d01531d171133e958910147ba01e4064bf",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/src/kernels/fp4_contract_tests.rs": "d7a40e93b226903ba6475ff4ff442b84b95e4527de2b7bcfd6e60727c3985c6c",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-model/src/pi05/model/blocks/fp4.rs": "fc5aa81a241763822d1e266d8ddd6095019eee296d317a2ca9711ec329534d1e",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-model/examples/pi05_fp4_graph_smoke.rs": "1b01dd655948c6016304b0adf5736dda239e6c9094adef9d01bd3885a850b2a0",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-model/Cargo.toml": "8bf6f6ad897c272b02b1f8174fba74a28e99c7e3aa3a4d4669338b519b5fcdd7",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-py/src/lib.rs": "16dc5816e7a5e9d40773aae8e194a46ab3afaeabd7b095837581075eb73bb9a6",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-py/apxinf_py.pyi": "815ceac2bf4ad449f81c2a2d07dedaaa5e23205c69c61874b32a8e1406e24388",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/build.rs": "70e55fef8ef9136ed902b597a4853861cfa4af0b3489b1e516a7c320b41162b0",
+    "third_party/apxinf-robo/apxinf/doc/fp4-linear-contract.md": "2d54a7c18c03d5313e685cf5c4a9b2256b018d55b20fbbfa842e2fc80f100407",
+    "spike/Makefile": "8085b41aa59c57a65bb9a1131dd51750fb9db90fd93fbb200f132434a1e1eb89",
+    "spike/fp4_opbench.cu": "a80e32f8783ae92b26e37af8d195d57527deb831d644d8a7c85b251ff7ba431a",
+    "spike/fp4_gemm_bench.cu": "3240546f20c9bae73ef109a8412534379d034683de6e3fed05683a997e0bc1e4",
+    "patches/apxinf-fp4vla-engine.patch": "b571e4b4820ccd43dc3a6ffb2dc05a686602ad6b01084ed4a3b919ce25b3e607",
+    "exp/run_native_graph_gates.sh": "abff143f3c4ac4bb96408668b1c03ffd81726409e7adb4131b006a8e490b47e3"
+  },
+  "artifact_sha256": {
+    "third_party/apxinf-robo/apxinf/target/wheel/wheels/apxinf_py-0.1.0-cp312-cp312-linux_x86_64.whl": "7e47345c105a31cfb16f5463443fea29906dee8d23c0ee99121cbd8845e642e3",
+    "third_party/apxinf-robo/apxinf/target/wheel/release/examples/pi05_fp4_graph_smoke": "874f2632c29f57cd222bc4134f8611dd6c020a240521878c9614b3dbd82be000",
+    "spike/fp4_opbench": "f81c952db476bb9a58106ef8f0dca6bed6f1853228f0836664202fbd4125016d",
+    "spike/fp4_gemm_bench": "aa4e3f5386fc0d9d68ffdda948347872df2219f105a0ed05b2f2754812a236cd"
+  },
+  "log_sha256": {
+    "paper/validation/native-graph-preparation/native_fp4_cpu_build.log": "021f5f0b885714ec97e55c43700f077b8a51f16677e50ee2c744ee8993be01a3",
+    "paper/validation/native-graph-preparation/native_fp4_model_gate_build.log": "e712c7509d1e502da2db5a842ec436fd6b60344b520818c8107ab753fb7b3f68",
+    "paper/validation/native-graph-preparation/native_fp4_wheel_build.log": "99a25cb7ec7dc98f81420de0b9c73d6d461dfe86c50fb0d77d594c5c988553dc",
+    "paper/validation/native-graph-preparation/native_fp4_opbench_build.log": "f8c97409c4a424cdd08b7aac7c8bad21d356b237ebbb4dd29cb23e1d009336cf",
+    "paper/validation/native-graph-preparation/native_patch_check.json": "6cdf04495f069207d54c7b90b11f8f128607ec9c07f699a57da1b5893a38853c"
+  },
+  "gpu_gates_pending": [
+    "fp4_contract_rowmajor_and_tensor_scale",
+    "fp4_graph_replay_bf16_and_distinct_scales",
+    "fp4_activation_padding_zero_after_capture",
+    "pi05_fp4_graph_smoke"
+  ],
+  "remeasure_required": [
+    "GEMM_all_9_shapes",
+    "opbench_all_18_shapes",
+    "native_pi05_bf16",
+    "native_pi05_nvfp4_static",
+    "native_gr00t_bf16"
+  ],
+  "scope_limits": [
+    "single device and synchronous same-host-thread prepare/capture",
+    "TLS cache has no eviction before thread exit",
+    "conservative arena adds 1863032832 bytes at 522 rows",
+    "context scratch adds 67108864 bytes",
+    "full model retains BF16 and packed weight sets"
+  ],
+  "wheel_native_members_sha256": {
+    "apxinf_py/apxinf_py.cpython-312-x86_64-linux-gnu.so": "6bcdfca6841fe5db885effb4ccca1a7850d03a1fe7e0a359723dfe606fc206b1"
+  }
+}

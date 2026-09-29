@@ -32,9 +32,12 @@ class EngineTimingTests(unittest.TestCase):
         class Policy:
             metadata = {"image_keys": ["image"], "prompt_key": "prompt"}
             values = iter([1., 30., 10.])
+            modes = iter(["graph", "eager", "graph"])
+            model_runner = types.SimpleNamespace(execution_mode="unprepared")
             actions = np.ones((2, 7))
             def infer(self, observation):
                 value = next(self.values)
+                self.model_runner.execution_mode = next(self.modes)
                 self.actions.fill(value)  # A native wrapper may reuse a host buffer.
                 return {"actions": self.actions, "timing": {"model_ms": value, "total_ms": value + 1}}
         args = types.SimpleNamespace(seed=7, warmup=0, samples=2, telemetry_device="0")
@@ -44,6 +47,14 @@ class EngineTimingTests(unittest.TestCase):
         self.assertIsNone(result["power_w_mean"])
         self.assertIsNone(result["vram_mb_peak"])
         self.assertEqual(result["first_actions"], np.ones((2, 7)).tolist())
+        self.assertEqual(result["execution_mode"]["after_warmup"], "graph")
+        self.assertEqual(result["execution_mode"]["after_each_timed_sample"], ["eager", "graph"])
+
+    def test_execution_mode_does_not_guess_missing_runtime_state(self):
+        self.assertIsNone(bench.execution_mode(types.SimpleNamespace()))
+        policy = types.SimpleNamespace(model_runner=types.SimpleNamespace(execution_mode="unknown"))
+        with self.assertRaisesRegex(ValueError, "Unknown native execution mode"):
+            bench.execution_mode(policy)
 
     def test_output_is_atomic_and_never_replaced(self):
         with tempfile.TemporaryDirectory() as temporary:
