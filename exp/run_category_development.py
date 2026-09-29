@@ -339,17 +339,27 @@ def main() -> None:
         parent = parents[candidate]
         cache = run / "category_calibration" / candidate
         output = run / candidate
-        run_logged(f"category-calibrate-{candidate}", [str(python), str(ROOT / "quant/ptq/collector_category.py"),
-            "--parent", str(parent), "--out", str(cache), "--dataset", str(dataset),
-            "--windows", str(args.calibration_windows), "--batch", str(args.calibration_batch),
-            "--seed", str(protocol["selection"]["train_seed"]), "--device", args.device], groot,
-            logs / f"category-calibrate-{candidate}.log", {
-                "PROTOCOL_FILE": str(protocol_path), "HF_HUB_OFFLINE": "1",
-                "TRANSFORMERS_OFFLINE": "1", "PTQAD_LOCAL_HF_METADATA": "1", **media_env})
-        run_logged(f"category-bake-{candidate}", [str(python), str(ROOT / "quant/ptq/bake_category.py"),
-            "--parent", str(parent), "--calib", str(cache), "--out", str(output),
-            "--expected-windows", str(args.calibration_windows), "--gptq-damp", "0.01"], ROOT,
-            logs / f"category-bake-{candidate}.log", {"PROTOCOL_FILE": str(protocol_path)})
+        calibration_log = logs / f"category-calibrate-{candidate}.log"
+        if not (cache / "calib.pt").is_file():
+            run_logged(f"category-calibrate-{candidate}", [str(python), str(ROOT / "quant/ptq/collector_category.py"),
+                "--parent", str(parent), "--out", str(cache), "--dataset", str(dataset),
+                "--windows", str(args.calibration_windows), "--batch", str(args.calibration_batch),
+                "--seed", str(protocol["selection"]["train_seed"]), "--device", args.device], groot,
+                calibration_log, {
+                    "PROTOCOL_FILE": str(protocol_path), "HF_HUB_OFFLINE": "1",
+                    "TRANSFORMERS_OFFLINE": "1", "PTQAD_LOCAL_HF_METADATA": "1", **media_env})
+        else:
+            require(calibration_log.is_file() and "RETURN_CODE 0" in calibration_log.read_text(),
+                    f"{candidate}: calibration cache exists without a successful receipt")
+        bake_log = logs / f"category-bake-{candidate}.log"
+        if not (output / "category_bake_manifest.json").is_file():
+            run_logged(f"category-bake-{candidate}", [str(python), str(ROOT / "quant/ptq/bake_category.py"),
+                "--parent", str(parent), "--calib", str(cache), "--out", str(output),
+                "--expected-windows", str(args.calibration_windows), "--gptq-damp", "0.01"], ROOT,
+                bake_log, {"PROTOCOL_FILE": str(protocol_path)})
+        else:
+            require(bake_log.is_file() and "RETURN_CODE 0" in bake_log.read_text(),
+                    f"{candidate}: category checkpoint exists without a successful receipt")
         category_identity = validate_category_output(output, parent, base, candidate)
         evaluation = development / candidate
         run_logged(f"eval-{candidate}", [str(python), str(ROOT / "eval/run_recovery_eval.py"),
