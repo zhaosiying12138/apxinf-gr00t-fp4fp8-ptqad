@@ -1,9 +1,9 @@
 diff --git a/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
 new file mode 100644
-index 0000000..1aeba6c
+index 0000000..f4f634a
 --- /dev/null
 +++ b/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,252 @@
 +// cublaslt_fp4_adapter.cu — NVFP4 block-scaled GEMM adapter (FP4-VLA).
 +//
 +// Layout/semantics verified bit-exact against CPU reference on sm_120
@@ -31,13 +31,14 @@ index 0000000..1aeba6c
 +    return handle;
 +}
 +
-+extern "C" cublasStatus_t apxinf_fp4_gemm_f16(
++static cublasStatus_t fp4_gemm_colmajor_f16(
 +    int m, int n, int k,
 +    const void* a_packed,        // M*K/2 bytes, E2M1 pairs
 +    const void* b_packed,        // N*K/2 bytes
 +    const void* a_scale_swz,     // physical swizzle buffer (A rows)
 +    const void* b_scale_swz,     // physical swizzle buffer (B rows)
 +    __half* c,                   // MxN col-major, may alias across calls
++    float tensor_scale_product, // product of A and B secondary FP32 scales
 +    void* workspace, size_t workspace_bytes,
 +    cudaStream_t stream)
 +{
@@ -92,11 +93,37 @@ index 0000000..1aeba6c
 +    st = cublasLtMatmulAlgoGetHeuristic(lt, op, la, lb, lc, lc, pref, 1, &heur, &nres);
 +    if (st != CUBLAS_STATUS_SUCCESS || nres == 0) { cleanup(); return CUBLAS_STATUS_NOT_SUPPORTED; }
 +
-+    const float one = 1.0f, zero = 0.0f;
-+    st = cublasLtMatmul(lt, op, &one, a_packed, la, b_packed, lb, &zero,
++    const float zero = 0.0f;
++    st = cublasLtMatmul(lt, op, &tensor_scale_product, a_packed, la, b_packed, lb, &zero,
 +                        c, lc, c, lc, &heur.algo, workspace, workspace_bytes, stream);
 +    cleanup();
 +    return st;
++}
++
++// Legacy raw adapter ABI: callers explicitly consume column-major output and
++// supply tensors with unit secondary scales. Retained for standalone probes.
++extern "C" cublasStatus_t apxinf_fp4_gemm_f16(
++    int m, int n, int k, const void* a, const void* b,
++    const void* as, const void* bs, __half* c,
++    void* workspace, size_t workspace_bytes, cudaStream_t stream)
++{
++    return fp4_gemm_colmajor_f16(m, n, k, a, b, as, bs, c, 1.0f,
++                                  workspace, workspace_bytes, stream);
++}
++
++// Tensor API: row-major C[m,n] = alpha * A[m,k] * B[n,k]^T.
++// Compute C^T = B * A^T as column-major [n,m]. Its contiguous bytes are
++// exactly row-major [m,n], avoiding a separate transpose or a stride relabel.
++extern "C" cublasStatus_t apxinf_fp4_gemm_rowmajor_scaled_f16(
++    int m, int n, int k, const void* a, const void* b,
++    const void* as, const void* bs, float tensor_scale_product, __half* c,
++    void* workspace, size_t workspace_bytes, cudaStream_t stream)
++{
++    if (m <= 0 || n <= 0 || k <= 0 || k % 16 != 0 ||
++        !isfinite(tensor_scale_product) || tensor_scale_product <= 0.0f)
++        return CUBLAS_STATUS_INVALID_VALUE;
++    return fp4_gemm_colmajor_f16(n, m, k, b, a, bs, as, c, tensor_scale_product,
++                                  workspace, workspace_bytes, stream);
 +}
 +
 +// Swizzled-scale buffer size helper (matches fp4vla fp4_quant.swizzle_scales).
@@ -121,7 +148,7 @@ index 0000000..1aeba6c
 +        // RNE ties-to-even on the subnormal integer grid
 +        float g = v * 512.0f; int fl = (int)g; float frac = g - fl;
 +        int s = frac > 0.5f ? fl + 1 : frac < 0.5f ? fl : (fl % 2 == 0 ? fl : fl + 1);
-+        return (uint8_t)min(max(s, 0), 7);
++        return (uint8_t)min(max(s, 0), 8);
 +    }
 +    float gm = (m - 1.0f) * 8.0f; int fl = (int)gm; float frac = gm - fl;
 +    int man = frac > 0.5f ? fl + 1 : frac < 0.5f ? fl : (fl % 2 == 0 ? fl : fl + 1);
@@ -247,7 +274,7 @@ index a730bf0..a115d04 100644
 +++ b/crates/apxinf-cuda/src/buffer.rs
 @@ -376,6 +376,11 @@ impl CudaBuffer {
      }
- 
+
      /// Raw device pointer for crate-internal launch code.
 +    /// Raw device pointer for FFI interop from other crates.
 +    pub fn as_ptr(&self) -> *mut c_void {
@@ -259,7 +286,7 @@ index a730bf0..a115d04 100644
      }
 @@ -444,7 +449,7 @@ impl CudaBuffer {
      }
- 
+
      /// Turn an owned CUDA allocation into a Tensor while preserving ownership.
 -    pub(crate) fn into_tensor(self, shape: Shape, dtype: DType) -> Tensor {
 +    pub fn into_tensor(self, shape: Shape, dtype: DType) -> Tensor {
@@ -267,10 +294,10 @@ index a730bf0..a115d04 100644
          let handle = GpuStorageHandle {
              ptr: self.ptr as usize,
 diff --git a/crates/apxinf-cuda/src/ffi/cublaslt.rs b/crates/apxinf-cuda/src/ffi/cublaslt.rs
-index b95ae95..8e0741c 100644
+index b95ae95..df5ae27 100644
 --- a/crates/apxinf-cuda/src/ffi/cublaslt.rs
 +++ b/crates/apxinf-cuda/src/ffi/cublaslt.rs
-@@ -289,3 +289,39 @@ extern "C" {
+@@ -289,3 +289,51 @@ extern "C" {
          stream: cudaStream_t,
      ) -> cublasStatus_t;
  }
@@ -287,6 +314,18 @@ index b95ae95..8e0741c 100644
 +        b_packed: *const core::ffi::c_void,
 +        a_scale_swz: *const core::ffi::c_void,
 +        b_scale_swz: *const core::ffi::c_void,
++        c: *mut core::ffi::c_void,
++        workspace: *mut core::ffi::c_void,
++        workspace_bytes: usize,
++        stream: cudaStream_t,
++    ) -> cublasStatus_t;
++    pub fn apxinf_fp4_gemm_rowmajor_scaled_f16(
++        m: i32, n: i32, k: i32,
++        a_packed: *const core::ffi::c_void,
++        b_packed: *const core::ffi::c_void,
++        a_scale_swz: *const core::ffi::c_void,
++        b_scale_swz: *const core::ffi::c_void,
++        tensor_scale_product: f32,
 +        c: *mut core::ffi::c_void,
 +        workspace: *mut core::ffi::c_void,
 +        workspace_bytes: usize,
@@ -312,16 +351,17 @@ index b95ae95..8e0741c 100644
 +}
 diff --git a/crates/apxinf-cuda/src/kernels/fp4.rs b/crates/apxinf-cuda/src/kernels/fp4.rs
 new file mode 100644
-index 0000000..05911d9
+index 0000000..49963ec
 --- /dev/null
 +++ b/crates/apxinf-cuda/src/kernels/fp4.rs
-@@ -0,0 +1,105 @@
+@@ -0,0 +1,114 @@
 +//! NVFP4 linear operator: online-quantize an F16 activation to E2M1+swizzled
 +//! E4M3 scales, then run the block-scaled GEMM against an fp4 weight
 +//! (packed + physical-swizzle scales, from fp4vla offline artifacts).
 +//!
-+//! Kernels live in adapters/cublaslt_fp4_adapter.cu; both are verified on
-+//! sm_120 (GEMM maxrel 5e-4, quantizer bit-exact vs CPU reference).
++//! The activation secondary scale is 1; the artifact weight secondary scale
++//! is applied as GEMM alpha. Output is contiguous row-major [M,N].
++//! See doc/fp4-linear-contract.md for scope and the composition test.
 +
 +use crate::buffer::CudaBuffer;
 +use crate::context::CudaContext;
@@ -344,6 +384,7 @@ index 0000000..05911d9
 +pub struct Fp4WeightView<'a> {
 +    pub packed: &'a CudaBuffer,
 +    pub scale: &'a CudaBuffer,
++    pub tscale: f32, // FP32 secondary scale from the weight artifact
 +    pub rows: usize, // N of the GEMM (out_features)
 +    pub k: usize,
 +}
@@ -356,7 +397,7 @@ index 0000000..05911d9
 +        return Err(Error::Other(format!("fp4_linear expects 2-D input, got {dims:?}")));
 +    }
 +    let (m, k) = (dims[0], dims[1]);
-+    if k != w.k || k % 16 != 0 || m % 1 != 0 {
++    if k != w.k || k % 16 != 0 || m == 0 || w.rows == 0 || k == 0 {
 +        return Err(Error::Other(format!(
 +            "fp4_linear shape mismatch: x {m}x{k} vs weight {}x{}",
 +            w.rows, w.k
@@ -369,7 +410,13 @@ index 0000000..05911d9
 +        )));
 +    }
 +
-+    let device = ctx.device_id();
++    if !w.tscale.is_finite() || w.tscale <= 0.0 {
++        return Err(Error::Other("fp4_linear expects a finite positive weight tscale".into()));
++    }
++    let expected_scale_bytes = 512 * ((k / 16 + 3) / 4) * ((w.rows + 127) / 128);
++    if w.packed.len() != w.rows * k / 2 || w.scale.len() != expected_scale_bytes {
++        return Err(Error::Other("fp4_linear weight buffer size mismatch".into()));
++    }
 +    let packed_bytes = CudaBuffer::alloc_on(ctx, m * k / 2).map_err(Error::Cuda)?;
 +    let kb = k / 16;
 +    let scale_bytes = 512 * ((kb + 3) / 4) * ((m + 127) / 128);
@@ -395,7 +442,7 @@ index 0000000..05911d9
 +    let out = CudaBuffer::alloc_on(ctx, m * w.rows * 2).map_err(Error::Cuda)?;
 +    let ws = CudaBuffer::alloc_on(ctx, 64 << 20).map_err(Error::Cuda)?;
 +    unsafe {
-+        let st = ffi::apxinf_fp4_gemm_f16(
++        let st = ffi::apxinf_fp4_gemm_rowmajor_scaled_f16(
 +            m as i32,
 +            w.rows as i32,
 +            k as i32,
@@ -403,6 +450,7 @@ index 0000000..05911d9
 +            w.packed.ptr() as *const _,
 +            scale_buf.ptr() as *const _,
 +            w.scale.ptr() as *const _,
++            w.tscale,
 +            out.ptr() as *mut _,
 +            ws.ptr() as *mut _,
 +            ws.len(),
@@ -418,15 +466,15 @@ index 0000000..05911d9
 +}
 +
 +#[cfg(test)]
-+mod fp4_tests {
-+    include!("fp4_tests.rs");
++mod fp4_contract_tests {
++    include!("fp4_contract_tests.rs");
 +}
 diff --git a/crates/apxinf-cuda/src/kernels/gemm/fp8.rs b/crates/apxinf-cuda/src/kernels/gemm/fp8.rs
 index 0849388..4f07924 100644
 --- a/crates/apxinf-cuda/src/kernels/gemm/fp8.rs
 +++ b/crates/apxinf-cuda/src/kernels/gemm/fp8.rs
 @@ -457,7 +457,14 @@ pub fn gemm_fp8(
- 
+
  fn geglu_tuning_key(ctx: &CudaContext, m: usize, full_n: usize, k: usize) -> GemmTuningKey {
      let mut key = tuning_key(ctx, m, full_n, k);
 -    key.output_dtype = TuningDType::F8E4M3;
@@ -498,10 +546,10 @@ index 0261c6e..3e917e8 100644
  }
 diff --git a/crates/apxinf-model/src/pi05/fp4_weights.rs b/crates/apxinf-model/src/pi05/fp4_weights.rs
 new file mode 100644
-index 0000000..6e44c26
+index 0000000..3e32053
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/fp4_weights.rs
-@@ -0,0 +1,141 @@
+@@ -0,0 +1,146 @@
 +//! NVFP4 device weights loaded from fp4vla offline artifacts (step 2 of the
 +//! fp4 engine path; see fp4vla docs/fp4-engine-design.md).
 +//!
@@ -582,10 +630,15 @@ index 0000000..6e44c26
 +            }
 +            let rows = meta.shape.first().copied().unwrap_or(0);
 +            let k = meta.shape.get(1).copied().unwrap_or(0);
-+            if rows == 0 || k == 0 || k % 16 != 0 {
++            if meta.shape.len() != 2 || meta.block != 16 || rows == 0 || k == 0 || k % 16 != 0 {
 +                return Err(Error::Other(format!(
 +                    "fp4 artifact bad shape for {}: {rows}x{k}",
 +                    meta.name
++                )));
++            }
++            if !meta.tscale.is_finite() || meta.tscale <= 0.0 {
++                return Err(Error::Other(format!(
++                    "fp4 artifact invalid tscale for {}: {}", meta.name, meta.tscale
 +                )));
 +            }
 +            let packed_bytes = read_exact(&packed_path)?;
@@ -709,7 +762,7 @@ index 2535650..3539f85 100644
 +++ b/crates/apxinf-model/src/pi05/load.rs
 @@ -63,6 +63,31 @@ pub(super) fn load_model_runner(
      eprintln!("[apxinf] PI0.5 model_variant={}", model_variant.as_str());
- 
+
      let model = match model_variant {
 +        ModelVariantChoice::Nvfp4Static => {
 +            // NVFP4 hybrid: BF16 base weights + packed fp4 artifact
@@ -751,7 +804,7 @@ index efa9a5f..aced0e0 100644
 +#[cfg(feature = "cuda")]
  mod model_runner;
  mod weights;
- 
+
 @@ -51,6 +53,7 @@ pub use backend::ImageLayout as Pi05ImageLayout;
  #[cfg(feature = "cuda")]
  pub use model::{
@@ -767,7 +820,7 @@ index 5ed7d05..30fa3f2 100644
 @@ -212,7 +212,7 @@ pub fn vision_layer_bf16(
      fused::bias_residual_bf16(ctx, &projection, weights.fc2.bias.as_ref(), &fused.hidden)
  }
- 
+
 -trait QkvViews {
 +pub(in crate::pi05::model::blocks) trait QkvViews {
      fn key_2d(&self, tokens: usize, head_dim: usize) -> Result<Tensor>;
@@ -775,7 +828,7 @@ index 5ed7d05..30fa3f2 100644
  }
 @@ -243,9 +243,9 @@ pub(in crate::pi05::model) mod backbone {
      }
- 
+
      pub struct Bf16StepModulation {
 -        attention: Vec<Tensor>,
 -        mlp: Vec<Tensor>,
@@ -789,18 +842,18 @@ index 5ed7d05..30fa3f2 100644
 @@ -274,7 +274,7 @@ pub(in crate::pi05::model) mod backbone {
              })
          }
- 
+
 -        fn ctx(&self) -> &Context {
 +        pub(in crate::pi05::model) fn ctx(&self) -> &Context {
              self.backend.context()
          }
- 
+
 diff --git a/crates/apxinf-model/src/pi05/model/blocks/fp4.rs b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
 new file mode 100644
-index 0000000..fbc7cf2
+index 0000000..a88835a
 --- /dev/null
 +++ b/crates/apxinf-model/src/pi05/model/blocks/fp4.rs
-@@ -0,0 +1,460 @@
+@@ -0,0 +1,461 @@
 +//! Hybrid BF16 + NVFP4 π0.5 topology (fp4 engine path step 3b).
 +//!
 +//! Design: keep the BF16 executor's weight layout and free-function topology;
@@ -877,6 +930,7 @@ index 0000000..fbc7cf2
 +    let view = apxinf_cuda::kernels::fp4::Fp4WeightView {
 +        packed: &w4.packed,
 +        scale: &w4.scale,
++        tscale: w4.tscale,
 +        rows: w4.rows,
 +        k: w4.k,
 +    };
@@ -1267,12 +1321,12 @@ index b407d88..dbaaeaf 100644
 +++ b/crates/apxinf-model/src/pi05/model/blocks/mod.rs
 @@ -3,10 +3,12 @@
  //! capture graphs, cache requests, or run the complete model schedule.
- 
+
  pub(super) mod bf16;
 +pub(super) mod fp4;
  pub(super) mod fp8_static;
  pub(super) mod int8_dynamic;
- 
+
  pub(super) use bf16::backbone::Bf16Blocks;
 +pub(in crate::pi05::model) use fp4::Fp4Blocks;
  pub use bf16::backbone::Bf16PrefixKvCache;
@@ -1295,7 +1349,7 @@ index ccada7c..8be8805 100644
  pub type Fp8StaticModel = std::sync::Arc<Pi05Model<blocks::Fp8StaticBlocks>>;
  pub type Int8DynamicModel = std::sync::Arc<Pi05Model<blocks::Int8DynamicBlocks>>;
 +pub type Nvfp4StaticModel = std::sync::Arc<Pi05Model<blocks::Fp4Blocks>>;
- 
+
  impl<B: PrepareBlocks> Pi05Model<B> {
      pub(in crate::pi05) fn preprocess(
 diff --git a/crates/apxinf-model/src/pi05/model/model.rs b/crates/apxinf-model/src/pi05/model/model.rs
@@ -1330,7 +1384,7 @@ index e61bb5e..6f6c257 100644
 +        time_embeddings: Arc<Vec<Tensor>>,
 +    },
  }
- 
+
  impl ModelVariant {
 @@ -108,19 +124,21 @@ impl ModelVariant {
              Self::Bf16 { .. } => "bf16",
@@ -1339,7 +1393,7 @@ index e61bb5e..6f6c257 100644
 +            Self::Nvfp4Static { .. } => "nvfp4_static",
          }
      }
- 
+
      pub(in crate::pi05) fn input_dtype(&self) -> DType {
          match self {
              Self::Fp8Static { .. } => DType::F16,
@@ -1347,7 +1401,7 @@ index e61bb5e..6f6c257 100644
 +            Self::Bf16 { .. } | Self::Int8Dynamic { .. } | Self::Nvfp4Static { .. } => DType::BF16,
          }
      }
- 
+
      pub(in crate::pi05) fn captured_patch_dtype(&self, raw_rgb: bool) -> DType {
          match (self, raw_rgb) {
              (Self::Fp8Static { .. }, true) => DType::F8E4M3,
@@ -1365,7 +1419,7 @@ index e61bb5e..6f6c257 100644
 +            } => model.infer(patches, token_ids, token_count, noise, time_embeddings),
          }
      }
- 
+
 @@ -171,6 +193,10 @@ impl ModelVariant {
                  model,
                  time_embeddings,
@@ -1385,3 +1439,155 @@ index e61bb5e..6f6c257 100644
          }
      }
      pub(in crate::pi05) fn calibrate(
+diff --git a/doc/model-layer-architecture.md b/doc/model-layer-architecture.md
+index 1083007..45ba8f9 100644
+--- a/doc/model-layer-architecture.md
++++ b/doc/model-layer-architecture.md
+@@ -110,7 +110,7 @@ That guard checks PI0.5 only; a new family must enforce its own declared boundar
+
+ | Family / contract | Current organization and limits |
+ | --- | --- |
+-| PI0.5 / `VlaRuntime` | `model/`, `model_runner/`, `weights/`; explicit preparation policy/status, stale-plan checks and retained-resource tests; `model_variant` selects `auto`, `bf16`, `fp8_static`, `int8_dynamic` |
++| PI0.5 / `VlaRuntime` | `model/`, `model_runner/`, `weights/`; explicit preparation policy/status, stale-plan checks and retained-resource tests; `model_variant` selects `auto`, `bf16`, `fp8_static`, `int8_dynamic`; experimental `nvfp4_static` has a separate [operator contract and limitations](fp4-linear-contract.md) |
+ | Qwen-Drive / `VlaRuntime` | Planning-only `model/`, `model_runner/`, `weights/`; one BF16 Blocks file; direct/reasoning planning; local GDN graphs only, full `prepare` explicitly unsupported. See [family contract](qwen-drive-planning.md). |
+ | WallOSS / `VlaRuntime` | Existing `bf16_runtime.rs`, `bf16_executor.rs`, `fp8.rs` and weight files; not migrated to PI0.5's runner/variant or explicit preparation contract |
+ | GR00T / `VlaRuntime` | Existing `vla_runtime.rs`, `executor.rs`, precision runtime/executor files and private `backbone/`; not migrated to PI0.5's explicit preparation contract |
+diff --git a/crates/apxinf-cuda/src/kernels/fp4_contract_tests.rs b/crates/apxinf-cuda/src/kernels/fp4_contract_tests.rs
+new file mode 100644
+--- /dev/null
++++ b/crates/apxinf-cuda/src/kernels/fp4_contract_tests.rs
+@@ -0,0 +1,93 @@
++// Self-contained composition regression: non-square row-major output and a
++// non-unit secondary weight scale. No external checkpoint or /tmp gold files.
++use super::*;
++
++fn e4m3_value(code: u8) -> f32 {
++    let e = (code >> 3) & 15;
++    let mantissa = (code & 7) as f32;
++    if e == 0 { mantissa * 2f32.powi(-9) }
++    else { (1.0 + mantissa / 8.0) * 2f32.powi(e as i32 - 7) }
++}
++
++fn e2m1_value(code: u8) -> f32 {
++    let magnitude = [0., 0.5, 1., 1.5, 2., 3., 4., 6.][(code & 7) as usize];
++    if code & 8 != 0 { -magnitude } else { magnitude }
++}
++
++fn upload(ctx: &CudaContext, bytes: &[u8]) -> CudaBuffer {
++    let buffer = CudaBuffer::alloc_on(ctx, bytes.len()).unwrap();
++    buffer.copy_from_host(bytes).unwrap();
++    buffer
++}
++
++#[test]
++#[ignore = "requires a CUDA device supporting NVFP4 cuBLASLt (e.g. sm_120)"]
++fn fp4_contract_rowmajor_and_tensor_scale() {
++    let ctx = CudaContext::new(0).expect("CUDA context");
++    // M != N exposes a column-major buffer mislabeled as a row-major Tensor.
++    for (m, n, k) in [(16usize, 64usize, 64usize), (64, 128, 128)] {
++        let kb = k / 16;
++        let mut x_values = vec![0f32; m * k];
++        for row in 0..m {
++            for block in 0..kb {
++                let scale = if row == 0 { 0.0 } else { e4m3_value(32 + ((row + block) % 8) as u8) };
++                for offset in 0..16 {
++                    // Every nonzero block contains +6, so its scale is exact
++                    // and the online quantizer preserves these activations.
++                    let code = if offset == 15 { 7 } else { ((row * 3 + block + offset) % 16) as u8 };
++                    x_values[row * k + block * 16 + offset] = e2m1_value(code) * scale;
++                }
++            }
++        }
++        let x_bytes: Vec<u8> = x_values.iter().flat_map(|v| half::f16::from_f32(*v).to_le_bytes()).collect();
++        let x = upload(&ctx, &x_bytes).into_tensor(Shape::new(vec![m, k]), DType::F16);
++        let mut packed = vec![0u8; n * k / 2];
++        let panel_stride = 512 * ((kb + 3) / 4);
++        let mut swizzled = vec![0u8; panel_stride * ((n + 127) / 128)];
++        let mut w_values = vec![0f32; n * k];
++        for row in 0..n {
++            for block in 0..kb {
++                let code = if row == 0 { 0 } else { 40 + ((row + 3 * block) % 8) as u8 };
++                let scale = e4m3_value(code);
++                let address = panel_stride * (row / 128) + 512 * (block / 4)
++                    + 16 * (row % 32) + 4 * ((row / 32) % 4) + block % 4;
++                swizzled[address] = code;
++                for offset in (0..16).step_by(2) {
++                    let low = ((row * 7 + block * 3 + offset) % 16) as u8;
++                    let high = ((row + block * 5 + offset + 1) % 16) as u8;
++                    let position = row * k + block * 16 + offset;
++                    packed[position / 2] = low | (high << 4);
++                    w_values[position] = e2m1_value(low) * scale;
++                    w_values[position + 1] = e2m1_value(high) * scale;
++                }
++            }
++        }
++        let packed_device = upload(&ctx, &packed);
++        let scale_device = upload(&ctx, &swizzled);
++        for tensor_scale in [0.03125f32, 2.5] {
++            let weight = Fp4WeightView {
++                packed: &packed_device, scale: &scale_device,
++                tscale: tensor_scale, rows: n, k,
++            };
++            let output = fp4_linear(&ctx, &x, &weight).expect("NVFP4 composition");
++            assert_eq!(output.shape().dims(), &[m, n]);
++            ctx.synchronize().unwrap();
++            let mut bytes = vec![0u8; m * n * 2];
++            CudaBuffer::from_tensor(&output).unwrap().copy_to_host(&mut bytes).unwrap();
++            let mut max_abs = 0f32;
++            for row in 0..m {
++                for col in 0..n {
++                    let reference: f32 = (0..k).map(|i| x_values[row*k+i] * w_values[col*k+i]).sum();
++                    let expected = half::f16::from_f32(reference * tensor_scale).to_f32();
++                    let address = 2 * (row * n + col);
++                    let actual = half::f16::from_le_bytes([bytes[address], bytes[address+1]]).to_f32();
++                    let error = (actual - expected).abs();
++                    max_abs = max_abs.max(error);
++                    assert!(actual.is_finite() && error <= 0.001 + 0.002 * expected.abs(),
++                        "M={m} N={n} K={k} scale={tensor_scale} [{row},{col}]: {actual} vs {expected}");
++                }
++            }
++            eprintln!("fp4_contract M={m} N={n} K={k} tensor_scale={tensor_scale} max_abs={max_abs}");
++        }
++    }
++}
+diff --git a/doc/fp4-linear-contract.md b/doc/fp4-linear-contract.md
+new file mode 100644
+--- /dev/null
++++ b/doc/fp4-linear-contract.md
+@@ -0,0 +1,36 @@
++# NVFP4 linear operator contract
++
++The experimental PI0.5 `nvfp4_static` route uses `kernels::fp4::fp4_linear`.
++It consumes a contiguous F16 activation matrix `[M,K]` and a packed weight
++matrix `[N,K]`, and returns a contiguous row-major F16 tensor `[M,N]`.
++
++A weight is represented by E2M1 data, swizzled E4M3 scales for each 16 values,
++and one finite positive FP32 `tscale`. Its value is `q * block_scale * tscale`.
++The artifact loader validates shape, block size, scale and buffer sizes, and
++passes `tscale` through `Fp4WeightView`; the operator applies it as cuBLASLt
++alpha. The online activation quantizer currently uses secondary scale 1.
++That activation policy has limited range and is not equivalent to the offline
++weight-only PyTorch simulation.
++
++cuBLASLt computes `W * X^T` as a column-major `[N,M]` matrix. Those bytes are
++exactly the row-major `[M,N]` result expected by Tensor; no output is relabeled
++without a matching layout transformation. The original raw, column-major
++adapter entry point remains available for standalone probes with unit tensor
++scales. New Tensor callers use `apxinf_fp4_gemm_rowmajor_scaled_f16`.
++
++The maintained composition test uses two non-square shapes, asymmetric signed
++values, zero blocks and non-unit tensor scales (1/32 and 2.5). It compares every
++row-major output element to a CPU dequantized matrix product after F16 rounding.
++It requires no checkpoint or external fixture. From the APXInf checkout:
++
++```bash
++APXINF_CUDA_ARCH=sm_120 CARGO_TARGET_DIR=target/wheel \
++  cargo test -p apxinf-cuda fp4_contract_rowmajor_and_tensor_scale -- --ignored --nocapture
++```
++
++Use `cargo test -p apxinf-cuda --no-run` to compile without running GPU tests.
++This operator gate does not qualify a full model: it does not establish GR00T
++native execution, LoRA residual deployment, model-level parity, closed-loop
++success, CUDA Graph readiness or latency gains. The current route still uses
++per-call allocations and BF16/F16 conversions. These limitations belong to the
++experimental route rather than the generic VLA runtime contract.

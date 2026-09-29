@@ -12,6 +12,17 @@ export LIBRARY_PATH="$HOME/.cuda-stubs:${LIBRARY_PATH:-}"
 
 [ -d "$REPO/apxinf" ] || { echo "missing $REPO (run git clone --recursive first)"; exit 1; }
 
+# Apply maintained native changes before compiling the extension.
+PATCH="$ROOT/patches/apxinf-fp4vla-engine.patch"
+if git -C "$REPO/apxinf" apply --reverse --check "$PATCH" >/dev/null 2>&1; then
+  echo "engine patches already applied"
+elif git -C "$REPO/apxinf" apply --check "$PATCH"; then
+  git -C "$REPO/apxinf" apply "$PATCH"
+else
+  echo "engine patch does not apply cleanly; preserve local changes and resolve before building" >&2
+  exit 1
+fi
+
 # python 3.12 venv (system python 3.14 too new for some wheels)
 cd "$REPO"
 if [ ! -d .venv ]; then uv venv .venv --python 3.12; fi
@@ -20,8 +31,8 @@ uv pip install -U maturin pip
 
 # engine wheel (auto-detects local arch; override if it mis-detects)
 cd "$REPO/apxinf"
-CARGO_TARGET_DIR=target/wheel ${APXINF_CUDA_ARCH:+APXINF_CUDA_ARCH=$APXINF_CUDA_ARCH} \
-  maturin build --release --features cuda --auditwheel skip -m crates/apxinf-py/Cargo.toml
+export APXINF_CUDA_ARCH="${APXINF_CUDA_ARCH:-sm_120}"
+CARGO_TARGET_DIR=target/wheel maturin build --release --features cuda --auditwheel skip -m crates/apxinf-py/Cargo.toml
 uv pip install --force-reinstall target/wheel/wheels/apxinf_py-*.whl
 uv pip install -e "python/apxinf[serving]"
 
@@ -35,9 +46,3 @@ cd "$HOME"
 python -c 'import apxinf_py; print("apxinf_py", apxinf_py.__version__)'
 python -c 'import apxinf, apxinf_robo; print("apxinf_robo ok")'
 echo "ENGINE BUILD DONE"
-
-# apply fp4vla engine patches (fp4 path, fp8 sm_120 fix, instrumentation)
-cd "$REPO/apxinf"
-git apply --check "$ROOT/patches/apxinf-fp4vla-engine.patch" 2>/dev/null \
-  && git apply "$ROOT/patches/apxinf-fp4vla-engine.patch" && echo "engine patches applied" \
-  || echo "engine patches: already applied or failed (check manually)"

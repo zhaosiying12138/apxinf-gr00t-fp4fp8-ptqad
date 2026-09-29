@@ -37,12 +37,12 @@ _E4M3_BIAS = 7
 def encode_e4m3(x: np.ndarray) -> np.ndarray:
     """Round to nearest E4M3 (bit-exact float32<->fp8 via exponent ladder). Satfinite ±448."""
     a = np.asarray(x, dtype=np.float64)
-    sign = np.uint8(0x80) * (a < 0)
+    sign = np.uint8(0x80) * np.signbit(a)
     a = np.abs(a)
     out = np.zeros(a.shape, dtype=np.uint8)
     # exponent ladder for normal range: 2^(e-7), e in 1..15; mantissa 3 bits
-    # subnormals: 2^-9 * m/8 (m=1..7); build full positive grid
-    grid, codes = [], []
+    # subnormals: 2^-9 * m (m=1..7); include zero in nearest rounding
+    grid, codes = [0.0], [0]
     for m in range(1, 8):
         grid.append(m * 2.0 ** -9); codes.append(m)            # subnormal codes 1..7
     for e in range(1, 16):
@@ -65,6 +65,7 @@ def encode_e4m3(x: np.ndarray) -> np.ndarray:
     res = np.where(a >= 464, np.uint8(0x7E), res)              # satfinite: >=464 -> 448
     res = np.where(res == np.uint8(0x7F), np.uint8(0x7E), res) # never emit NaN code
     res = np.where(a == 0, np.uint8(0), res)
+    res = np.where(np.isnan(a), np.uint8(0x7F), res)
     return (res | sign.astype(np.uint8)).astype(np.uint8)
 
 def decode_e4m3(b: np.ndarray) -> np.ndarray:
@@ -92,7 +93,10 @@ def nvfp4_quantize(W: np.ndarray, block: int = 16, tscale: float | None = None):
     wblk = W.reshape(rows, KB, block)
     amax = np.abs(wblk).max(axis=2)                          # (rows, KB)
     if tscale is None:
-        tscale = float(np.float32(amax.max() / 448.0)) if amax.max() > 0 else 1.0
+        tscale = float(np.float32(max(amax.max() / 448.0, 2.0 ** -149))) if amax.max() > 0 else 1.0
+    tscale = np.float32(tscale)
+    if not np.isfinite(tscale) or tscale <= 0:
+        raise ValueError("tscale must be a finite positive FP32 value")
     scale_f = amax / 6.0 / tscale                            # leave E4M3 headroom for global scale
     scales = encode_e4m3(scale_f)
     sd = decode_e4m3(scales).astype(np.float64) * tscale     # exact dequantized scale
@@ -111,7 +115,7 @@ def nvfp4_dequantize(packed: np.ndarray, scales: np.ndarray, tscale: np.float32,
     q = np.empty((rows, K), dtype=np.float32)
     q[:, 0::2] = lo; q[:, 1::2] = hi
     sd = decode_e4m3(scales).astype(np.float32) * np.float32(tscale)
-    sd[sd == 0] = 1.0
+    # A zero scale decodes to zero. Only the encoder uses a safe divisor.
     return (q.reshape(rows, KB, block) * sd[:, :, None]).reshape(rows, K)
 
 # ---------------- cuBLASLt scale swizzle ----------------
