@@ -8,6 +8,13 @@ results/**/*.safetensors
 results/**/*.npz
 results/**/rollouts/
 results/**/videos/
+results/**/observations/
+
+# Local acceptance attempts are retained on disk, outside the formal evidence.
+results/ptqad_20260929/bank_bf16_smoke*
+results/ptqad_20260929/calibration_smoke*
+results/ptqad_20260929/qad_smoke*
+results/ptqad_20260929/qad_checkpoint_smoke*
 
 # ---- python ----
 __pycache__/
