@@ -1866,29 +1866,29 @@ EXTRA_STEPS=100 OPD_WEIGHT=1.0 OPD_EVERY=4 \
 </thead>
 <tbody>
 <tr>
-<td>development</td>
-<td style="text-align:right">2</td>
-<td>0、1</td>
-<td style="text-align:right">330000</td>
+<td>development（高 FP4 v3）</td>
+<td style="text-align:right">5</td>
+<td>4–8</td>
+<td style="text-align:right">440000</td>
 </tr>
 <tr>
-<td>collection</td>
-<td style="text-align:right">2</td>
-<td>2、3</td>
-<td style="text-align:right">110000</td>
+<td>collection（高 FP4 v3）</td>
+<td style="text-align:right">4</td>
+<td>20–23</td>
+<td style="text-align:right">550000</td>
 </tr>
 <tr>
-<td>heldout</td>
+<td>heldout（高 FP4 v3）</td>
 <td style="text-align:right">10</td>
-<td>10–19</td>
-<td style="text-align:right">220000</td>
+<td>30–39</td>
+<td style="text-align:right">660000</td>
 </tr>
 </tbody>
 </table></div>
 <p>正式用途必须覆盖全部十任务。入口按 <code>--purpose</code> 固定 episode 数和初态分区；显式传入的值必须与协议一致。<code>heldout</code> 还要求 <code>--collection-manifest</code>，同时检查官方初态索引和种子不重叠。<code>smoke</code> 可以缩减任务与集数，但不给完整十任务结论。</p>
 <p>每个任务使用起始 seed 加 <code>1000 × task_index</code>，环境每集再加 episode 索引。官方初态通过 LIBERO 的 <code>get_task_init_states</code> 和 <code>set_init_state</code> 应用，随后用 7 维原始模拟器零动作稳定 10 步；稳定动作在策略 episode 时域之外。策略每次执行 8 个动作步，episode 上限 720。完整契约以 <code>exp/recovery_protocol.json</code> 为准。</p>
 <p>每集记录 <code>episode_index</code>、seed、<code>init_state_index</code>、<code>settle_steps</code>，以及官方 bank、恢复状态和初态的 SHA-256。wrapper 检查这些记录后才接受结果。这些字段定义跨策略的环境初态配对；模型随机噪声按任务播种。</p>
-<p>最终五臂为 BF16、所选 PTQ、QAD、continued-QAD、QAD→OPD，统一使用 heldout 初态索引 10–19。完成每任务后写入 <code>task_results.json</code>；全部任务有效完成后才生成最终 <code>summary.json</code>。最终汇总以全部任务完成为条件。</p>
+<p>高 FP4 v3 的最终比较至少包含 BF16、相邻纯 PTQ、压力纯 PTQ、QAD、continued-QAD、QAD→OPD，统一使用 heldout 初态索引 30–39。旧一轮的 10–19 仅为探索分区，不能作为新结论的测试集。完成每任务后写入 <code>task_results.json</code>；全部任务有效完成后才生成最终 <code>summary.json</code>。最终汇总以全部任务完成为条件。</p>
 <p>主五臂完成后，执行训练前已经冻结的纯 PTQ 前驱比较：</p>
 <pre><code class="language-bash">bash exp/run_ptq_frontier.sh --plan &quot;$DEV_ROOT/frontier_plan.json&quot; \
   --round &quot;$PTQAD_RUN_DIR/round_01&quot; --out &quot;$PTQAD_RUN_DIR/frontier_01&quot; --port 5595

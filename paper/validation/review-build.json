@@ -6,13 +6,13 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "900333e22496331e353f84b8af74ffa6173cf056602c2567abbebdc0b14135c2",
-      "bytes": 8668550
+      "sha256": "a326fe1130e9c54aef5c49262057ed22f1cb93ae7066f079ab9e54f20c156bf6",
+      "bytes": 8668720
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "7e2cf0cc7c2883d4cb66aa19c492712739d48de971a38f7cd2c023ff11ad25f8",
-      "bytes": 172018
+      "sha256": "1c80b7734d9037f4ec5571bf153fae43dbb3f2bece4ea521889d74a7fbd630ad",
+      "bytes": 172188
     },
     {
       "path": "meta.json",
@@ -56,8 +56,8 @@
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "sha256": "763ff7067d61485886541a82bc729e8474322d2ad1ffd85db565fa0d7eb1c240",
-      "bytes": 32208
+      "sha256": "f8da6ced00dc3f0f0eeb9abf034f68c65b0a476be6e686d5a0dedfd9c03e7645",
+      "bytes": 32378
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",

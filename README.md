@@ -5,7 +5,7 @@
 VLA（视觉—语言—动作）策略根据图像、语言指令和机器人状态生成动作。量化造成的动作偏差会改变后续观测，因而需要在环境中反复执行策略，以任务成功率检验恢复效果。项目采用 LIBERO-10 闭环评测，并保留每个 episode 的结果和初态身份。
 
 - 阅读：[中文 HTML](paper/paper.html) · [知乎 Markdown](paper/zhihu/article.md) · [发布包说明](paper/README.md)
-- 复现：[运行说明](docs/reproduce-ptqad.md) · [恢复训练](rl/RECOVERY.md) · [协议文件](exp/recovery_protocol.json)
+- 复现：[运行说明](docs/reproduce-ptqad.md) · [恢复训练](rl/RECOVERY.md) · [高 FP4 协议文件](exp/recovery_protocol_v3_high_fp4.json)
 - 核查：[配方账本](paper/evidence/recipe_inventory.json) · [环境锁](setup/locks/manifest.json) · [实验工件](results/ptqad_20260929)
 - 上游：[APXInf](https://github.com/infinigence/ApxInf) · [APXinf-robo](https://github.com/RLinf/APXinf-robo)
 
@@ -73,7 +73,7 @@ export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_run_01"
 
 ## 运行流程
 
-以下命令展示当前维护入口的参数传递。128 窗口、500/100 次更新及教师权重是一组可执行示例；新研究的 FP4 范围、恢复超参数和独立初态由新一轮开发选择后冻结的协议确定。为每轮创建新的输出根目录，保留失败尝试的日志与身份。
+以下命令展示当前维护入口的参数传递。128 窗口、500/100 次更新及教师权重是一组可执行示例；高 FP4 研究使用 `exp/recovery_protocol_v3_high_fp4.json`，其开发、采集和最终测试分区分别为 4–8、20–23、30–39。第一轮使用的 0–1、2–3、10–19 只作为探索证据保存，不能与新一轮最终结果混称。为每轮创建新的输出根目录，保留失败尝试的日志与身份。
 
 ### 1. 检查实现和模型加载
 
@@ -160,11 +160,11 @@ collection 覆盖十任务，默认最多保留 160 个观察探针；每个样�
 
 | 分区 | 每任务回合 | 官方 bank 索引 | 起始 seed |
 |---|---:|---|---:|
-| development | 2 | 0、1 | 330000 |
-| collection | 2 | 2、3 | 110000 |
-| heldout | 10 | 10–19 | 220000 |
+| development（高 FP4 v3） | 5 | 4–8 | 440000 |
+| collection（高 FP4 v3） | 4 | 20–23 | 550000 |
+| heldout（高 FP4 v3） | 10 | 30–39 | 660000 |
 
-任务 seed 加 `1000 × task_index`，每集再加 episode index。入口按 purpose 核查参数，主五臂为 BF16、选定 PTQ、QAD、continued-QAD、QAD→OPD；所有任务完成后生成 `summary.json` 与 `paired_comparison.json`。新研究采用重新冻结的独立分区，各轮结果单独归档。
+任务 seed 加 `1000 × task_index`，每集再加 episode index。入口按版本化协议核查参数，主比较为 BF16、相邻 PTQ、压力 PTQ、QAD、continued-QAD、QAD→OPD；所有任务完成后生成 `summary.json` 与 `paired_comparison.json`。旧 10–19 结果只用于第一轮探索审计，新研究结果单独归档。
 
 五臂完成后，按已冻结计划评测纯 PTQ 前驱：
 

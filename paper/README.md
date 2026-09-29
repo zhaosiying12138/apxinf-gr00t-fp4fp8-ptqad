@@ -29,6 +29,8 @@ uv run --with-requirements paper/requirements-build.txt python paper/validate_pu
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
+当前审阅稿使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成。它保留全部 17 张截图，并用红色 `xxx` 标出尚未完成的高 FP4 结果；这是给作者审阅结构的离线预览，不是正式发布。`validate_publication.py` 会按设计拒绝含有这些占位符的审阅稿；完整结果回填后再执行上面的正式构建、验证和打包流程。
+
 `make_figs.py` 从结果 JSON 读取图表数值，并验证缩放地址映射。截图文件不会由构建脚本改写。`validate_publication.py` 核对已审验截图的 SHA-256、全部图位、代码块、图像路径和离线资源完整性。
 
 浏览器排版验证使用 `qa_browser.cjs`；结果写入 `validation/browser-validation.json`，预览截图保存在不入库的 `_build/`。本机使用 Node.js 22.22.1；较新的 Ubuntu 上运行本轮 Playwright 时设置了 `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64`。数据图需要完整的本轮配对结果与原生执行记录；缺少输入时构建会报错。必须先生成 HTML/Markdown，再运行浏览器检查，最后验证和打包，不能用过期的浏览器检查替代新稿验收。
