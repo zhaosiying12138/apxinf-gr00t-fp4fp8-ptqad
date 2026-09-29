@@ -188,7 +188,8 @@ def run_logged(name: str, command: list[str], cwd: Path, log: Path, env: dict[st
     merged = os.environ.copy()
     for key in list(merged):
         if key.startswith(("QAD_", "OPD_")) or key in ("GR00T_BASE_CKPT", "TRAIN_SEED",
-                                                        "PROTOCOL_FILE", "PTQAD_PROTOCOL_FILE"):
+                                                        "PROTOCOL_FILE", "PTQAD_PROTOCOL_FILE",
+                                                        "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE"):
             merged.pop(key)
     merged.update(env)
     merged.setdefault("HF_HUB_OFFLINE", "1")
