@@ -450,6 +450,12 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     cache=Path(opd['probe_cache']).resolve(strict=True)
     need(cache.name=='teacher_probes.pt','Unexpected orchestrator teacher cache filename')
     evidence.add(ROOT/implementation_relative,'source/'+implementation_relative,'collector_time_orchestrator_snapshot')
+    # The orchestrator validates teacher probes through this CPU verifier. Its
+    # bytes are part of the producer provenance even though the cost collector
+    # never imports or executes it.
+    verifier = ROOT/'exp/verify_teacher_cache_cpu.py'
+    if verifier.is_file():
+        evidence.add(verifier,'source/exp/verify_teacher_cache_cpu.py','collector_time_orchestrator_dependency')
     return {'final':final,'training':training,'merged':merged,'logs':logs,'collection':collection,'teacher':cache.parent}
 
 
