@@ -44,6 +44,11 @@ def main():
 
     start = time.time()
     teacher = Path(args.teacher).resolve()
+    teacher_weights = {p.name: {"bytes": p.stat().st_size, "sha256": file_sha256(p)}
+                       for p in sorted(teacher.glob("*.safetensors"))}
+    if not teacher_weights:
+        raise ValueError("Teacher checkpoint has no safetensors weights")
+    source_files = []
     # model_path is NOT a pipeline load argument; start_from_checkpoint is.
     config = get_default_config().load_dict({"data": {
         "download_cache": False, "override_pretraining_statistics": False,
@@ -75,6 +80,8 @@ def main():
         paths = [p for row in zip_longest(*groups.values()) for p in row if p is not None][:args.count]
         if not paths:
             raise ValueError("No captured observations found")
+        source_files = [{"path": str(p.resolve()), "bytes": p.stat().st_size,
+                         "sha256": file_sha256(p)} for p in paths]
         raw_samples = [torch.load(p, map_location="cpu", weights_only=True) for p in paths]
         if any(s.get("source_kind") != "student_rollout" for s in raw_samples):
             raise ValueError("Input is not a captured student rollout")
@@ -117,10 +124,14 @@ def main():
         print(f"[probe-cache] {index + 1}/{len(raw_samples)} pred={tuple(pred.shape)}", flush=True)
     metadata = {"teacher": str(teacher), "teacher_config_sha256": file_sha256(teacher / "config.json"),
                 "teacher_statistics_sha256": file_sha256(teacher / "statistics.json"),
+                "teacher_weights": teacher_weights, "source_observation_files": source_files,
+                "labeling_implementation_sha256": file_sha256(__file__),
+                "replay_implementation_sha256": file_sha256(Path(__file__).with_name("probe_distill.py")),
                 "architecture": arch, "model_dtype": args.model_dtype,
                 "flow_config": flow_signature(model),
                 "autocast_dtype": args.autocast_dtype, "eval_mode": True,
                 "source_kind": source, "seed": args.seed, "count": len(samples),
+                "requested_count": args.count,
                 "objective": "masked velocity MSE at shared full interpolated action/noise/time",
                 "action_mask": action_spec,
                 "cuda_peak_memory": cuda_memory_peaks(),

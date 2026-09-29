@@ -219,6 +219,7 @@ def install_trainer_hooks():
                     "initial_adapter": initial, "optimizer_resumed": False,
                     "probe_weight": MSE_W, "probe_every": int(os.environ.get("OPD_EVERY", "4")),
                     "probe_cache": os.environ.get("OPD_CACHE_PATH") if MSE_W else None,
+                    "probe_cache_sha256": file_sha256(os.environ["OPD_CACHE_PATH"]) if MSE_W else None,
                     "probe_action_mask": libero_action_spec(base) if MSE_W else None,
                     "objective": "demo flow loss + scheduled sequential teacher velocity MSE" if MSE_W else "demo flow loss",
                     "normalization": "frozen base statistics", "seed": self.args.seed}
