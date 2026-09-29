@@ -508,9 +508,16 @@ class Driver:
             running=subprocess.check_output(["ps","-eo","pid=,args="],text=True).splitlines()
         except (OSError,subprocess.CalledProcessError):
             running=[]
-        active=[line.strip() for line in running if any(x in line for x in
-                ("run_recovery_eval.py","serve_recovery.py","lora_qad.py","lora_merge_bake.py"))
-                and "run_high_fp4_v3.py" not in line]
+        active=[]
+        for line in running:
+            text=line.strip()
+            # Ignore the process-list command itself (for example a user's
+            # grep/rg inspection whose search pattern contains a stage name).
+            if not text or "grep" in text or "rg " in text or "run_high_fp4_v3.py" in text:
+                continue
+            if any(x in text for x in ("run_recovery_eval.py", "serve_recovery.py",
+                                       "lora_qad.py", "lora_merge_bake.py")):
+                active.append(text)
         if active:
             raise OrchestrationError(f"active training/evaluation process prevents cleanup: {active}")
         deleted=[]
