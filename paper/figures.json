@@ -4,8 +4,8 @@
     "note": "仅使用本轮四条浮点基准与 π0.5 NVFP4 运行。PyTorch π0.5 为 predict_action_chunk，GR00T 为 get_action；APXInf 为 policy.infer。BF16 配置的实际参数与计算 dtype 另存清单，π0.5 包含 FP32 子模块。不同输入准备与计算内容的入口只分报耗时；仅同一 APXInf π0.5 接口比较 BF16/NVFP4 耗时比。"
   },
   "ladder": {
-    "title": "图 5　同协议五臂闭环结果",
-    "note": "五臂结果位置已固定；红色 xxx% 为待测值，回填完整独立评测后再比较 QAD 与 OPD。"
+    "title": "图 5　主线四臂与继续 QAD 控制",
+    "note": "正文主线为 BF16、纯 PTQ、QAD、QAD+OPD；继续 QAD 只作为同起点同预算控制，完整数字回填前不作结论。"
   },
   "swizzle_layout": {
     "title": "图 3　NVFP4 块缩放的物理布局",
