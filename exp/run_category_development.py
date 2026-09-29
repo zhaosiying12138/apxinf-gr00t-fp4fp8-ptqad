@@ -261,8 +261,14 @@ def main() -> None:
                 f"{candidate}: expected {expected} parent, got {info['recipe'].get('recipe')}")
         parent_info[candidate] = info
     groot = Path(args.gr00t_repo or Path.home() / "codebase/groot-fsdp2/Isaac-GR00T").resolve(strict=True)
-    python = Path(args.python or groot / ".venv/bin/python").resolve(strict=True)
-    rollout = Path(args.rollout_python or groot / "gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python").resolve(strict=True)
+    # Keep the venv launcher symlink intact.  ``Path.resolve()`` follows it to
+    # uv's base interpreter, which drops the venv site-packages and causes the
+    # child evaluator to lose numpy/torch.  Existence is checked without
+    # dereferencing so subprocesses inherit the intended environment.
+    python = Path(args.python or groot / ".venv/bin/python").expanduser().absolute()
+    rollout = Path(args.rollout_python or groot / "gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python").expanduser().absolute()
+    require(python.is_file(), f"GR00T Python launcher is missing: {python}")
+    require(rollout.is_file(), f"LIBERO Python launcher is missing: {rollout}")
     dataset = Path(args.dataset or groot / "demo_data/libero_demo").resolve(strict=True)
     media_lib = Path(args.media_lib).expanduser().resolve(strict=True)
     require((media_lib.parent / "bin" / "ffmpeg").is_file(),
