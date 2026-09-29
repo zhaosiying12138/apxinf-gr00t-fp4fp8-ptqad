@@ -1,0 +1,170 @@
+{
+  "status": "passed",
+  "checked_utc": "2026-09-29T06:57:46.873028+00:00",
+  "scope": "Read-only hash/size comparison of the actual15 training demo payloads to the fixed public upstream revision. No LFS pull, checkout, download, GPU or file modification performed.",
+  "actual_gr00t_repo": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T",
+  "actual_gr00t_head": "74204f03343228240ca06e5a4bc91f8f1cb7213f",
+  "reference_upstream_revision": "51d4c89f72fda44cbf77285c6a8114b52676b8a1",
+  "verifier": {
+    "source": "setup/06_install_recovery.sh",
+    "sha256": "3cd6d2f5ff050e2b2468f19f5637b405b841023a9ebce34f5f4e4f40a09178f0",
+    "embedded_python_sha256": "873b6a9db9edf38d13d2296f6ab5be2c299028bccbd021df6bb092f4216ac4ca",
+    "scope": "Exact BEGIN/END DEMO_LFS_VERIFY block executed with explicit revision"
+  },
+  "returncode": 0,
+  "stdout": "Pinned LIBERO demo hydrated and hash-verified: 15 payloads\n",
+  "payload_files": 15,
+  "payload_bytes": 7841002,
+  "files": [
+    {
+      "path": "demo_data/libero_demo/data/chunk-000/episode_000000.parquet",
+      "git_pointer_sha256": "e18da9404a25264d4dd369cf0e7f1105bcbafa3aec9e44240bd53c4653d4f682",
+      "expected_lfs_oid": "2a593521d58a1e6b3c27d6d91641c2d4c8a12422cc4534d9bfab49b01e532e68",
+      "expected_lfs_size": 20341,
+      "actual": {
+        "bytes": 20341,
+        "sha256": "2a593521d58a1e6b3c27d6d91641c2d4c8a12422cc4534d9bfab49b01e532e68"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/data/chunk-000/episode_000001.parquet",
+      "git_pointer_sha256": "ddfd17398e7038f46eff3e592b1283be00689e17025d0103e07dff67ca76152a",
+      "expected_lfs_oid": "d02255b7218f7a89db07eea56477d8c283cc3c0afb996a8bf4553b2682fda75d",
+      "expected_lfs_size": 25937,
+      "actual": {
+        "bytes": 25937,
+        "sha256": "d02255b7218f7a89db07eea56477d8c283cc3c0afb996a8bf4553b2682fda75d"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/data/chunk-000/episode_000002.parquet",
+      "git_pointer_sha256": "2465b9a1ac2a0fc33238290732442eba5c9570b57e8e2053c177f2a9ffa593c1",
+      "expected_lfs_oid": "60ec6beaaf6b541d4321596758bfb69c96e2b9df8757fc2c9d70db32792790c9",
+      "expected_lfs_size": 30641,
+      "actual": {
+        "bytes": 30641,
+        "sha256": "60ec6beaaf6b541d4321596758bfb69c96e2b9df8757fc2c9d70db32792790c9"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/data/chunk-000/episode_000003.parquet",
+      "git_pointer_sha256": "af54b2f8f5aacfee4bd43398761ac7acd16526bb7f9e2ab7e81b43c5708eb1c8",
+      "expected_lfs_oid": "21eed03b65778058696f14e676bf6a9d921bd7d128c6b6b2db749fdca1cea0f7",
+      "expected_lfs_size": 26392,
+      "actual": {
+        "bytes": 26392,
+        "sha256": "21eed03b65778058696f14e676bf6a9d921bd7d128c6b6b2db749fdca1cea0f7"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/data/chunk-000/episode_000004.parquet",
+      "git_pointer_sha256": "2bab3ab3165caa2051923e2665fa5fd59268447a9841ee04f046218b7de72e1f",
+      "expected_lfs_oid": "8e263ac6c3a1abb853a29d89c99d54c9e6a41a63d8a0acc5b31294804dd74a48",
+      "expected_lfs_size": 25030,
+      "actual": {
+        "bytes": 25030,
+        "sha256": "8e263ac6c3a1abb853a29d89c99d54c9e6a41a63d8a0acc5b31294804dd74a48"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.image/episode_000000.mp4",
+      "git_pointer_sha256": "a54ccfc9a2e7e6a1e2385a8f2704130f5c8cb5f80436a2ac62193b1728a1d4d0",
+      "expected_lfs_oid": "c931377658e4dc3fd1412bf3fdf1034cae3f3314975d13769fe1e6afa4d63400",
+      "expected_lfs_size": 694308,
+      "actual": {
+        "bytes": 694308,
+        "sha256": "c931377658e4dc3fd1412bf3fdf1034cae3f3314975d13769fe1e6afa4d63400"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.image/episode_000001.mp4",
+      "git_pointer_sha256": "6a0234043d866c025ba1e5b8b0caf2c874967fc4793d5942997515cf5dc5be6f",
+      "expected_lfs_oid": "39a8a52b6cd0d6b6782bf5b0379d794cbb3fb1591ccfb58fee2fadec2521a61f",
+      "expected_lfs_size": 968717,
+      "actual": {
+        "bytes": 968717,
+        "sha256": "39a8a52b6cd0d6b6782bf5b0379d794cbb3fb1591ccfb58fee2fadec2521a61f"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.image/episode_000002.mp4",
+      "git_pointer_sha256": "7b15d12ceab7ca9cc88f222364d2539d141c72034b0969cb6d7dbbc77070011f",
+      "expected_lfs_oid": "78a3e51504a08559e3491a3ccf4b5813511c23c6b92c1b63fe421a4a8ef4dee7",
+      "expected_lfs_size": 1230789,
+      "actual": {
+        "bytes": 1230789,
+        "sha256": "78a3e51504a08559e3491a3ccf4b5813511c23c6b92c1b63fe421a4a8ef4dee7"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.image/episode_000003.mp4",
+      "git_pointer_sha256": "9a4f25299955625018d7649cc70229db684c840d056a84c040ebd18d45ee8695",
+      "expected_lfs_oid": "21012088a511afc32c0b290651852b193204cd6e7f8aaa1d2b6ecc03b90a9dc3",
+      "expected_lfs_size": 1011324,
+      "actual": {
+        "bytes": 1011324,
+        "sha256": "21012088a511afc32c0b290651852b193204cd6e7f8aaa1d2b6ecc03b90a9dc3"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.image/episode_000004.mp4",
+      "git_pointer_sha256": "a52b5cb6b78390a63e7e938997e9442c955316fe85b3926d79a3acb97f4c4a65",
+      "expected_lfs_oid": "1628ead60e38bcaaac3aa54f80fb3a2dbd65dcd57b2aeca3567f8b0bc026df0a",
+      "expected_lfs_size": 901710,
+      "actual": {
+        "bytes": 901710,
+        "sha256": "1628ead60e38bcaaac3aa54f80fb3a2dbd65dcd57b2aeca3567f8b0bc026df0a"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.wrist_image/episode_000000.mp4",
+      "git_pointer_sha256": "3dd8895ca2648dc88adc3a8b16e6db8511efd2ac628aff4b55e53a1f27b44c24",
+      "expected_lfs_oid": "fbc756399adbd9a61f2e27d45a0be71f7761e27cc862cfd13303e318be290c30",
+      "expected_lfs_size": 459971,
+      "actual": {
+        "bytes": 459971,
+        "sha256": "fbc756399adbd9a61f2e27d45a0be71f7761e27cc862cfd13303e318be290c30"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.wrist_image/episode_000001.mp4",
+      "git_pointer_sha256": "1146a02ea6e9a9f42bceb173532fd9d0767dce6ab1f66c824b89551ce6143ae1",
+      "expected_lfs_oid": "ba29005129c92ecbac7db91bbcc089b6eb3e9072a8a72255aa353d9f0c6c74dd",
+      "expected_lfs_size": 663981,
+      "actual": {
+        "bytes": 663981,
+        "sha256": "ba29005129c92ecbac7db91bbcc089b6eb3e9072a8a72255aa353d9f0c6c74dd"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.wrist_image/episode_000002.mp4",
+      "git_pointer_sha256": "2ac2f63ec8f0cee5195fde269868ff6c85259cb499a0c4864966553a961985ad",
+      "expected_lfs_oid": "86dfa08a45a3330adf4bcbbaa0555f9950d945ea5ab516db0c7464296504fd77",
+      "expected_lfs_size": 653890,
+      "actual": {
+        "bytes": 653890,
+        "sha256": "86dfa08a45a3330adf4bcbbaa0555f9950d945ea5ab516db0c7464296504fd77"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.wrist_image/episode_000003.mp4",
+      "git_pointer_sha256": "7cd1a411db1a2cd80a1df24f2395a53f2ef5051e6f984e1d49523e228ffa84bd",
+      "expected_lfs_oid": "3014e9283eb3923ff5396de35e2d0c3ed0c59e74b1885ac043df3d3e6b9de26c",
+      "expected_lfs_size": 479327,
+      "actual": {
+        "bytes": 479327,
+        "sha256": "3014e9283eb3923ff5396de35e2d0c3ed0c59e74b1885ac043df3d3e6b9de26c"
+      }
+    },
+    {
+      "path": "demo_data/libero_demo/videos/chunk-000/observation.images.wrist_image/episode_000004.mp4",
+      "git_pointer_sha256": "21058f9b0d95de158869c5a37ffe33306ed9a7cefb92695d2deba7f7efa4f973",
+      "expected_lfs_oid": "74fb454476943866d9d5fb0792d28f99b04c68d7c2a855ef52e263d465ed2eb7",
+      "expected_lfs_size": 648644,
+      "actual": {
+        "bytes": 648644,
+        "sha256": "74fb454476943866d9d5fb0792d28f99b04c68d7c2a855ef52e263d465ed2eb7"
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{"command": ["/usr/bin/python3", "-B", "-I", "-S", "-O", "tests/test_recovery_setup.py"]}
+test_corruption_rejected_even_at_same_size (__main__.DemoLfsTests.test_corruption_rejected_even_at_same_size) ... ok
+test_hydrated_exact_payloads_pass (__main__.DemoLfsTests.test_hydrated_exact_payloads_pass) ... ok
+test_missing_payload_rejected (__main__.DemoLfsTests.test_missing_payload_rejected) ... ok
+test_pointer_is_not_data (__main__.DemoLfsTests.test_pointer_is_not_data) ... ok
+test_setup_network_scope_is_only_the_demo (__main__.DemoLfsTests.test_setup_network_scope_is_only_the_demo) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.147s
+
+OK
+
+{"command": ["/usr/bin/python3", "-B", "-I", "-S", "-O", "tests/test_pairing_evidence.py"]}
+test_all_sixteen_original_bytes_and_idempotent_retry (__main__.PairingCopyTests.test_all_sixteen_original_bytes_and_idempotent_retry) ... ok
+test_conflict_refused_before_any_public_file_installed (__main__.PairingCopyTests.test_conflict_refused_before_any_public_file_installed) ... ok
+test_forged_comparison_rejected (__main__.PairingCopyTests.test_forged_comparison_rejected) ... ok
+test_incomplete_source_creates_no_output (__main__.PairingCopyTests.test_incomplete_source_creates_no_output) ... ok
+test_source_changes_during_copy_rejected (__main__.PairingCopyTests.test_source_changes_during_copy_rejected) ... ok
+test_symbolic_output_cannot_escape (__main__.PairingCopyTests.test_symbolic_output_cannot_escape) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.124s
+
+OK
+

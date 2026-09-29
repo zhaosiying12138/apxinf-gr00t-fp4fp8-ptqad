@@ -153,7 +153,7 @@ bash exp/run_ptq_frontier.sh --plan "$DEV_ROOT/frontier_plan.json" \
 
 `run_onpolicy_round.sh` 的最终五臂是 BF16、选择后的 PTQ、QAD、continued-QAD、QAD→OPD。每臂使用相同 heldout seed、任务、动作步长和 episode 预算；heldout 入口必须提供收集 manifest 来同时核验官方初态索引和 seed 不交叉。新 wrapper 每集记录 reset seed 和实际初始状态哈希，因此逐集对应关系可以按证据核验；不能只凭相同集数假定配对。
 
-正式发布以完整五臂配对比较、冻结 PTQ 前驱比较和训练成本为同一套证据链。`run_onpolicy_round.sh` 完成时已经调用 `eval/compare_recovery.py` 生成 `round_01/paired_comparison.json`；不要重复运行会拒绝覆盖的生成命令。`collect_frontier_evidence.py` 会重算五臂与前驱比较，再按字节归档原始 JSON、逐任务日志和来源映射。
+正式发布以完整五臂配对比较、冻结 PTQ 前驱比较和训练成本为同一套证据链。`run_onpolicy_round.sh` 完成时已经调用 `eval/compare_recovery.py` 生成 `round_01/paired_comparison.json`；不要重复运行会拒绝覆盖的生成命令。`collect_frontier_evidence.py` 会重算五臂与前驱比较，再按字节归档原始 JSON、逐任务日志和来源映射。 `collect_pairing_evidence.py` 另外归档发布校验所需的 16 份顶层 JSON：一份总表及五臂各自的 manifest、逐任务结果、summary。它在原目录、临时副本与目标目录重算比较，保留原字节，只接受缺失文件或内容相同的已有副本。
 
 以下命令在为本轮新结果准备的发布 checkout 中执行：其中 `paper/evidence/recipe_inventory.json` 必须是冻结计划引用的预算原字节，`frontier/`、`training/`、`runtime/` 和顶层比较输出均须尚不存在。已有发布包保留不动；缺失、未完成或不配对的评测不能通过归档。
 
@@ -161,13 +161,8 @@ bash exp/run_ptq_frontier.sh --plan "$DEV_ROOT/frontier_plan.json" \
 set -e
 cmp "$DEV_ROOT/recipe_inventory.json" paper/evidence/recipe_inventory.json
 python3 paper/collect_frontier_evidence.py --frontier "$PTQAD_RUN_DIR/frontier_01"
-python3 - "$PTQAD_RUN_DIR/round_01/paired_comparison.json" <<'PY'
-from pathlib import Path
-import sys
-source = Path(sys.argv[1])
-with Path("paper/evidence/paired_comparison.json").open("xb") as stream:
-    stream.write(source.read_bytes())
-PY
+python3 paper/collect_pairing_evidence.py \
+  --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence
 CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" paper/collect_training_costs.py \
   --qad-dir "$PTQAD_RUN_DIR/train_qad" --qad-merged "$PTQAD_RUN_DIR/qad" \
   --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence/training

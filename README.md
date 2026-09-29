@@ -60,6 +60,9 @@ LoRA 的有效权重为 `W = W_PTQ + (alpha / rank) × B @ A`。生产协议设 
 ```bash
 git clone https://github.com/zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad.git
 cd apxinf-gr00t-fp4fp8-ptqad
+# Ubuntu 首次准备 Git LFS；已安装时可省略安装命令。
+sudo apt-get update
+sudo apt-get install -y git-lfs
 bash setup/01_install_dev_tools.sh
 bash setup/03_download_weights.sh --core-only
 CONDA_EXE="$HOME/miniforge3/bin/conda" bash setup/06_install_recovery.sh
@@ -70,6 +73,8 @@ export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
 export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_run_01"
 ```
+
+演示 Parquet 与视频由 Git LFS 保存。06 在缺少 `git-lfs` 时明确失败；克隆时关闭自动 smudge，再仅拉取 `demo_data/libero_demo/**`，不下载上游其他大工件。随后按固定源码中的 LFS OID 和 size 核验全部 5 份 Parquet、10 段视频，拒绝未展开的 pointer、缺文件及内容不符；普通 `git clone` 成功不能替代这项数据检查。
 
 随固定 GR00T 源码提供的 `libero_demo` 只有 **5 个演示 episode、1,406 帧、3 个任务**；当前数据管线产生 1,331 个有效窗口。三个任务为双杯分盘、白杯与巧克力布丁摆放、杯子放入微波炉。它不是 LIBERO-10 全任务演示集。128 个校准窗口和 QAD 演示监督来自这个小型子集；迭代采样不保证窗口互不重复。
 
@@ -160,7 +165,7 @@ bash exp/run_ptq_frontier.sh --plan "$DEV_ROOT/frontier_plan.json" \
 
 ### 5. 归档闭环证据
 
-正式发布以完整五臂配对比较、冻结 PTQ 前驱比较和训练成本为同一套证据链。`run_onpolicy_round.sh` 完成时已经调用 `eval/compare_recovery.py` 生成 `round_01/paired_comparison.json`；不要重复运行会拒绝覆盖的生成命令。`collect_frontier_evidence.py` 会重算五臂与前驱比较，再按字节归档原始 JSON、逐任务日志和来源映射。
+正式发布以完整五臂配对比较、冻结 PTQ 前驱比较和训练成本为同一套证据链。`run_onpolicy_round.sh` 完成时已经调用 `eval/compare_recovery.py` 生成 `round_01/paired_comparison.json`；不要重复运行会拒绝覆盖的生成命令。`collect_frontier_evidence.py` 会重算五臂与前驱比较，再按字节归档原始 JSON、逐任务日志和来源映射。 `collect_pairing_evidence.py` 另外归档发布校验所需的 16 份顶层 JSON：一份总表及五臂各自的 manifest、逐任务结果、summary。它在原目录、临时副本与目标目录重算比较，保留原字节，只接受缺失文件或内容相同的已有副本。
 
 以下命令在为本轮新结果准备的发布 checkout 中执行：其中 `paper/evidence/recipe_inventory.json` 必须是冻结计划引用的预算原字节，`frontier/`、`training/`、`runtime/` 和顶层比较输出均须尚不存在。已有发布包保留不动；缺失、未完成或不配对的评测不能通过归档。
 
@@ -168,13 +173,8 @@ bash exp/run_ptq_frontier.sh --plan "$DEV_ROOT/frontier_plan.json" \
 set -e
 cmp "$DEV_ROOT/recipe_inventory.json" paper/evidence/recipe_inventory.json
 python3 paper/collect_frontier_evidence.py --frontier "$PTQAD_RUN_DIR/frontier_01"
-python3 - "$PTQAD_RUN_DIR/round_01/paired_comparison.json" <<'PY'
-from pathlib import Path
-import sys
-source = Path(sys.argv[1])
-with Path("paper/evidence/paired_comparison.json").open("xb") as stream:
-    stream.write(source.read_bytes())
-PY
+python3 paper/collect_pairing_evidence.py \
+  --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence
 CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" paper/collect_training_costs.py \
   --qad-dir "$PTQAD_RUN_DIR/train_qad" --qad-merged "$PTQAD_RUN_DIR/qad" \
   --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence/training

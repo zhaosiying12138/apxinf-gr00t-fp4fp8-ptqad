@@ -13,6 +13,10 @@ LIBERO_REV=8f1084e3132a39270c3a13ebe37270a43ece2a01
 PATCH="$ROOT/patches/gr00t-recovery-runtime.patch"
 command -v "$UV" >/dev/null
 command -v git >/dev/null
+command -v git-lfs >/dev/null || {
+  printf '%s\n' 'Git LFS is required for the LIBERO demo. Install git-lfs (Ubuntu: sudo apt-get install git-lfs), then rerun this script.' >&2
+  exit 2
+}
 command -v python3 >/dev/null
 python3 - "$ROOT" <<'PY'
 from pathlib import Path
@@ -26,12 +30,14 @@ if hashlib.sha256((root/m['runtime_patch']).read_bytes()).hexdigest()!=m['runtim
 PY
 if [[ ! -e "$GROOT" ]]; then
   mkdir -p -- "$(dirname -- "$GROOT")"
-  git clone --no-checkout https://github.com/NVIDIA/Isaac-GR00T.git "$GROOT"
-  git -C "$GROOT" checkout --detach "$UPSTREAM"
+  GIT_LFS_SKIP_SMUDGE=1 git clone --no-checkout https://github.com/NVIDIA/Isaac-GR00T.git "$GROOT"
+  GIT_LFS_SKIP_SMUDGE=1 git -C "$GROOT" checkout --detach "$UPSTREAM"
 fi
 [[ "$(git -C "$GROOT" rev-parse HEAD)" == "$UPSTREAM" ]] || {
   printf 'Refusing to alter another checkout: %s; choose a new GR00T_REPO.\n' "$GROOT" >&2; exit 2;
 }
+# Configure only this clone; avoid automatic hydration of unrelated LFS assets.
+git -C "$GROOT" lfs install --local --skip-smudge
 if git -C "$GROOT" apply --reverse --check "$PATCH" >/dev/null 2>&1; then
   printf '%s\n' 'Recorded runtime patch is already present.'
 else
@@ -40,6 +46,41 @@ else
   git -C "$GROOT" apply --check "$PATCH"
   git -C "$GROOT" apply "$PATCH"
 fi
+# Pull only the five Parquet files and ten videos needed by this fixed demo.
+git -C "$GROOT" lfs pull --include='demo_data/libero_demo/**' --exclude=''
+# BEGIN DEMO_LFS_VERIFY
+python3 - "$GROOT" "$UPSTREAM" <<'PY'
+from pathlib import Path
+import hashlib,json,re,subprocess,sys
+repo=Path(sys.argv[1]).resolve()
+revision=sys.argv[2] if len(sys.argv)>2 else 'HEAD'
+def git(*args):
+    return subprocess.check_output(['git','-C',str(repo),*args])
+prefix='demo_data/libero_demo/'
+info=json.loads(git('show',revision+':'+prefix+'meta/info.json'))
+tracked=[x for x in git('ls-tree','-r','--name-only',revision,prefix).decode().splitlines()
+         if Path(x).suffix in ('.parquet','.mp4')]
+if (sum(x.endswith('.parquet') for x in tracked)!=info['total_episodes'] or
+    sum(x.endswith('.mp4') for x in tracked)!=info['total_videos']):
+    raise ValueError('Pinned demo payload count differs from its metadata')
+for name in tracked:
+    pointer=git('show',revision+':'+name).decode()
+    match=re.fullmatch(r'version https://git-lfs.github.com/spec/v1\noid sha256:([0-9a-f]{64})\nsize (\d+)\n?',pointer)
+    if not match:raise ValueError(f'Expected a canonical pinned LFS identity: {name}')
+    path=repo/name
+    if path.is_symlink() or not path.is_file():raise ValueError(f'Missing regular demo payload: {name}')
+    digest=hashlib.sha256()
+    with path.open('rb') as stream:
+        first=stream.read(1024*1024)
+        if first.startswith(b'version https://git-lfs.github.com/spec/v1'):
+            raise ValueError(f'Unresolved Git LFS pointer, not demo data: {name}')
+        digest.update(first)
+        for chunk in iter(lambda:stream.read(1024*1024),b''):digest.update(chunk)
+    if path.stat().st_size!=int(match[2]) or digest.hexdigest()!=match[1]:
+        raise ValueError(f'Demo payload differs from pinned LFS size/SHA: {name}')
+print(f'Pinned LIBERO demo hydrated and hash-verified: {len(tracked)} payloads')
+PY
+# END DEMO_LFS_VERIFY
 git -C "$GROOT" submodule update --init external_dependencies/LIBERO
 [[ "$(git -C "$GROOT/external_dependencies/LIBERO" rev-parse HEAD)" == "$LIBERO_REV" ]] || {
   printf '%s\n' 'LIBERO revision mismatch'; exit 2;

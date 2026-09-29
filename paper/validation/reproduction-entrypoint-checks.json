@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "scope": "Targeted CPU reproduction-entrypoint fixtures and shell syntax only; not a rerun of prior85 main or119 combined tests. Does not execute LFS/network/install/GPU.",
+  "started_utc": "2026-09-29T06:57:46.875665+00:00",
+  "completed_utc": "2026-09-29T06:57:47.586492+00:00",
+  "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "source_head": "11197115dd6e08bb4757176215eac3a0da117c10",
+  "source_sha256": {
+    "setup/06_install_recovery.sh": "3cd6d2f5ff050e2b2468f19f5637b405b841023a9ebce34f5f4e4f40a09178f0",
+    "paper/collect_pairing_evidence.py": "c2139bf4e505f1fb5737cd8392f6bd119bdf7b74900c2544486ad4319b345cfd",
+    "eval/compare_recovery.py": "49ad903a090d1ce5f8a6c848c6bbfd159965413da707167366373f3a71799949",
+    "eval/run_recovery_eval.py": "ca13ac96ad31ea764c4d5e7426bff6533b3cb30146a8db6e5907744572d25620",
+    "tests/test_ptq_frontier.py": "3125509ef82bc44b172f0f512180ebdb27c430a8ae4a4d7a62519dfd67f70125",
+    "tests/test_recovery_setup.py": "359da24abfc32b8caf899e81e3f5f36073359092efbaa57000a84b04a73ead22",
+    "tests/test_pairing_evidence.py": "8421fd0b0ba1b726ca8adc7cb3004e1d315aded6d50570e3abb0e65b8c8420d0"
+  },
+  "cases": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-I",
+        "-S",
+        "-O",
+        "tests/test_recovery_setup.py"
+      ],
+      "returncode": 0,
+      "tests": 5,
+      "unittest_seconds": 0.147,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-I",
+        "-S",
+        "-O",
+        "tests/test_pairing_evidence.py"
+      ],
+      "returncode": 0,
+      "tests": 6,
+      "unittest_seconds": 0.124,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "total_tests": 11,
+  "bash_syntax": {
+    "command": [
+      "bash",
+      "-n",
+      "setup/06_install_recovery.sh"
+    ],
+    "returncode": 0
+  },
+  "log": "paper/validation/reproduction-entrypoint-checks.log",
+  "log_sha256": "71ed3dc62280a0eba10e360becab30f09c8a446bd70c61cac6d4e2ee93ef2e84",
+  "source_changed_during_check": false
+}
