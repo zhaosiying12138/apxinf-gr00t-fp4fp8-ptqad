@@ -9,6 +9,7 @@ import argparse
 from collections import Counter
 from datetime import datetime, timezone
 import hashlib
+from fractions import Fraction
 import types
 import json
 import math
@@ -36,6 +37,112 @@ ACCOUNTING_NOTES = ['Training, collection and labeling retain their producer tim
 def need(ok, message):
     if not ok:
         raise ValueError(message)
+
+
+def is_orchestrated_protocol(protocol):
+    """Recognize the orchestrator contract from its schema, not its version number.
+
+    The protocol version is a provenance label. A later frozen round may keep
+    the same partition/selection contract while incrementing that label; the
+    evidence gate must still audit it instead of silently falling back to the
+    old protocol.
+    """
+    partitions = protocol.get('partitions')
+    selection = protocol.get('selection')
+    return (isinstance(partitions, dict) and
+            all(isinstance(partitions.get(name), dict)
+                for name in ('development', 'collection', 'heldout')) and
+            isinstance(selection, dict) and
+            isinstance(selection.get('qad_learning_rates'), list) and
+            isinstance(selection.get('opd_weights'), list) and
+            isinstance(selection.get('pressure_candidates'), list))
+
+
+def orchestrator_source(protocol, state=None):
+    """Return the producer source named by a run, with a compatibility default.
+
+    New run manifests should record ``implementation_path``. For the first
+    published orchestrator that field was absent, so derive its v3 filename
+    from the frozen protocol id; this does not select a different protocol.
+    """
+    state = state or {}
+    relative = state.get('implementation_path')
+    if relative is None:
+        match = re.search(r'v(\d+)', str(protocol.get('id', '')))
+        relative = 'exp/run_high_fp4_v%s.py' % (match.group(1) if match else '3')
+    path = Path(relative)
+    need(not path.is_absolute() and '..' not in path.parts and path.parts[:1] == ('exp',),
+         'Invalid orchestrator implementation path')
+    return path.as_posix()
+
+
+def normalized_protocol(protocol, final=None):
+    """Derive audit settings without rewriting the archived protocol bytes."""
+    if not is_orchestrated_protocol(protocol):return protocol
+    need(isinstance(final,dict),'v3 costs require the completed orchestrator final manifest')
+    selection=protocol['selection'];lr=final['selected_qad_learning_rate'];weight=final['selected_opd_weight']
+    need(lr in selection['qad_learning_rates'] and weight in selection['opd_weights'],
+         'Selected recovery setting is outside the frozen v3 search')
+    return {**protocol,**protocol['partitions'],
+        'initial_states':{'protocol':protocol['initial_state_protocol']},
+        'recovery':{'initial_qad_optimizer_steps':selection['qad_optimizer_steps'],
+            'effective_demo_batch':selection['effective_demo_batch'],'rank':selection['rank'],
+            'alpha':selection['alpha'],'scope':selection['recovery_scope'],'activation_checkpointing':True},
+        'continuation':{'optimizer_steps':selection['continuation_optimizer_steps'],
+            'effective_demo_batch':selection['effective_demo_batch'],'opd_weight':weight,
+            'probe_every_optimizer_steps':selection['opd_every']},
+        'selected_learning_rate':lr,'train_seed':selection['train_seed']}
+
+
+def audit_recovery_selection(record,kind,protocol,protocol_sha,resolve,evaluation):
+    """Recompute recovery choice from archived development raw logs, never heldout."""
+    field='learning_rate' if kind=='qad' else 'opd_weight'
+    declared=protocol['selection']['qad_learning_rates' if kind=='qad' else 'opd_weights']
+    need(record.get('protocol_sha256')==protocol_sha and record.get('selection_uses_heldout') is False and
+         record.get('environment_pairing_verified') is True,'Recovery choice lacks frozen development provenance')
+    rows=list(record['candidates'].values())
+    need(len(rows)==len(declared) and {row[field] for row in rows}==set(declared),'Recovery candidate set differs')
+    expected=protocol['partitions']['development'];signatures=[]
+    for row in rows:
+        need(row.get('selection_source')=='development_only','Recovery choice uses non-development data')
+        ids=row['evaluation_identity'];base=Path(row['evaluation_path'])
+        need(set(ids)=={'eval_manifest.json','task_results.json','summary.json'},'Incomplete selection evaluation identity')
+        for name,item in ids.items():need(item['path']==str(base/name),'Selection input path differs')
+        manifest,tasks,summary=[json.loads(resolve(ids[name]).read_text()) for name in
+                               ('eval_manifest.json','task_results.json','summary.json')]
+        values={'purpose':'development','seed':expected['seed'],'episodes':expected['episodes_per_task'],
+            'init_state_indices':expected['init_state_indices'],'tasks':evaluation.TASKS,
+            'n_envs':1,'settle_steps':10,'n_action_steps':8,'max_episode_steps':720,
+            'protocol_sha256':protocol_sha,'initial_state_protocol':'libero10_official_bank_v1'}
+        need(all(manifest.get(k)==v for k,v in values.items()),'Selection evaluation protocol differs')
+        need(set(tasks)==set(evaluation.TASKS) and set(row['raw_log_identities'])==set(evaluation.TASKS),'Selection task/log set incomplete')
+        count=successes=0;signature=[]
+        for ti,task in enumerate(evaluation.TASKS):
+            result=tasks[task];outcomes=result['results'];log=row['raw_log_identities'][task]
+            need(log['path']==str(base/(task+'.log')),'Selection raw log path differs')
+            parsed=evaluation.parse_log(resolve(log))
+            need(type(result.get('returncode')) is int and result['returncode']==0 and
+                 len(outcomes)==expected['episodes_per_task'] and all(type(x) is bool for x in outcomes) and
+                 all(result.get(k)==v for k,v in parsed.items()),'Selection task differs from raw log')
+            need(result.get('seed')==expected['seed']+1000*ti,'Selection task seed differs')
+            resets=evaluation.validate_resets(result,expected['seed']+1000*ti,expected['init_state_indices'])
+            signature.extend({'task':task,**{k:z[k] for k in ('episode_index','seed','init_state_index','settle_steps',
+                'initial_state_sha256','restored_state_sha256','init_state_bank_sha256')}} for z in resets)
+            successes+=sum(outcomes);count+=len(outcomes)
+        digest=hashlib.sha256(json.dumps(signature,sort_keys=True).encode()).hexdigest();signatures.append(digest)
+        need(row.get('pairing_sha256')==digest,'Selection pairing digest differs')
+        need(summary.get('tasks_complete')==10 and summary.get('total_successes')==successes and
+             summary.get('total_episodes')==count and summary.get('purpose')=='development' and
+             summary.get('seed')==expected['seed'] and
+             math.isclose(summary['macro_success_rate'],successes/count,rel_tol=0,abs_tol=1e-12),
+             'Selection summary differs from raw outcomes')
+        need(row.get('successes')==successes and row.get('episodes')==count and
+             math.isclose(row['macro_success_rate'],successes/count,rel_tol=0,abs_tol=1e-12),
+             'Selection score differs from raw outcomes')
+    need(len(set(signatures))==1,'Recovery development candidate initial states do not pair')
+    winner=sorted(rows,key=lambda row:(-Fraction(row['successes'],row['episodes']),row[field]))[0][field]
+    need(record['selected_'+field]==winner,'Recovery selection violates frozen score/tie-break rule')
+    return winner
 
 
 def evaluation_helpers(source):
@@ -164,6 +271,15 @@ def audit_stage(folder, name, steps, protocol, protocol_sha, evidence, expected_
     expected_weight = protocol["continuation"]["opd_weight"] if name == "qad_opd" else 0
     need(manifest.get("probe_weight") == expected_weight, name + ": teacher objective differs")
     need(manifest.get("probe_every") == protocol["continuation"]["probe_every_optimizer_steps"], name + ": teacher schedule differs")
+    if is_orchestrated_protocol(protocol):
+        request=evidence.json(folder/'orchestrator_training_request.json',prefix+'/orchestrator_training_request.json')
+        env=request['environment'];logical_folder=Path(logical_checkpoint).parent if logical_checkpoint else folder
+        expected_env={'QAD_OUT':str(logical_folder),'QAD_STEPS':str(steps),
+            'QAD_LR':str(float(protocol['selected_learning_rate'])),'TRAIN_SEED':str(protocol['train_seed']),
+            'QAD_OPD_MSE_W':str(float(expected_weight)),'QAD_ACTIVATION_CHECKPOINTING':'1'}
+        need(request.get('protocol_sha256')==protocol_sha and all(env.get(k)==v for k,v in expected_env.items()),
+             name+': training request differs from selected v3 settings')
+        need(manifest.get('train_seed')==manifest.get('seed')==protocol['train_seed'],name+': training seed differs')
     need(set(manifest.get("recovery_source_sha256", {})) == set(TRAIN_SOURCES), name + ": incomplete source SHA coverage")
     for relative, digest in manifest["recovery_source_sha256"].items():
         data = evidence.add(Path(source_root) / relative, "source/" + relative, "verified_training_producer")
@@ -237,7 +353,7 @@ def audit_collection(folder, qad_merged, protocol, protocol_sha, evidence, publi
         if not published:
             need(counts["saved"] == len(files), "Capture file count differs")
         captures[task] = {"manifest": capture, "counts": counts, "files": files}
-    need(summary["total_episodes"] == total == 20 and summary["total_successes"] == success and
+    need(summary["total_episodes"] == total == 10*expected['episodes_per_task'] and summary["total_successes"] == success and
          abs(summary["macro_success_rate"] - success/total) < 1e-12, "Collection summary differs")
     return {"wall_seconds": positive(summary["wall_seconds_including_server_loads"], "collection wall time"),
             "timing_scope": "serial ten-task collection loop including server loads, rollouts and server shutdown",
@@ -281,26 +397,94 @@ def probe_cost_fields(text, name, steps, opd):
             "teacher_schedule_note": "Scheduled count derives from completed updates and verified source; logger records only selected updates, not all probe calls."}
 
 
-def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None):
+def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
+    run=Path(run_dir).resolve(strict=True)
+    final=evidence.json(run/'final_manifest.json','orchestration/final_manifest.json','completed_orchestrator')
+    state=evidence.json(run/'run_manifest.json','orchestration/run_manifest.json','completed_orchestrator')
+    need(isinstance(final.get('format'), str) and re.fullmatch(r'high_fp4_[a-z0-9_]+_final_manifest', final['format']) and
+         state.get('status')=='complete' and
+         state.get('output_layout')=='stable_paths_v2' and
+         final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and
+         final.get('selection_uses_heldout') is False and state.get('selection_uses_heldout') is False,
+         'Orchestrator is incomplete or uses another protocol')
+    need(final.get('required_arms')==['bf16','ptq','qad','continued_qad','qad_opd'],'Orchestrator final arm set differs')
+    implementation_relative = orchestrator_source(protocol, state)
+    need(state.get('implementation_sha256')==identity(ROOT/implementation_relative)['sha256'],
+         'Orchestrator source differs from completed run')
+    def resolve(record):
+        path=Path(record['path']).resolve(strict=True)
+        need(identity(path)=={k:record[k] for k in ('bytes','sha256')},'Orchestrator source identity differs')
+        target='orchestration/inputs/'+hashlib.sha256(record['path'].encode()).hexdigest()[:20]+'-'+path.name
+        evidence.add(path,target,'recovery_selection_input');return path
+    evaluation=evaluation_helpers(ROOT/'eval/run_recovery_eval.py')
+    lr=audit_recovery_selection(final['qad_selection'],'qad',protocol,protocol_sha,resolve,evaluation)
+    weight=audit_recovery_selection(final['opd_selection'],'opd',protocol,protocol_sha,resolve,evaluation)
+    need(lr==final['selected_qad_learning_rate'] and weight==final['selected_opd_weight'],'Final settings differ from selected recovery')
+    comparison=json.loads(resolve(final['heldout_comparison']).read_text())
+    need(comparison.get('environment_pairing_verified') is True and set(comparison['arms'])==set(final['required_arms']) and
+         all(row['count']==100 for row in comparison['arms'].values()),'Orchestrator final evaluation is incomplete')
+    merged={name:Path(final[key]['path']).resolve(strict=True) for name,key in (
+        ('qad','selected_qad_model_identity'),('continued_qad','selected_continued_model_identity'),('qad_opd','selected_opd_model_identity'))}
+    training={};logs={};round_dir=Path(final['heldout_round']).resolve(strict=True)
+    for name,folder in merged.items():
+        export=json.loads((folder/'merge_manifest.json').read_text());training[name]=Path(export['training_checkpoint']).parent.resolve(strict=True)
+        matches=[(key,row) for key,row in state['stages'].items() if row.get('output')==str(training[name])]
+        need(len(matches)==1,'Selected training stage missing or ambiguous')
+        key,marker=matches[0]
+        actual=evidence.json(run/'stages'/(key+'.json'),'orchestration/stages/'+key+'.json','completed_stage')
+        need(actual==marker and marker.get('status')=='complete' and marker.get('protocol_sha256')==protocol_sha,
+             'Selected training stage receipt differs')
+        logs[name]=run/'logs'/(key+'.log')
+        heldout=json.loads((round_dir/('heldout_'+name)/'eval_manifest.json').read_text())
+        need(Path(heldout['checkpoint']).resolve()==folder,'Final heldout uses another recovery export')
+        key={'qad':'selected_qad_model_identity','continued_qad':'selected_continued_model_identity',
+             'qad_opd':'selected_opd_model_identity'}[name]
+        model=final[key]
+        need(export['output_weights']=={row['name']:{k:row[k] for k in ('bytes','sha256')} for row in model['shards']},
+             'Final model shards differ from selected export')
+    need(Path(final['selected_qad_checkpoint_identity']['path']).resolve()==
+         training['qad']/('checkpoint-'+str(protocol['selection']['qad_optimizer_steps'])),'Selected QAD adapter differs')
+    heldout=evidence.json(round_dir/'heldout_bf16/eval_manifest.json','orchestration/heldout_bf16_manifest.json')
+    collection=Path(heldout['collection_manifest']).parent.resolve(strict=True)
+    opd=json.loads((training['qad_opd']/'recovery_manifest.json').read_text())
+    cache=Path(opd['probe_cache']).resolve(strict=True)
+    need(cache.name=='teacher_probes.pt','Unexpected orchestrator teacher cache filename')
+    evidence.add(ROOT/implementation_relative,'source/'+implementation_relative,'collector_time_orchestrator_snapshot')
+    return {'final':final,'training':training,'merged':merged,'logs':logs,'collection':collection,'teacher':cache.parent}
+
+
+def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None,orchestrator_run=None):
     out = Path(out).resolve()
     if out.exists():
         raise FileExistsError("Refusing existing evidence directory: " + str(out))
     evidence = Evidence()
-    protocol = evidence.json(protocol_path, "protocol/recovery_protocol.json", "fixed_protocol")
+    raw_protocol = evidence.json(protocol_path, "protocol/recovery_protocol.json", "fixed_protocol")
     protocol_sha = identity(protocol_path)["sha256"]
-    round_dir, qad_merged = Path(round_dir).resolve(strict=True), Path(qad_merged).resolve(strict=True)
+    layout=orchestrator_layout(orchestrator_run,raw_protocol,protocol_sha,evidence) if orchestrator_run else None
+    protocol=normalized_protocol(raw_protocol,layout['final'] if layout else None)
+    if layout:
+        train_dirs=layout['training'];merged_dirs=layout['merged'];log_paths=layout['logs']
+        qad_dir=train_dirs['qad'];qad_merged=merged_dirs['qad'];qad_log=log_paths['qad']
+        collection_dir=layout['collection'];teacher_dir=layout['teacher']
+        round_dir=Path(layout['final']['heldout_round'])
+    else:
+        round_dir, qad_merged = Path(round_dir).resolve(strict=True), Path(qad_merged).resolve(strict=True)
+        train_dirs={name:round_dir/name for name in ('continued_qad','qad_opd')}
+        merged_dirs={name:round_dir/(name+'_merged') for name in ('continued_qad','qad_opd')}
+        log_paths={name:round_dir/(name+'.train.log') for name in ('continued_qad','qad_opd')}
+        collection_dir=round_dir/'collection';teacher_dir=round_dir
     initial_steps = protocol["recovery"]["initial_qad_optimizer_steps"]
     continuation_steps = protocol["continuation"]["optimizer_steps"]
     qad, initial, adapter = audit_stage(qad_dir, "qad", initial_steps, protocol, protocol_sha, evidence)
     stages, manifests, exports = {"qad": qad}, {"qad": initial}, {}
     exports["qad"] = audit_merge(qad_merged, adapter, initial, evidence, "qad")
     for name in ("continued_qad", "qad_opd"):
-        row, manifest, checkpoint = audit_stage(round_dir/name, name, continuation_steps, protocol, protocol_sha, evidence, adapter)
+        row, manifest, checkpoint = audit_stage(train_dirs[name], name, continuation_steps, protocol, protocol_sha, evidence, adapter)
         for key in SHARED_KEYS:
             need(manifest[key] == initial[key], "Continuation origin/budget differs: " + name + "/" + key)
         stages[name], manifests[name] = row, manifest
-        exports[name] = audit_merge(round_dir/(name+"_merged"), checkpoint, manifest, evidence, name)
-        evidence.add(round_dir/(name+".train.log"), "stages/"+name+"/train.log", "raw_training_log")
+        exports[name] = audit_merge(merged_dirs[name], checkpoint, manifest, evidence, name)
+        evidence.add(log_paths[name], "stages/"+name+"/train.log", "raw_training_log")
     if qad_log:
         evidence.add(qad_log, "stages/qad/train.log", "raw_training_log")
     base = Path(initial["base"]).resolve(strict=True)
@@ -320,12 +504,12 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None):
     for filename in ("config.json", "statistics.json"):
         evidence.add(qad_merged/filename, "exports/qad/"+filename, "verified_collection_student_metadata")
         need(identity(qad_merged/filename) == identity(base/filename), "Collection student metadata differs from frozen base")
-    collection, captures = audit_collection(round_dir/"collection", qad_merged, protocol, protocol_sha, evidence)
+    collection, captures = audit_collection(collection_dir, qad_merged, protocol, protocol_sha, evidence)
     for filename, target in (("teacher_labeling.log", "teacher/labeling.log"), ("collection.log", "collection/driver.log")):
         if (round_dir/filename).is_file():
             evidence.add(round_dir/filename, target, "raw_stage_driver_log")
-    metadata = evidence.json(round_dir/"teacher_probes.json", "teacher/teacher_probes.json")
-    cache_path = round_dir/"teacher_probes.pt"
+    metadata = evidence.json(teacher_dir/"teacher_probes.json", "teacher/teacher_probes.json")
+    cache_path = teacher_dir/"teacher_probes.pt"
     cache_identity = identity(cache_path)
     opd = manifests["qad_opd"]
     need(Path(opd["probe_cache"]).resolve() == cache_path and opd["probe_cache_sha256"] == cache_identity["sha256"], "OPD trained against another teacher cache")
@@ -350,7 +534,7 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None):
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
     import torch
     cache = torch.load(cache_path, map_location="cpu", weights_only=True, mmap=True)
-    used_tasks = validate_teacher_source(metadata, cache, (round_dir/"collection/observations").resolve(), qad_merged, captures)
+    used_tasks = validate_teacher_source(metadata, cache, (collection_dir/"observations").resolve(), qad_merged, captures)
     del cache
     need(set(used_tasks) == set(evaluation_helpers(ROOT/"eval/run_recovery_eval.py").TASKS), "Formal teacher cache does not cover all ten collection tasks")
     need(identity(cache_path) == cache_identity, "Teacher cache changed during audit")
@@ -361,6 +545,10 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None):
                     "autocast_dtype": metadata["autocast_dtype"], "requested_probes": metadata["requested_count"],
                     "actual_probes": metadata["count"], "source_observations_per_task": used_tasks,
                     "cache_identity": cache_identity}
+    if layout:
+        need(metadata['count']==metadata['requested_count']==160 and
+             all(used_tasks[task]==16 for task in used_tasks),
+             'v3 requires all 160 declared teacher observations, 16 per task')
     for name in ("continued_qad", "qad_opd"):
         text = evidence.files["stages/"+name+"/train.log"][1].decode(errors="replace")
         stages[name].update(probe_cost_fields(text, name, continuation_steps, opd))
@@ -378,6 +566,10 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None):
         "excluded_from_formal_cost_comparison": EXCLUDED,
         "accounting_notes": ACCOUNTING_NOTES,
         "evidence_manifest": "evidence_manifest.json"}
+    if layout:
+        result['selected_recovery_settings']={'learning_rate':protocol['selected_learning_rate'],
+            'opd_weight':protocol['continuation']['opd_weight'],'train_seed':protocol['train_seed']}
+        result['cost_scope']='Selected final three training arms. Hyperparameter-search training and development evaluations are separate and excluded from these stage costs.'
     # All audit checks finish before creating the output. Existing paths are never reused.
     out.mkdir(parents=True, exist_ok=False)
     for row, data in evidence.files.values():
@@ -415,9 +607,38 @@ def verify_published(directory):
     need({str(p.relative_to(root)) for p in root.rglob("*") if p.is_file()} ==
          set(indexed) | {"costs.json","evidence_manifest.json"}, "Unmapped files in published costs")
     read = lambda relative: json.loads((root/relative).read_text())
-    protocol = read("protocol/recovery_protocol.json")
+    raw_protocol = read("protocol/recovery_protocol.json")
     protocol_sha = identity(root/"protocol/recovery_protocol.json")["sha256"]
     need(costs["protocol_sha256"] == protocol_sha, "Published cost protocol differs")
+    final=None
+    if is_orchestrated_protocol(raw_protocol):
+        final=read('orchestration/final_manifest.json');state=read('orchestration/run_manifest.json')
+        need(isinstance(final.get('format'), str) and re.fullmatch(r'high_fp4_[a-z0-9_]+_final_manifest', final['format']) and
+             state.get('status')=='complete' and
+             state.get('output_layout')=='stable_paths_v2' and
+             final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and
+             final.get('selection_uses_heldout') is False and state.get('selection_uses_heldout') is False,
+             'Published orchestrator is incomplete or uses another protocol')
+        def resolve(record):
+            matches=[row for row in indexed.values() if row['original_absolute_path']==record['path'] and
+                     all(row[k]==record[k] for k in ('bytes','sha256'))]
+            need(bool(matches),'Missing/mismatched published selection input: '+record['path'])
+            return root/matches[0]['published_path']
+        evaluation=evaluation_helpers(root/'source/eval/run_recovery_eval.py')
+        lr=audit_recovery_selection(final['qad_selection'],'qad',raw_protocol,protocol_sha,resolve,evaluation)
+        weight=audit_recovery_selection(final['opd_selection'],'opd',raw_protocol,protocol_sha,resolve,evaluation)
+        need(lr==final['selected_qad_learning_rate'] and weight==final['selected_opd_weight'],
+             'Published final settings differ from development selection')
+        implementation_relative = orchestrator_source(raw_protocol, state)
+        need(identity(root/('source/'+implementation_relative))['sha256']==state['implementation_sha256'],
+             'Published orchestrator source differs from completed run')
+    protocol=normalized_protocol(raw_protocol,final)
+    if final:
+        need(costs.get('selected_recovery_settings')=={'learning_rate':protocol['selected_learning_rate'],
+             'opd_weight':protocol['continuation']['opd_weight'],'train_seed':protocol['train_seed']},
+             'Published selected recovery settings differ')
+        need(costs.get('cost_scope')=='Selected final three training arms. Hyperparameter-search training and development evaluations are separate and excluded from these stage costs.',
+             'Published v3 cost scope differs')
     evidence = Evidence()
     exports = {n:read("exports/"+n+"/merge_manifest.json") for n in ("qad","continued_qad","qad_opd")}
     adapter = Path(exports["qad"]["training_checkpoint"]).resolve()
@@ -432,6 +653,15 @@ def verify_published(directory):
         audit_merge(root/"exports"/name,checkpoint,manifest,evidence,name,logical_checkpoint=logical)
         computed[name], manifests[name] = row, manifest
     initial, opd = manifests["qad"], manifests["qad_opd"]
+    if final:
+        need(initial['base']==final['selected_pressure_checkpoint'] and
+             str(adapter)==final['selected_qad_checkpoint_identity']['path'],
+             'Published selected PTQ/adapter differs from final manifest')
+        for arm,key in (('qad','selected_qad_model_identity'),('continued_qad','selected_continued_model_identity'),
+                        ('qad_opd','selected_opd_model_identity')):
+            record=final[key];weights={row['name']:{k:row[k] for k in ('bytes','sha256')} for row in record['shards']}
+            need(exports[arm]['output_weights']==weights and Path(indexed['exports/'+arm+'/merge_manifest.json']['original_absolute_path']).parent==Path(record['path']),
+                 'Published selected model identity differs: '+arm)
     for name in ("continued_qad","qad_opd"):
         need(all(manifests[name][k] == initial[k] for k in SHARED_KEYS), "Published continuation origin/budget differs")
         computed[name].update(probe_cost_fields((root/"stages"/name/"train.log").read_text(errors="replace"),name,
@@ -488,6 +718,8 @@ def verify_published(directory):
              capture["action_mask"]==metadata["action_mask"], "Published capture/teacher source differs")
         seen.add(str(path));used[path.parent.name]+=1
     need(set(used)==set(evaluation.TASKS) and all(used[k]<=captures[k]["counts"]["saved"] for k in used), "Published teacher task coverage differs")
+    if final:need(metadata['count']==metadata['requested_count']==160 and all(used[task]==16 for task in used),
+                  'Published v3 teacher cache is incomplete')
     cache = costs["teacher_labeling"]["cache_identity"]
     need(cache["sha256"]==opd["probe_cache_sha256"] and type(cache["bytes"]) is int and cache["bytes"]>0, "Published teacher cache identity differs")
     teacher_cost = {"elapsed_seconds":positive(metadata["elapsed_seconds"],"teacher elapsed"),"timing_scope":metadata["timing_scope"],
@@ -514,15 +746,18 @@ def main():
     parser.add_argument("--out", default=str(ROOT/"paper/evidence/training"))
     parser.add_argument("--protocol", default=str(ROOT/"exp/recovery_protocol.json"))
     parser.add_argument("--qad-log")
+    parser.add_argument('--orchestrator-run',help='Completed v3 run directory; derive selected actual stages from final_manifest.json')
     parser.add_argument("--verify-published", metavar="DIRECTORY", help="Read-only public verification; no private weights/cache or torch required")
     args = parser.parse_args()
     if args.verify_published:
-        need(not any((args.qad_dir,args.qad_merged,args.round,args.qad_log)), "Do not combine verification and collection")
+        need(not any((args.qad_dir,args.qad_merged,args.round,args.qad_log,args.orchestrator_run)), "Do not combine verification and collection")
         result = verify_published(args.verify_published)
         print(json.dumps({"status":"verified", "formal_training_arms":list(result["training"]),"private_tensors_opened":False}))
         return
-    need(all((args.qad_dir,args.qad_merged,args.round)), "Collection requires --qad-dir, --qad-merged and --round")
-    result = collect(args.qad_dir,args.qad_merged,args.round,args.out,args.protocol,args.qad_log)
+    need(bool(args.orchestrator_run) or all((args.qad_dir,args.qad_merged,args.round)), "Collection requires --orchestrator-run or --qad-dir, --qad-merged and --round")
+    need(not args.orchestrator_run or not any((args.qad_dir,args.qad_merged,args.round,args.qad_log)),
+         'Do not mix orchestrator-derived and manually specified stage paths')
+    result = collect(args.qad_dir,args.qad_merged,args.round,args.out,args.protocol,args.qad_log,args.orchestrator_run)
     print(json.dumps({"status":result["status"],"out":str(Path(args.out).resolve()),
                      "formal_training_arms":list(result["training"])}))
 

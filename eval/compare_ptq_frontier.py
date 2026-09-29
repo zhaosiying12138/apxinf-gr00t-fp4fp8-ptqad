@@ -308,7 +308,8 @@ def checked_main(plan,round_dir):
         if arm in ('bf16','ptq'):
             expected=plan['checkpoints']['bf16' if arm=='bf16' else plan['selected_recipe']]['path']
             need(Path(manifest['checkpoint']).resolve()==Path(expected),'Main arm checkpoint differs from frozen development selection')
-    collection=round_dir/'collection/eval_manifest.json';record=load(collection)
+    bf16_manifest=load(round_dir/'heldout_bf16/eval_manifest.json')
+    collection=Path(bf16_manifest['collection_manifest']).resolve();record=load(collection)
     need(record['protocol_sha256']==protocol_hash and record['initial_state_protocol']=='libero10_official_bank_v1' and record['n_envs']==1 and record['settle_steps']==10,'Main collection provenance differs')
     expected=protocol_contract(protocol['path'])['collection']
     need(record['purpose']=='collection' and record['seed']==expected['seed'] and record['episodes']==expected['episodes_per_task'] and record['tasks']==TASKS and record['init_state_indices']==expected['init_state_indices'], 'Main collection protocol differs')

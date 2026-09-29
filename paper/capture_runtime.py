@@ -30,6 +30,7 @@ DEFAULT_SOURCE_FILES = (
     'exp/prepare_native_pi05.sh', 'exp/run_native_graph_gates.sh', 'exp/recovery_protocol.json',
     'exp/reproduce_ptqad.sh',
     'exp/recovery_protocol_v3_high_fp4.json', 'exp/run_high_fp4_v3.py',
+    'exp/verify_teacher_cache_cpu.py',
     "exp/run_development.py", "exp/run_development.sh", "exp/recipe_inventory.py", 'exp/run_ptq_frontier.sh', 'exp/ptq_frontier_protocol.json',
     'baselines/bench_gr00t_pt.py', 'baselines/bench_pi05_lerobot.py',
     'patches/apxinf-fp4vla-engine.patch', 'patches/gr00t-recovery-runtime.patch',
