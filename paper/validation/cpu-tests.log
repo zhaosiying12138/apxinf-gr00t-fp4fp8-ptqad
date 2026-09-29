@@ -1,0 +1,113 @@
+test_eval_and_training_outputs_gradients_rng_and_keys_match (test_activation_checkpoint.ActivationCheckpointTests.test_eval_and_training_outputs_gradients_rng_and_keys_match) ... ok
+test_real_qwen_dit_vl_with_project_lora_when_gr00t_is_available (test_activation_checkpoint.ActivationCheckpointTests.test_real_qwen_dit_vl_with_project_lora_when_gr00t_is_available) ... /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'DiT' object attribute is deprecated. Please access 'compute_dtype' over 'DiT's config object instead, e.g. 'unet.config.compute_dtype'.
+  embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'DiT' object attribute is deprecated. Please access 'output_dim' over 'DiT's config object instead, e.g. 'unet.config.output_dim'.
+  self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
+Total number of DiT parameters:  41824
+Total number of SelfAttentionTransformer parameters:  12704
+[lora-qad] LoRA on 38 Linears (r=32, scope=head+lang_all); trainable=0.1M frozen=0M
+[lora-qad] LoRA on 76 Linears (r=32, scope=head+lang_all); trainable=0.1M frozen=0M
+ok
+test_dtype_hooks_are_untimed_and_removed (test_baseline_timing.BaselineTimingTests.test_dtype_hooks_are_untimed_and_removed) ... ok
+test_gr00t_tuple_and_finite_checks (test_baseline_timing.BaselineTimingTests.test_gr00t_tuple_and_finite_checks) ... ok
+test_pi05_finite_check (test_baseline_timing.BaselineTimingTests.test_pi05_finite_check) ... ok
+test_pi05_loader_overrides_config_and_propagates_loading_error (test_baseline_timing.BaselineTimingTests.test_pi05_loader_overrides_config_and_propagates_loading_error) ... ok
+test_accepts_full_fixture_and_rejects_corruption_without_changing_inputs (test_calibration_verifier.CalibrationVerifierTests.test_accepts_full_fixture_and_rejects_corruption_without_changing_inputs) ... ok
+test_bake_and_cross_shard_adapter_export_preserve_base_dtype_and_keys (test_checkpoint_roundtrip.CheckpointRoundtrip.test_bake_and_cross_shard_adapter_export_preserve_base_dtype_and_keys) ... ok
+test_completed_bake_rejects_changed_weights_and_metadata (test_development_runner.DevelopmentRunnerTest.test_completed_bake_rejects_changed_weights_and_metadata) ... ok
+test_dry_run_never_creates_output_or_hashes_resources (test_development_runner.DevelopmentRunnerTest.test_dry_run_never_creates_output_or_hashes_resources) ... ok
+test_first_selected_stops_before_any_higher_bake_or_eval (test_development_runner.DevelopmentRunnerTest.test_first_selected_stops_before_any_higher_bake_or_eval) ... ok
+test_incomplete_bake_is_never_reused (test_development_runner.DevelopmentRunnerTest.test_incomplete_bake_is_never_reused) ... ok
+test_new_output_and_pretraining_order_are_required (test_development_runner.DevelopmentRunnerTest.test_new_output_and_pretraining_order_are_required) ... ok
+test_promoted_bake_requires_calibration_base_identity (test_development_runner.DevelopmentRunnerTest.test_promoted_bake_requires_calibration_base_identity) ... ok
+test_reused_smoke_calibration_cannot_be_formal (test_development_runner.DevelopmentRunnerTest.test_reused_smoke_calibration_cannot_be_formal) ... ok
+test_exact_boundary_and_second_reset (test_development_selection.DevelopmentSelectionTests.test_exact_boundary_and_second_reset) ... ok
+test_execution_mode_does_not_guess_missing_runtime_state (test_engine_timing.EngineTimingTests.test_execution_mode_does_not_guess_missing_runtime_state) ... ok
+test_failed_run_closes_policy_without_publishing (test_engine_timing.EngineTimingTests.test_failed_run_closes_policy_without_publishing) ... ok
+test_output_is_atomic_and_never_replaced (test_engine_timing.EngineTimingTests.test_output_is_atomic_and_never_replaced) ... ok
+test_percentiles_preserve_sample_order_and_missing_power (test_engine_timing.EngineTimingTests.test_percentiles_preserve_sample_order_and_missing_power) ... ok
+test_rejects_invalid_actions_or_timing (test_engine_timing.EngineTimingTests.test_rejects_invalid_actions_or_timing) ... ok
+test_variant_truth_and_family_specific_dispatch (test_engine_timing.EngineTimingTests.test_variant_truth_and_family_specific_dispatch) ... ok
+test_scope_keeps_checkpoint_horizon_statistics_mapping_and_valid_actions (test_gr00t_runtime.RuntimeTests.test_scope_keeps_checkpoint_horizon_statistics_mapping_and_valid_actions) ... ok
+test_chunking_preserves_bytes_and_existing_output_is_rejected (test_native_pi05_prepare.NativePackingTest.test_chunking_preserves_bytes_and_existing_output_is_rejected) ... ok
+test_actual_denominators_and_missing_results (test_onpolicy_capture.CaptureTests.test_actual_denominators_and_missing_results) ... ok
+test_bank_restore_uses_raw_zero_settling_and_declared_partition (test_onpolicy_capture.CaptureTests.test_bank_restore_uses_raw_zero_settling_and_declared_partition) ... ok
+test_comparison_rejects_unpaired_initial_state (test_onpolicy_capture.CaptureTests.test_comparison_rejects_unpaired_initial_state) ... ok
+test_each_observation_is_recollated_instead_of_slicing_image_patches (test_onpolicy_capture.CaptureTests.test_each_observation_is_recollated_instead_of_slicing_image_patches) ... [onpolicy-capture] saved=1 task=0ebb429fa86d task_count=1 slot=0 call=1
+ok
+test_exact_mcnemar_and_directional_table (test_onpolicy_capture.CaptureTests.test_exact_mcnemar_and_directional_table) ... ok
+test_heldout_overlap_is_rejected_before_process_launch (test_onpolicy_capture.CaptureTests.test_heldout_overlap_is_rejected_before_process_launch) ... ok
+test_reset_records_are_required_and_verified (test_onpolicy_capture.CaptureTests.test_reset_records_are_required_and_verified) ... ok
+test_all_sixteen_original_bytes_and_idempotent_retry (test_pairing_evidence.PairingCopyTests.test_all_sixteen_original_bytes_and_idempotent_retry) ... ok
+test_conflict_refused_before_any_public_file_installed (test_pairing_evidence.PairingCopyTests.test_conflict_refused_before_any_public_file_installed) ... ok
+test_forged_comparison_rejected (test_pairing_evidence.PairingCopyTests.test_forged_comparison_rejected) ... ok
+test_incomplete_source_creates_no_output (test_pairing_evidence.PairingCopyTests.test_incomplete_source_creates_no_output) ... ok
+test_source_changes_during_copy_rejected (test_pairing_evidence.PairingCopyTests.test_source_changes_during_copy_rejected) ... ok
+test_symbolic_output_cannot_escape (test_pairing_evidence.PairingCopyTests.test_symbolic_output_cannot_escape) ... ok
+test_explicit_batch_contract (test_probe_distill.ProbeTests.test_explicit_batch_contract) ... ok
+test_gradient_and_rng_and_mode_restoration (test_probe_distill.ProbeTests.test_gradient_and_rng_and_mode_restoration) ... ok
+test_identical_seed_matches_noise_time_without_global_rng_effect (test_probe_distill.ProbeTests.test_identical_seed_matches_noise_time_without_global_rng_effect) ... ok
+test_padding_differences_have_no_loss_or_gradient (test_probe_distill.ProbeTests.test_padding_differences_have_no_loss_or_gradient) ... ok
+test_prediction_contracts (test_probe_distill.ProbeTests.test_prediction_contracts) ... ok
+test_real_lora_injection_keeps_language_eval_differentiable (test_probe_distill.ProbeTests.test_real_lora_injection_keeps_language_eval_differentiable) ... [lora-qad] LoRA on 79 Linears (r=32, scope=head+lang_all); trainable=0.0M frozen=0M
+ok
+test_reject_legacy_and_mismatched_dtype (test_probe_distill.ProbeTests.test_reject_legacy_and_mismatched_dtype) ... ok
+test_sequential_backward_accumulation_and_return_outputs (test_probe_distill.ProbeTests.test_sequential_backward_accumulation_and_return_outputs) ... [opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1
+ok
+test_dry_run_does_not_launch_or_create_output (test_ptq_frontier.FrontierTests.test_dry_run_does_not_launch_or_create_output) ... ok
+test_freeze_all_predecessors_and_never_reads_heldout (test_ptq_frontier.FrontierTests.test_freeze_all_predecessors_and_never_reads_heldout) ... ok
+test_full_comparison_includes_net_residual (test_ptq_frontier.FrontierTests.test_full_comparison_includes_net_residual) ... ok
+test_missing_dedup_metadata_requires_real_equal_alias_bytes (test_ptq_frontier.FrontierTests.test_missing_dedup_metadata_requires_real_equal_alias_bytes) ... ok
+test_rejects_changed_metadata_weights_and_removed_reference (test_ptq_frontier.FrontierTests.test_rejects_changed_metadata_weights_and_removed_reference) ... ok
+test_rejects_incomplete_or_forged_selection (test_ptq_frontier.FrontierTests.test_rejects_incomplete_or_forged_selection) ... ok
+test_rejects_incomplete_reference (test_ptq_frontier.FrontierTests.test_rejects_incomplete_reference) ... ok
+test_rejects_raw_log_or_summary_disagreement (test_ptq_frontier.FrontierTests.test_rejects_raw_log_or_summary_disagreement) ... ok
+test_rejects_second_episode_hash_mismatch (test_ptq_frontier.FrontierTests.test_rejects_second_episode_hash_mismatch) ... ok
+test_rejects_wrong_residual_budget (test_ptq_frontier.FrontierTests.test_rejects_wrong_residual_budget) ... ok
+test_inconsistent_tied_source_rejected (test_ptq_tied_weights.TiedWeights.test_inconsistent_tied_source_rejected) ... ok
+test_missing_real_linear_hessian_rejected (test_ptq_tied_weights.TiedWeights.test_missing_real_linear_hessian_rejected) ... ok
+test_tied_output_uses_embedding_even_if_head_has_hessian (test_ptq_tied_weights.TiedWeights.test_tied_output_uses_embedding_even_if_head_has_hessian) ... ok
+test_awq_gqa_mapping_and_producer_consumer_objective (test_quantization_semantics.QuantizationSemantics.test_awq_gqa_mapping_and_producer_consumer_objective) ... ok
+test_awq_norm_objective_equals_explicit_outputs (test_quantization_semantics.QuantizationSemantics.test_awq_norm_objective_equals_explicit_outputs) ... ok
+test_e2m1_all_codes_midpoints_and_neighbors (test_quantization_semantics.QuantizationSemantics.test_e2m1_all_codes_midpoints_and_neighbors) ... ok
+test_e4m3_all_codes_midpoints_native_fp8_oracle (test_quantization_semantics.QuantizationSemantics.test_e4m3_all_codes_midpoints_native_fp8_oracle) ... ok
+test_fp8_row_scale_reference (test_quantization_semantics.QuantizationSemantics.test_fp8_row_scale_reference) ... ok
+test_gptq_diagonal_equals_rtn_one_tensor_scale (test_quantization_semantics.QuantizationSemantics.test_gptq_diagonal_equals_rtn_one_tensor_scale) ... ok
+test_gptq_representability_and_matrix_objective (test_quantization_semantics.QuantizationSemantics.test_gptq_representability_and_matrix_objective) ... ok
+test_rtn_packed_reference_and_matrix_outputs (test_quantization_semantics.QuantizationSemantics.test_rtn_packed_reference_and_matrix_outputs) ... ok
+test_ste_value_and_identity_gradient (test_quantization_semantics.QuantizationSemantics.test_ste_value_and_identity_gradient) ... ok
+test_zero_tiny_weights_and_zero_physical_scale (test_quantization_semantics.QuantizationSemantics.test_zero_tiny_weights_and_zero_physical_scale) ... ok
+test_inconsistent_call_coverage_is_rejected (test_recipe_inventory.RecipeInventoryTest.test_inconsistent_call_coverage_is_rejected) ... ok
+test_missing_linear_coverage_refuses_output (test_recipe_inventory.RecipeInventoryTest.test_missing_linear_coverage_refuses_output) ... ok
+test_portable_source_path_and_real_linear_residual (test_recipe_inventory.RecipeInventoryTest.test_portable_source_path_and_real_linear_residual) ... ok
+test_refuses_overwrite_before_reading_inputs (test_recipe_inventory.RecipeInventoryTest.test_refuses_overwrite_before_reading_inputs) ... ok
+test_same_length_tampered_weight_bytes_are_rejected (test_recipe_inventory.RecipeInventoryTest.test_same_length_tampered_weight_bytes_are_rejected) ... ok
+test_smoke_calibration_refuses_formal_budget (test_recipe_inventory.RecipeInventoryTest.test_smoke_calibration_refuses_formal_budget) ... ok
+test_corruption_rejected_even_at_same_size (test_recovery_setup.DemoLfsTests.test_corruption_rejected_even_at_same_size) ... ok
+test_hydrated_exact_payloads_pass (test_recovery_setup.DemoLfsTests.test_hydrated_exact_payloads_pass) ... ok
+test_missing_payload_rejected (test_recovery_setup.DemoLfsTests.test_missing_payload_rejected) ... ok
+test_pointer_is_not_data (test_recovery_setup.DemoLfsTests.test_pointer_is_not_data) ... ok
+test_setup_network_scope_is_only_the_demo (test_recovery_setup.DemoLfsTests.test_setup_network_scope_is_only_the_demo) ... ok
+test_cpu_snapshot_does_not_initialize_cuda (test_runtime_metrics.RuntimeMetricTests.test_cpu_snapshot_does_not_initialize_cuda) ... ok
+test_peaks_report_direct_allocator_values (test_runtime_metrics.RuntimeMetricTests.test_peaks_report_direct_allocator_values) ... ok
+test_byte_copy_keeps_original_and_combines_source_roles (test_training_costs.TrainingCostTest.test_byte_copy_keeps_original_and_combines_source_roles) ... ok
+test_completed_stage_uses_actual_time_and_budget (test_training_costs.TrainingCostTest.test_completed_stage_uses_actual_time_and_budget) ... ok
+test_empty_index_is_rejected (test_training_costs.TrainingCostTest.test_empty_index_is_rejected) ... ok
+test_equal_looking_but_wrong_demo_budget_is_rejected (test_training_costs.TrainingCostTest.test_equal_looking_but_wrong_demo_budget_is_rejected) ... ok
+test_existing_output_is_refused_before_input_access (test_training_costs.TrainingCostTest.test_existing_output_is_refused_before_input_access) ... ok
+test_false_timing_scope_is_rejected (test_training_costs.TrainingCostTest.test_false_timing_scope_is_rejected) ... ok
+test_incomplete_and_wrong_steps_are_rejected (test_training_costs.TrainingCostTest.test_incomplete_and_wrong_steps_are_rejected) ... ok
+test_invalid_parameter_storage_is_rejected (test_training_costs.TrainingCostTest.test_invalid_parameter_storage_is_rejected) ... ok
+test_producer_source_sha_is_not_just_copied (test_training_costs.TrainingCostTest.test_producer_source_sha_is_not_just_copied) ... ok
+test_public_verifier_rejects_summary_and_collection_identity_tampering (test_training_costs.TrainingCostTest.test_public_verifier_rejects_summary_and_collection_identity_tampering) ... ok
+test_public_verifier_runs_standalone_without_private_paths_or_torch (test_training_costs.TrainingCostTest.test_public_verifier_runs_standalone_without_private_paths_or_torch) ... ok
+test_teacher_cannot_use_another_students_observations (test_training_costs.TrainingCostTest.test_teacher_cannot_use_another_students_observations) ... ok
+test_weight_inventory_and_bytes_are_verified (test_training_costs.TrainingCostTest.test_weight_inventory_and_bytes_are_verified) ... ok
+test_changed_bytes_rejected_even_when_size_matches (test_weight_identity.WeightIdentityTests.test_changed_bytes_rejected_even_when_size_matches) ... ok
+test_missing_is_not_certified_as_success (test_weight_identity.WeightIdentityTests.test_missing_is_not_certified_as_success) ... ok
+
+----------------------------------------------------------------------
+Ran 96 tests in 10.193s
+
+OK

@@ -1,11 +1,11 @@
 {
   "status": "passed",
   "scope": "Current complete CPU unittest collection plus three paper suites (each receipt identifies its own command and actual count). CUDA_VISIBLE_DEVICES is empty; no GPU/model evaluation or final publication package validation. Synthetic fixtures are not formal results or release approval.",
-  "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py",
+  "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_publication.py",
   "command_argv": [
     "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
     "-O",
-    "paper/validation/test_publication_guards.py"
+    "paper/validation/test_frontier_publication.py"
   ],
   "cwd": "/home/zhaosiying/codebase/fp4vla",
   "environment": {
@@ -17,21 +17,22 @@
   },
   "python_version": "Python 3.12.14",
   "source_head_before": "e00103e54c2f1ea260a43f4dfbd15752e8f17303",
-  "started_utc": "2026-09-29T09:16:05.480237+00:00",
-  "completed_utc": "2026-09-29T09:16:05.656796+00:00",
+  "started_utc": "2026-09-29T09:16:04.472255+00:00",
+  "completed_utc": "2026-09-29T09:16:05.479991+00:00",
   "returncode": 0,
-  "tests": 21,
+  "tests": 10,
   "skipped": 0,
   "failures": 0,
   "errors": 0,
   "expected_failures": 0,
   "unexpected_successes": 0,
-  "unittest_elapsed_seconds": 0.115,
-  "process_wall_seconds": 0.17657031799899414,
+  "unittest_elapsed_seconds": 0.944,
+  "process_wall_seconds": 1.0077491020056186,
   "gpu_execution": false,
   "publication_zip_generated": false,
   "test_file_sha256": {
-    "paper/validation/test_publication_guards.py": "847e0a04f794a13d2d0d7e226864a756281e6b2c6e88561d75eb1f79fb3aa281"
+    "paper/validation/test_frontier_publication.py": "d59df39f45d2871443574df3b3cf5c73829244308f5d7a602994cda9c25b9ef7",
+    "tests/test_ptq_frontier.py": "3125509ef82bc44b172f0f512180ebdb27c430a8ae4a4d7a62519dfd67f70125"
   },
   "source_sha256": {
     "baselines/bench_gr00t_pt.py": "f2ade088e3eff3c5a38781888c9fc58524d887925d941600422d2aa191be04a3",
@@ -102,6 +103,6 @@
   },
   "source_hash_scope": "Explicit public runtime implementation plus publication helpers; byte identity inventory, not a statement of line/test coverage.",
   "files_changed_during_check": [],
-  "log": "paper/validation/publication-guard-checks.log",
-  "log_sha256": "2492807b654cc97b6f321b70f73d63d12f1543d598935788441d7507f5da3295"
+  "log": "paper/validation/frontier-publication-checks.log",
+  "log_sha256": "f7cd536c94fbb5f4b9842e6a59f04227828db484a84dbcd72f558f49de34f858"
 }

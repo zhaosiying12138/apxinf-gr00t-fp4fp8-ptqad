@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "scope": "Targeted CPU-only revalidation of strict15current+2retained capture manifest loading and training publication binding. Not a rerun of the main unittest suite or the prior119test total. Synthetic fixtures are not formal model results or publication approval.",
+  "scope": "Current complete CPU unittest collection plus three paper suites (each receipt identifies its own command and actual count). CUDA_VISIBLE_DEVICES is empty; no GPU/model evaluation or final publication package validation. Synthetic fixtures are not formal results or release approval.",
   "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_training_publication.py",
   "command_argv": [
     "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
@@ -16,9 +16,9 @@
     "NO_ALBUMENTATIONS_UPDATE": "1"
   },
   "python_version": "Python 3.12.14",
-  "source_head_before": "43b3f17cb6a3930bcc2d6959c8bd8da54db33153",
-  "started_utc": "2026-09-29T09:09:05.681125+00:00",
-  "completed_utc": "2026-09-29T09:09:05.753012+00:00",
+  "source_head_before": "e00103e54c2f1ea260a43f4dfbd15752e8f17303",
+  "started_utc": "2026-09-29T09:16:05.657000+00:00",
+  "completed_utc": "2026-09-29T09:16:05.721992+00:00",
   "returncode": 0,
   "tests": 8,
   "skipped": 0,
@@ -26,8 +26,8 @@
   "errors": 0,
   "expected_failures": 0,
   "unexpected_successes": 0,
-  "unittest_elapsed_seconds": 0.013,
-  "process_wall_seconds": 0.07189267100329744,
+  "unittest_elapsed_seconds": 0.01,
+  "process_wall_seconds": 0.06500245699862717,
   "gpu_execution": false,
   "publication_zip_generated": false,
   "test_file_sha256": {
@@ -103,5 +103,5 @@
   "source_hash_scope": "Explicit public runtime implementation plus publication helpers; byte identity inventory, not a statement of line/test coverage.",
   "files_changed_during_check": [],
   "log": "paper/validation/training-publication-checks.log",
-  "log_sha256": "3abefed3a15ad36f324c09b82660df6bef833eeea1e0cde58c33a1bfa3118c29"
+  "log_sha256": "53c2782613cec72ab45b47013a8591f1613c9a2727e73b67a80d56cb57e37d77"
 }

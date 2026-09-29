@@ -8,6 +8,6 @@ test_teacher_mismatch_rejected (__main__.TrainingPublicationTests.test_teacher_m
 test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files (__main__.TrainingPublicationTests.test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files) ... ok
 
 ----------------------------------------------------------------------
-Ran 8 tests in 0.013s
+Ran 8 tests in 0.010s
 
 OK

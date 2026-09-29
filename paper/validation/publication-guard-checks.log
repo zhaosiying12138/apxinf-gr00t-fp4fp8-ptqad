@@ -21,6 +21,6 @@ test_require_survives_optimized_python (__main__.Gates.test_require_survives_opt
 test_svg_remote_resource_is_detected_but_citation_is_allowed (__main__.Gates.test_svg_remote_resource_is_detected_but_citation_is_allowed) ... ok
 
 ----------------------------------------------------------------------
-Ran 21 tests in 0.237s
+Ran 21 tests in 0.115s
 
 OK

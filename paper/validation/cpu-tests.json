@@ -1,11 +1,15 @@
 {
   "status": "passed",
   "scope": "Current complete CPU unittest collection plus three paper suites (each receipt identifies its own command and actual count). CUDA_VISIBLE_DEVICES is empty; no GPU/model evaluation or final publication package validation. Synthetic fixtures are not formal results or release approval.",
-  "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py",
+  "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -v",
   "command_argv": [
     "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
-    "-O",
-    "paper/validation/test_publication_guards.py"
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-v"
   ],
   "cwd": "/home/zhaosiying/codebase/fp4vla",
   "environment": {
@@ -17,21 +21,40 @@
   },
   "python_version": "Python 3.12.14",
   "source_head_before": "e00103e54c2f1ea260a43f4dfbd15752e8f17303",
-  "started_utc": "2026-09-29T09:16:05.480237+00:00",
-  "completed_utc": "2026-09-29T09:16:05.656796+00:00",
+  "started_utc": "2026-09-29T09:15:52.543782+00:00",
+  "completed_utc": "2026-09-29T09:16:04.471999+00:00",
   "returncode": 0,
-  "tests": 21,
+  "tests": 96,
   "skipped": 0,
   "failures": 0,
   "errors": 0,
   "expected_failures": 0,
   "unexpected_successes": 0,
-  "unittest_elapsed_seconds": 0.115,
-  "process_wall_seconds": 0.17657031799899414,
+  "unittest_elapsed_seconds": 10.193,
+  "process_wall_seconds": 11.928220363995933,
   "gpu_execution": false,
   "publication_zip_generated": false,
   "test_file_sha256": {
-    "paper/validation/test_publication_guards.py": "847e0a04f794a13d2d0d7e226864a756281e6b2c6e88561d75eb1f79fb3aa281"
+    "tests/test_activation_checkpoint.py": "76fe8f913806d02efd661cba4984cee60528988f9919d1288205d61cc5034963",
+    "tests/test_baseline_timing.py": "744ae76064475e0bced67220f148721fafa9a6ea32c2add7727e0c4f44bd65a6",
+    "tests/test_calibration_verifier.py": "364cc132405eda23497c95c018c7fd22a93cab90e978d8707155f3b4e3b697d3",
+    "tests/test_checkpoint_roundtrip.py": "158756809aa64312170640eedf3c7676d56613961ab7d8df5a7727613934e904",
+    "tests/test_development_runner.py": "c18cfe11e5f73a113a8dc163500bf48ca3cf1cf873d78b5a1d433202a6692524",
+    "tests/test_development_selection.py": "3ac146daa78d2b83ed7dfe79358d5c06cc0524d2fa6138a59e75a0164d7f7c58",
+    "tests/test_engine_timing.py": "ef11fa90290af723f6aee195542cb5dede9dc6eb774189933d274b0b44e0b919",
+    "tests/test_gr00t_runtime.py": "a0848b39b79986ce4076dd3a4d070e66c91f237c7d06eae20ecd22d23c162a65",
+    "tests/test_native_pi05_prepare.py": "547a91771c67341e2b99fa815876b1f835b1b8bf6b1644e2476f321f691395de",
+    "tests/test_onpolicy_capture.py": "c38849e346f7e362c4f336b7f096b7e3766c694f08dbece6af11f90d2822d486",
+    "tests/test_pairing_evidence.py": "8421fd0b0ba1b726ca8adc7cb3004e1d315aded6d50570e3abb0e65b8c8420d0",
+    "tests/test_probe_distill.py": "4b406e79f2574b43e205e14c5fbf2dedce3491069ce741ddca93e7161ed6c067",
+    "tests/test_ptq_frontier.py": "3125509ef82bc44b172f0f512180ebdb27c430a8ae4a4d7a62519dfd67f70125",
+    "tests/test_ptq_tied_weights.py": "c0b1d19ee5054937506e3921c7052b363c59460387b20f213e3f176a55587fd4",
+    "tests/test_quantization_semantics.py": "ae1394ffedd589b89a38b94dd846e4f4207086b63b8b2120c4f9970fe49a3b7b",
+    "tests/test_recipe_inventory.py": "8fa09ccd27ab848378260db737597f2993cff41ac138783df367c2c3c788c9d0",
+    "tests/test_recovery_setup.py": "359da24abfc32b8caf899e81e3f5f36073359092efbaa57000a84b04a73ead22",
+    "tests/test_runtime_metrics.py": "d47509fcfa00951e112eb428d75eb99b218cce0b7247d42bb362a9ed3fde6b90",
+    "tests/test_training_costs.py": "37e9fa02285b59a992c6f4855697997c52649e4210dd3387d60867b60440cb32",
+    "tests/test_weight_identity.py": "2bbc16f78b5b161da5d6f21028f1e53e13352e480f4a6a05e636722b7fe1c1e1"
   },
   "source_sha256": {
     "baselines/bench_gr00t_pt.py": "f2ade088e3eff3c5a38781888c9fc58524d887925d941600422d2aa191be04a3",
@@ -102,6 +125,6 @@
   },
   "source_hash_scope": "Explicit public runtime implementation plus publication helpers; byte identity inventory, not a statement of line/test coverage.",
   "files_changed_during_check": [],
-  "log": "paper/validation/publication-guard-checks.log",
-  "log_sha256": "2492807b654cc97b6f321b70f73d63d12f1543d598935788441d7507f5da3295"
+  "log": "paper/validation/cpu-tests.log",
+  "log_sha256": "16453db2a810b9ad8219e432c1e5b9d18c8cfd1d13fc09d83634979ed69eb0ac"
 }
