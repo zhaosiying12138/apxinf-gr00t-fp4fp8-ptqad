@@ -11,9 +11,9 @@ QAD_MICRO_BATCH=1   QAD_GLOBAL_BATCH=16  -> accumulation=16
 QAD_MICRO_BATCH=2   QAD_GLOBAL_BATCH=16  -> accumulation=8
 ```
 
-`QAD_ACCUM_STEPS` 可以省略；若显式设置，必须与上述比值一致。入口验证实际 Trainer 参数并把三者写入 `recovery_manifest.json`。历史 `QAD_BSZ/QAD_ACC` 仅为兼容别名，其真实含义仍是微批量与累积次数。
+`QAD_ACCUM_STEPS` 可以省略；若显式设置，必须与上述比值一致。入口验证实际 Trainer 参数并把三者写入 `recovery_manifest.json`。`QAD_BSZ/QAD_ACC` 是兼容别名，其含义仍是微批量与累积次数。
 
-主损失先完成反向传播，释放主计算图；每 `OPD_EVERY=4` 个优化器更新，再对每个累积微步执行一个独立探针前向和反向传播。因此，第 4、8、12……次更新的目标是“微批平均演示损失 + λ × 微批平均教师 MSE”，其余更新只有演示损失。长期平均教师系数为 λ/4。该实现复用 HF Trainer/Accelerator 的梯度累积和优化器，不把八个探针的计算图叠在主任务图上。主任务与探针仍分别消耗计算；两臂相同演示量、优化器步数不意味着相同算力预算。
+主损失先完成反向传播，释放主计算图；每 `OPD_EVERY=4` 个优化器更新，再对每个累积微步执行一个独立探针前向和反向传播。因此，第 4、8、12……次更新的目标是“微批平均演示损失 + λ × 微批平均教师 MSE”，其余更新只有演示损失。长期平均教师系数为 λ/4。该实现复用 HF Trainer/Accelerator 的梯度累积和优化器，不把多个探针的计算图叠在主任务图上。主任务与探针仍分别消耗计算；两臂相同演示量、优化器步数不意味着相同算力预算。
 
 教师和学生均在探针前向中保持 eval 模式，禁用 dropout；eval 本身不会禁用 autograd。逐样本 `fork_rng` 固定并恢复 CPU 与模型 CUDA 设备的随机状态，以共享前向内采样的噪声和 Beta 时间，不改变下一批主训练随机数。缓存记录并验证参数 dtype、autocast dtype、流匹配配置及 16 层语言栈、32 层 DiT、4 层 VL 模块。默认教师参数为 FP32、矩阵计算使用 BF16 autocast，匹配当前训练实际路径。
 
@@ -26,10 +26,12 @@ QAD_MICRO_BATCH=2   QAD_GLOBAL_BATCH=16  -> accumulation=8
 先准备完整 GR00T 环境、原始 BF16 模型和新 PTQ checkpoint，并确保 GPU 没有其他实验。
 
 ```bash
-export PROJECT=/home/zhaosiying/codebase/apxinf-gr00t-fp4fp8-ptqad
-export GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
+export PROJECT=$(pwd)
+source "$PROJECT/setup/recovery-env.sh"
+export PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v3_high_fp4.json"
+export TRAIN_SEED=20260929
 cd "$GR00T_REPO"
-GR00T_BASE_CKPT=/absolute/path/to/corrected_ptq \
+GR00T_BASE_CKPT=/absolute/path/to/selected_ptq \
 QAD_OUT=/absolute/path/to/new_smoke \
 QAD_STEPS=2 QAD_SAVE_STEPS=2 \
 QAD_LORA_SCOPE=head+lang_all \
@@ -47,7 +49,16 @@ QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=2 QAD_OPD_MSE_W=0 QAD_ACTIVATION_CHECKPOINTIN
 
 维护的入口为 `eval/run_recovery_eval.py`。它逐任务启动一个模型服务器，单环境评测，每个 episode 独立设置重置种子，再通过官方 `get_task_init_states` / `set_init_state` 恢复指定的初态，并执行 10 步原始仿真器七维零动作以稳定物理状态。稳定步骤不计入策略的 720 步上限。`development` 用于选择量化覆盖率；`collection` 收集学生轨迹；`heldout` 必须提供采集 manifest，拒绝初态索引或重置种子重叠。所有正式结果覆盖完整 10 任务，报告逐任务布尔结果、真实分母和任务宏平均；`smoke` 可缩减任务数，但不给完整宏平均。
 
-默认协议在 `exp/recovery_protocol.json` 中固定 development=330000、collection=110000、heldout=220000。每任务再加 `1000 × task_index`，每个 episode 再加自己的索引。官方初态库各任务有 50 个初态，开发用索引 `[0,1]`，采集用 `[2,3]`，最终评测用 `[10,…,19]`，互不重叠。入口按用途自动选取这些索引和 2/2/10 个 episode，正式模式拒绝任意改分区。最终五臂共享相同 heldout 条件，开发结果不充当最终测试结果。
+本流程显式传入 `exp/recovery_protocol_v3_high_fp4.json`：
+
+| 分区 | 每任务回合 | 官方初态索引 | 起始 seed |
+|---|---:|---|---:|
+| development | 5 | 4–8 | 440000 |
+| collection | 4 | 20–23 | 550000 |
+| heldout | 10 | 30–39 | 660000 |
+| smoke | 1 | 0 | 770000 |
+
+每任务 seed 加 `1000 × task_index`，环境每集再加 episode 索引。正式模式核对分区、集数与十任务覆盖。最终五臂共享相同 heldout 条件，开发结果不充当最终成功率。
 
 日志逐次记录初态库文件 SHA-256、库索引、恢复后及稳定后物理状态 SHA-256。结果汇总严格核对前 N 次 reset 与种子、索引、数量；允许最后一次自动 reset，但不把它计为新 episode。`eval/compare_recovery.py` 在生成 `paired_comparison.json` 前逐 episode 比较五臂的状态散列；不一致会报错。这里配对的是环境初态，策略扩散噪声只按任务设置种子，不能声称每个 episode 的完整随机轨迹相同。
 
@@ -60,11 +71,14 @@ QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=2 QAD_OPD_MSE_W=0 QAD_ACTIVATION_CHECKPOINTIN
 ```bash
 python3 "$PROJECT/eval/run_recovery_eval.py" \
   --checkpoint /absolute/path/to/qad_merged --purpose collection \
-  --out /absolute/path/to/new_collection --seed 110000 --episodes 2
-.venv/bin/python "$PROJECT/rl/opd_probe_cache.py" \
+  --out /absolute/path/to/new_collection --seed 550000 --episodes 4 \
+  --protocol-file "$PROTOCOL_FILE" --gr00t "$GR00T_REPO" \
+  --server-python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON"
+"$PTQAD_PYTHON" "$PROJECT/rl/opd_probe_cache.py" \
   --teacher /absolute/path/to/original_bf16 \
   --input-dir /absolute/path/to/new_collection/observations --count 160 \
-  --out /absolute/path/to/new_teacher_probes.pt
+  --out /absolute/path/to/new_teacher_probes.pt --seed 20260929 \
+  --dataset "$GR00T_REPO/demo_data/libero_demo"
 ```
 
 不传 `--input-dir` 的缓存工具只从演示数据生成离线探针，其元数据明确标记 `demo`，不能称为 on-policy。
@@ -73,21 +87,22 @@ python3 "$PROJECT/eval/run_recovery_eval.py" \
 
 `QAD_INIT_ADAPTER` 读取原 QAD checkpoint 的精确 A/B 张量，冻结基座仍是最初 PTQ checkpoint。两组都重置 Adam 和学习率计划，不能一组恢复优化器而另一组重新初始化。入口核对 base、rank、alpha、scope 及基座配置、统计、配方散列；不从已合并 BF16 模型重新分解 LoRA。
 
-`rl/run_onpolicy_round.sh` 串行执行采集、教师标注、两组续训、合并及五臂最终评测。调用前设置下列路径；脚本不会启动并行 GPU 作业，也不覆盖旧证据目录。
+v3 由 `exp/run_high_fp4_v3.py` 统一调度。先完成两个 QAD 学习率的 500 步训练与开发选择，再从选中模型的精确 A/B 创建 continued-QAD 和两个 OPD 权重候选，各训练 100 步；最后按开发结果选择 OPD 权重并评测五臂。不要用固定教师权重的一轮脚本代替这项开发搜索。
 
 ```bash
-export PTQ_BASE=/absolute/path/to/selected_corrected_ptq
-export BF16_TEACHER=/absolute/path/to/original_bf16
-export QAD_ADAPTER=/absolute/path/to/qad/checkpoint-500
-export QAD_MERGED=/absolute/path/to/qad_merged
-export ROUND_OUT=/absolute/path/to/new_round
-export QAD_LORA_SCOPE=head+lang_all
-export QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=16
-export QAD_ACTIVATION_CHECKPOINTING=1
-export EXTRA_STEPS=100 OPD_WEIGHT=1.0 OPD_EVERY=4
-bash "$PROJECT/rl/run_onpolicy_round.sh"
+# 从仓库根目录调用；路径由安装及开发流程设置。
+python3 "$PROJECT/exp/run_high_fp4_v3.py" \
+  --run-dir "$RECOVERY_ROOT" --ptq-selection "$DEV_ROOT/selection.json" \
+  --protocol-file "$PROJECT/exp/recovery_protocol_v3_high_fp4.json" \
+  --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
+  --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
+  --dataset "$QAD_DATASET" --until all
 ```
 
-最终检查 `heldout_*/summary.json` 和逐任务 `task_results.json`。恢复效果、置信区间、教师额外计算成本与压缩覆盖率以新运行证据为准；脚本不保证任一恢复方法一定超过 PTQ 或另一组续训。
+可把 `--until all` 改为 `qad_selection` 或 `opd_selection` 分段执行，再用相同命令续跑。协议固定训练 seed=20260929、rank32、alpha64、`head+lang_all`、microbatch1、有效 batch16 及激活重算。QAD 学习率候选 5e-5 和 1e-4；OPD 权重候选 0.25 和 1.0，均按开发宏平均选择，平分取较小值。完整环境和目录初始化见 `docs/reproduce-ptqad.md`。
+
+OPD 启动前可用独立输出执行 4 步短测，`QAD_INIT_ADAPTER`指向选中的 QAD 适配器、`OPD_CACHE_PATH`指向学生观测缓存，`QAD_OPD_MSE_W`使用待验证候选权重，`OPD_EVERY=4`、microbatch1、有效 batch16。检查第 4 次更新中的 16 次教师微批反向均有限，且学生梯度可达；短测参数不进入正式分支。
+
+最终检查 `artifacts/heldout_round/heldout_*/summary.json` 与逐任务 `task_results.json`。`final_manifest.json`记录实际选中模型和协议身份。恢复效果、教师额外计算与编码覆盖均以这些完整证据为准。
 
 `paired_comparison.json` 包含五臂逐任务成功数/分母、OPD 相对 QAD 及相对 continued-QAD 的配对 2×2 表，以及来源 JSON 文件和汇总代码的 SHA-256。精确双侧 McNemar p 值按不一致配对的条件二项分布计算，与 [statsmodels 的 exact 定义](https://www.statsmodels.org/stable/generated/statsmodels.stats.contingency_tables.mcnemar.html)一致，并用 [SciPy binomtest](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binomtest.html)核对。它仅作探索性描述；同一组任务内的 episode 不能被无条件看作独立任务样本，两个总体比较与逐任务比较没有做多重检验校正。

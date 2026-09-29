@@ -58,7 +58,11 @@ source setup/recovery-env.sh
 export PROJECT=$(pwd)
 export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
-export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_run_01"
+export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_v3_run_01"
+export PTQAD_PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v3_high_fp4.json"
+export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
+export DEV_ROOT="$PTQAD_RUN_DIR/evaluations/development"
+export RECOVERY_ROOT="$PTQAD_RUN_DIR/recovery_v3"
 ```
 
 `setup/06_install_recovery.sh` 创建 `third_party/Isaac-GR00T` 及独立训练、仿真和媒体环境，生成 `setup/recovery-env.sh`。它固定 GR00T commit `51d4c89f72fda44cbf77285c6a8114b52676b8a1`，应用 [运行补丁](patches/gr00t-recovery-runtime.patch)，并固定 LIBERO `8f1084e3132a39270c3a13ebe37270a43ece2a01`。已有 checkout 必须满足版本和补丁身份检查。
@@ -73,134 +77,113 @@ export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_run_01"
 
 ## 运行流程
 
-以下命令展示当前维护入口的参数传递。128 窗口、500/100 次更新及教师权重是一组可执行示例；高 FP4 研究使用 `exp/recovery_protocol_v3_high_fp4.json`，其开发、采集和最终测试分区分别为 4–8、20–23、30–39。第一轮使用的 0–1、2–3、10–19 只作为探索证据保存，不能与新一轮最终结果混称。为每轮创建新的输出根目录，保留失败尝试的日志与身份。
+GPU 阶段串行执行。校准与压力配方保存在 `PTQAD_RUN_DIR`，恢复搜索使用其独立子目录 `RECOVERY_ROOT`。以下命令接续安装步骤中的环境变量。
 
-### 1. 检查实现和模型加载
+### 1. 检查实现和完整模型加载
 
 ```bash
 CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" -m unittest discover -s tests -v
 
-# 使用新目录；2 窗口只检查执行链路，不能充当正式校准集。
 (cd "$GR00T_REPO"; "$PTQAD_PYTHON" "$PROJECT/quant/ptq/collector.py" \
   --base "$PTQAD_BASE" --dataset "$QAD_DATASET" \
   --out "$PTQAD_RUN_DIR/calibration_smoke" \
   --recipe calib --windows 2 --batch 1)
 ```
 
-收集器检查完整模型的 16 层语言、32 层 DiT 与 4 层 VL，保留基座归一化统计，并记录源 shard 哈希、实际窗口数、逐层输入行数与调用次数。两窗口短测通过后再建立完整校准。
+两窗口短测核对完整 16 层语言、32 层 DiT、4 层 VL 的加载、468 层统计覆盖和显存；它不替代正式校准。训练与探针梯度检查见 [rl/RECOVERY.md](rl/RECOVERY.md)，证据及图表检查入口见 [paper/README.md](paper/README.md)。
 
-现有 CPU 收据记录 142 项通过、0 跳过、0 失败：主套件 96 项、发布证据检查 39 项、图表布局 7 项。命令、源码和日志哈希见 [验证目录](paper/validation)。发布与布局检查入口：
-
-```bash
-for suite in test_frontier_publication.py test_publication_guards.py test_training_publication.py test_frontier_layout.py; do
-  CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 \
-    "$PTQAD_PYTHON" -O -m unittest discover -s paper/validation -p "$suite" -v
-done
-```
-
-### 2. 校准、生成配方并冻结开发选择
+### 2. 校准并选择高 FP4 配方
 
 ```bash
-# 一份 full-scope H 支持后续整个阶梯；先完成校准，不预先评测所有配方。
 PTQAD_CAL_SCOPE=calib PTQ_CAL_WINDOWS=128 PTQ_CAL_BATCH=1 \
   bash exp/reproduce_ptqad.sh calibrate
-export DEV_ROOT="${PTQAD_EVAL_RUNS_ROOT:-$PTQAD_RUN_DIR/evaluations}/development"
+```
 
-# dry-run 只打印可能执行的命令，不读取大权重、不启动 GPU。
-bash exp/run_development.sh --development-root "$DEV_ROOT" --dry-run
-bash exp/run_development.sh --development-root "$DEV_ROOT"
+正式协议为 `exp/recovery_protocol_v3_high_fp4.json`。开发阶段依次评测 BF16、`head_lang_vision`、`calib`，两个压力候选都须完成。合格候选的开发成功率必须比 BF16 至少低 20 个百分点，同时不低于 30%；从中选择 FP4 覆盖最高者。若没有合格候选，保存 `selected_recipe=null` 并停止恢复流程，不自动改阈值或改选其他配方。
 
-# 在恢复训练与 heldout 之前冻结纯 PTQ 前驱参考组；仅使用开发集证据。
+```bash
+bash exp/run_development.sh \
+  --run-dir "$PTQAD_RUN_DIR" --development-root "$DEV_ROOT" \
+  --protocol-file "$PTQAD_PROTOCOL_FILE" --base "$PTQAD_BASE" \
+  --gr00t "$GR00T_REPO" --server-python "$PTQAD_PYTHON" \
+  --rollout-python "$LIBERO_PYTHON" --dry-run
+
+# 检查打印的路径和配置后，执行同一计划。
+bash exp/run_development.sh \
+  --run-dir "$PTQAD_RUN_DIR" --development-root "$DEV_ROOT" \
+  --protocol-file "$PTQAD_PROTOCOL_FILE" --base "$PTQAD_BASE" \
+  --gr00t "$GR00T_REPO" --server-python "$PTQAD_PYTHON" \
+  --rollout-python "$LIBERO_PYTHON"
+
 CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" exp/recipe_inventory.py \
   --base "$PTQAD_BASE" --calibration-meta "$PTQAD_RUN_DIR/calibration/calib_meta.json" \
   --out "$DEV_ROOT/recipe_inventory.json"
 
+# 在任何恢复训练与最终评测之前冻结纯 PTQ 参考及预算。
 python3 eval/compare_ptq_frontier.py freeze \
   --selection "$DEV_ROOT/selection.json" --development-root "$DEV_ROOT" \
-  --budget "$DEV_ROOT/recipe_inventory.json" --out "$DEV_ROOT/frontier_plan.json"
+  --budget "$DEV_ROOT/recipe_inventory.json" \
+  --protocol-file "$PTQAD_PROTOCOL_FILE" --out "$DEV_ROOT/frontier_plan.json"
 ```
 
-示例按 `bf16 → fp8 → head_ffn → head_lang → head_lang_vision → calib` 逐级构建和评测，选择首个相对 BF16 开发集宏平均下降至少 0.10 的升级配方，未触发则选择最大覆盖。每一级保存 `comparison_after_<arm>.json`，最终写出 `selection.json`。新研究在开发阶段确定更高覆盖和恢复设置，再冻结独立评测清单。
+`required` 模式检查完整 H、源权重、配置与统计身份；真实 Linear 缺 H 会失败，已登记的非 Linear 目标按记录回退 RTN。共享 embedding/lm_head 写入同一量化值。开发目录的 `selection.json` 是恢复入口，不手填配方名称。
 
-`required` 模式核对完整 H、源配置、统计和权重身份；真实 Linear 缺 H 会失败，实际非 Linear 目标按记录回退 RTN。bake 对 embedding/lm_head 共享副本使用同一量化值。`recipe_inventory.py` 在本机重建预算；`frontier_plan.json` 固定已完成的纯 PTQ 前驱，供最终补充比较。
+### 3. 选择 QAD 学习率
 
-### 3. 训练 QAD 并导出
+恢复入口为 `exp/run_high_fp4_v3.py`。它核对 PTQ 选择与协议身份，再串行训练两个 QAD 候选：学习率 `5e-5` 和 `1e-4`，各 500 次优化器更新。二者使用同一 PTQ 基座、训练 seed=20260929、`head+lang_all`、rank=32、alpha=64、microbatch=1、累积 16 次及有效演示 batch=16，并启用非重入激活重算。每个候选评测开发集后，选择宏平均较高者；平分时选择较小学习率。每个候选的预算为 8,000 个演示窗口，窗口可以重复。
 
 ```bash
-# 从已完成的开发集选择读取，不手填或根据最终测试更换配方。
-export PTQAD_RECOVERY_RECIPE="$(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["selection_uses_heldout"] is False and r["selected_recipe"]; print(r["selected_recipe"])' "$DEV_ROOT/selection.json")"
-export QAD_LORA_SCOPE=head+lang_all
-QAD_STEPS=500 QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=16 QAD_LR=0.0001 QAD_ACTIVATION_CHECKPOINTING=1 \
-  bash exp/reproduce_ptqad.sh train-qad merge-qad
+run_recovery_v3() {
+  python3 "$PROJECT/exp/run_high_fp4_v3.py" \
+    --run-dir "$RECOVERY_ROOT" --ptq-selection "$DEV_ROOT/selection.json" \
+    --protocol-file "$PTQAD_PROTOCOL_FILE" --base "$PTQAD_BASE" \
+    --gr00t-repo "$GR00T_REPO" --python "$PTQAD_PYTHON" \
+    --rollout-python "$LIBERO_PYTHON" --dataset "$QAD_DATASET" "$@"
+}
+
+run_recovery_v3 --validate-only
+run_recovery_v3 --until qad_selection
 ```
 
-示例采用 `head+lang_all`、rank=32、alpha=64，microbatch=1、累积 16 次得到有效演示 batch=16。`QAD_ACTIVATION_CHECKPOINTING=1` 为语言、DiT 和 VL 可训练块启用非重入激活重算。训练器检查首步 head/language 的 B 梯度，写出 `recovery_manifest.json` 和 `runtime_metrics.json`，记录实际更新数、dtype、墙钟时间及设备 allocated/reserved 峰值。
+导出器仅从训练 checkpoint 读取 A/B，核对冻结权重与 PTQ 基座后按原 dtype 写出完整模型。训练量与显存见 `runtime_metrics.json`，权重来源和输出散列见 `merge_manifest.json`。
 
-导出器只从训练 checkpoint 取 A/B，逐张量核对冻结权重与 PTQ base，按 base 的键集合及 dtype 写出完整模型。`merge_manifest.json` 保存 rank/alpha、配置/统计/配方散列、残差和输出 shard 身份。
+### 4. 采集学生状态并选择 OPD 权重
 
-### 4. 收集状态，比较两条续训分支
+从选中的同一 QAD A/B 出发，调度器创建 continued-QAD、OPD 权重 0.25、OPD 权重 1.0 三个续训候选。三者都重置优化器，沿用选中学习率、相同学习率计划与有效演示批量，各更新 100 步；每个候选的预算为 1,600 个演示窗口。OPD 每 4 次优化器更新启用教师项，触发更新内逐累积微批执行独立探针反向。两个 OPD 候选按开发宏平均选择，平分取较小权重。continued-QAD 始终保留为同起点、同额外演示更新预算的对照。
 
 ```bash
-PTQ_BASE="$PTQAD_RUN_DIR/$PTQAD_RECOVERY_RECIPE" \
-BF16_TEACHER="$PTQAD_BASE" \
-QAD_ADAPTER="$PTQAD_RUN_DIR/train_qad/checkpoint-500" \
-QAD_MERGED="$PTQAD_RUN_DIR/qad" \
-ROUND_OUT="$PTQAD_RUN_DIR/round_01" \
-EXTRA_STEPS=100 OPD_WEIGHT=1.0 OPD_EVERY=4 \
-  bash rl/run_onpolicy_round.sh
+run_recovery_v3 --until opd_selection
 ```
 
-脚本依次采集真实学生观测、生成教师标签、执行完整教师调度周期的短测，再训练和导出两条续训分支，最后评测五臂。两条分支精确继承同一 QAD A/B、同一 PTQ 基座，均重新初始化 Adam 和学习率计划。示例教师项每 4 次更新触发，触发更新内逐微批执行独立探针反向。
+选中的 QAD 学生在十任务、每任务 4 回合上采集观测。教师缓存请求 160 个探针，实际数量和任务覆盖由 metadata 验收。每个样本独立 collate，保存同一动作端点、noise/time 和有效掩码的重放条件。交互、标注及额外探针计算单独计量。
 
-collection 覆盖十任务，默认最多保留 160 个观察探针；每个样本独立 collate，保存 BF16 输入舍入和共享 noise/time 的重放条件。其交互、教师标注及学生探针计算在成本表中单列。两条续训分支匹配的是演示与优化器更新预算。
+### 5. 独立评测与结果归档
 
-### 5. 完成独立评测并归档
-
-示例评测使用一个环境、每次执行 8 个动作步、每集上限 720 步。官方 bank 状态恢复后执行 10 个原始零动作稳定步，保存 bank、恢复状态及稳定后状态三项哈希。
-
-| 分区 | 每任务回合 | 官方 bank 索引 | 起始 seed |
+| 分区 | 每任务回合 | 官方初态索引 | 起始 seed |
 |---|---:|---|---:|
-| development（高 FP4 v3） | 5 | 4–8 | 440000 |
-| collection（高 FP4 v3） | 4 | 20–23 | 550000 |
-| heldout（高 FP4 v3） | 10 | 30–39 | 660000 |
+| development | 5 | 4–8 | 440000 |
+| collection | 4 | 20–23 | 550000 |
+| heldout | 10 | 30–39 | 660000 |
+| smoke | 1 | 0 | 770000 |
 
-任务 seed 加 `1000 × task_index`，每集再加 episode index。入口按版本化协议核查参数，主比较为 BF16、相邻 PTQ、压力 PTQ、QAD、continued-QAD、QAD→OPD；所有任务完成后生成 `summary.json` 与 `paired_comparison.json`。旧 10–19 结果只用于第一轮探索审计，新研究结果单独归档。
-
-五臂完成后，按已冻结计划评测纯 PTQ 前驱：
+任务 seed 加 `1000 × task_index`，环境每集再加 episode 索引。官方初态恢复后执行 10 个原始七维零动作稳定步；每次执行动作块前 8 步，每回合最多 720 个策略环境步。所有正式臂覆盖相同十任务，逐集核对 bank、恢复状态和稳定后状态的 SHA-256。
 
 ```bash
+run_recovery_v3 --until all
+
+# 主五臂完成后，评测开发阶段已经冻结的另一项压力候选。
 bash exp/run_ptq_frontier.sh --plan "$DEV_ROOT/frontier_plan.json" \
-  --round "$PTQAD_RUN_DIR/round_01" --out "$PTQAD_RUN_DIR/frontier_01" --port 5595
+  --round "$RECOVERY_ROOT/artifacts/heldout_round" \
+  --out "$RECOVERY_ROOT/frontier" --port 5595
 ```
 
-在本轮独立发布 checkout 中，先放入冻结计划引用的预算原字节。以下输出目录使用新路径，归档器重算比较、核对初态与来源，保存原始 JSON、任务日志和成本；已有相同字节副本可以核验复用。
+调度器把训练、合并、开发评测、采集和教师缓存放在 `RECOVERY_ROOT/artifacts/`，原始命令日志放在 `logs/`，阶段验收记录放在 `stages/`。`artifacts/select_qad_lr/selection.json` 与 `artifacts/select_opd_weight/selection.json` 保存开发选择。最终五臂位于 `artifacts/heldout_round/heldout_<arm>/`，全部完成后写出 `paired_comparison.json` 和根目录的 `final_manifest.json`。后者绑定实际选中模型、协议与两个选择记录，归档时按它读取路径，不凭目录名猜测所选配置。
 
-```bash
-set -e
-cmp "$DEV_ROOT/recipe_inventory.json" paper/evidence/recipe_inventory.json
-python3 paper/collect_frontier_evidence.py --frontier "$PTQAD_RUN_DIR/frontier_01"
-python3 paper/collect_pairing_evidence.py \
-  --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence
-CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" paper/collect_training_costs.py \
-  --qad-dir "$PTQAD_RUN_DIR/train_qad" --qad-merged "$PTQAD_RUN_DIR/qad" \
-  --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence/training
-python3 paper/collect_training_costs.py --verify-published paper/evidence/training
-```
+对同一个 `RECOVERY_ROOT` 重复调用时，入口先核验已完成阶段的产物与身份，再继续后续阶段。未完成目录不会自动覆盖；保留失败日志后定位问题。`--adopt-complete` 仅接受重新验真的完整工件；`--cleanup-duplicates` 仅删除已确认与保留 checkpoint 逐字节相同的训练根目录 shard，并写删除收据。
 
-再绑定实际解释器与五份最终 checkpoint：
+主比较保留 BF16、压力 PTQ、QAD、continued-QAD、QAD+OPD 五臂。最终 heldout 不参与学习率、教师权重、配方或 checkpoint 选择。相邻纯 PTQ 参考须提前冻结并执行相同 heldout；只有完整参考与净预算证据齐备，才绘制压缩前沿。详细归档要求见 [复现说明](docs/reproduce-ptqad.md)。
 
-```bash
-"$PTQAD_PYTHON" paper/capture_runtime.py \
-  --out paper/evidence/runtime --gr00t "$GR00T_REPO" \
-  --server-python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --checkpoint "bf16=$PTQAD_BASE" \
-  --checkpoint "ptq=$PTQAD_RUN_DIR/$PTQAD_RECOVERY_RECIPE" \
-  --checkpoint "qad=$PTQAD_RUN_DIR/qad" \
-  --checkpoint "continued_qad=$PTQAD_RUN_DIR/round_01/continued_qad_merged" \
-  --checkpoint "qad_opd=$PTQAD_RUN_DIR/round_01/qad_opd_merged"
-```
-
-### 6. 原生算子与引擎实验
+## 原生算子与引擎实验
 
 完成原生环境安装后，按 [native-pi05.md](docs/native-pi05.md) 准备 packed 模型并运行四项 GPU 验收：矩阵布局与 tensor scale、图重放、scale padding、完整 π0.5 `RequireGraph`。通过后安装候选 wheel，再测量对应源码和扩展。
 
@@ -220,13 +203,13 @@ bash spike/run.sh
 
 <!-- BEGIN CURRENT RESULTS -->
 
-结果区将在新独立评测完整结束后统一生成。
+高 FP4 v3 闭环实验尚未完成，当前未发布最终成功率或恢复增益。论文审阅稿中的红色 `xxx` 是待测位置。完整五臂、逐任务结果及配对比较通过后，统一生成此处结果；训练损失和单回合截图不作为成功率结论。
 
 <!-- END CURRENT RESULTS -->
 
 ## 配方账本
 
-下表按已核对模型形状计算编码预算，描述精度分配与目标载荷。eligible 是 `.weight`、二维且输入宽度可被 16 整除的张量；其余参数保留源精度。它是配方账本，不是已测文件体积或新一轮行为结果。
+下表按已核对模型形状计算编码预算，描述精度分配与目标载荷。eligible 是 `.weight`、二维且输入宽度可被 16 整除的张量；其余参数保留源精度。它是配方账本，不是已测文件体积或闭环行为结果。
 
 | 配方 | 新增 FP4 范围 | FP4 / eligible 元素 | FP4 / 全部元素 | 目标完整编码压缩比 |
 |---|---|---:|---:|---:|
@@ -236,13 +219,15 @@ bash spike/run.sh
 | head_lang_vision | 视觉 backbone | 79.41% | 71.12% | 2.5201× |
 | calib | 剩余 eligible 张量 | 100.00% | 89.55% | 2.8063× |
 
+`calib` 是这条混合精度阶梯的全候选 FP4 终点，可量化集合中不再保留 FP8；非候选张量及恢复旁路仍使用高精度。
+
 账本去除了已明确识别的 tied lm_head 别名：eligible 分母为 2,815,557,632 个元素，完整分母为 3,144,016,000。物理 checkpoint 保存两份共享权重，其对应分母为 3,126,722,560 和 3,455,180,928；两种口径都在 [recipe_inventory.json](paper/evidence/recipe_inventory.json) 中公开。
 
 预算包含 FP4 payload、每 16 元素的 E4M3 scale、张量全局 scale，以及 FP8 的行 scale；未包括对齐、激活和优化器。上表为 PTQ 基座预算。`head+lang_all`、rank=32 的 LoRA 另外含 58,580,992 个元素；若以 BF16 保存旁路，需增加 117,161,984 字节后再计算压缩比。恢复评测实际加载稠密原 dtype checkpoint；文件体积和推理耗时分别取自运行产物。
 
 ## Ubuntu 运行记录
 
-保留全部 17 张截图。15 张新短测有 [capture 清单](paper/evidence/captures.json)，另两张 BF16 执行展示有 [保留清单](paper/evidence/retained_captures.json)。每张图按下面的实际模型、任务及样本范围阅读；原始命令、日志、图像哈希和裁剪链可沿清单核对。定量表由对应完整实验工件生成。
+保留全部 17 张截图。15 张执行短测有 [capture 清单](paper/evidence/captures.json)，另两张 BF16 执行展示有 [保留清单](paper/evidence/retained_captures.json)。每张图按下面的实际模型、任务及样本范围阅读；原始命令、日志、图像哈希和裁剪链可沿清单核对。定量表由对应完整实验工件生成。
 
 <details>
 <summary>量化、校准与产物</summary>
@@ -315,7 +300,7 @@ bash spike/run.sh
 
 ![10 · 学生闭环与观测采集（1 任务 × 1 回合短测）](paper/figs/shot_rollout.png)
 
-本次两步 QAD 学生在 LIBERO-10 第一个任务上运行单环境、单回合：官方 bank index=4、环境 seed=910000，先执行 10 个 raw-zero 稳定步。唯一计分回合成功，日志长度为 285 步，保存视频及 2 条真实访问观测；后续自动 reset 只留下初始化记录，不增加计分回合。该单回合使用独立的 smoke 分区。
+本次两步 QAD 学生在 LIBERO-10 第一个任务上运行单环境、单回合：官方 bank index=4、环境 seed=910000，先执行 10 个 raw-zero 稳定步。唯一计分回合成功，日志长度为 285 步，保存视频及 2 条真实访问观测；后续自动 reset 只留下初始化记录，不增加计分回合。这张图展示一次接口与观测采集短测，不属于 v3 的开发、采集或最终结果；图中 index=4 也不是 v3 smoke 所规定的 index=0。
 
 </details>
 
@@ -384,7 +369,7 @@ weights/     本地权重与实验 checkpoint，不入库
 third_party/ 固定版本上游源码及独立环境，不入库
 ```
 
-## 测量范围与复现说明
+## 测量范围与总结
 
 | 内容 | 采用的范围 |
 |---|---|
