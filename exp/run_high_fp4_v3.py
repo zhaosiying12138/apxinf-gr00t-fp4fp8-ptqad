@@ -6,7 +6,8 @@ The driver then runs two QAD learning rates, selects on development, collects
 the winning QAD student rollouts, labels one frozen teacher cache, runs
 continued-QAD and two OPD weights from the exact same QAD A/B checkpoint,
 selects the OPD weight on development, and finally evaluates exactly five
-heldout arms. Stages publish atomically and never overwrite existing outputs.
+heldout arms. Outputs use stable absolute paths; completion markers publish
+atomically only after verification. Existing outputs are never overwritten.
 """
 from __future__ import annotations
 import argparse, hashlib, json, math, os, re, subprocess, sys, time
@@ -15,6 +16,9 @@ from pathlib import Path
 from typing import Any, Callable
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "eval"))
+from compare_recovery import _same_number, _validate_declared_accounting, compare_round
+from run_recovery_eval import parse_log, validate_resets
 TASKS = (
 "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
 "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
@@ -88,6 +92,20 @@ def validate_ptq(path: Path, protocol: dict[str,Any]) -> dict[str,Any]:
             raise OrchestrationError(f"PTQ arm {a} is incomplete/unpaired")
         frac(row,a)
         if not row.get("checkpoint"): raise OrchestrationError(f"PTQ arm {a} has no checkpoint")
+    audited_arms = {}
+    for arm in ["bf16", *c]:
+        folder = path.parent / arm
+        audited = eval_audit(folder, protocol, "development", Path(arms[arm]["checkpoint"]))
+        if (arms[arm]["successes"] != audited["successes"] or
+                arms[arm]["episodes"] != audited["episodes"] or
+                not _same_number(arms[arm].get("macro_success_rate"), audited["macro_success_rate"])):
+            raise OrchestrationError(f"PTQ selection score disagrees with raw development evidence: {arm}")
+        for filename in ("eval_manifest.json", "task_results.json", "summary.json"):
+            key = f"{arm}/{filename}"
+            if d.get("source_sha256", {}).get(key) != sha(folder / filename):
+                raise OrchestrationError(f"PTQ selection source identity changed: {key}")
+        audited_arms[arm] = audited
+    require_pairing(audited_arms)
     base=frac(arms["bf16"],"bf16")
     dr=Fraction(str(protocol["selection"]["pressure_rule"]["min_drop_from_bf16"]))
     floor=Fraction(str(protocol["selection"]["pressure_rule"]["min_absolute_success"]))
@@ -112,43 +130,86 @@ def model_id(path: Path) -> dict[str,Any]:
                                 "model.safetensors.index.json") if (p/n).is_file()}
     return {"path":str(p),"metadata":meta,"shards":shards}
 
-def eval_audit(path: Path, protocol: dict[str,Any], purpose: str) -> dict[str,Any]:
+def eval_audit(path: Path, protocol: dict[str,Any], purpose: str,
+               checkpoint: Path | None = None) -> dict[str,Any]:
+    """Verify raw logs, strict outcomes, counts and environment reset identities."""
+    path = path.resolve()
     part=protocol["partitions"][purpose]; man=jread(path/"eval_manifest.json")
     rows=jread(path/"task_results.json"); summ=jread(path/"summary.json")
+    if not all(isinstance(x, dict) for x in (man, rows, summ)):
+        raise OrchestrationError(f"{purpose} evidence must contain JSON objects")
     for k,v in {"purpose":purpose,"seed":part["seed"],"episodes":part["episodes_per_task"],
                 "init_state_indices":part["init_state_indices"],"tasks":list(TASKS),
                 "task_count":10,"n_envs":1,"task_seed_stride":1000,
-                "episode_seed_stride":1,"settle_steps":10,"n_action_steps":8,
+                "episode_seed_stride":1,"server_seed_offset":10000000,"settle_steps":10,"n_action_steps":8,
                 "max_episode_steps":720,"protocol_sha256":protocol["sha256"]}.items():
-        if man.get(k)!=v: raise OrchestrationError(f"{purpose} manifest mismatch: {k}")
+        if man.get(k)!=v or (type(v) is int and type(man.get(k)) is not int):
+            raise OrchestrationError(f"{purpose} manifest mismatch: {k}")
+    if (type(man.get("init_state_indices")) is not list or
+            any(type(x) is not int for x in man["init_state_indices"])):
+        raise OrchestrationError("initial-state indices must be integers")
+    if Path(man.get("out", "")).resolve() != path:
+        raise OrchestrationError(f"evaluation output path moved or is incorrect: {path}")
+    if Path(man.get("video_root", "")).resolve() != path / "videos":
+        raise OrchestrationError(f"evaluation video_root is stale: {path}")
+    if not Path(man.get("checkpoint", "")).is_dir():
+        raise OrchestrationError(f"evaluation checkpoint path is unavailable: {path}")
+    if checkpoint is not None and Path(man["checkpoint"]).resolve() != checkpoint.resolve():
+        raise OrchestrationError(f"evaluation used another checkpoint: {path}")
     if man.get("initial_state_protocol")!="libero10_official_bank_v1" or not man.get("protocol_file"):
         raise OrchestrationError(f"{purpose} manifest lacks official-bank protocol identity")
     protocol_file=Path(man["protocol_file"])
     if not protocol_file.is_file() or sha(protocol_file)!=protocol["sha256"]:
         raise OrchestrationError(f"{purpose} manifest protocol file/SHA is not the frozen protocol")
-    if set(rows)!=set(TASKS) or summ.get("tasks_complete")!=10:
+    if set(rows)!=set(TASKS) or type(summ.get("tasks_complete")) is not int or summ["tasks_complete"]!=10:
         raise OrchestrationError(f"{purpose} is incomplete")
     total_successes=0
     total_episodes=0
+    pairing = []
+    raw_sources = {}
     for ti,t in enumerate(TASKS):
         row=rows[t]
-        if row.get("returncode")!=0 or len(row.get("results",[]))!=part["episodes_per_task"]:
+        if (not isinstance(row, dict) or type(row.get("returncode")) is not int or row["returncode"] != 0):
+            raise OrchestrationError(f"{purpose}/{t} did not exit successfully")
+        outcomes = row.get("results")
+        if (not isinstance(outcomes, list) or len(outcomes) != part["episodes_per_task"] or
+                any(type(x) is not bool for x in outcomes)):
             raise OrchestrationError(f"{purpose}/{t} has incomplete outcomes")
-        resets=row.get("resets",[])
-        if len(resets)<part["episodes_per_task"]: raise OrchestrationError(f"{purpose}/{t} lacks resets")
-        for ei,z in enumerate(resets[:part["episodes_per_task"]]):
-            if (z.get("episode_index")!=ei or z.get("seed")!=part["seed"]+1000*ti+ei or
-                z.get("init_state_index")!=part["init_state_indices"][ei]):
-                raise OrchestrationError(f"{purpose}/{t}/{ei} reset mismatch")
-        total_successes += sum(row["results"])
-        total_episodes += len(row["results"])
-    if (summ.get("total_successes")!=total_successes or summ.get("total_episodes")!=total_episodes or
-        summ.get("tasks_complete")!=10 or not math.isclose(float(summ.get("macro_success_rate")),
-                                                            total_successes/total_episodes,abs_tol=1e-12)):
-        raise OrchestrationError(f"{purpose} summary accounting disagrees with task outcomes")
+        expected_seed = part["seed"] + 1000 * ti
+        _validate_declared_accounting(purpose, t, row, outcomes, expected_seed, True)
+        log = path / (t + ".log")
+        parsed = parse_log(log)
+        if parsed["log_sha256"] != row.get("log_sha256"):
+            raise OrchestrationError(f"{purpose}/{t} raw log SHA disagrees with task_results")
+        for field in ("results", "episodes", "successes", "success_rate", "resets"):
+            if parsed[field] != row.get(field):
+                raise OrchestrationError(f"{purpose}/{t} raw log differs from task_results: {field}")
+        resets = validate_resets(row, expected_seed, part["init_state_indices"])
+        for ei, z in enumerate(resets):
+            if any(type(z.get(k)) is not int for k in ("episode_index", "seed", "init_state_index", "settle_steps")):
+                raise OrchestrationError(f"{purpose}/{t}/{ei} reset fields must be integers")
+            pairing.append({"task": t, **{k:z[k] for k in (
+                "episode_index", "seed", "init_state_index", "settle_steps",
+                "initial_state_sha256", "restored_state_sha256", "init_state_bank_sha256")}})
+        raw_sources[t] = identity(log)
+        total_successes += sum(outcomes)
+        total_episodes += len(outcomes)
+    for key, expected in {"total_successes": total_successes, "total_episodes": total_episodes,
+                          "tasks_complete": 10, "seed": part["seed"]}.items():
+        if type(summ.get(key)) is not int or summ[key] != expected:
+            raise OrchestrationError(f"{purpose} summary accounting disagrees: {key}")
+    if summ.get("purpose") != purpose or not _same_number(summ.get("macro_success_rate"), total_successes/total_episodes):
+        raise OrchestrationError(f"{purpose} summary purpose/rate disagrees")
     return {"evaluation_identity":{n:identity(path/n) for n in ("eval_manifest.json","task_results.json","summary.json")},
-            "successes":int(summ["total_successes"]),"episodes":int(summ["total_episodes"]),
-            "macro_success_rate":float(summ["macro_success_rate"])}
+            "raw_log_identities": raw_sources,
+            "pairing_sha256": hashlib.sha256(json.dumps(pairing, sort_keys=True).encode()).hexdigest(),
+            "successes":total_successes,"episodes":total_episodes,
+            "macro_success_rate":total_successes/total_episodes}
+
+
+def require_pairing(arms):
+    if not arms or len({row["pairing_sha256"] for row in arms.values()}) != 1:
+        raise OrchestrationError("development arms have different environment reset identities")
 
 class Driver:
     def __init__(self,a:argparse.Namespace):
@@ -177,7 +238,7 @@ class Driver:
         self.run_dir.mkdir(parents=True,exist_ok=True)
         if man.exists():
             state=jread(man)
-            fixed={"protocol_sha256":self.protocol["sha256"],"selection_sha256":self.selection["selection_sha256"],
+            fixed={"output_layout":"stable_paths_v2","protocol_sha256":self.protocol["sha256"],"selection_sha256":self.selection["selection_sha256"],
                    "base":str(self.base),"train_seed":self.seed,"qad_steps":self.qsteps,
                    "continuation_steps":self.csteps,"lora_scope":self.scope,"rank":self.rank,"alpha":self.alpha}
             for k,v in fixed.items():
@@ -185,7 +246,7 @@ class Driver:
             for p in (self.art,self.work,self.logs,self.stages,self.receipts):
                 p.mkdir(parents=True,exist_ok=True)
             return state
-        state={"format":"high_fp4_v3_orchestrator","status":"initialized",
+        state={"format":"high_fp4_v3_orchestrator","output_layout":"stable_paths_v2","status":"initialized",
                "created_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
                "protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
                "protocol_version":self.protocol["data"].get("version"),
@@ -217,25 +278,53 @@ class Driver:
         self.state["last_completed_stage"]=name; self.save()
 
     def stage(self,name:str,action:Callable[[Path],dict[str,Any]],verify:Callable[[Path],dict[str,Any]])->Path:
-        self.freeze_check(); final=self.art/sn(name); marker=self.stages/(sn(name)+".json"); work=self.work/sn(name)
+        return self.stage_at(name, self.art / sn(name), action, verify)
+
+    def stage_at(self, name, final, action, verify):
+        """Publish a completion marker; never relocate manifests or payloads.
+
+        GR00T, evaluation and capture manifests embed absolute paths. Moving a
+        completed directory invalidates out/video/source-observation identities.
+        Stable output paths and an atomic completion marker avoid rewriting raw
+        evidence. An unmarked output is incomplete and cannot be reused unless
+        --adopt-complete is explicitly supplied and every verifier passes.
+        """
+        self.freeze_check()
+        marker=self.stages/(sn(name)+".json")
+        legacy_work=self.work/sn(name)
+        if legacy_work.exists():
+            raise OrchestrationError(f"legacy moved-layout work output requires manual audit: {legacy_work}")
         if marker.exists():
-            if not final.exists() or jread(marker).get("status")!="complete": raise OrchestrationError(f"stage inconsistent: {name}")
-            verify(final); return final
-        if final.exists(): raise OrchestrationError(f"unmarked final output: {final}")
-        if work.exists():
-            if not self.adopt: raise OrchestrationError(f"incomplete stage {work}; inspect then --adopt-complete")
-            audited=verify(work); work.rename(final); self.mark(name,{"output":str(final),"adopted":True,**audited}); return final
-        # Leave the stage output path absent: run_recovery_eval.py deliberately
-        # refuses an existing --out directory. Each action creates its own
-        # output atomically or through its own temporary exporter.
-        work.parent.mkdir(parents=True,exist_ok=True)
-        produced=action(work); audited=verify(work); work.rename(final)
+            record=jread(marker)
+            if (not final.exists() or record.get("status")!="complete" or
+                    record.get("output") != str(final) or
+                    record.get("protocol_sha256") != self.protocol["sha256"] or
+                    record.get("selection_sha256") != self.selection["selection_sha256"]):
+                raise OrchestrationError(f"stage inconsistent: {name}")
+            audited=verify(final)
+            if any(record.get(key) != value for key, value in audited.items()):
+                raise OrchestrationError(f"completed stage evidence changed: {name}")
+            return final
+        if final.exists():
+            if not self.adopt:
+                raise OrchestrationError(f"incomplete stage {final}; inspect then --adopt-complete")
+            audited=verify(final)
+            self.mark(name,{"output":str(final),"adopted":True,**audited})
+            return final
+        final.parent.mkdir(parents=True,exist_ok=True)
+        produced=action(final); audited=verify(final)
         self.mark(name,{"output":str(final),"adopted":False,**produced,**audited}); return final
 
     def run_logged(self,name,c, cwd, extra):
         log=self.logs/(sn(name)+".log")
         if log.exists(): raise OrchestrationError(f"refusing existing log: {log}")
-        env=os.environ.copy(); env.update(extra); env.setdefault("HF_HUB_OFFLINE","1")
+        env=os.environ.copy()
+        # Do not inherit a prior experiment's adapter, cache or capture budget.
+        for key in list(env):
+            if key.startswith(("QAD_", "OPD_")) or key in (
+                    "GR00T_BASE_CKPT", "TRAIN_SEED", "PROTOCOL_FILE", "PTQAD_PROTOCOL_FILE"):
+                env.pop(key)
+        env.update(extra); env.setdefault("HF_HUB_OFFLINE","1")
         env.setdefault("TRANSFORMERS_OFFLINE","1"); env.setdefault("NO_ALBUMENTATIONS_UPDATE","1")
         with log.open("x") as f:
             f.write(f"UTC {time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}\nCWD {cwd}\nCOMMAND {cmdtext(c)}\n")
@@ -253,18 +342,48 @@ class Driver:
            "QAD_ACTIVATION_CHECKPOINTING":"1"}
         if initial: e["QAD_INIT_ADAPTER"]=str(initial)
         if cache: e["OPD_CACHE_PATH"]=str(cache)
+        jwrite(work/"orchestrator_training_request.json",{
+            "environment":e,"base_identity":model_id(base),
+            "initial_adapter_identity":model_id(initial) if initial else None,
+            "cache_identity":identity(cache) if cache else None,
+            "protocol_sha256":self.protocol["sha256"]})
         self.run_logged(name,[str(self.py),str(ROOT/"rl/lora_qad.py")],self.groot,e)
         return {"base":str(base),"learning_rate":lr,"optimizer_steps":steps,"opd_weight":weight,
                 "initial_adapter":str(initial) if initial else None,"teacher_cache":str(cache) if cache else None}
 
-    def train_verify(self,p,steps,initial=None):
+    def train_verify(self,p,steps,initial=None,lr=None,weight=0.,cache=None):
         m=jread(p/"runtime_metrics.json"); rec=jread(p/"recovery_manifest.json")
         if m.get("status")!="completed" or m.get("global_steps")!=steps or m.get("requested_optimizer_steps")!=steps:
             raise OrchestrationError(f"training does not prove {steps} steps: {p}")
-        if initial and (Path(rec.get("initial_adapter","")).resolve()!=initial.resolve() or rec.get("optimizer_resumed") is not False):
+        base=Path(self.selection["selected_ptq_checkpoint"])
+        expected={"base":str(base),"rank":self.rank,"alpha":self.alpha,"scope":self.scope,
+                  "train_seed":self.seed,"protocol_sha256":self.protocol["sha256"],
+                  "optimizer_resumed":False,"probe_weight":weight,"probe_every":self.every,
+                  "micro_batch":1,"effective_global_batch":self.batch,"gradient_accumulation_steps":self.batch}
+        if any(rec.get(k)!=v for k,v in expected.items()) or rec.get("optimizer_resumed") is not False:
+            raise OrchestrationError("training manifest differs from frozen recovery settings")
+        if rec.get("initial_adapter") != (str(initial) if initial else None):
             raise OrchestrationError("continuation is not exact-A/B with a fresh optimizer")
+        for name,field in (("config.json","base_config_sha256"),("statistics.json","base_statistics_sha256"),
+                           ("ptq_recipe.json","base_recipe_sha256")):
+            if rec.get(field)!=sha(base/name):
+                raise OrchestrationError(f"training base metadata changed: {name}")
+        if rec.get("probe_cache")!=(str(cache) if cache else None) or rec.get("probe_cache_sha256")!=(sha(cache) if cache else None):
+            raise OrchestrationError("training did not use the frozen teacher cache")
+        request=jread(p/"orchestrator_training_request.json")
+        if (request.get("protocol_sha256")!=self.protocol["sha256"] or
+                request.get("environment",{}).get("QAD_OUT")!=str(p) or
+                float(request.get("environment",{}).get("QAD_LR",-1))!=lr or
+                request.get("base_identity")!=model_id(base) or
+                request.get("initial_adapter_identity")!=(model_id(initial) if initial else None) or
+                request.get("cache_identity")!=(identity(cache) if cache else None)):
+            raise OrchestrationError("training invocation/path/source identities changed")
         checkpoint=p/f"checkpoint-{steps}"
-        return {"checkpoint_identity":model_id(checkpoint),"recovery_manifest_sha256":sha(p/"recovery_manifest.json")}
+        if sha(checkpoint/"recovery_manifest.json")!=sha(p/"recovery_manifest.json"):
+            raise OrchestrationError("saved checkpoint recovery manifest differs from training")
+        return {"checkpoint_identity":model_id(checkpoint),"recovery_manifest_sha256":sha(p/"recovery_manifest.json"),
+                "training_request_identity":identity(p/"orchestrator_training_request.json"),
+                "runtime_identity":identity(p/"runtime_metrics.json")}
 
     def merge(self,work,name,base,ckpt,steps):
         self.run_logged(name,[str(self.py),str(ROOT/"rl/lora_merge_bake.py"),"--base",str(base),"--ckpt",str(ckpt),
@@ -273,6 +392,18 @@ class Driver:
     def merge_verify(self,p):
         m=jread(p/"merge_manifest.json")
         if m.get("status")!="complete" or not (p/"ptq_recipe.json").is_file(): raise OrchestrationError(f"bad merged model: {p}")
+        base=Path(self.selection["selected_ptq_checkpoint"])
+        checkpoint=need(m.get("training_checkpoint",""),"merge training checkpoint")
+        recovery=need(m.get("recovery_manifest_source",""),"merge recovery manifest")
+        if (m.get("base")!=str(base) or recovery != checkpoint/"recovery_manifest.json" or
+                m.get("recovery_manifest_sha256")!=sha(recovery) or
+                sha(p/"recovery_manifest.json")!=sha(recovery) or
+                sha(p/"ptq_recipe.json")!=sha(base/"ptq_recipe.json") or
+                m.get("rank")!=self.rank or m.get("alpha")!=self.alpha):
+            raise OrchestrationError("merge base/adapter metadata or absolute source paths differ")
+        output_weights={f.name:{"bytes":f.stat().st_size,"sha256":sha(f)} for f in p.glob("*.safetensors")}
+        if not output_weights or m.get("output_weights")!=output_weights:
+            raise OrchestrationError("merge output weight identity differs")
         return {"model_identity":model_id(p),"merge_manifest_sha256":sha(p/"merge_manifest.json")}
 
     def evaluate(self,work,name,ckpt,purpose,offset=0,collection=None):
@@ -282,26 +413,92 @@ class Driver:
            "--gr00t",str(self.groot),"--server-python",str(self.py),"--rollout-python",str(self.sim),
            "--port",str(self.port+offset),"--protocol-file",str(self.protocol_path)]
         if collection: c += ["--collection-manifest",str(collection)]
-        self.run_logged(name,c,self.groot,{"PROTOCOL_FILE":str(self.protocol_path),"QAD_DATASET":str(self.dataset)})
+        env={"PROTOCOL_FILE":str(self.protocol_path),"QAD_DATASET":str(self.dataset)}
+        if purpose == "collection":
+            env.update(OPD_CAPTURE_EVERY="8",OPD_CAPTURE_PER_TASK="16",OPD_CAPTURE_LIMIT="160")
+        self.run_logged(name,c,self.groot,env)
         return {"checkpoint":str(ckpt),"purpose":purpose}
-    def eval_verify(self,p,purpose): return eval_audit(p,self.protocol,purpose)
+    def eval_verify(self,p,purpose,checkpoint=None): return eval_audit(p,self.protocol,purpose,checkpoint)
 
     def cache(self,work,collection):
-        count=10*self.protocol["partitions"]["collection"]["episodes_per_task"]*4
+        # The frozen orchestration budget is 16 observations/task, 160 total;
+        # v3 supplies ten tasks and four collection episodes/task. Never accept
+        # a silently truncated teacher cache if the collector captured fewer.
+        count=self.cache_count()
+        model=Path(jread(collection/"eval_manifest.json")["checkpoint"])
+        self.capture_audit(collection,model)
         self.run_logged("teacher-cache",[str(self.py),str(ROOT/"rl/opd_probe_cache.py"),"--teacher",str(self.base),
             "--input-dir",str(collection/"observations"),"--count",str(count),"--out",str(work/"teacher_probes.pt"),
             "--dataset",str(self.dataset),"--seed",str(self.seed)],self.groot,{})
         return {"collection_observations":str(collection/"observations"),"requested_count":count}
-    def cache_verify(self,p):
+    def cache_count(self):
+        return len(TASKS)*self.protocol["partitions"]["collection"]["episodes_per_task"]*4
+
+    def capture_audit(self,collection,model):
+        expected_per_task=self.cache_count()//len(TASKS)
+        sources={}
+        for task in TASKS:
+            folder=collection/"observations"/task
+            manifest=jread(folder/"capture_manifest.json")
+            counts=jread(folder/"capture_counts.json")
+            if (manifest.get("source_kind")!="student_rollout" or
+                    manifest.get("student_checkpoint")!=str(model) or
+                    manifest.get("student_statistics_sha256")!=sha(model/"statistics.json") or
+                    manifest.get("student_config_sha256")!=sha(model/"config.json") or
+                    manifest.get("every_server_calls")!=8 or
+                    manifest.get("per_task_limit")!=16 or manifest.get("total_limit")!=160):
+                raise OrchestrationError(f"capture does not use frozen winning QAD/settings: {task}")
+            paths=sorted(folder.glob("sample_*.pt"))
+            if (len(paths)!=expected_per_task or type(counts.get("saved")) is not int or
+                    counts["saved"]!=expected_per_task):
+                raise OrchestrationError(f"capture is short: {task}; require {expected_per_task} observations")
+            for source in paths:
+                sources[str(source.resolve())]=identity(source.resolve())
+        return sources
+
+    def cache_verify(self,p,collection,model):
         c,m=p/"teacher_probes.pt",p/"teacher_probes.json"
         if not c.is_file() or not m.is_file(): raise OrchestrationError("teacher cache incomplete")
         d=jread(m)
-        if d.get("source_kind")!="student_rollout" or d.get("teacher")!=str(self.base) or int(d.get("count",0))<1:
+        expected=self.cache_count()
+        if (d.get("source_kind")!="student_rollout" or d.get("teacher")!=str(self.base) or
+                type(d.get("count")) is not int or d["count"]!=expected or
+                type(d.get("requested_count")) is not int or d["requested_count"]!=expected or
+                d.get("seed")!=self.seed):
             raise OrchestrationError("teacher cache provenance invalid")
+        sources=self.capture_audit(collection,model)
+        actual_sources=d.get("source_observation_files")
+        if (not isinstance(actual_sources,list) or len(actual_sources)!=expected or
+                len({row["path"] for row in actual_sources})!=expected or
+                {row["path"]:row for row in actual_sources}!=sources):
+            raise OrchestrationError("teacher cache sources do not match the complete frozen collection")
+        for name,field in (("config.json","teacher_config_sha256"),("statistics.json","teacher_statistics_sha256")):
+            if d.get(field)!=sha(self.base/name):
+                raise OrchestrationError(f"teacher cache metadata differs from BF16 teacher: {name}")
+        weights={f.name:{"bytes":f.stat().st_size,"sha256":sha(f)} for f in sorted(self.base.glob("*.safetensors"))}
+        if d.get("teacher_weights") != weights:
+            raise OrchestrationError("teacher cache weight identity differs from BF16 teacher")
+        # Load only on CPU in a separate process. JSON sidecars alone cannot
+        # prove the serialized cache contains 160 samples or agrees with them.
+        env=os.environ.copy(); env["CUDA_VISIBLE_DEVICES"]=""
+        try:
+            subprocess.run([str(self.py),str(ROOT/"exp/verify_teacher_cache_cpu.py"),
+                            "--cache",str(c),"--metadata",str(m),"--student-checkpoint",str(model),
+                            "--seed",str(self.seed),"--expected-count",str(expected)],
+                           env=env,check=True,capture_output=True,text=True)
+        except subprocess.CalledProcessError as exc:
+            raise OrchestrationError("CPU teacher-cache payload verification failed: "+exc.stderr[-4000:]) from exc
         return {"cache_identity":identity(c),"metadata_identity":identity(m),"count":int(d["count"])}
 
     def cleanup_dupes(self,label,root,ckpt):
         if not self.cleanup: return
+        receipt=self.receipts/(sn(label)+".json")
+        if receipt.exists():
+            prior=jread(receipt)
+            for row in prior["deleted_files"]:
+                if Path(row["deleted"]).exists() or sha(Path(row["retained"]))!=row["sha256"]:
+                    raise OrchestrationError("completed duplicate-cleanup receipt no longer matches disk")
+            return
         try:
             running=subprocess.check_output(["ps","-eo","pid=,args="],text=True).splitlines()
         except (OSError,subprocess.CalledProcessError):
@@ -318,28 +515,44 @@ class Driver:
             a,b=sha(p),sha(q)
             if p.stat().st_size!=q.stat().st_size or a!=b: continue
             size=p.stat().st_size; p.unlink(); deleted.append({"deleted":str(p),"retained":str(q),"bytes":size,"sha256":a})
-        jwrite(self.receipts/(sn(label)+".json"),{"format":"verified_training_root_duplicate_cleanup_v1",
+        jwrite(receipt,{"format":"verified_training_root_duplicate_cleanup_v1",
             "label":label,"training_root":str(root),"retained_checkpoint":str(ckpt),"deleted_files":deleted,
             "deleted_bytes":sum(x["bytes"] for x in deleted),"utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
             "note":"Only exact root shard duplicates were deleted; evidence, checkpoints and merged models retained."})
 
     def select(self,work,kind,rows):
+        d=self.selection_report(kind,rows)
+        jwrite(work/"selection.json",d); return {"selection_identity":identity(work/"selection.json")}
+
+    def selection_report(self,kind,rows):
+        field="learning_rate" if kind=="qad" else "opd_weight"
+        declared=self.protocol["selection"]["qad_learning_rates" if kind=="qad" else "opd_weights"]
+        if set(rows) != set(declared) or len(rows) != 2:
+            raise OrchestrationError("recovery selection candidates differ from frozen protocol")
         values={}
         for key,p in rows.items():
-            values[str(key)]={("learning_rate" if kind=="qad" else "opd_weight"):key,
-                              **self.eval_verify(p,"development"),"evaluation_path":str(p),"selection_source":"development_only"}
-        winner=sorted(values.values(),key=lambda x:(-x["macro_success_rate"],x["learning_rate"] if kind=="qad" else x["opd_weight"]))[0]
+            model=self.art/("merge_qad_lr_"+sn(str(float(key))) if kind=="qad" else
+                            "merge_opd_025" if float(key)==.25 else "merge_opd_100")
+            values[str(key)]={field:key,**self.eval_verify(p,"development",model),
+                             "evaluation_path":str(p),"selection_source":"development_only"}
+        reference=eval_audit(self.selection_path.parent/"bf16", self.protocol, "development", self.base)
+        require_pairing({"bf16":reference,**values})
+        winner=sorted(values.values(),key=lambda x:(-frac(x,field),x[field]))[0]
         d={"format":"high_fp4_v3_"+("qad_lr" if kind=="qad" else "opd")+"_"+("selection"),
            "protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
            "selection_uses_heldout":False,"criterion":"highest development macro success; ties choose lower "+("learning rate" if kind=="qad" else "OPD weight"),
-           "candidates":values,"selected_"+("learning_rate" if kind=="qad" else "opd_weight"):winner["learning_rate" if kind=="qad" else "opd_weight"]}
-        jwrite(work/"selection.json",d); return {"selection_identity":identity(work/"selection.json")}
+           "environment_pairing_verified":True,"reference_bf16_evaluation":str(self.selection_path.parent/"bf16"),
+           "candidates":values,"selected_"+field:winner[field]}
+        return d
     def select_verify(self,p,kind):
         d=jread(p/"selection.json")
         if d.get("protocol_sha256")!=self.protocol["sha256"] or d.get("selection_uses_heldout") is not False:
             raise OrchestrationError("selection is not development-only")
         if not isinstance(d.get("candidates"),dict) or len(d["candidates"])!=2: raise OrchestrationError("selection needs two candidates")
-        for row in d["candidates"].values(): self.eval_verify(Path(row["evaluation_path"]),"development")
+        field="learning_rate" if kind=="qad" else "opd_weight"
+        rows={row[field]:Path(row["evaluation_path"]) for row in d["candidates"].values()}
+        if d != self.selection_report(kind,rows):
+            raise OrchestrationError("recorded selection differs from recomputed development scores/tie-break")
         return {"selection_identity":identity(p/"selection.json")}
 
     def run(self,until):
@@ -351,11 +564,11 @@ class Driver:
         for i,lr in enumerate(lrs):
             tag="qad_lr_"+sn(str(lr))
             tr=self.stage("train_"+tag,lambda w,lr=lr,tag=tag:self.train(w,"train_"+tag,base,lr,self.qsteps),
-                          lambda p:self.train_verify(p,self.qsteps))
+                          lambda p,lr=lr:self.train_verify(p,self.qsteps,lr=lr))
             ck=tr/f"checkpoint-{self.qsteps}"; trains[lr]=ck; self.cleanup_dupes("train_"+tag,tr,ck)
             models[lr]=self.stage("merge_"+tag,lambda w,tag=tag,ck=ck:self.merge(w,"merge_"+tag,base,ck,self.qsteps),self.merge_verify)
             devs[lr]=self.stage("dev_"+tag,lambda w,model=models[lr],tag=tag,i=i:self.evaluate(w,"dev_"+tag,model,"development",i),
-                                  lambda p:self.eval_verify(p,"development"))
+                                  lambda p,model=models[lr]:self.eval_verify(p,"development",model))
         if until=="qad_dev": return self.state
         qs=self.stage("select_qad_lr",lambda w:self.select(w,"qad",devs),
                       lambda p:self.select_verify(p,"qad"))
@@ -363,18 +576,19 @@ class Driver:
         qad_model,qad_ck=models[win_lr],trains[win_lr]
         if until=="qad_selection": return self.state
         coll=self.stage("collection_qad",lambda w:self.evaluate(w,"collection_qad",qad_model,"collection",2),
-                        lambda p:self.eval_verify(p,"collection"))
-        cache_stage=self.stage("teacher_cache",lambda w:self.cache(w,coll),self.cache_verify); cache=cache_stage/"teacher_probes.pt"
+                        lambda p:self.eval_verify(p,"collection",qad_model))
+        cache_stage=self.stage("teacher_cache",lambda w:self.cache(w,coll),
+                               lambda p:self.cache_verify(p,coll,qad_model)); cache=cache_stage/"teacher_probes.pt"
         rec={}
         for arm,weight in (("continued_qad",0.),("opd_025",.25),("opd_100",1.)):
             tr=self.stage("train_"+arm,lambda w,arm=arm,weight=weight:self.train(w,"train_"+arm,base,win_lr,self.csteps,qad_ck,weight,cache if weight else None),
-                          lambda p:self.train_verify(p,self.csteps,qad_ck))
+                          lambda p,weight=weight:self.train_verify(p,self.csteps,qad_ck,win_lr,weight,cache if weight else None))
             ck=tr/f"checkpoint-{self.csteps}"; self.cleanup_dupes("train_"+arm,tr,ck)
             rec[arm]=self.stage("merge_"+arm,lambda w,arm=arm,ck=ck:self.merge(w,"merge_"+arm,base,ck,self.csteps),self.merge_verify)
         devrec={}
         for i,arm in enumerate(("continued_qad","opd_025","opd_100")):
             devrec[arm]=self.stage("dev_"+arm,lambda w,arm=arm,i=i:self.evaluate(w,"dev_"+arm,rec[arm],"development",3+i),
-                                    lambda p:self.eval_verify(p,"development"))
+                                    lambda p,arm=arm:self.eval_verify(p,"development",rec[arm]))
         if until=="recovery_dev": return self.state
         osel=self.stage("select_opd_weight",lambda w:self.select(w,"opd",{.25:devrec["opd_025"],1.:devrec["opd_100"]}),
                          lambda p:self.select_verify(p,"opd"))
@@ -384,23 +598,14 @@ class Driver:
         final=(("bf16",self.base,10),("ptq",base,11),("qad",qad_model,12),("continued_qad",rec["continued_qad"],13),("qad_opd",rec[win_arm],14))
         for arm,model,off in final:
             name="heldout_"+arm; out=round_dir/name
-            if out.exists():
-                audited=self.eval_verify(out,"heldout")
-                marker=self.stages/(sn(name)+".json")
-                if not marker.exists():
-                    self.mark(name,{"output":str(out),"adopted":True,
-                                    "checkpoint_identity":model_id(model),**audited})
-                continue
-            w=self.work/name
-            if w.exists():
-                if not self.adopt: raise OrchestrationError(f"incomplete heldout output: {w}")
-                self.eval_verify(w,"heldout")
-            else:
-                self.evaluate(w,name,model,"heldout",off,cm); self.eval_verify(w,"heldout")
-            w.rename(out); self.mark(name,{"output":str(out),"checkpoint_identity":model_id(model),"evaluation_identity":self.eval_verify(out,"heldout")})
+            self.stage_at(name,out,
+                lambda p,name=name,model=model,off=off:self.evaluate(p,name,model,"heldout",off,cm),
+                lambda p,model=model:{"checkpoint_identity":model_id(model),**self.eval_verify(p,"heldout",model)})
         comparison=round_dir/"paired_comparison.json"
         if not comparison.exists():
             self.run_logged("compare_heldout",[str(self.py),str(ROOT/"eval/compare_recovery.py"),"--round",str(round_dir)],ROOT,{"PROTOCOL_FILE":str(self.protocol_path)})
+        if jread(comparison) != compare_round(round_dir):
+            raise OrchestrationError("heldout comparison differs from recomputed paired evidence")
         result={"format":"high_fp4_v3_final_manifest","protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
                 "selection_file":str(self.selection_path),"selection_sha256":self.selection["selection_sha256"],
                 "qad_selection":qsd,"opd_selection":od,"selection_uses_heldout":False,"selected_pressure_recipe":self.selection["selected_recipe"],
