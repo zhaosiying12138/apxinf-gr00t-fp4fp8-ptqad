@@ -1,0 +1,36 @@
+[robosuite WARNING] No private macro file found! (__init__.py:7)
+[robosuite WARNING] It is recommended to use a private macro file (__init__.py:8)
+[robosuite WARNING] To setup, run: python /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/robosuite/scripts/setup_macros.py (__init__.py:9)
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[Warning]: datasets path /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/../datasets does not exist!
+Running collecting 2 episodes for libero_sim/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove with 1 vec envs
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+FP4VLA_EPISODE_RESET {"episode_index": 0, "seed": 338000, "task_id": 8, "init_state_index": 0, "init_state_bank_size": 50, "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac", "restored_state_sha256": "61a34575b44313156895ce73996cf18dd243c396572fd0e1cd476e0e9fbe70af", "settle_steps": 10, "initial_state_sha256": "9b4d6c68f633248e57de499ac53f8134b1e908c0dba0423c5f5ec82cd3118e66"}
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `reset()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:240: UserWarning: [33mWARN: Casting input x to numpy array.[0m
+  gym.logger.warn("Casting input x to numpy array.")
+Episodes:   0%|          | 0/2 [00:00<?, ?it/s]/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `step()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+FP4VLA_EPISODE_RESET {"episode_index": 1, "seed": 338001, "task_id": 8, "init_state_index": 1, "init_state_bank_size": 50, "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac", "restored_state_sha256": "cf1b859b0688c3c3ea64fba0ab5bd29b88ff7f28dc5893df4cb7564ac4db8cce", "settle_steps": 10, "initial_state_sha256": "b423606d63d15e39ece32b709483bc4147659831543b4d96e6f6003da811cf10"}
+Episodes:  50%|█████     | 1/2 [00:48<00:48, 48.78s/it]FP4VLA_EPISODE_RESET {"episode_index": 2, "seed": 338002, "task_id": 8, "init_state_index": 0, "init_state_bank_size": 50, "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac", "restored_state_sha256": "61a34575b44313156895ce73996cf18dd243c396572fd0e1cd476e0e9fbe70af", "settle_steps": 10, "initial_state_sha256": "9b4d6c68f633248e57de499ac53f8134b1e908c0dba0423c5f5ec82cd3118e66"}
+Episodes: 100%|██████████| 2/2 [01:39<00:00, 49.77s/it]FP4VLA_EPISODE_RESET {"episode_index": 3, "seed": 338003, "task_id": 8, "init_state_index": 1, "init_state_bank_size": 50, "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac", "restored_state_sha256": "cf1b859b0688c3c3ea64fba0ab5bd29b88ff7f28dc5893df4cb7564ac4db8cce", "settle_steps": 10, "initial_state_sha256": "b423606d63d15e39ece32b709483bc4147659831543b4d96e6f6003da811cf10"}
+Episodes: 100%|██████████| 2/2 [01:41<00:00, 50.62s/it]
+Collecting 2 episodes took 105.24725389480591 seconds
+Video saved to:  /home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/development/bf16/videos/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove
+results:  ('libero_sim/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove', [True, True], {'episode_lengths': [377, 391], 'episode_rewards': [1.0, 1.0]})
+success rate:  1.0

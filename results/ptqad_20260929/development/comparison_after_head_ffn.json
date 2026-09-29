@@ -1,0 +1,320 @@
+{
+  "selection_rule": "First promoted level at least 0.10 below BF16 development macro; otherwise maximal calib",
+  "selection_uses_heldout": false,
+  "selected_recipe": null,
+  "arms": {
+    "bf16": {
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+      "successes": 20,
+      "episodes": 20,
+      "macro_success_rate": 1.0,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        }
+      },
+      "environment_pairing_verified": true,
+      "wall_seconds_including_server_loads": 878.0015032291412
+    },
+    "fp8": {
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/fp8base",
+      "successes": 20,
+      "episodes": 20,
+      "macro_success_rate": 1.0,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        }
+      },
+      "environment_pairing_verified": true,
+      "wall_seconds_including_server_loads": 840.7721035480499
+    },
+    "head_ffn": {
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/ptqad_20260929/head_ffn",
+      "successes": 19,
+      "episodes": 20,
+      "macro_success_rate": 0.95,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "results": [
+            true,
+            false
+          ],
+          "successes": 1,
+          "episodes": 2,
+          "success_rate": 0.5
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "results": [
+            true,
+            true
+          ],
+          "successes": 2,
+          "episodes": 2,
+          "success_rate": 1.0
+        }
+      },
+      "environment_pairing_verified": true,
+      "wall_seconds_including_server_loads": 959.5718839168549
+    }
+  },
+  "source_sha256": {
+    "bf16/eval_manifest.json": "f95dc64df827c14ea9e4501b8d55fa41f8fb0c588dee5f0db61134aee78119c1",
+    "bf16/task_results.json": "2e13bd63bb66df293a10f4e7658a5e4ece1b400323a7ae0934ec7167d714d4d5",
+    "bf16/summary.json": "a174ea554c83fecf570ad957acbb479e01441c6444087149df1df4ea82e92db0",
+    "fp8/eval_manifest.json": "04a7793116d863673e5c3a11fc81e4248452e34196ca82fbd244afa166e8648a",
+    "fp8/task_results.json": "0e5dea97bd85a500317f21439e41a8aefcfe76c28694c5faf8ef847f76af547d",
+    "fp8/summary.json": "b17bbc9fb3c1808fb1becc105140ed82588d257863a0ff61c711869739228c78",
+    "head_ffn/eval_manifest.json": "2855413049f74d0336579b6da76128613a3c4c36b775f4b4845c9d6afbf10ae3",
+    "head_ffn/task_results.json": "46b0b754f621173a2167d617370f85f9fad2869fc4a08218666c154d74515b42",
+    "head_ffn/summary.json": "351c473b334f458d0fe06f0933f9d0d317db783b02da602b9f4e030b2c6981af"
+  },
+  "implementation_sha256": "278d852eb06f4f4752600c3b3f5e15006ff0a68913bfdb5cb4e43d783e9d5857",
+  "paired_scope": "environment initial states; not per-episode diffusion random streams"
+}
