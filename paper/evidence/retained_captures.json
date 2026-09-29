@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "reviewed_at_utc": "2026-09-29T03:28:12.905499+00:00",
+  "review_workspace_head": "c4133e7c95c337ac2c9f48a7b5378e17b17f0643",
+  "review_mode": "CPU-only source review and direct view_image visual inspection; no GPU or screenshot recapture",
+  "screenshots": [
+    {
+      "figure": "shot_gr00t",
+      "retained_unaffected": true,
+      "verified": true,
+      "verification_scope": "Visual reading and provenance matching; retained source capture, not a new run or a claim of policy-quality parity.",
+      "file": "paper/figs/shot_gr00t.png",
+      "sha256": "41567c4c73bedf5d4b89068e60d38a10f3cbdaf61d5b3440e21d7bf7df44ce88",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "original_git_identity": {
+        "commit": "83d38a33b78dd23056c0aaa88ae10f02a307e7f4",
+        "path": "paper/figs/shot_gr00t.png",
+        "blob_oid": "aa41cd4fa1590f048e87a6ef6af7d89ba588f835",
+        "sha256": "41567c4c73bedf5d4b89068e60d38a10f3cbdaf61d5b3440e21d7bf7df44ce88",
+        "byte_identical": true
+      },
+      "script": {
+        "path": "/home/zhaosiying/shot_scripts/r7.sh",
+        "sha256": "65e8adb7e2091b0237ca2b1ca27380e99dbb15aeeb7033f4f30f3c3cab0b9870",
+        "bytes": 594,
+        "role": "Existing capture command; hash establishes inspected bytes, not its creation date"
+      },
+      "capture_time": "not established from retained evidence",
+      "exit_status": "not recorded; not inferred from tailer execution",
+      "image_processing": "no processing in this review; exact original Git image retained",
+      "visual_review": {
+        "readable": true,
+        "occlusion": false,
+        "layout": "Purple Ubuntu terminal fills image; terminal title bar retained; substantial blank area below output; no overlays or clipped result text",
+        "common_notice": "WSL localhost proxy notice appears; it does not prevent the shown local invocation",
+        "warnings": "Two albumentations always_apply warnings; no traceback, CUDA failure, or unsuccessful inference visible."
+      },
+      "supporting_records": [
+        {
+          "path": "exp/bench_engine.py",
+          "sha256": "6fac54415b9c5f2bd555b5467771d7c36ff3c347bd00b18cc6f363caecc1dcd8",
+          "bytes": 4644,
+          "role": "Benchmark source hash captured during the retained-image review; historical capture context, not the current benchmark implementation."
+        }
+      ],
+      "raw_result": {
+        "path": "results/engine/shot4_gr00t_bf16.json",
+        "sha256": "6eb1ecf99e30949254aa1e8d397ff6820bbdfec6cedc4873d1b2b5cffa0144ff",
+        "bytes": 568,
+        "role": "Structured output from the exact --tag shown in the screenshot"
+      },
+      "visible_result_matches": {
+        "variant": "bf16",
+        "model_type": "gr00t",
+        "load_s": 28.0,
+        "n": 10,
+        "model_ms_p50": 29.67,
+        "model_ms_p99": 31.93,
+        "total_ms_p50": 47.87,
+        "total_ms_p99": 118.33,
+        "hz_p50": 20.9,
+        "power_w_mean": 72.3,
+        "power_w_max": 116.6,
+        "vram_mb_peak": 10384
+      },
+      "raw_terminal_log": "No separately saved terminal transcript located; exact tagged JSON is present.",
+      "unaffected_reason": "This invocation explicitly selects BF16; the repaired Python weight quantizers and the native FP4 tensor-scale/layout adapter are not its numeric execution path.",
+      "publication_scope": "Independent ten-sample BF16 engine invocation, not the separate 30-sample baseline table and not a quantized or restored closed-loop evaluation.",
+      "visible_action_shape": [
+        16,
+        7
+      ],
+      "public_git_identity": {
+        "commit": "b96d4e07950e5b7bf4b5358bd818b8f8b20bb451",
+        "path": "paper/figs/shot_gr00t.png",
+        "blob_oid": "aa41cd4fa1590f048e87a6ef6af7d89ba588f835",
+        "sha256": "41567c4c73bedf5d4b89068e60d38a10f3cbdaf61d5b3440e21d7bf7df44ce88",
+        "byte_identical": true,
+        "repository": "apxinf-gr00t-fp4fp8-ptqad",
+        "role": "Public-repository reachable anchor of the exact retained image; does not change the original capture provenance."
+      },
+      "retain_for_publication": true
+    },
+    {
+      "figure": "shot_pi05",
+      "retained_unaffected": true,
+      "verified": true,
+      "verification_scope": "Visual reading and provenance matching; retained source capture, not a new run or a claim of policy-quality parity.",
+      "file": "paper/figs/shot_pi05.png",
+      "sha256": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
+      "dimensions": [
+        3840,
+        2280
+      ],
+      "original_git_identity": {
+        "commit": "83d38a33b78dd23056c0aaa88ae10f02a307e7f4",
+        "path": "paper/figs/shot_pi05.png",
+        "blob_oid": "761899b8644bb83198f6d0decbd62c0a0f4e1850",
+        "sha256": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
+        "byte_identical": true
+      },
+      "script": {
+        "path": "/home/zhaosiying/shot_scripts/r5.sh",
+        "sha256": "7f0085bc6d7974911a8bcc7085d66d823a5ca422054275ad9661ce06024d305b",
+        "bytes": 405,
+        "role": "Existing capture command; hash establishes inspected bytes, not its creation date"
+      },
+      "capture_time": "not established from retained evidence",
+      "exit_status": "not recorded; not inferred from tailer execution",
+      "image_processing": "no processing in this review; exact original Git image retained",
+      "visual_review": {
+        "readable": true,
+        "occlusion": false,
+        "layout": "Purple Ubuntu terminal fills image; terminal title bar retained; substantial blank area below output; no overlays or clipped result text",
+        "common_notice": "WSL localhost proxy notice appears; it does not prevent the shown local invocation",
+        "warnings": "Explicit missing-transform-statistics warning: identity passthrough is used. Inference completed, but normalization and embodiment-level behavior parity are not established."
+      },
+      "supporting_records": [
+        {
+          "path": "exp/bench_engine.py",
+          "sha256": "6fac54415b9c5f2bd555b5467771d7c36ff3c347bd00b18cc6f363caecc1dcd8",
+          "bytes": 4644,
+          "role": "Benchmark source hash captured during the retained-image review; historical capture context, not the current benchmark implementation."
+        }
+      ],
+      "raw_result": {
+        "path": "results/engine/shot4_pi05_bf16.json",
+        "sha256": "e4d1b6bcecf92d2b7687a79f4033397a53a3955d2394bf39b96a3bc696955ac8",
+        "bytes": 554,
+        "role": "Structured output from the exact --tag shown in the screenshot"
+      },
+      "visible_result_matches": {
+        "variant": "bf16",
+        "model_type": "pi05",
+        "load_s": 124.2,
+        "n": 10,
+        "model_ms_p50": 47.77,
+        "model_ms_p99": 50.11,
+        "total_ms_p50": 48.84,
+        "total_ms_p99": 51.19,
+        "hz_p50": 20.5,
+        "power_w_mean": 143.4,
+        "power_w_max": 167.3,
+        "vram_mb_peak": 15742
+      },
+      "raw_terminal_log": "No separately saved terminal transcript located; exact tagged JSON is present.",
+      "unaffected_reason": "This invocation explicitly selects BF16; the repaired Python weight quantizers and the native FP4 tensor-scale/layout adapter are not its numeric execution path.",
+      "publication_scope": "Independent ten-sample BF16 engine invocation, not the separate 30-sample baseline table and not a quantized or restored closed-loop evaluation. Retain the missing-statistics limitation alongside this timing screenshot.",
+      "visible_action_shape": [
+        50,
+        7
+      ],
+      "public_git_identity": {
+        "commit": "b96d4e07950e5b7bf4b5358bd818b8f8b20bb451",
+        "path": "paper/figs/shot_pi05.png",
+        "blob_oid": "761899b8644bb83198f6d0decbd62c0a0f4e1850",
+        "sha256": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
+        "byte_identical": true,
+        "repository": "apxinf-gr00t-fp4fp8-ptqad",
+        "role": "Public-repository reachable anchor of the exact retained image; does not change the original capture provenance."
+      },
+      "retain_for_publication": true
+    }
+  ],
+  "publication_filter": {
+    "approved_figures": [
+      "shot_gr00t",
+      "shot_pi05"
+    ],
+    "retained_count": 2,
+    "scope": "Only byte-identical approved BF16 capture provenance; not current timing or closed-loop evidence.",
+    "filtered_utc": "2026-09-29T05:45:20.975434+00:00"
+  }
+}

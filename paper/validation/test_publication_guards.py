@@ -107,6 +107,66 @@ class Gates(unittest.TestCase):
             bad=copy.deepcopy(crop);bad['crop_box']=[1,0,3840,2280]
             with self.assertRaisesRegex(RuntimeError,'bottom taskbar'):guard.capture_crop_contract(side,bad,path,[3840,2280])
 
+    def capture_manifest_fixture(self,folder):
+        evidence=folder/'evidence';evidence.mkdir()
+        current={'version':1,'approved_sample':{'confirmed_by_user':True,'dimensions':[3840,2280]},
+                 'screenshots':[{'figure':f'shot_current_{i}'} for i in range(15)]}
+        retained={'version':1,'screenshots':[{'figure':name,'retained_unaffected':True,
+                  'retain_for_publication':True,'verified':True} for name in ('shot_gr00t','shot_pi05')]}
+        required={row['figure'] for row in current['screenshots']+retained['screenshots']}
+        return evidence,current,retained,required
+
+    def load_capture_fixture(self,folder,evidence,current,retained,required):
+        for name,value in (('captures',current),('retained_captures',retained)):
+            (evidence/(name+'.json')).write_text(json.dumps(value))
+        inputs=set()
+        with mock.patch.object(validation,'P',folder):
+            merged=validation.load_capture_manifests(required,inputs)
+        return merged,inputs
+
+    def test_capture_manifests_merge_and_bind_both_original_files(self):
+        with tempfile.TemporaryDirectory() as raw:
+            folder=Path(raw);args=self.capture_manifest_fixture(folder)
+            merged,inputs=self.load_capture_fixture(folder,*args)
+            self.assertEqual(len(merged['screenshots']),17)
+            self.assertEqual(inputs,{folder/'evidence/captures.json',folder/'evidence/retained_captures.json'})
+            self.assertEqual(merged['approved_sample'],args[1]['approved_sample'])
+            self.assertEqual(len(json.loads((folder/'evidence/captures.json').read_text())['screenshots']),15)
+
+    def test_capture_manifests_duplicate_rejected(self):
+        for where in ('current','retained','across'):
+            with self.subTest(where=where),tempfile.TemporaryDirectory() as raw:
+                folder=Path(raw);e,c,r,required=self.capture_manifest_fixture(folder)
+                if where=='current':c['screenshots'].append(copy.deepcopy(c['screenshots'][0]))
+                elif where=='retained':r['screenshots'].append(copy.deepcopy(r['screenshots'][0]))
+                else:c['screenshots'][0]['figure']='shot_gr00t'
+                with self.assertRaisesRegex(RuntimeError,'Duplicate'):
+                    self.load_capture_fixture(folder,e,c,r,required)
+
+    def test_capture_manifests_missing_record_or_file_rejected(self):
+        for where in ('current','retained'):
+            with self.subTest(where=where),tempfile.TemporaryDirectory() as raw:
+                folder=Path(raw);e,c,r,required=self.capture_manifest_fixture(folder)
+                (c if where=='current' else r)['screenshots'].pop()
+                with self.assertRaisesRegex(RuntimeError,'Exactly'):
+                    self.load_capture_fixture(folder,e,c,r,required)
+        with tempfile.TemporaryDirectory() as raw:
+            folder=Path(raw);e,c,r,required=self.capture_manifest_fixture(folder)
+            (e/'captures.json').write_text(json.dumps(c))
+            with mock.patch.object(validation,'P',folder),self.assertRaisesRegex(RuntimeError,'Missing evidence'):
+                validation.load_capture_manifests(required,set())
+
+    def test_capture_manifests_unauthorized_retention_rejected(self):
+        for mutation in ('wrong_figure','no_approval','false_approval','unverified','current_claims_retained'):
+            with self.subTest(mutation=mutation),tempfile.TemporaryDirectory() as raw:
+                folder=Path(raw);e,c,r,required=self.capture_manifest_fixture(folder)
+                if mutation=='wrong_figure':r['screenshots'][0]['figure']='shot_unapproved'
+                elif mutation=='no_approval':del r['screenshots'][0]['retain_for_publication']
+                elif mutation=='false_approval':r['screenshots'][0]['retain_for_publication']=False
+                elif mutation=='unverified':r['screenshots'][0]['verified']=False
+                else:c['screenshots'][0]['retained_unaffected']=True
+                with self.assertRaises(RuntimeError):self.load_capture_fixture(folder,e,c,r,required)
+
     def test_previous_shot_verify_hash_cannot_bypass_current_capture_proof(self):
         # Exercise the former exact-hash exception while isolating PNG decoding:
         # even those exact recorded hashes must now reach the sidecar requirement.

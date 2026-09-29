@@ -2,6 +2,10 @@ test_all_pending_block_kinds_rejected (__main__.Gates.test_all_pending_block_kin
 test_black_png_rejected_and_text_image_accepted (__main__.Gates.test_black_png_rejected_and_text_image_accepted) ... ok
 test_browser_failure_invalidates_old_report_before_loading (__main__.Gates.test_browser_failure_invalidates_old_report_before_loading) ... ok
 test_capture_crop_contract_rejects_failed_or_unlinked_image (__main__.Gates.test_capture_crop_contract_rejects_failed_or_unlinked_image) ... ok
+test_capture_manifests_duplicate_rejected (__main__.Gates.test_capture_manifests_duplicate_rejected) ... ok
+test_capture_manifests_merge_and_bind_both_original_files (__main__.Gates.test_capture_manifests_merge_and_bind_both_original_files) ... ok
+test_capture_manifests_missing_record_or_file_rejected (__main__.Gates.test_capture_manifests_missing_record_or_file_rejected) ... ok
+test_capture_manifests_unauthorized_retention_rejected (__main__.Gates.test_capture_manifests_unauthorized_retention_rejected) ... ok
 test_correct_pairing (__main__.Gates.test_correct_pairing) ... ok
 test_current_result_missing_never_generates_old_chart (__main__.Gates.test_current_result_missing_never_generates_old_chart) ... ok
 test_duplicate_initial_state_rejected_even_when_all_arms_match (__main__.Gates.test_duplicate_initial_state_rejected_even_when_all_arms_match) ... ok
@@ -17,6 +21,6 @@ test_require_survives_optimized_python (__main__.Gates.test_require_survives_opt
 test_svg_remote_resource_is_detected_but_citation_is_allowed (__main__.Gates.test_svg_remote_resource_is_detected_but_citation_is_allowed) ... ok
 
 ----------------------------------------------------------------------
-Ran 17 tests in 0.162s
+Ran 21 tests in 0.237s
 
 OK

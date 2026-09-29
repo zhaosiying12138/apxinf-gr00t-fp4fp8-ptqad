@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "scope": "Targeted CPU-only revalidation after removing the pre-quality capture exception; not a rerun of the full119-test suite. Synthetic fixtures are not formal model results or publication approval.",
+  "scope": "Targeted CPU-only revalidation of strict15current+2retained capture manifest loading and training publication binding. Not a rerun of the main unittest suite or the prior119test total. Synthetic fixtures are not formal model results or publication approval.",
   "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py",
   "command_argv": [
     "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
@@ -16,22 +16,22 @@
     "NO_ALBUMENTATIONS_UPDATE": "1"
   },
   "python_version": "Python 3.12.14",
-  "source_head_before": "971b9f3d45e247c52263860c9b00f5923727251c",
-  "started_utc": "2026-09-29T06:37:24.957033+00:00",
-  "completed_utc": "2026-09-29T06:37:25.253813+00:00",
+  "source_head_before": "43b3f17cb6a3930bcc2d6959c8bd8da54db33153",
+  "started_utc": "2026-09-29T09:09:05.309043+00:00",
+  "completed_utc": "2026-09-29T09:09:05.680594+00:00",
   "returncode": 0,
-  "tests": 17,
+  "tests": 21,
   "skipped": 0,
   "failures": 0,
   "errors": 0,
   "expected_failures": 0,
   "unexpected_successes": 0,
-  "unittest_elapsed_seconds": 0.162,
-  "process_wall_seconds": 0.2967808920002426,
+  "unittest_elapsed_seconds": 0.237,
+  "process_wall_seconds": 0.37154881700553233,
   "gpu_execution": false,
   "publication_zip_generated": false,
   "test_file_sha256": {
-    "paper/validation/test_publication_guards.py": "202f53a0c02d225eeaa7bd7d018bee57d5fbb7181335de40c7908ec16e009a4f"
+    "paper/validation/test_publication_guards.py": "847e0a04f794a13d2d0d7e226864a756281e6b2c6e88561d75eb1f79fb3aa281"
   },
   "source_sha256": {
     "baselines/bench_gr00t_pt.py": "f2ade088e3eff3c5a38781888c9fc58524d887925d941600422d2aa191be04a3",
@@ -57,6 +57,7 @@
     "paper/build_html.py": "d1c11c3f64ab82c6f9d5fcf0639302acd9f96ca662df885da7b0054592b8347b",
     "paper/capture_runtime.py": "904ed2d66d4eee8d000fe798652df9adfe57ee98a8c9c7d5b91e5ee7ad99d3cb",
     "paper/collect_frontier_evidence.py": "1829453ad95ff60ec42d94d3766d963fb6efbb974a0cd30e52596f46907d385d",
+    "paper/collect_pairing_evidence.py": "c2139bf4e505f1fb5737cd8392f6bd119bdf7b74900c2544486ad4319b345cfd",
     "paper/collect_training_costs.py": "bc859a90290fafc3f30364687c00b4908243fef63251e81ccd628c7ea401f1f1",
     "paper/export_zhihu.py": "0d757e236f20f612bc1c625551a7e03fbee35c7badc7562da3dd36bc05ecb49a",
     "paper/frontier_evidence.py": "3b215c5e2204657b0724d13b5d7fb8eca36f850ef57624af825b58131c286a61",
@@ -65,7 +66,7 @@
     "paper/publication_guard.py": "d4e8766387da69cb5c19bb69189e14fe14cd913fad0caf5a5cb09dc0628791e0",
     "paper/qa_browser.cjs": "4a4a97832d688cf87760702f15f7d733c1c1c3984bf35b7ea5b27e81965715c5",
     "paper/record_capture.py": "735478966cb668d5cb0d70703c926aa5a76257ab8d6fc1ae23f0373da0b20e74",
-    "paper/validate_publication.py": "deae4e7e694daa95d183dc891a4974e787017a1a61a49ecec097c6a2ee1e020b",
+    "paper/validate_publication.py": "0fc765d0bb7d6a4fbee761dbe6f0c6c9073fcc8e57f13d102e28a6429ede7b62",
     "patches/apxinf-fp4vla-engine.patch": "b571e4b4820ccd43dc3a6ffb2dc05a686602ad6b01084ed4a3b919ce25b3e607",
     "patches/gr00t-recovery-runtime.patch": "77c4d6952ce6b6aa6e4810d94320bb8ae6487032ec721292a0d8fbb2a082878b",
     "quant/fp4_quant.py": "639be33aed86990ad7cca1c860a4eb38e3dcba91e147c84c9d26921b57ae0387",
@@ -94,7 +95,7 @@
     "setup/02_build_engine.sh": "0640efc559be10fda397a20a09e900c598bd83e6b73ea355be8d8cdf8bd6c284",
     "setup/03_download_weights.sh": "e333e1c104cd0dba23ca793f690dbd597724d204a1e629519e670abf5c6bee5b",
     "setup/05_restore_all.sh": "65edc9a1f2caffa9e722701ca29e44847d2856beed621e7d9c0b2f8c8e0a7a47",
-    "setup/06_install_recovery.sh": "053d94a46d6776639a0bb390f402374405af4e04f5b1d2712ba445d188302e01",
+    "setup/06_install_recovery.sh": "3cd6d2f5ff050e2b2468f19f5637b405b841023a9ebce34f5f4e4f40a09178f0",
     "setup/locks/manifest.json": "ff134f2b3dfbc28a8b40096fa6e243a9e39c53dd24c57f1638786a8bbf0068d6",
     "setup/locks/model-sources.json": "438d6cdb76a5f6bfb09245939792f6009f7d4f365ffc14fd6b1be03c72b1d1a7",
     "setup/verify_weights.py": "d4d64e9fc82748e1c46e5a243dfb4833d2629e811a50503d05b2b71772999d7c"
@@ -102,5 +103,5 @@
   "source_hash_scope": "Explicit public runtime implementation plus publication helpers; byte identity inventory, not a statement of line/test coverage.",
   "files_changed_during_check": [],
   "log": "paper/validation/publication-guard-checks.log",
-  "log_sha256": "49e379c5b7a76816cae5a4ced984dc1c73fab0e9403386e075df17c0f61bf009"
+  "log_sha256": "d7fb924fdc8dbc0d224a0c7387491a2dabba8fbda64d5656814c558db63b01b8"
 }

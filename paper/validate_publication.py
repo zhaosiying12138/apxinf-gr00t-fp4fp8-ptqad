@@ -81,6 +81,34 @@ def check_png(path,dimensions,terminal=False):
                     f'Blank/dark terminal body, not an acceptable execution capture: {path}')
 
 
+def load_capture_manifests(required,package_inputs):
+    """Merge current and explicitly retained provenance without creating a new file."""
+    current_path=resolve_inside(P,'evidence/captures.json')
+    retained_path=resolve_inside(P,'evidence/retained_captures.json')
+    current=load(current_path);retained=load(retained_path)
+    require(current.get('version')==1 and retained.get('version')==1,'Unsupported capture manifest version')
+    current_rows=current.get('screenshots');retained_rows=retained.get('screenshots')
+    require(isinstance(current_rows,list) and isinstance(retained_rows,list), 'Capture manifests require screenshot lists')
+    allowed_retained={'shot_gr00t','shot_pi05'}
+    require(len(required)==17 and allowed_retained<=required,'Unexpected registered screenshot set')
+    rows=current_rows+retained_rows
+    require(all(isinstance(row,dict) and isinstance(row.get('figure'),str) for row in rows),'Invalid capture record')
+    names=[row['figure'] for row in rows]
+    require(len(names)==len(set(names)),'Duplicate screenshot across current/retained manifests')
+    require({row['figure'] for row in current_rows}==required-allowed_retained and len(current_rows)==15,
+            'Exactly 15 current screenshots are required')
+    require({row['figure'] for row in retained_rows}==allowed_retained and len(retained_rows)==2,
+            'Exactly the two approved BF16 screenshots may be retained')
+    for row in current_rows:
+        require(row.get('retained_unaffected',False) is False and row.get('retain_for_publication',False) is False,
+                'Current capture cannot claim unaffected retention: '+row['figure'])
+    for row in retained_rows:
+        require(row.get('retained_unaffected') is True and row.get('retain_for_publication') is True and
+                row.get('verified') is True,'Retained capture lacks explicit publication approval: '+row['figure'])
+    package_inputs.update((current_path,retained_path))
+    return {**current,'screenshots':sorted(rows,key=lambda row:row['figure'])}
+
+
 def capture_records(captures,required,package_inputs):
     approved=captures['approved_sample']
     require(approved.get('confirmed_by_user') is True,'Capture sample was not user-confirmed')
@@ -270,7 +298,7 @@ def validate(write_report=True):
     require(build.get('version')==1 and build.get('status')=='passed','HTML build provenance missing')
     require(build['inputs']==html_build_inputs(P),'HTML is stale after source, figure, asset, or builder edits')
     require(build['output']==file_record(P/'paper.html',P),'HTML differs from the completed build')
-    checks=capture_records(load(P/'evidence/captures.json'),shots,package_inputs)
+    checks=capture_records(load_capture_manifests(shots,package_inputs),shots,package_inputs)
     for name in figures:
         png=P/'figs'/(name+'.png');copy=P/'zhihu/images'/png.name
         require(png.read_bytes()==copy.read_bytes(),f'Zhihu image differs: {name}')
