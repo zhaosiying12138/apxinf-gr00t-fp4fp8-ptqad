@@ -64,6 +64,16 @@ python3 "$PROJECT/eval/run_recovery_eval.py" \
   --input-dir "$ROUND_OUT/collection/observations" --count 160 \
   --out "$ROUND_OUT/teacher_probes.pt" > "$ROUND_OUT/teacher_labeling.log" 2>&1
 
+# Verify the complete sequential teacher backward and checkpoint save at the
+# production micro/global batch before launching either continuation. This
+# adapter is discarded from all comparisons; both arms below still start from
+# the original QAD_ADAPTER, with the preregistered optimizer/update budgets.
+GR00T_BASE_CKPT="$PTQ_BASE" QAD_INIT_ADAPTER="$QAD_ADAPTER" \
+  QAD_OUT="$ROUND_OUT/opd_smoke" QAD_STEPS=2 QAD_SAVE_STEPS=2 \
+  QAD_OPD_MSE_W="${OPD_WEIGHT:-1.0}" OPD_CACHE_PATH="$ROUND_OUT/teacher_probes.pt" \
+  OPD_EVERY=${OPD_EVERY:-4} "$PY" "$PROJECT/rl/lora_qad.py" \
+  > "$ROUND_OUT/opd_smoke.train.log" 2>&1
+
 # Shared frozen base and exact same initial LoRA tensors. Both arms start fresh
 # Adam states and LR schedules, and consume the same additional demo step budget.
 # OPD adds probe compute; this is not an equal-compute comparison.
