@@ -108,6 +108,6 @@ test_changed_bytes_rejected_even_when_size_matches (test_weight_identity.WeightI
 test_missing_is_not_certified_as_success (test_weight_identity.WeightIdentityTests.test_missing_is_not_certified_as_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 96 tests in 10.193s
+Ran 96 tests in 9.896s
 
 OK
