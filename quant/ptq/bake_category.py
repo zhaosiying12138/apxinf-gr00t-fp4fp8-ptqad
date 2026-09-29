@@ -109,7 +109,7 @@ def main():
             "version": VERSION, "recipe": "category_nvfp4_extension", "parent": str(parent),
             "parent_recipe_sha256": identity(parent / "ptq_recipe.json")["sha256"],
             "parent_bake_manifest_sha256": identity(parent / "bake_manifest.json")["sha256"],
-            "source_base": source["root_bf16"]["path"], "active_libero_bank": ACTIVE_BANK,
+            "source_base": source["root_bf16"], "active_libero_bank": ACTIVE_BANK,
             "categories": records, "memory": budget,
             "source_category_sha256": category_sources,
             "calibration": cache_records, "calibration_metadata": cache_meta,
@@ -117,7 +117,7 @@ def main():
         }
         (stage / "category_ptq_recipe.json").write_text(json.dumps(category_recipe, indent=2) + "\n")
         manifest = {
-            "status": "complete", "version": VERSION, "parent": source["parent"],
+            "status": "complete", "version": VERSION, "parent": source,
             "parent_recipe": identity(parent / "ptq_recipe.json"),
             "parent_bake_manifest": identity(parent / "bake_manifest.json"),
             "root_bf16": source["root_bf16"], "source_category_sha256": category_sources,
