@@ -11,10 +11,12 @@
 
 ## 重建
 
-需要 Python 3、Node.js 和中文字体（如 Noto Sans CJK SC）。本轮直接构建依赖固定在 `requirements-build.txt`；它们与 GPU 实验环境分开。图像转换还需要系统 Cairo 动态库。KaTeX 0.16.22 已随仓库保存并附 MIT 许可；读取 HTML 不需要 Node、Python 或联网。
+需要 Python 3、uv、Node.js 和中文字体（如 Noto Sans CJK SC）。本轮直接构建依赖固定在 `requirements-build.txt`；它们与 GPU 实验环境分开。图像转换还需要系统 Cairo 动态库。KaTeX 0.16.22 已随仓库保存并附 MIT 许可；读取 HTML 不需要 Node、Python 或联网。
 
 ```bash
 # 在仓库根目录准备独立浏览器工具；不改 GPU Python 环境。
+# setup/01 安装 uv 后，新 shell 尚未加载配置时也能找到它。
+export PATH="$HOME/.local/bin:$PATH"
 npm install --prefix paper/_build/renderer --save-exact playwright@1.58.2
 node paper/_build/renderer/node_modules/playwright/cli.js install chromium
 

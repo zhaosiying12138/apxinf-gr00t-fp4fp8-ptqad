@@ -4,7 +4,7 @@
 
 | 证据 | 如何核验 | 文件性质 |
 |---|---|---|
-| `recipe_inventory.json`、`compression_budget.json` | 核对冻结计划、逐张量分配、scale 开销和低秩残差；区分物理 checkpoint 副本与已知 tied alias 去重口径 | 根据真实权重索引、形状与校准元数据计算的编码预算，不是文件大小、显存或速度实测 |
+| `recipe_inventory.json` | 核对冻结计划、逐张量分配、scale 开销和低秩残差；区分物理 checkpoint 副本与已知 tied alias 去重口径 | 根据真实权重索引、形状与校准元数据计算的编码预算，不是文件大小、显存或速度实测 |
 | `paired_comparison.json` 与 `heldout_<arm>/{eval_manifest,task_results,summary}.json` | **共 16 个 JSON**：1 个五臂汇总和 5×3 个来源文件；每臂十任务×十集，逐集核对布尔结局、官方初态索引 10–19、状态哈希和实际分母 | `compare_recovery.py` 生成汇总；汇总及 15 个来源 JSON 从同一个完整 round 按原字节复制，不能重新序列化或修改绝对路径 |
 | `frontier_comparison.json`、`frontier/` | 复核训练前冻结的前驱清单、开发选择、主五臂与全部 PTQ 前驱的原始逐任务日志、初态配对和含残差的净预算 | 原始 JSON、日志、源码/元数据按字节复制；`frontier/evidence_manifest.json` 独立记录 `original_absolute_path → published_path`、字节数和 SHA-256 |
 | `training/costs.json`、`training/evidence_manifest.json` 及其目录 | 检查三段正式训练完成状态、500/100/100 步、共同 QAD 起点、PTQ 基座、rank/alpha、演示 batch，以及采集学生和 BF16 教师的身份；采集间隔读取实际 `capture_manifest.every_server_calls`，不采用底层 helper 的备用默认值 | runtime/recovery/Trainer/merge 元数据与轻量日志原字节复制；`costs.json` 是从这些证据推导的成本汇总，冒烟不计入正式对比 |
