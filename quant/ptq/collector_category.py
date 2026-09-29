@@ -99,8 +99,9 @@ def main():
            for key in EXPECTED_SHAPES}
     hooks = []
     for key, shape in EXPECTED_SHAPES.items():
-        module = modules.get(key)
-        if module is None or not hasattr(module, "W") or tuple(module.W.shape) != tuple(shape):
+        module_path, tensor_name = key.rsplit(".", 1)
+        module = modules.get(module_path)
+        if module is None or not hasattr(module, tensor_name) or tuple(getattr(module, tensor_name).shape) != tuple(shape):
             raise ValueError(f"Category module absent or shape mismatch: {key}")
 
         def make_hook(layer_name):
