@@ -1,20 +1,18 @@
-"""RWR (reward-weighted self-imitation) — the PPO-family on-policy baseline.
+"""Optional task-weighted self-imitation research implementation.
 
-Arms comparison (same 2.44x fp8-arm deployment base, same LoRA budget):
-  QAD-LoRA : demo-loss (offline demonstrations)         -> 99.0% (10x10)
-  OPD-LoRA : + probe-cached BF16 teacher-KL             -> 99.0% (10x10)
-  RWR-LoRA : flow-matching BC on SUCCESSFUL on-policy rollouts
-             (sparse success reward -> REINFORCE's reward-weighted likelihood
-             reduces to weighted BC under terminal 0/1 reward; DPPO cited as
-             the exact-likelihood version, Ren et al. 2024)
+Not included in the current five-arm experiment and not validated against its
+40x132 model tensor / 16x7 effective-action protocol. This file is retained for
+the appendix's source discussion, not as a supported reproduction entry point.
+It has no current success-rate or performance result.
 
-Rollout data: the eval server logs BATCHED (n_envs=8) (obs, action-chunk)
-per policy call (FP4VLA_LOG_DIR). Per-task file ranges come from task-log
-mtimes; task-level success rates weight the windows (episode boundaries
-within a slot's stream are not logged — windows crossing them carry minor
-stitch noise, documented). Targets: per-slot 64-step windows stitched from
-the executed 8-step prefixes of 8 consecutive calls, normalized with the
-base checkpoint statistics (z-range sanity-checked at startup).
+Per-task success rates weight all windows in tasks whose rate is positive;
+there are no per-episode success labels, so these are not success-only episodes.
+Task boundaries are inferred from log mtimes. Within each batched environment
+slot, eight executed action prefixes form a 64-step window; episode boundaries
+are unavailable and a window can cross them. This objective is weighted flow-
+matching imitation, not PPO, a likelihood-ratio policy gradient, or teacher KL.
+Before any future experiment, update the policy API, paths, episode boundaries,
+action horizon, normalization checks and export protocol independently.
 """
 import os, sys, time, json, glob, gzip, pickle, argparse, re
 
