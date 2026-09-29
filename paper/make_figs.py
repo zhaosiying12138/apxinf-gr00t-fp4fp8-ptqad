@@ -161,14 +161,14 @@ def e1_chart():
     if int(n)!=n:raise ValueError(f'{native_path}: n must be an integer')
     rows.append(('π0.5 / APX FP4 total',nv,int(n),AMBER))
     maximum=max(value for _,value,_,_ in rows)*1.12
-    s=SVG(1120,635,'独立计时入口的 P50：调用边界分别标注','batch = 1 · ms · BF16 配置（π0.5 含 FP32 子模块）· APX total = policy.infer')
+    s=SVG(1120,635,'独立计时入口的 P50：调用边界分别标注','batch = 1 · ms · PT 参考为 BF16 配置（π0.5 另含 FP32）· APX total = policy.infer')
     left,width=295,615
     for tick in range(5):
         x=left+width*tick/4;s.line(x,98,x,462);s.text(x,485,f'{maximum*tick/4:.0f}',12,anchor='middle')
     for i,(label,value,count,color) in enumerate(rows):
         y=116+i*65;s.text(30,y+22,label,16)
         s.rect(left,y,width*value/maximum,31,color)
-        s.text(left+width*value/maximum+10,y+14,f'{value:.2f} ms',15,color,600)
+        s.text(left+width*value/maximum+10,y+14,f'{value:.2f} ms',15,INK if color=='#a3b6c3' else color,600)
         s.text(left+width*value/maximum+10,y+34,f'n = {count}',12)
     s.text(30,523,f'同一 APX π0.5 入口：BF16 / NVFP4 的实测耗时比 = {rows[1][1]/rows[4][1]:.2f}',17,BLUE,600)
     s.rect(30,545,1060,65,'#fff6e9')
