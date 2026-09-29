@@ -16,6 +16,13 @@ results/ptqad_20260929/calibration_smoke*
 results/ptqad_20260929/qad_smoke*
 results/ptqad_20260929/qad_checkpoint_smoke*
 
+# Local model exports; audited lightweight identities are copied to paper/evidence/training.
+results/ptqad_20260929/round1/opd_smoke/
+results/ptqad_20260929/round1/continued_qad/
+results/ptqad_20260929/round1/qad_opd/
+results/ptqad_20260929/round1/continued_qad_merged/
+results/ptqad_20260929/round1/qad_opd_merged/
+
 # ---- python ----
 __pycache__/
 *.pyc
