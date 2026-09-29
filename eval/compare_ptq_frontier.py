@@ -91,8 +91,16 @@ def protocol_record(plan):
 def recorded_protocol(manifest,root=None,protocol_path=None):
     """Resolve only bytes matching the recorded SHA, including portable copies."""
     root=Path(root or ROOT)
-    candidates=([Path(protocol_path)] if protocol_path is not None else
-                [root/'exp/recovery_protocol.json',root/'exp/recovery_protocol_v3_high_fp4.json'])
+    if protocol_path is not None:
+        candidates=[Path(protocol_path)]
+    elif manifest.get('protocol_file'):
+        # A completed evaluation records the exact frozen protocol it used.
+        # Resolve that declaration before the legacy defaults; never pick a
+        # newer protocol merely because it happens to be present in the repo.
+        declared=Path(manifest['protocol_file'])
+        candidates=[declared if declared.is_absolute() else root/declared]
+    else:
+        candidates=[root/'exp/recovery_protocol.json',root/'exp/recovery_protocol_v3_high_fp4.json']
     matched=[path for path in candidates if path.is_file() and sha(path)==manifest.get('protocol_sha256')]
     need(len(matched)==1,'Recorded protocol has no unique matching frozen source; pass an explicit protocol copy')
     return matched[0]
