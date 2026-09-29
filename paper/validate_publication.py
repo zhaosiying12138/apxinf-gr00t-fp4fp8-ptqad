@@ -125,22 +125,16 @@ def capture_records(captures,required,package_inputs):
                 evidence=resolve_inside(P,row[field])
                 require(evidence.stat().st_size>0 and sha(evidence)==row[field+'_sha256'],f'Capture {field} changed: {name}')
                 package_inputs.add(evidence)
-            if name == 'shot_verify' and row['sha256'] == 'a179bbf641af1f5594313d5a75669ce82944fbae68878635f413112a4dc32536' and 'capture_sidecar' not in row:
-                acceptance='single_visually_verified_pre_quality_sidecar_capture'
-                # This exact image was visually accepted before the sidecar quality gate existed.
-                # The exception is deliberately restricted to its original verified image hash.
-                require(row['raw_log_sha256'] == 'aefb9e76719f0e3d612ad58318a1b36c329b7c7f6f84ba38c97844a715757224',
-                        'The single pre-quality-sidecar capture no longer matches its reviewed log')
-            else:
-                proof = {}
-                for field in ('capture_sidecar','crop_manifest'):
-                    evidence = resolve_inside(P,row[field])
-                    require(sha(evidence) == row[field+'_sha256'], f'Capture proof changed: {name}/{field}')
-                    package_inputs.add(evidence); proof[field] = json.loads(evidence.read_text(encoding='utf-8-sig'))
-                capture_crop_contract(proof['capture_sidecar'],proof['crop_manifest'],path,[3840,2280])
-                require(row.get('capture_status') == 'accepted_not_black' and row.get('image_quality') == proof['capture_sidecar']['image_quality'],
-                        f'Capture quality metadata differs: {name}')
-                require(row.get('visual_review',{}).get('verified') is True, f'Capture lacks explicit manual inspection: {name}')
+            proof = {}
+            for field in ('capture_sidecar','crop_manifest'):
+                require(isinstance(row.get(field),str) and row[field], f'Capture lacks {field}: {name}')
+                evidence = resolve_inside(P,row[field])
+                require(sha(evidence) == row[field+'_sha256'], f'Capture proof changed: {name}/{field}')
+                package_inputs.add(evidence); proof[field] = json.loads(evidence.read_text(encoding='utf-8-sig'))
+            capture_crop_contract(proof['capture_sidecar'],proof['crop_manifest'],path,[3840,2280])
+            require(row.get('capture_status') == 'accepted_not_black' and row.get('image_quality') == proof['capture_sidecar']['image_quality'],
+                    f'Capture quality metadata differs: {name}')
+            require(row.get('visual_review',{}).get('verified') is True, f'Capture lacks explicit manual inspection: {name}')
         checked.append({'file':path.name,'sha256':row['sha256'],'verified':True,
                         'retained_unaffected':row.get('retained_unaffected') is True,
                         'acceptance':acceptance,'verified_git_anchor':git_anchor})

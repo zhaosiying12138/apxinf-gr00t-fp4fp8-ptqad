@@ -107,6 +107,26 @@ class Gates(unittest.TestCase):
             bad=copy.deepcopy(crop);bad['crop_box']=[1,0,3840,2280]
             with self.assertRaisesRegex(RuntimeError,'bottom taskbar'):guard.capture_crop_contract(side,bad,path,[3840,2280])
 
+    def test_previous_shot_verify_hash_cannot_bypass_current_capture_proof(self):
+        # Exercise the former exact-hash exception while isolating PNG decoding:
+        # even those exact recorded hashes must now reach the sidecar requirement.
+        image_sha='a179bbf641af1f5594313d5a75669ce82944fbae68878635f413112a4dc32536'
+        log_sha='aefb9e76719f0e3d612ad58318a1b36c329b7c7f6f84ba38c97844a715757224'
+        with tempfile.TemporaryDirectory() as raw:
+            folder=Path(raw);(folder/'run.log').write_text('original log fixture')
+            (folder/'run.sh').write_text('true')
+            first={'figure':'shot_verify','verified':True,'sha256':image_sha,
+                   'dimensions':[3840,2280],'exit_status':0,'captured_at':'2026-09-29T02:34:12Z',
+                   'raw_log':'run.log','raw_log_sha256':log_sha,'script':'run.sh','script_sha256':'1'*64}
+            rows=[first]+[dict(first,figure=f'fixture_{i}') for i in range(16)]
+            capture={'approved_sample':{'confirmed_by_user':True,'dimensions':[3840,2280]},'screenshots':rows}
+            def fixture_sha(path):
+                return log_sha if path.name=='run.log' else ('1'*64 if path.name=='run.sh' else image_sha)
+            with mock.patch.object(validation,'P',folder),mock.patch.object(validation,'check_png'),\
+                 mock.patch.object(validation,'sha',side_effect=fixture_sha):
+                with self.assertRaisesRegex(RuntimeError,'Capture lacks capture_sidecar: shot_verify'):
+                    validation.capture_records(capture,{x['figure'] for x in rows},set())
+
     def test_raw_latency_median_and_count(self):
         value={'schema_version':2,'all_outputs_finite':True,'n':4,'lat_all_ms':[10,2,8,4],'latency_ms_p50':6}
         make_figs.timing_record(value,'temporary','latency_ms_p50','lat_all_ms')

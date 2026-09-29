@@ -9,6 +9,11 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ.setdefault("OMP_NUM_THREADS", "2")
 os.environ.setdefault("MKL_NUM_THREADS", "2")
 import copy
+import datetime
+import hashlib
+import importlib.metadata
+import inspect
+import platform
 import json
 from pathlib import Path
 import sys
@@ -18,6 +23,7 @@ from types import SimpleNamespace
 import torch
 from torch import nn
 from transformers import Trainer, TrainingArguments
+from accelerate import Accelerator
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "rl"))
@@ -43,7 +49,18 @@ class TinyStudent(nn.Module):
         return {"loss": prediction.square().mean(), "pred_actions": prediction}
 
 
+def source_record(path):
+    path = Path(path)
+    return {"path": str(path), "bytes": path.stat().st_size,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
 def main():
+    started = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    sources = {"checker": source_record(__file__),
+               "probe_distill": source_record(ROOT / "rl/probe_distill.py"),
+               "installed_trainer": source_record(inspect.getsourcefile(Trainer)),
+               "installed_accelerator": source_record(inspect.getsourcefile(Accelerator))}
     torch.set_num_threads(2)
     results = []
     for accumulation in (1, 2, 16):
@@ -84,8 +101,10 @@ def main():
                     (.3 * loss / accumulation).backward()
             differences = {name: float((parameter.grad - dict(reference.named_parameters())[name].grad).abs().max())
                            for name, parameter in model.named_parameters() if parameter.requires_grad}
-            assert max(differences.values()) < 1e-6, differences
-            assert model.base.grad is None
+            if not all(torch.isfinite(torch.tensor(value)) and value < 1e-6 for value in differences.values()):
+                raise RuntimeError(f"Gradient reference mismatch: {differences}")
+            if model.base.grad is not None:
+                raise RuntimeError("Frozen base unexpectedly received a gradient")
             results.append({"accumulation": accumulation,
                             "accelerator_accumulation": trainer.accelerator.gradient_accumulation_steps,
                             "parameter_gradient_max_abs_error": differences,
@@ -93,8 +112,26 @@ def main():
     report = {"status": "passed", "cache_version": CACHE_VERSION, "device": "cpu",
               "cuda_initialized": torch.cuda.is_initialized(), "cases": results,
               "scope": "Real installed Trainer/Accelerator, tiny LoRA model, masked probe; not a full GR00T forward."}
-    assert not report["cuda_initialized"]
-    Path(__file__).with_suffix(".json").write_text(json.dumps(report, indent=2) + "\n")
+    if report["cuda_initialized"]:
+        raise RuntimeError("CPU checker unexpectedly initialized CUDA")
+    for value in sources.values():
+        if source_record(value["path"]) != value:
+            raise RuntimeError("Checker/producer/installed dependency changed during validation")
+    report.update(started_utc=started,
+                  completed_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                  checker_and_source_identities=sources,
+                  environment={"python": platform.python_version(), "executable": sys.executable,
+                               "packages": {name: importlib.metadata.version(name)
+                                            for name in ("torch", "transformers", "accelerate")},
+                               "CUDA_VISIBLE_DEVICES": os.environ["CUDA_VISIBLE_DEVICES"],
+                               "OMP_NUM_THREADS": os.environ["OMP_NUM_THREADS"],
+                               "MKL_NUM_THREADS": os.environ["MKL_NUM_THREADS"]},
+                  synthetic_input_definition="Exactly the tiny tensors, RNG seeds, mask and target specified in the hashed checker; no private dataset/cache input.",
+                  reproduction="CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 <GR00T-training-python> -B -O paper/validation/verify_trainer_scaling.py")
+    output = Path(__file__).with_suffix(".json")
+    temporary = output.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(report, indent=2) + "\n")
+    temporary.replace(output)
     print(json.dumps(report, indent=2))
 
 

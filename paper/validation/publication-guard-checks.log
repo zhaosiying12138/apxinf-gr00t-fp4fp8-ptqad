@@ -1,0 +1,22 @@
+test_all_pending_block_kinds_rejected (__main__.Gates.test_all_pending_block_kinds_rejected) ... ok
+test_black_png_rejected_and_text_image_accepted (__main__.Gates.test_black_png_rejected_and_text_image_accepted) ... ok
+test_browser_failure_invalidates_old_report_before_loading (__main__.Gates.test_browser_failure_invalidates_old_report_before_loading) ... ok
+test_capture_crop_contract_rejects_failed_or_unlinked_image (__main__.Gates.test_capture_crop_contract_rejects_failed_or_unlinked_image) ... ok
+test_correct_pairing (__main__.Gates.test_correct_pairing) ... ok
+test_current_result_missing_never_generates_old_chart (__main__.Gates.test_current_result_missing_never_generates_old_chart) ... ok
+test_duplicate_initial_state_rejected_even_when_all_arms_match (__main__.Gates.test_duplicate_initial_state_rejected_even_when_all_arms_match) ... ok
+test_evidence_hash_mutation_rejected (__main__.Gates.test_evidence_hash_mutation_rejected) ... ok
+test_incomplete_or_wrong_outcome_rejected (__main__.Gates.test_incomplete_or_wrong_outcome_rejected) ... ok
+test_markdown_includes_complete_prose_and_caption (__main__.Gates.test_markdown_includes_complete_prose_and_caption) ... ok
+test_package_never_trusts_old_pass (__main__.Gates.test_package_never_trusts_old_pass) ... ok
+test_pairing_mismatch_rejected (__main__.Gates.test_pairing_mismatch_rejected) ... ok
+test_path_escape_and_absolute_rejected (__main__.Gates.test_path_escape_and_absolute_rejected) ... ok
+test_previous_shot_verify_hash_cannot_bypass_current_capture_proof (__main__.Gates.test_previous_shot_verify_hash_cannot_bypass_current_capture_proof) ... ok
+test_raw_latency_median_and_count (__main__.Gates.test_raw_latency_median_and_count) ... ok
+test_require_survives_optimized_python (__main__.Gates.test_require_survives_optimized_python) ... ok
+test_svg_remote_resource_is_detected_but_citation_is_allowed (__main__.Gates.test_svg_remote_resource_is_detected_but_citation_is_allowed) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.162s
+
+OK

@@ -1,0 +1,429 @@
+{
+  "status": "passed",
+  "checked_utc": "2026-09-29T06:40:06.896527+00:00",
+  "scope": "Independent stdlib linear-percentile/mean recomputation and same-entrypoint declaration comparison; no inference, CUDA import, or large-weight read.",
+  "checker": {
+    "path": "paper/validation/check_model_timing.py",
+    "bytes": 8129,
+    "sha256": "230e1cfb908fb858a2e06f7a9cdf1ca88bda640bfd04b883b496e3e248fd9450"
+  },
+  "input_files": [
+    {
+      "path": "results/engine/pi05_bf16_ptqad_20260929.json",
+      "bytes": 38816,
+      "sha256": "7bbb2360704763d57ca9b6b1297debb8b8a16fc8001cc94d985dcccdf9532060"
+    },
+    {
+      "path": "results/engine/pi05_nvfp4_ptqad_20260929.json",
+      "bytes": 153336,
+      "sha256": "4a476bb5a37e36695863410657394167c04f40f1da15e177e802cc50cd45c45e"
+    },
+    {
+      "path": "results/engine/gr00t_bf16_ptqad_20260929.json",
+      "bytes": 36278,
+      "sha256": "6d980635fcf6d4cd75ebd15026df9dbac1f4bb7ecbcb1a33df5883487e7d437f"
+    },
+    {
+      "path": "results/baselines/pi05_pt_bf16_ptqad_20260929.json",
+      "bytes": 4154,
+      "sha256": "c0446dfbd740b2056d4d4ddb37fa6ca10b8c1455f9cccac2a291745fe8a08aaa"
+    },
+    {
+      "path": "results/baselines/gr00t_pt_bf16_ptqad_20260929.json",
+      "bytes": 4792,
+      "sha256": "36f157fb7a764cb9aa27dab21baa1ea87785c004bab0c9b401e80decde1901ab"
+    }
+  ],
+  "benchmark_source_files": [
+    {
+      "path": "exp/bench_engine.py",
+      "bytes": 23323,
+      "sha256": "425721abf9989820deb8a21d073f3151c773fc548ae8a35b64889157033d71e3"
+    },
+    {
+      "path": "baselines/bench_pi05_lerobot.py",
+      "bytes": 9274,
+      "sha256": "16e8da8f98b9ebe5b672473e5f6b8637136ac8ea428fb7fcd82e7aeeb0fd5e25"
+    },
+    {
+      "path": "baselines/bench_gr00t_pt.py",
+      "bytes": 10174,
+      "sha256": "f2ade088e3eff3c5a38781888c9fc58524d887925d941600422d2aa191be04a3"
+    }
+  ],
+  "environment": {
+    "python": "3.14.4",
+    "executable": "/usr/bin/python3",
+    "dependencies": "Python standard library only"
+  },
+  "checks": [
+    {
+      "file": "results/engine/pi05_bf16_ptqad_20260929.json",
+      "finite_samples": true,
+      "statistics": [
+        {
+          "raw_key": "lat_model_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 47.49366000032751,
+            "p99": 50.38859324857185,
+            "mean": 47.732884633296635
+          },
+          "sample_order_preserved_in_source": true
+        },
+        {
+          "raw_key": "lat_total_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 48.6514910007827,
+            "p99": 51.63566429109778,
+            "mean": 48.923122833609035
+          },
+          "sample_order_preserved_in_source": true
+        },
+        {
+          "raw_key": "lat_wrapper_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 48.659717500413535,
+            "p99": 51.643118411811884,
+            "mean": 48.93138873303542
+          },
+          "sample_order_preserved_in_source": true
+        }
+      ],
+      "timing_scope": {
+        "entrypoint": "AutoPolicy.infer",
+        "policy_class": "Pi05Policy",
+        "model_ms": "Blocking native model call through host float32 action return; includes native input transfers, GPU work, synchronization and D2H.",
+        "total_ms": "Policy internal preprocessing/tokenization, blocking native model, postprocessing/decoding; no simulator or network.",
+        "wrapper_ms": "External perf_counter around policy.infer; input construction and additional finite checks excluded.",
+        "synchronization": "Native binding returns completed host f32 arrays. Inspected pi05 host-return transfer and GR00T executor synchronize CUDA before D2H. These are wall-clock API times, not CUDA-event kernel times.",
+        "limitation": "Cross-library input/tokenization/precision paths differ; report separately, not as a matched end-to-end speedup."
+      },
+      "observed_parameter_dtype_elements": null,
+      "observed_compute_dtype": null,
+      "recorded_execution_mode": {
+        "after_warmup": "graph",
+        "after_each_timed_sample": [
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph"
+        ],
+        "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+      }
+    },
+    {
+      "file": "results/engine/pi05_nvfp4_ptqad_20260929.json",
+      "finite_samples": true,
+      "statistics": [
+        {
+          "raw_key": "lat_model_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 35.821509001834784,
+            "p99": 38.359789340102,
+            "mean": 36.0260342664939
+          },
+          "sample_order_preserved_in_source": true
+        },
+        {
+          "raw_key": "lat_total_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 36.98456049824017,
+            "p99": 39.637536079244455,
+            "mean": 37.203426800018256
+          },
+          "sample_order_preserved_in_source": true
+        },
+        {
+          "raw_key": "lat_wrapper_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 36.99638200123445,
+            "p99": 39.64835402039171,
+            "mean": 37.212369000675004
+          },
+          "sample_order_preserved_in_source": true
+        }
+      ],
+      "timing_scope": {
+        "entrypoint": "AutoPolicy.infer",
+        "policy_class": "Pi05Policy",
+        "model_ms": "Blocking native model call through host float32 action return; includes native input transfers, GPU work, synchronization and D2H.",
+        "total_ms": "Policy internal preprocessing/tokenization, blocking native model, postprocessing/decoding; no simulator or network.",
+        "wrapper_ms": "External perf_counter around policy.infer; input construction and additional finite checks excluded.",
+        "synchronization": "Native binding returns completed host f32 arrays. Inspected pi05 host-return transfer and GR00T executor synchronize CUDA before D2H. These are wall-clock API times, not CUDA-event kernel times.",
+        "limitation": "Cross-library input/tokenization/precision paths differ; report separately, not as a matched end-to-end speedup."
+      },
+      "observed_parameter_dtype_elements": null,
+      "observed_compute_dtype": null,
+      "recorded_execution_mode": {
+        "after_warmup": "graph",
+        "after_each_timed_sample": [
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph",
+          "graph"
+        ],
+        "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+      }
+    },
+    {
+      "file": "results/engine/gr00t_bf16_ptqad_20260929.json",
+      "finite_samples": true,
+      "statistics": [
+        {
+          "raw_key": "lat_model_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 27.231628497247584,
+            "p99": 27.774564808423747,
+            "mean": 27.292834033141844
+          },
+          "sample_order_preserved_in_source": true
+        },
+        {
+          "raw_key": "lat_total_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 30.425629000092158,
+            "p99": 31.383156261435943,
+            "mean": 30.49705783269019
+          },
+          "sample_order_preserved_in_source": true
+        },
+        {
+          "raw_key": "lat_wrapper_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 30.508667998219607,
+            "p99": 31.43427916278597,
+            "mean": 30.53983929979343
+          },
+          "sample_order_preserved_in_source": true
+        }
+      ],
+      "timing_scope": {
+        "entrypoint": "AutoPolicy.infer",
+        "policy_class": "Gr00tPolicy",
+        "model_ms": "Blocking native model call through host float32 action return; includes native input transfers, GPU work, synchronization and D2H.",
+        "total_ms": "Policy internal preprocessing/tokenization, blocking native model, postprocessing/decoding; no simulator or network.",
+        "wrapper_ms": "External perf_counter around policy.infer; input construction and additional finite checks excluded.",
+        "synchronization": "Native binding returns completed host f32 arrays. Inspected pi05 host-return transfer and GR00T executor synchronize CUDA before D2H. These are wall-clock API times, not CUDA-event kernel times.",
+        "limitation": "Cross-library input/tokenization/precision paths differ; report separately, not as a matched end-to-end speedup."
+      },
+      "observed_parameter_dtype_elements": null,
+      "observed_compute_dtype": null,
+      "recorded_execution_mode": {
+        "after_warmup": "cuda-graph",
+        "after_each_timed_sample": [
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph",
+          "cuda-graph"
+        ],
+        "scope": "Read-only native implicit-plan getter, queried outside timing; null means the runtime does not expose it."
+      }
+    },
+    {
+      "file": "results/baselines/pi05_pt_bf16_ptqad_20260929.json",
+      "finite_samples": true,
+      "statistics": [
+        {
+          "raw_key": "lat_all_ms",
+          "sample_count": 30,
+          "recomputed_ms": {
+            "p50": 243.16224050198798,
+            "p99": 260.58645332719607,
+            "mean": 244.27699040000638
+          },
+          "sample_order_preserved_in_source": true
+        }
+      ],
+      "timing_scope": {
+        "entrypoint": "PI05Policy.predict_action_chunk",
+        "included": [
+          "internal_image_resize_and_normalize",
+          "vision_language_backbone",
+          "action_denoising",
+          "action_unpadding"
+        ],
+        "excluded": [
+          "model_loading",
+          "synthetic_input_generation",
+          "sentencepiece_tokenization",
+          "initial_host_to_device",
+          "finite_output_validation",
+          "environment_state_normalization",
+          "environment_action_denormalization",
+          "simulator",
+          "network"
+        ]
+      },
+      "observed_parameter_dtype_elements": {
+        "bfloat16": 3609853952,
+        "float32": 533550864
+      },
+      "observed_compute_dtype": {
+        "outer_autocast": false,
+        "linear_io_signatures": {
+          "input=float32;weight=float32;output=float32": 899,
+          "input=bfloat16;weight=bfloat16;output=bfloat16": 1386
+        },
+        "observation_pass": "untimed_first_inference"
+      },
+      "recorded_execution_mode": null
+    },
+    {
+      "file": "results/baselines/gr00t_pt_bf16_ptqad_20260929.json",
+      "finite_samples": true,
+      "statistics": [
+        {
+          "raw_key": "lat_all_ms",
+          "sample_count": 50,
+          "recomputed_ms": {
+            "p50": 89.29748899754486,
+            "p99": 116.50593947051668,
+            "mean": 90.48091667951667
+          },
+          "sample_order_preserved_in_source": true
+        }
+      ],
+      "timing_scope": {
+        "entrypoint": "Gr00tPolicy.get_action",
+        "included": [
+          "processor",
+          "backbone",
+          "action_head",
+          "action_device_to_host",
+          "action_decoding",
+          "policy_validation"
+        ],
+        "excluded": [
+          "model_loading",
+          "synthetic_input_generation",
+          "finite_output_validation",
+          "simulator",
+          "network"
+        ]
+      },
+      "observed_parameter_dtype_elements": {
+        "bfloat16": 3144016000
+      },
+      "observed_compute_dtype": {
+        "outer_autocast": false,
+        "linear_io_signatures": {
+          "input=bfloat16;weight=bfloat16;output=bfloat16": 1153
+        },
+        "observation_pass": "untimed_first_inference"
+      },
+      "recorded_execution_mode": null
+    }
+  ],
+  "native_pi05_pairing": {
+    "checked_record_fields": [
+      "checkpoint_identity",
+      "asset_identity",
+      "seed",
+      "model_seed",
+      "device",
+      "gpu_identity",
+      "n",
+      "warmup",
+      "input_contract",
+      "timing_scope",
+      "action_shape",
+      "first_token_count",
+      "first_observation_sha256",
+      "sample_token_counts",
+      "constructor_kwargs_except_variant",
+      "policy_metadata_except_variant",
+      "runtime_native_extensions"
+    ],
+    "all_declarations_match": true,
+    "cross_library_speedup_computed": false,
+    "boundary": "Checks exact JSON declarations; does not reread private weights or infer behavioral parity."
+  },
+  "reproduction": "python3 -B -I -S paper/validation/check_model_timing.py"
+}

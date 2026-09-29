@@ -1,0 +1,13 @@
+test_any_recovery_output_mismatch_rejected (__main__.TrainingPublicationTests.test_any_recovery_output_mismatch_rejected) ... ok
+test_changed_archived_input_rejected_even_after_verifier_return (__main__.TrainingPublicationTests.test_changed_archived_input_rejected_even_after_verifier_return) ... ok
+test_evaluated_export_path_mismatch_rejected (__main__.TrainingPublicationTests.test_evaluated_export_path_mismatch_rejected) ... ok
+test_other_collection_student_rejected_even_with_valid_metadata_hash (__main__.TrainingPublicationTests.test_other_collection_student_rejected_even_with_valid_metadata_hash) ... ok
+test_ptq_source_mismatch_rejected (__main__.TrainingPublicationTests.test_ptq_source_mismatch_rejected) ... ok
+test_public_verifier_failure_never_ignored (__main__.TrainingPublicationTests.test_public_verifier_failure_never_ignored) ... ok
+test_teacher_mismatch_rejected (__main__.TrainingPublicationTests.test_teacher_mismatch_rejected) ... ok
+test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files (__main__.TrainingPublicationTests.test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.012s
+
+OK

@@ -1,0 +1,94 @@
+[2026-09-29 14:40:14,313] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+[opd] step=4 probe=0 mse=0.433712 weight=0.3 microbatch=1
+{
+  "status": "passed",
+  "cache_version": 3,
+  "device": "cpu",
+  "cuda_initialized": false,
+  "cases": [
+    {
+      "accumulation": 1,
+      "accelerator_accumulation": 1,
+      "parameter_gradient_max_abs_error": {
+        "lora_A": 0.0,
+        "lora_B": 0.0
+      },
+      "frozen_base_has_no_gradient": true
+    },
+    {
+      "accumulation": 2,
+      "accelerator_accumulation": 1,
+      "parameter_gradient_max_abs_error": {
+        "lora_A": 0.0,
+        "lora_B": 0.0
+      },
+      "frozen_base_has_no_gradient": true
+    },
+    {
+      "accumulation": 16,
+      "accelerator_accumulation": 1,
+      "parameter_gradient_max_abs_error": {
+        "lora_A": 0.0,
+        "lora_B": 0.0
+      },
+      "frozen_base_has_no_gradient": true
+    }
+  ],
+  "scope": "Real installed Trainer/Accelerator, tiny LoRA model, masked probe; not a full GR00T forward.",
+  "started_utc": "2026-09-29T06:40:14.138939+00:00",
+  "completed_utc": "2026-09-29T06:40:15.833883+00:00",
+  "checker_and_source_identities": {
+    "checker": {
+      "path": "/home/zhaosiying/codebase/fp4vla/paper/validation/verify_trainer_scaling.py",
+      "bytes": 7443,
+      "sha256": "248d466f0856866a83c435128288bb896eaeda187c23c21e92c0a1ca5378cf35"
+    },
+    "probe_distill": {
+      "path": "/home/zhaosiying/codebase/fp4vla/rl/probe_distill.py",
+      "bytes": 9288,
+      "sha256": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6"
+    },
+    "installed_trainer": {
+      "path": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/lib/python3.12/site-packages/transformers/trainer.py",
+      "bytes": 279527,
+      "sha256": "c3eac8fa28bda6330fd4dee131e7fe7d9bdc0fa35d9de944fce52cb97b379bab"
+    },
+    "installed_accelerator": {
+      "path": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/lib/python3.12/site-packages/accelerate/accelerator.py",
+      "bytes": 196722,
+      "sha256": "85fe1ad1f0061598313f8566868e9f53434ac9c1d5e24089c3d03da772d40f23"
+    }
+  },
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
+    "packages": {
+      "torch": "2.9.0+cu128",
+      "transformers": "4.57.3",
+      "accelerate": "1.13.0"
+    },
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2"
+  },
+  "synthetic_input_definition": "Exactly the tiny tensors, RNG seeds, mask and target specified in the hashed checker; no private dataset/cache input.",
+  "reproduction": "CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 <GR00T-training-python> -B -O paper/validation/verify_trainer_scaling.py"
+}
