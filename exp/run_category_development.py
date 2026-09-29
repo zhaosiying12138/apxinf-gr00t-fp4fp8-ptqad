@@ -235,6 +235,10 @@ def main() -> None:
     parser.add_argument("--python")
     parser.add_argument("--rollout-python")
     parser.add_argument("--dataset", default=os.environ.get("QAD_DATASET"))
+    parser.add_argument("--media-lib", default=os.environ.get("PTQAD_MEDIA_LIB"),
+                        help="ffmpeg environment lib directory passed to evaluation")
+    parser.add_argument("--media-bin", default=os.environ.get("PTQAD_MEDIA_BIN"),
+                        help="optional ffmpeg environment bin directory")
     parser.add_argument("--media-lib", default=os.environ.get("PTQAD_MEDIA_LIB",
                                                                  "/home/zhaosiying/miniforge3/envs/media7/lib"))
     parser.add_argument("--port", type=int, default=5630)
@@ -264,9 +268,14 @@ def main() -> None:
     python = Path(args.python or groot / ".venv/bin/python").resolve(strict=True)
     rollout = Path(args.rollout_python or groot / "gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python").resolve(strict=True)
     dataset = Path(args.dataset or groot / "demo_data/libero_demo").resolve(strict=True)
+    media_env = {}
+    if args.media_lib:
+        media_env["PTQAD_MEDIA_LIB"] = str(Path(args.media_lib).expanduser().resolve(strict=True))
+    if args.media_bin:
+        media_env["PTQAD_MEDIA_BIN"] = str(Path(args.media_bin).expanduser().resolve(strict=True))
     media_lib = Path(args.media_lib).expanduser().resolve(strict=True)
-    require((media_lib / "ffmpeg").is_file(),
-            f"ffmpeg is missing from media library: {media_lib}; pass --media-lib explicitly")
+    require((media_lib.parent / "bin" / "ffmpeg").is_file(),
+            f"ffmpeg is missing beside media library: {media_lib}; pass --media-lib explicitly")
     # Make the media runtime part of every child evaluation environment.  This
     # avoids relying on a shell profile when the driver is launched from WSL.
     os.environ["PTQAD_MEDIA_LIB"] = str(media_lib)
@@ -300,7 +309,7 @@ def main() -> None:
         "--seed", str(part["seed"]), "--episodes", str(part["episodes_per_task"]),
         "--gr00t", str(groot), "--server-python", str(python), "--rollout-python", str(rollout),
         "--port", str(args.port), "--protocol-file", str(protocol_path)], groot,
-        logs / "eval-bf16.log", {"PROTOCOL_FILE": str(protocol_path)})
+        logs / "eval-bf16.log", {"PROTOCOL_FILE": str(protocol_path), **media_env})
     audits = {"bf16": eval_audit(bf16_eval, protocol, "development", base)}
     pairing = audits["bf16"]["pairing_sha256"]
 
@@ -324,7 +333,7 @@ def main() -> None:
             "--seed", str(part["seed"]), "--episodes", str(part["episodes_per_task"]),
             "--gr00t", str(groot), "--server-python", str(python), "--rollout-python", str(rollout),
             "--port", str(args.port + offset), "--protocol-file", str(protocol_path)], groot,
-            logs / f"eval-{candidate}.log", {"PROTOCOL_FILE": str(protocol_path)})
+            logs / f"eval-{candidate}.log", {"PROTOCOL_FILE": str(protocol_path), **media_env})
         audits[candidate] = eval_audit(evaluation, protocol, "development", output)
         require(audits[candidate]["pairing_sha256"] == pairing,
                 f"{candidate}: initial-state pairing differs from BF16")
