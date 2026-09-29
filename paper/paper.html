@@ -1072,6 +1072,41 @@ a_t=(1-t)z+ta.</annotation></semantics></math></span><span class="katex-html" ar
 </tr>
 </tbody>
 </table></div>
+<p>恢复训练的固定设置如下；其中带红色占位符的量只在开发分区完成选择后回填。</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低秩范围</td>
+<td><code>head+lang_all</code>；rank=32，alpha=64</td>
+</tr>
+<tr>
+<td>QAD 更新</td>
+<td>500 个优化器步；学习率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathcolor="#b42318"><mrow><mi mathvariant="normal">x</mi><mi mathvariant="normal">x</mi><mi mathvariant="normal">x</mi></mrow></mstyle></mrow><annotation encoding="application/x-tex">\textcolor{#b42318}{\mathrm{xxx}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord" style="color:#b42318;"><span class="mord mathrm" style="color:#b42318;">xxx</span></span></span></span></span>；microbatch=1，累积 16 次，有效 batch=16</td>
+</tr>
+<tr>
+<td>续训控制</td>
+<td>100 步；沿用选中学习率，重置优化器和学习率计划</td>
+</tr>
+<tr>
+<td>OPD</td>
+<td>每 4 步启用教师项；权重 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathcolor="#b42318"><mrow><mi mathvariant="normal">x</mi><mi mathvariant="normal">x</mi><mi mathvariant="normal">x</mi></mrow></mstyle></mrow><annotation encoding="application/x-tex">\textcolor{#b42318}{\mathrm{xxx}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord" style="color:#b42318;"><span class="mord mathrm" style="color:#b42318;">xxx</span></span></span></span></span>；请求 160 个探针，实收 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle mathcolor="#b42318"><mrow><mi mathvariant="normal">x</mi><mi mathvariant="normal">x</mi><mi mathvariant="normal">x</mi></mrow></mstyle></mrow><annotation encoding="application/x-tex">\textcolor{#b42318}{\mathrm{xxx}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord" style="color:#b42318;"><span class="mord mathrm" style="color:#b42318;">xxx</span></span></span></span></span> 个</td>
+</tr>
+<tr>
+<td>训练随机种子</td>
+<td>20260929</td>
+</tr>
+<tr>
+<td>开发候选</td>
+<td>QAD 学习率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">5\times10^{-5}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">5</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span></span>、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span></span>；OPD 权重 0.25、1.0</td>
+</tr>
+</tbody>
+</table></div>
 <p>每回合最多执行 720 个环境步；每次策略生成一个动作块，执行前 8 步后重新观测。LIBERO 的动作容器为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>40</mn><mo>×</mo><mn>132</mn></mrow><annotation encoding="application/x-tex">40\times132</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">40</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">132</span></span></span></span>，有效区域是前 16 步的 7 个控制量，共 112 个元素，其余位置不进入损失。环境恢复后先执行 10 个原始七维零动作稳定步，并保存初态、恢复后状态和稳定后状态的 SHA-256。服务异常、记录缺失或未完成回合均须补跑，不会被计作成功。</p>
 <h3 id="section-39">4.2 三个指标先分开</h3>
 <p>本文不把不同测量混成一个“性能”数字。</p>
