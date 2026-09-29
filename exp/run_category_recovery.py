@@ -44,8 +44,13 @@ def sha(path):
 def category_protocol(path):
     path = Path(path).resolve(strict=True)
     data = read(path)
-    if data.get("version") != 4 or data.get("id") != "category-fp4-stress-v4":
-        raise v3.OrchestrationError("category recovery requires the frozen v4 protocol")
+    supported = {(4, "category-fp4-stress-v4", 0.20),
+                 (5, "category-fp4-exploratory-v5", 0.05)}
+    version = data.get("version")
+    pressure_rule = data.get("selection", {}).get("pressure_rule", {})
+    key = (version, data.get("id"), float(pressure_rule.get("min_drop_from_bf16", -1)))
+    if key not in supported:
+        raise v3.OrchestrationError("category recovery requires the frozen v4 or exploratory v5 protocol")
     parts = data.get("partitions", {})
     normalized = {}
     for name, episodes in (("development", 5), ("collection", 4), ("heldout", 10)):
@@ -61,9 +66,9 @@ def category_protocol(path):
     rule = selection.get("pressure_rule", {})
     if (selection.get("pressure_candidates") != list(CANDIDATES) or
             rule.get("choose") != "highest_fp4" or
-            float(rule.get("min_drop_from_bf16", -1)) != .20 or
+            float(rule.get("min_drop_from_bf16", -1)) != key[2] or
             float(rule.get("min_absolute_success", -1)) != .30):
-        raise v3.OrchestrationError("category pressure rule differs from the frozen v4 protocol")
+        raise v3.OrchestrationError("category pressure rule differs from the declared protocol")
     category = data.get("category_quantization", {})
     if (category.get("parent_recipes") != ["head_lang_vision", "calib"] or
             category.get("active_category") != 2 or category.get("categories") != 32):
@@ -98,7 +103,14 @@ def validate_category_selection(path, protocol):
             recipe_data = read(recipe)
             if recipe_data.get("recipe") != "category_nvfp4_extension":
                 raise v3.OrchestrationError(f"category arm is not a category bake: {arm}")
-        audited = v3.eval_audit(development / arm, protocol, "development", checkpoint)
+        # The exploratory v5 recovery deliberately reuses the completed v4
+        # development evidence.  Audit that evidence against the protocol
+        # recorded in each eval manifest, then require identical partitions.
+        raw_manifest = read(development / arm / "eval_manifest.json")
+        raw_protocol = category_protocol(raw_manifest["protocol_file"])
+        if raw_protocol["partitions"] != protocol["partitions"]:
+            raise v3.OrchestrationError(f"{arm}: development partition differs from recovery protocol")
+        audited = v3.eval_audit(development / arm, raw_protocol, "development", checkpoint)
         if (audited["successes"] != row["successes"] or audited["episodes"] != row["episodes"]):
             raise v3.OrchestrationError(f"category score disagrees with raw evidence: {arm}")
         audits[arm] = audited
