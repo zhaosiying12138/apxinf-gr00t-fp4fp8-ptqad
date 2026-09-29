@@ -52,6 +52,8 @@ class EngineTimingTests(unittest.TestCase):
 
     def test_execution_mode_does_not_guess_missing_runtime_state(self):
         self.assertIsNone(bench.execution_mode(types.SimpleNamespace()))
+        gr00t = types.SimpleNamespace(model_runner=types.SimpleNamespace(execution_mode="cuda-graph"))
+        self.assertEqual(bench.execution_mode(gr00t), "cuda-graph")
         policy = types.SimpleNamespace(model_runner=types.SimpleNamespace(execution_mode="unknown"))
         with self.assertRaisesRegex(ValueError, "Unknown native execution mode"):
             bench.execution_mode(policy)

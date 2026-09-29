@@ -161,7 +161,9 @@ def execution_mode(policy):
     """Read the native prepared-plan mode; never infer it from latency."""
     runner = getattr(policy, "model_runner", None)
     value = getattr(runner, "execution_mode", None)
-    if value not in (None, "unprepared", "graph", "eager"):
+    # GR00T's existing runtime spells the captured mode "cuda-graph"; pi0.5
+    # exposes "graph". Preserve each native value instead of guessing a mode.
+    if value not in (None, "unprepared", "graph", "cuda-graph", "eager"):
         raise ValueError(f"Unknown native execution mode: {value!r}")
     return value
 
