@@ -53,6 +53,10 @@ LoRA 的有效权重为 `W = W_PTQ + (alpha / rank) × B @ A`。生产协议设 
 
 逐包版本、conda 精确包清单、源码 revision 和校验值见 [setup/locks](setup/locks)。训练、仿真和原生引擎环境不应合并。系统还需要 EGL/OpenGL 动态库；安装步骤不修改 NVIDIA 驱动。
 
+原生编译前须另行准备 Rust/Cargo、Linux C++ 编译器和 Make，以及支持本机 `sm_120` 与 NVFP4 接口的 CUDA toolkit（含 `nvcc`、头文件和 cuBLASLt）。**`setup/01_install_dev_tools.sh` 仅检查或安装 uv，不安装 Rust、CUDA toolkit 或 NVIDIA 驱动。** `setup/02_build_engine.sh` 在这些前置工具已可用时应用 APXInf 补丁、创建独立 Python 环境并构建/安装引擎；`setup/05_restore_all.sh --with-engine` 串联这些步骤，也不会补装系统工具链。
+
+[工具链只读记录](paper/validation/native-toolchain-observation.json)给出当前观察：CUDA toolkit 13.3（nvcc V13.3.73）、Rust/Cargo 1.98.1；本轮已有设备日志记录 NVIDIA-SMI 610.53、KMD 610.74 和 CUDA UMD 13.3。训练 wheel 的 `+cu128` / CUDA 12.8 与原生编译所用系统 toolkit 是两套版本信息。已有原生构建收据绑定源码和产物哈希，但未记录精确编译器版本，因此上述当前观察不能倒推为原 wheel 的构建版本，也不是已验证的最低版本要求。
+
 ## 安装与权重准备
 
 在仓库根目录执行。`CONDA_EXE` 指向已安装的 conda；使用自己的绝对路径。

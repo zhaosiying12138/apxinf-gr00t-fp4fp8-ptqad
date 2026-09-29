@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only current compiler/package observation plus inspection of existing build and device records; not a reconstruction of original compiler identity.",
+  "observed_utc": "2026-09-29T09:53:21.014562+00:00",
+  "commands": [
+    {
+      "label": "nvcc",
+      "argv": [
+        "/usr/local/cuda/bin/nvcc",
+        "--version"
+      ],
+      "cwd": "/home/zhaosiying/codebase/fp4vla",
+      "observed_utc": "2026-09-29T09:53:20.902912+00:00",
+      "returncode": 0,
+      "stdout": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Jun_09_02:43:40_PM_PDT_2026\nCuda compilation tools, release 13.3, V13.3.73\nBuild cuda_13.3.r13.3/compiler.38244171_0\n",
+      "stderr": "",
+      "wall_seconds": 0.002526862997910939
+    },
+    {
+      "label": "rustc",
+      "argv": [
+        "/home/zhaosiying/.cargo/bin/rustc",
+        "--version",
+        "--verbose"
+      ],
+      "cwd": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf",
+      "observed_utc": "2026-09-29T09:53:20.905507+00:00",
+      "returncode": 0,
+      "stdout": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+      "stderr": "",
+      "wall_seconds": 0.025429572000575718
+    },
+    {
+      "label": "cargo",
+      "argv": [
+        "/home/zhaosiying/.cargo/bin/cargo",
+        "--version"
+      ],
+      "cwd": "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf",
+      "observed_utc": "2026-09-29T09:53:20.930992+00:00",
+      "returncode": 0,
+      "stdout": "cargo 1.98.1 (797e8a9bc 2026-08-05)\n",
+      "stderr": "",
+      "wall_seconds": 0.03305197900044732
+    },
+    {
+      "label": "host_cxx",
+      "argv": [
+        "/usr/bin/g++",
+        "--version"
+      ],
+      "cwd": "/home/zhaosiying/codebase/fp4vla",
+      "observed_utc": "2026-09-29T09:53:20.964065+00:00",
+      "returncode": 0,
+      "stdout": "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": "",
+      "wall_seconds": 0.002905841000028886
+    },
+    {
+      "label": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "cwd": "/home/zhaosiying/codebase/fp4vla",
+      "observed_utc": "2026-09-29T09:53:20.966990+00:00",
+      "returncode": 0,
+      "stdout": "GNU Make 4.4.1\nBuilt for x86_64-pc-linux-gnu\nCopyright (C) 1988-2023 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n",
+      "stderr": "",
+      "wall_seconds": 0.0015133089982555248
+    },
+    {
+      "label": "recovery_python_metadata",
+      "argv": [
+        "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
+        "-c",
+        "import ast,importlib.metadata as m,json,platform\nd=m.distribution(\"torch\");p=d.locate_file(\"torch/version.py\")\nvalues={}\nfor item in ast.parse(p.read_text()).body:\n if isinstance(item,ast.AnnAssign) and isinstance(item.target,ast.Name):\n  try: values[item.target.id]=ast.literal_eval(item.value)\n  except (ValueError,TypeError): pass\nprint(json.dumps({\"python\":platform.python_version(),\"torch_distribution\":d.version,\"torch_cuda_build\":values.get(\"cuda\"),\"read_metadata_only\":True,\"torch_imported\":False}))\n"
+      ],
+      "cwd": "/home/zhaosiying/codebase/fp4vla",
+      "observed_utc": "2026-09-29T09:53:20.968516+00:00",
+      "returncode": 0,
+      "stdout": "{\"python\": \"3.12.14\", \"torch_distribution\": \"2.9.0+cu128\", \"torch_cuda_build\": \"12.8\", \"read_metadata_only\": true, \"torch_imported\": false}\n",
+      "stderr": "",
+      "wall_seconds": 0.04230344499956118
+    },
+    {
+      "label": "native_python_version",
+      "argv": [
+        "/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/.venv/bin/python",
+        "--version"
+      ],
+      "cwd": "/home/zhaosiying/codebase/fp4vla",
+      "observed_utc": "2026-09-29T09:53:21.010879+00:00",
+      "returncode": 0,
+      "stdout": "Python 3.12.14\n",
+      "stderr": "",
+      "wall_seconds": 0.0033645560033619404
+    }
+  ],
+  "recovery_environment": {
+    "python": "3.12.14",
+    "torch_distribution": "2.9.0+cu128",
+    "torch_cuda_build": "12.8",
+    "read_metadata_only": true,
+    "torch_imported": false
+  },
+  "existing_record_sha256": {
+    "paper/validation/native-graph-preparation/build_manifest.json": {
+      "bytes": 4901,
+      "sha256": "ae61e8c3bfb2e8289d39eecf74d2143cd81a6e0a7647c83279925435f3a13ef5"
+    },
+    "paper/validation/native-graph-preparation/native_fp4_opbench_build.log": {
+      "bytes": 414,
+      "sha256": "f8c97409c4a424cdd08b7aac7c8bad21d356b237ebbb4dd29cb23e1d009336cf"
+    },
+    "paper/validation/native-graph-preparation/native_fp4_cpu_build.log": {
+      "bytes": 3616,
+      "sha256": "021f5f0b885714ec97e55c43700f077b8a51f16677e50ee2c744ee8993be01a3"
+    },
+    "paper/validation/native-graph-preparation/native_fp4_model_gate_build.log": {
+      "bytes": 5631,
+      "sha256": "e712c7509d1e502da2db5a842ec436fd6b60344b520818c8107ab753fb7b3f68"
+    },
+    "paper/validation/native-graph-preparation/native_fp4_wheel_build.log": {
+      "bytes": 6032,
+      "sha256": "99a25cb7ec7dc98f81420de0b9c73d6d461dfe86c50fb0d77d594c5c988553dc"
+    },
+    "results/spike/env_ptqad_20260929.log": {
+      "bytes": 245,
+      "sha256": "4f3e0aaf46c35789437289588283b95470924245084c3c47c4c9070498481e35"
+    },
+    "results/spike/device_before_ptqad_20260929.log": {
+      "bytes": 14112,
+      "sha256": "8937006ff1853b74d82c449de883d01d46227a425899d0bbae17ba954a743ece"
+    },
+    "results/native_graph_20260929/device_before.txt": {
+      "bytes": 1689,
+      "sha256": "bbbac29b686fe443b8f46f6c3cd8de1f03517ba2f8f0ab6b9d734475f0292b08"
+    },
+    "setup/01_install_dev_tools.sh": {
+      "bytes": 266,
+      "sha256": "3a1add7c630cdae9b32e47b86a0dfc551f2babf4ec9618d6bb2a464595b5a91b"
+    },
+    "setup/02_build_engine.sh": {
+      "bytes": 2108,
+      "sha256": "0640efc559be10fda397a20a09e900c598bd83e6b73ea355be8d8cdf8bd6c284"
+    },
+    "setup/05_restore_all.sh": {
+      "bytes": 1527,
+      "sha256": "65edc9a1f2caffa9e722701ca29e44847d2856beed621e7d9c0b2f8c8e0a7a47"
+    },
+    "setup/locks/manifest.json": {
+      "bytes": 2560,
+      "sha256": "ff134f2b3dfbc28a8b40096fa6e243a9e39c53dd24c57f1638786a8bbf0068d6"
+    }
+  },
+  "driver_from_existing_run_record": {
+    "path": "results/native_graph_20260929/device_before.txt",
+    "header": [
+      "Tue Sep 29 13:22:48 2026       ",
+      "+-----------------------------------------------------------------------------------------+",
+      "| NVIDIA-SMI 610.53                 KMD Version: 610.74        CUDA UMD Version: 13.3     |",
+      "+-----------------------------------------+------------------------+----------------------+"
+    ],
+    "new_driver_query_executed": false
+  },
+  "existing_runtime_environment": "# scale_layout=hw output=column_major_f32 secondary_scale=1 timing=mean_of_50_cuda_event_iterations quantization=outside_timing\n# gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120 vram=23.9GB driver=13030 runtime=13030 cublasLt=130600 cuda_ver=13.3\n",
+  "provenance_limits": [
+    "Existing build receipt binds source/artifact hashes, sm_120 and cp312 but contains no exact nvcc or rustc version.",
+    "Existing opbench build log records /usr/local/cuda/bin/nvcc and its compile arguments, not the compiler version.",
+    "Current nvcc/rustc values must not be assigned retrospectively to the earlier wheel or operator build.",
+    "Existing device logs identify NVIDIA-SMI 610.53, KMD 610.74 and CUDA UMD 13.3 at their recorded run time; UMD is not a toolkit compiler version.",
+    "PyTorch +cu128 / torch.version CUDA 12.8 describe the recovery wheel build, separate from the system toolkit used to compile the native engine."
+  ],
+  "operations": {
+    "compilation": false,
+    "installation": false,
+    "gpu_or_cuda_api": false,
+    "driver_query": false,
+    "model_load": false,
+    "benchmark": false,
+    "publication_certification": false
+  }
+}
