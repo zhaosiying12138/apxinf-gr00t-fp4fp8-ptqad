@@ -228,8 +228,12 @@ def main() -> None:
     parser.add_argument("--parent-head-lang-vision", required=True)
     parser.add_argument("--parent-calib", required=True)
     parser.add_argument("--gr00t-repo", default=os.environ.get("GR00T_REPO"))
-    parser.add_argument("--python", default=os.environ.get("PTQAD_PYTHON"))
-    parser.add_argument("--rollout-python", default=os.environ.get("LIBERO_PYTHON"))
+    # Resolve these from the GR00T checkout by default.  In particular, do
+    # not inherit a shell's PTQAD_PYTHON/LIBERO_PYTHON value: a host Python
+    # can exist while lacking GR00T's numpy/torch runtime, yielding a partial
+    # evaluation directory before the failure is noticed.
+    parser.add_argument("--python")
+    parser.add_argument("--rollout-python")
     parser.add_argument("--dataset", default=os.environ.get("QAD_DATASET"))
     parser.add_argument("--port", type=int, default=5630)
     parser.add_argument("--calibration-windows", type=int, default=128)
