@@ -8,6 +8,7 @@
 
 ```bash
 cd /absolute/path/to/fp4vla
+export PROJECT=$(pwd)
 RUN="$PWD/weights/native_pi05_new_run"
 bash exp/prepare_native_pi05.sh pack \
   --base "$PWD/weights/pi05_libero_base" --out "$RUN" --chunk-rows 512
@@ -32,3 +33,23 @@ bash exp/prepare_native_pi05.sh model-overlay \
 ## 后续原生推理的边界
 
 原生 wheel 的构建、安装、推理与计时均不在此脚本内。后续调用 `AutoPolicy` 时传入本轮 `model/`，再分别启动 BF16 和 `nvfp4_static` 的独立进程，避免两模型同时驻留。计时记录还需要绑定实际 wheel 与安装的扩展库哈希、GPU、输入、随机种子、预热和重复次数；重新打包成功本身不能证明速度提升或任务成功率。
+
+GPU 空闲并确认原生 wheel 已安装后，以下两个命令必须串行运行。`--out` 拒绝已有文件；默认显式读取新模型目录下的 `norm_stats.json` 和 `paligemma_tokenizer.model`。
+
+```bash
+ENGINE_PY="$PROJECT/third_party/apxinf-robo/.venv/bin/python"
+(cd /tmp; "$ENGINE_PY" "$PROJECT/exp/bench_engine.py" \
+  --model-dir "$RUN/model" --variant bf16 --device cuda:0 \
+  --warmup 10 --samples 30 --seed 7 --model-seed 0 \
+  --out "$PROJECT/results/engine/pi05_bf16_new_run.json")
+(cd /tmp; "$ENGINE_PY" "$PROJECT/exp/bench_engine.py" \
+  --model-dir "$RUN/model" --variant nvfp4_static --device cuda:0 \
+  --warmup 10 --samples 30 --seed 7 --model-seed 0 \
+  --out "$PROJECT/results/engine/pi05_nvfp4_new_run.json")
+```
+
+本基准要求原生 `model_variant` 与请求完全一致，并核对 NVFP4 producer manifest、源 checkpoint 和每个 packed 文件的实际 SHA-256。结果记录实际导入的扩展 SO、Python 源文件、包版本和本地检查过的 Rust 源码散列。SO 哈希是已加载程序的身份；当前工作树源码散列不能单独证明该 SO 的构建来源，构建日志与 wheel 身份仍需一并保留。
+
+`model_ms` 是阻塞原生模型调用直到取得 CPU float32 动作的时间，包括输入传输、GPU 执行、同步与 D2H；`total_ms` 还包括策略的预处理、分词和动作后处理；外层 `wrapper_ms` 另记完整 Python 调用。三组数组按实际顺序保存，p50/p99 采用 NumPy 线性插值。源码检查确认 π0.5 的 host-return transfer 和 GR00T executor 在 D2H 前同步 CUDA，因此这不是只量 kernel 提交的时间，也不是 CUDA event 的纯 kernel 时间。
+
+`nvidia-smi` 功耗或显存不可用时记录 `null` 和错误；已有值属于显式 `--telemetry-device` 选择的整卡计时阶段，可能包含桌面和其他进程。CUDA 可见设备重映射与 nvidia-smi 编号也要分别核对。任何动作非有限、variant 不符、来源校验失败或清理失败都会阻止成功 JSON 发布。
