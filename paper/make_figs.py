@@ -431,6 +431,104 @@ def frontier_rows():
     return data,points
 
 
+
+def segment_hits_box(start, end, box):
+    """Closed segment/rectangle intersection, including boundary contact."""
+    low, high = 0.0, 1.0
+    for origin, target, lower, upper in zip(start, end, box[:2], box[2:]):
+        delta = target - origin
+        if delta == 0:
+            if not lower <= origin <= upper:
+                return False
+        else:
+            enter, leave = sorted(((lower-origin)/delta, (upper-origin)/delta))
+            low, high = max(low, enter), min(high, leave)
+            if low > high:
+                return False
+    return True
+
+
+def frontier_label_layout(markers, bounds):
+    """Place letter boxes and leaders inside the axes without moving markers.
+
+    Text uses an explicit SVG textLength of nine pixels per ASCII character.
+    Conservative boxes also reserve padding and never cover another marker,
+    label or leader. A crowded unsupported layout fails instead of publishing
+    an unreadable annotation.
+    """
+    left, top, right, bottom = bounds
+    result = [None] * len(markers)
+    placed = []
+    marker_boxes = [(m['x']-9, m['y']-9, m['x']+9, m['y']+9) for m in markers]
+
+    def expanded(box, gap):
+        return (box[0]-gap, box[1]-gap, box[2]+gap, box[3]+gap)
+
+    def overlap(a, b):
+        return a[0] <= b[2] and b[0] <= a[2] and a[1] <= b[3] and b[1] <= a[3]
+
+    # Dense cluster interiors and long merged labels get first choice.
+    # Output remains in table letter order regardless of placement order.
+    crowding = [sum(1/(1+math.hypot(a['x']-b['x'], a['y']-b['y']))
+                    for j,b in enumerate(markers) if i != j) for i,a in enumerate(markers)]
+    order = sorted(range(len(markers)), key=lambda i: (-crowding[i], -len(markers[i]['label']), i))
+    choices = {}
+    for index in order:
+        marker = markers[index]
+        px, py = marker['x'], marker['y']
+        width, height = max(26, 9*len(marker['label'])+14), 24
+        candidates = {}
+        for dx in range(-12, 13):
+            for dy in range(-12, 13):
+                cx = min(right-8-width/2, max(left+8+width/2, px+24*dx))
+                cy = min(bottom-8-height/2, max(top+8+height/2, py+24*dy))
+                box = (cx-width/2, cy-height/2, cx+width/2, cy+height/2)
+                endpoint = (min(box[2], max(box[0], px)), min(box[3], max(box[1], py)))
+                distance = (px-endpoint[0])**2 + (py-endpoint[1])**2
+                candidates[box] = (distance, cy > py, cx < px, endpoint)
+        choices[index] = []
+        for box, (_, _, _, endpoint) in sorted(candidates.items(), key=lambda item: (*item[1][:3], item[0])):
+            if any(overlap(box, mark) for mark in marker_boxes):
+                continue
+            leader = ((px, py), endpoint)
+            # Very close measured markers can already overlap. Their leaders
+            # must leave that cluster; paint all markers last to keep them visible.
+            if any(segment_hits_box(*leader, mark) for i, mark in enumerate(marker_boxes)
+                   if i != index and math.hypot(markers[i]['x']-px, markers[i]['y']-py)>28):
+                continue
+            choices[index].append({'box': box, 'leader': leader, 'label': marker['label'],
+                                   'text_x': (box[0]+box[2])/2, 'text_y': (box[1]+box[3])/2+5})
+
+    order.sort(key=lambda i: (len(choices[i]), -crowding[i], -len(markers[i]['label']), i))
+    attempts = 0
+    def place(depth):
+        nonlocal attempts
+        if depth == len(order):
+            return True
+        index = order[depth]
+        for record in choices[index]:
+            box, leader = record['box'], record['leader']
+            if any(overlap(expanded(box, 5), old['box']) or
+                   segment_hits_box(*leader, expanded(old['box'], 2)) or
+                   segment_hits_box(*old['leader'], expanded(box, 2)) for old in placed):
+                continue
+            attempts += 1
+            if attempts > 5000:
+                raise ValueError('Frontier annotation search exceeded its safe layout budget')
+            result[index] = record
+            placed.append(record)
+            if place(depth+1):
+                return True
+            placed.pop()
+            result[index] = None
+        return False
+
+    if not place(0):
+        raise ValueError('Cannot place frontier labels without covering data')
+
+    return result
+
+
 def ptq_frontier():
     _,points=frontier_rows()
     s=SVG(1120,990,'纯 PTQ 与恢复策略：净编码预算—闭环成功率',
@@ -445,23 +543,34 @@ def ptq_frontier():
         s.line(x(value),bottom,x(value),bottom+5);s.text(x(value),bottom+24,str(value),13,anchor='middle')
     s.line(left,top,left,bottom,INK);s.line(left,bottom,right,bottom,INK)
     s.text(left,103,'十任务宏平均成功率',15,BLUE,600)
-    s.text(570,558,'已知共享副本去重后的净编码预算 / GB（10⁹ 字节）',15,anchor='middle')
+    s.text(570,558,'已知共享副本去重后的净编码预算 / GB（1 GB = 10 亿字节）',15,anchor='middle')
     labels={'bf16':'BF16','fp8':'fp8 纯 PTQ','head_ffn':'head_ffn 纯 PTQ','ptq':'head_lang 纯 PTQ',
             'qad':'QAD','continued_qad':'继续 QAD','qad_opd':'QAD + OPD'}
     groups={}
     for i,row in enumerate(points):
         key=(row['encoding_budget'][scope]['total_bytes'],row['successes'])
         groups.setdefault(key,[]).append((chr(65+i),row))
-    for index,((size,score),group) in enumerate(groups.items()):
-        px,py=x(size/1e9),y(score);role=group[0][1]['role']
-        color=INK if role=='bf16' else TEAL if role=='recovery' else BLUE
-        if role=='recovery':s.s.append(f'<path d="M{px},{py-7} L{px+7},{py} L{px},{py+7} L{px-7},{py} Z" fill="{color}"/>')
+    markers=[]
+    for (size,score),group in groups.items():
+        role=group[0][1]['role']
+        markers.append({'x':x(size/1e9),'y':y(score),'role':role,
+                        'label':','.join(code for code,_ in group),
+                        'color':INK if role=='bf16' else TEAL if role=='recovery' else BLUE})
+    annotations=frontier_label_layout(markers,(left,top,right,bottom))
+    # Leaders first, then opaque labels and unchanged measured markers.
+    for marker,annotation in zip(markers,annotations):
+        start,end=annotation['leader'];s.line(*start,*end,marker['color'])
+    for marker,annotation in zip(markers,annotations):
+        x0,y0,x1,y1=annotation['box'];color=marker['color']
+        s.rect(x0,y0,x1-x0,y1-y0,'white',color,rx=3)
+        label=annotation['label']
+        s.s.append(f'<text x="{annotation["text_x"]}" y="{annotation["text_y"]}" fill="{color}" '
+                   f'font-family="monospace" font-size="14" font-weight="600" text-anchor="middle" '
+                   f'textLength="{9*len(label)}" lengthAdjust="spacingAndGlyphs">{html.escape(label)}</text>')
+    for marker in markers:
+        px,py,color=marker['x'],marker['y'],marker['color']
+        if marker['role']=='recovery':s.s.append(f'<path d="M{px},{py-7} L{px+7},{py} L{px},{py+7} L{px-7},{py} Z" fill="{color}"/>')
         else:s.s.append(f'<circle cx="{px}" cy="{py}" r="6" fill="{color}"/>')
-        # Labels can share one marker when both measured coordinates coincide.
-        offset=(-19,30,-38,49)[index%4]
-        if py+offset<top-16:offset=abs(offset)+12
-        s.line(px,py,px+13,py+offset-5,color)
-        s.text(px+17,py+offset,','.join(code for code,_ in group),14,color,600)
     s.text(30,596,'圆点：BF16 / 纯 PTQ　　菱形：基座 + BF16 低秩残差；重合点合并字母，精确值见下表。',14)
     columns=[42,95,340,514,683,866,1050]
     headers=['点','策略','成功数','成功率','去重净 GB','物理净 GB','去重压缩']
