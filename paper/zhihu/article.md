@@ -4,39 +4,51 @@
 
 # 摘要
 
-视觉—语言—动作模型（Vision–Language–Action model，VLA）把相机观测、语言指令和机器人状态映射为动作。对这类模型，低位宽量化的目标不仅是减少权重占用，还要保持动作反馈到环境之后的任务成功率。本文围绕 **APXInf 推理生态、GR00T N1.7、NVFP4/FP8 混合精度、面向块缩放格式的定制训练后量化（PTQ），以及量化基座上的低秩恢复（项目中称 QAD/OPD）**，建立从数值表示、校准与分配，到行为恢复和 LIBERO 闭环评测的完整流程。
+视觉—语言—动作模型（Vision–Language–Action model，VLA）把相机观测、语言指令和机器人状态映射为动作。对这类模型，低位宽量化的目标不只是减少权重占用，还要保持动作反馈到环境之后的任务成功率。本文研究一条完整的工程链：以 **APXInf** 为执行生态，以 **GR00T N1.7** 为 VLA 主体，在 **NVFP4/FP8 混合精度**下完成面向块缩放格式的定制训练后量化（PTQ），再用量化后的低秩恢复（项目中称 **QAD**）和学生状态上的教师蒸馏（**OPD**）修正闭环行为。
 
-方法分为三步：先用校准数据估计各层输入分布，将 GPTQ 的误差补偿适配到 NVFP4 的两级缩放，并按模块逐步扩大 FP4 范围；再冻结量化权重，用演示数据训练低秩修正，调整动作生成；最后让学生策略实际执行任务，在它访问的状态上向未量化教师学习，补充演示轨迹之外的监督。本文分别检验压缩预算、闭环成功率和原生执行速度。
+方法按数据流推进。PTQ 从演示输入中估计激活统计，将 GPTQ 的逐列误差补偿改写为 NVFP4 的“16 个元素一块、两级缩放”形式，并按模块决定哪些权重进入 FP4、哪些保留 FP8。QAD 冻结量化基座，只训练低秩旁路，使动作生成重新贴近演示；OPD 让 QAD 学生实际执行任务，由未量化教师在学生访问的状态上提供速度监督。最终，所有比较都在 LIBERO 闭环中进行。
 
-**核心结果。** 所选配方的 FP4 比例（分母为扣除已知共享别名后的可量化矩阵元素）为 $\textcolor{#b42318}{\mathrm{xxx}\%}$，计入低秩修正后的同口径完整权重编码压缩比为 $\textcolor{#b42318}{\mathrm{xxx}\times}$。同协议下，BF16、纯 PTQ、QAD 与 QAD+OPD 的成功率依次为 $\textcolor{#b42318}{\mathrm{xxx}\%}$、$\textcolor{#b42318}{\mathrm{xxx}\%}$、$\textcolor{#b42318}{\mathrm{xxx}\%}$、$\textcolor{#b42318}{\mathrm{xxx}\%}$。独立的 APXInf π0.5 执行实验中，NVFP4 混合路径将策略调用 P50（中位数）从 48.651 ms 降至 36.985 ms，降低 23.98%；该测量与 GR00T 的恢复成功率分开报告。
+**最终结果（待回填）。** 文章只呈现冻结协议下通过完整验收的最强配方。其 FP4 比例（分母为去除已知共享别名后的可量化矩阵元素）为 $\textcolor{#b42318}{\mathrm{xxx}\%}$；计入低秩旁路后的完整权重编码压缩比为 $\textcolor{#b42318}{\mathrm{xxx}\times}$。BF16、纯 PTQ、QAD 与 QAD+OPD 在同一组独立初态上的成功率分别为 $\textcolor{#b42318}{\mathrm{xxx}\%}$、$\textcolor{#b42318}{\mathrm{xxx}\%}$、$\textcolor{#b42318}{\mathrm{xxx}\%}$ 和 $\textcolor{#b42318}{\mathrm{xxx}\%}$。APXInf 的原生执行延迟另行报告，不与 GR00T 的闭环成功率混为一个指标。
 
-> 审阅说明：红色 xxx 为待完成实验的回填位置，不是测量值。本稿先供审阅论述、结构和方法；正式结论由完整独立评测确定。
+> 本稿的红色 `xxx` 是待最终评测回填的位置。回填前不把开发集、未完成回合或历史实验当作结论。
 
-**关键词：** VLA；GR00T；APXInf；NVFP4/FP8；PTQ；GPTQ；低秩恢复；on-policy distillation。
+**关键词：** VLA；GR00T；APXInf；NVFP4/FP8；训练后量化；低秩恢复；on-policy distillation；LIBERO。
 
 # 1. 引言
 
-## 1.1 为什么量化误差会变成任务失败
+## 1.1 问题：小的数值误差会变成任务失败
 
-机器人抓杯子时，先看图像、输出动作，再根据执行后的新图像继续调整。量化若让夹爪移动稍短，下一次观测便发生变化；一旦错过杯柄，后续动作面对的就不再是原来的状态。因此，VLA 的量化误差会沿“动作—环境—观测”循环传播。单次前向的误差很小，仍可能使整个任务失败。
+机器人执行 VLA 策略时，流程不是“输入一张图、输出一次动作”就结束。策略先根据观测生成一个动作块，机器人执行其中一部分，再把新的图像和状态送回策略。一次从环境重置到成功或超时的尝试称为 **episode**；这种反复决策的过程称为**闭环**。如果量化让夹爪移动得稍短，下一次观测就会改变；一旦错过杯柄，后续动作面对的是另一个状态，最初很小的误差可能最终表现为任务失败。
 
-训练后量化（Post-Training Quantization，PTQ）用少量校准数据压缩已有权重，无需重新训练完整模型。将敏感模块保留为 FP8，可以减少行为损失，但也限制压缩。本文研究一个更具体的问题：**把更多 FP8 权重转为 FP4 后，能否通过少量可训练参数恢复闭环行为，并在计入这些参数后仍获得更好的压缩与成功率组合？**
+因此，VLA 量化需要同时回答两个问题：低位宽表示节省了多少权重字节；策略在环境中连续执行后，还能完成多少任务。固定输入上的均方误差只能回答前一个问题的一部分，不能替代 LIBERO 的闭环成功率。
 
-我们的思路是让三个阶段各司其职。PTQ 尽量保留原模型的局部计算；QAD 用任务演示修正量化后的动作生成；OPD 在学生自己访问的状态上补充教师监督。前两步解决表示压缩与任务适配，第三步针对动作反馈引起的状态偏移。
+本文聚焦一个可复现的设定：在已有 FP8 保护方案上继续把更多候选矩阵转换为 FP4，观察成功率下降；随后只增加少量可训练参数，检验 QAD 能否恢复行为，以及 OPD 在 QAD 之后是否还有独立增益。所有训练选择在开发数据上完成，最终数字来自未参与选择的独立初态。
 
-## 1.2 本文的贡献
+## 1.2 五个组成部分如何连成一条链
 
-1. **面向 GR00T 的块缩放 PTQ。** 将 GPTQ 适配到 NVFP4：固定张量尺度，在每个 16 元素块进入时重新定标，并逐列补偿误差。结合完整模型的校准统计和五级 FP4/FP8 配方，使压缩范围可逐层追溯。
-2. **量化基座上的两阶段恢复。** 冻结基座，以演示监督训练低秩残差，再加入学生访问状态上的教师速度场监督。设置同起点、同额外更新预算的 QAD 续训对照，单独检验 OPD 的增量作用。
-3. **APXInf 的执行扩展与复现链。** 实现 NVFP4 编码、块尺度布局、CUDA/Rust 算子接入与模型执行路径；提供从配置、检查点到逐回合日志的证据，以及真实 Ubuntu 运行截图。
+本文的独特之处不是把几个名词并排罗列，而是把它们放进同一条可验收的执行链：
 
-项目名 **`apxinf-gr00t-fp4fp8-ptqad`** 概括了这一组合，`ptqad` 为 PTQ 与 QAD 的融合写法。GPTQ、LoRA 和蒸馏均有既有研究基础；本文的贡献是针对 VLA、块缩放格式和闭环反馈完成具体适配，并用受控实验检验其作用。
+1. **APXInf** 提供 NVFP4 编码、块尺度布局和低位宽算子；它回答“压缩后的表示能否被目标执行栈真实读取和计算”。
+2. **GR00T N1.7** 是被量化和恢复的 VLA；它把视觉、语言和机器人状态变成动作块，并在 LIBERO 中接受闭环检验。
+3. **定制 PTQ** 以校准激活为依据改造 GPTQ，处理 NVFP4 的两级缩放和 16 元素块；它回答“哪些误差应在量化阶段消除”。
+4. **NVFP4/FP8 混合精度** 把可压缩范围做成可追溯的模块分配；敏感或暂不适合 FP4 的张量保留 FP8，候选张量逐步扩大到 FP4。
+5. **QAD 与 OPD** 在同一个量化基座上恢复行为。QAD 使用演示监督训练低秩修正；OPD 使用学生自己访问的状态和冻结教师速度场，检验分布偏移是否还需要额外监督。
 
-## 1.3 如何阅读本文
+这条链中的每一环有独立证据：PTQ 有逐张量配方和校准摘要，恢复有检查点与训练日志，行为有逐 episode 的 LIBERO 记录，执行有 APXInf 算子测试和 Ubuntu 原始截图。缺少其中任一环，都不能把“理论压缩”写成“可运行的量化 VLA”。
 
-第 2 章先解释模型、数值格式和动作训练的必要知识，第 3 章给出方法，第 4 章比较成功率与压缩预算，第 5 章归纳结论。源码、安装命令及完整性能表分别放在附录 A、B、C。正文只保留理解方法和判断结果所需的信息。
+## 1.3 贡献
 
-全文区分三个量：**成功率**来自完整机器人回合；**编码预算**由实际张量及缩放元数据计算，包含低秩残差；**延迟**来自指定执行入口的计时。目前 GR00T 恢复评测采用稠密反量化和 BF16 合并权重；原生低比特执行由 APXInf 算子与 π0.5 路径另行验证。这一区分贯穿所有表格。
+**第一，面向块缩放格式的 PTQ。** 我们把 GPTQ 的输入加权误差补偿放到 NVFP4 的实际表示上：每 16 个连续元素共享 E4M3 块尺度，整张量再使用 FP32 二级尺度；量化时保留原键、形状和 dtype，并把每个模块的精度选择写入配方账本。这样，FP4 比例和完整编码预算可以从真实张量形状重算，而不是从模型名称推测。
+
+**第二，量化基座上的两阶段恢复。** QAD 冻结 PTQ 权重，只训练 `head+lang_all` 的 rank=32 低秩旁路；OPD 从 QAD 学生的实际 rollout 采集观测，再由 BF16 教师标注同一流匹配问题的速度。continued-QAD 使用相同额外演示预算，作为判断 OPD 增量作用的对照。
+
+**第三，行为、编码和执行三种证据分开核算。** 成功率来自完整 LIBERO episode；压缩比计入 FP4/FP8 的尺度元数据和低秩残差；延迟来自指定的 APXInf 原生入口。GR00T 的闭环评测当前使用稠密反量化 checkpoint 来隔离行为恢复，APXInf 的原生低位宽执行则用独立算子与 π0.5 路径验证，两者不互相替代。
+
+## 1.4 阅读路线和口径
+
+第 2 章先定义 GR00T 的动作生成、NVFP4 表示和闭环误差；第 3 章给出 PTQ、QAD、OPD 及执行路径；第 4 章报告压缩预算、闭环对照和 APXInf 基准；第 5 章讨论部署边界。附录 A 逐段走读源码，附录 B 给出从安装到归档的命令，附录 C 列出完整算子测量。
+
+全文固定三个口径：**成功率**是十个 LIBERO 任务各十个 episode 的实际成功数除以实际完成分母；**编码预算**由张量、尺度和低秩残差逐项计算；**延迟**只对注明的执行入口、预热次数和采样次数负责。正文只展示最终验收的最强配方及必要对照，开发搜索过程保留在证据包中供复核。
 
 # 2. 背景与相关工作
 
@@ -579,46 +591,48 @@ CUDA Graph 把固定形状的设备操作捕获为可重复执行的图。图内
 
 # 4. 实验
 
-本章回答三个问题：扩大 FP4 范围后任务成功率怎样变化；QAD 与 OPD 分别带来怎样的变化；计入恢复参数后还保留多少压缩收益。延迟作为独立系统实验报告。
+本章只回答一条主线：**BF16 → 纯 PTQ → QAD → QAD+OPD**。它分别表示原始模型、量化后的模型、量化后经过演示恢复的模型，以及在 QAD 基础上加入学生状态教师监督的模型。继续 QAD、学习率和 OPD 权重搜索用于选择和公平对照，完整结果保存在附录和证据包；正文只展示冻结协议下最终验收的配方。
 
-## 4.1 模型、数据与评测
+## 4.1 实验对象与评测规则
 
-实验在 WSL2 Ubuntu、单张 RTX 5090 Laptop GPU（约 24 GB 显存）上进行。基座是 GR00T N1.7 的官方 LIBERO-10 检查点，实际加载 16 层语言网络、32 层动作 DiT 和 4 层跨模态模块。所有实验沿用相同 processor、embodiment ID 和归一化统计。
+实验在 WSL2 Ubuntu、单张 RTX 5090 Laptop GPU（约 24 GB 显存）上进行。模型是 GR00T N1.7 的 LIBERO-10 checkpoint，包含 16 层语言网络、32 层动作 DiT 和 4 层视觉—语言模块。所有臂使用同一个 processor、embodiment ID 和归一化统计。
 
-校准与 QAD 使用 5 条演示轨迹，共 1,406 帧，覆盖双杯摆放、杯子与布丁摆放、微波炉放杯三个任务，可形成 1,331 个有效动作窗口。校准采样 128 个窗口；各配方共用这份完整模型统计。该训练数据覆盖三个任务，评测覆盖十个任务。
+校准与恢复训练使用 5 条演示轨迹，共 1,406 帧，形成 1,331 个有效动作窗口；正式校准抽取 128 个窗口。演示只用于校准和训练，不能代替闭环评测。十个 LIBERO 任务各运行 10 个 episode，成功由环境判定，主指标为成功回合数除以实际完成回合数。
 
-开发、学生状态采集、最终测试使用不相交的官方初态。先在开发集选择量化配方和恢复超参数，再冻结配置，最后执行独立测试。每臂测试 10 个任务、每任务 10 回合；回合成功由 LIBERO 环境判定。主指标为十任务等权平均成功率，并同时报告总成功数／100。划分索引、种子、最终配方和训练参数统一记录在下表及对应配置文件中。
+开发、学生状态采集和最终评测使用不相交的官方初态。先在开发分区确定量化配方、QAD 学习率和 OPD 权重，再冻结配置；最终分区不参与任何选择。正式初态、seed 和回合预算如下。
 
-| 配置项 | 统一设置 |
-|---|---|
-| 开发／采集／最终测试初态索引 | $\textcolor{#b42318}{\mathrm{xxx}}$（配置冻结后回填） |
-| 最终测试预算 | 10 任务 × 10 回合；每回合最多 720 个策略环境步 |
-| 观测与执行频率 | 每次预测完整动作块，执行前 8 步后重新观测 |
-| 有效动作区域 | 完整 40×132 张量中的 16×7 区域 |
-| 环境初始化 | 指定官方初态，再执行 10 步原始七维零动作以稳定物体 |
-| 恢复范围 | `head+lang_all`；rank=32，alpha=64 |
-| 所选 PTQ 配方 | $\textcolor{#b42318}{\mathrm{xxx}}$ |
-| QAD 步数、学习率、有效批量 | $\textcolor{#b42318}{\mathrm{xxx}}$ |
-| 两个续训分支的步数与学习率 | $\textcolor{#b42318}{\mathrm{xxx}}$ |
-| OPD 权重、探针频率、缓存规模 | $\textcolor{#b42318}{\mathrm{xxx}}$ |
+| 分区 | 初态索引 | 起始 seed | 每任务回合 | 用途 |
+|---|---:|---:|---:|---|
+| development | 4–8 | 440000 | 5 | 选择配方与超参数 |
+| collection | 20–23 | 550000 | 4 | 采集学生访问状态 |
+| heldout | 30–39 | 660000 | 10 | 只用于最终结论 |
+| smoke | 0 | 770000 | 1 | 接口检查，不计入正式结果 |
 
-每回合保存初态库、恢复后状态、稳定后状态的 SHA-256，逐一核对各臂起点。策略随机数按任务设置种子；环境起点相同不意味着不同长度的轨迹消费完全相同的模型噪声。服务异常或记录缺失需要补跑并验收，不计为成功或失败。
+每回合最多执行 720 个环境步；每次策略生成一个动作块，执行前 8 步后重新观测。LIBERO 的动作容器为 $40\times132$，有效区域是前 16 步的 7 个控制量，共 112 个元素，其余位置不进入损失。环境恢复后先执行 10 个原始七维零动作稳定步，并保存初态、恢复后状态和稳定后状态的 SHA-256。服务异常、记录缺失或未完成回合均须补跑，不会被计作成功。
 
-## 4.2 数值与训练正确性
+## 4.2 三个指标先分开
 
-在讨论成功率前，先检查实现是否符合所声明的方法：E2M1 格点与最近偶数舍入、E4M3 块尺度、固定张量尺度下的 GPTQ、打包解码与原生矩阵乘分别对照独立参考。GPU 测试还覆盖非方形输出、非单位缩放、零块与 CUDA Graph 重放。
+本文不把不同测量混成一个“性能”数字。
 
-训练检查关注梯度是否真正到达适配器。LoRA 的 B 初始化为零，第一步要求动作头和语言网络的 B 均获得有限、非零梯度；A 的首步梯度可以为零。OPD 要求学生可微、教师冻结、填充区域不进入损失，并核对梯度累积后的有效权重。下图展示真实模型模块的小尺寸激活重算与梯度检查。
+- **闭环成功率**：策略在 LIBERO 中完成整回合的比例，回答量化是否仍能完成任务。
+- **编码预算**：FP4/FP8 payload、块尺度、张量尺度、未量化张量和低秩旁路的总字节数，回答压缩是否在计入恢复成本后仍成立。
+- **原生执行延迟**：在注明的 APXInf 入口、预热次数和采样次数下测得的时间，回答算子是否真的带来执行收益。
+
+GR00T 的行为实验先使用稠密反量化权重，以隔离表示误差和恢复效果；APXInf 的原生低位宽路径用独立算子与 π0.5 基准验证。原生延迟不能直接当作 GR00T 闭环成功率的替代证据。
+
+## 4.3 数值实现验收
+
+在运行策略前，先检查数值实现是否与方法定义一致：E2M1 格点使用最近舍入中点取偶；每 16 个元素共享 E4M3 块尺度；整张量使用 FP32 二级尺度；零块、饱和和非整除形状分别处理。GPTQ 的二阶统计、固定张量尺度、逐列补偿和打包解码均与独立参考对照。GPU 检查覆盖非方形输出、非单位缩放、零块和 CUDA Graph 重放。
+
+训练检查确认 LoRA 的 B 矩阵获得有限且非零的首步梯度，填充动作不进入损失，教师参数保持冻结，梯度累积后的有效权重与配置一致。下图是完整模型模块上的激活重算和梯度检查。
 
 ![运行截图 15　恢复训练的激活重算与 LoRA 梯度检查（CPU 小模型）](images/shot_qat.png)
 
 *运行截图 15　恢复训练的激活重算与 LoRA 梯度检查（CPU 小模型）。CPU 小尺寸集成测试使用真实 Qwen、DiT 和 VL 模块，比较激活重算前后的输出与 LoRA 梯度；微型 dropout 模型另检验 RNG 恢复。此图展示重算机制检查，不是完整 GR00T 训练，也不是额外一组 QAT 实验。*
 
-## 4.3 FP4 覆盖率与完整权重预算
+## 4.4 量化覆盖率与编码预算
 
-五级配方逐步增加 FP4 张量，其余候选矩阵保留 FP8。`fp8` 是动作头已经采用 FP4 的保守混合配方；随后依次扩展语言前馈层、语言注意力、视觉模块和剩余候选矩阵，具体分配见 §3.3。开发评测用于找到压缩增加而行为开始明显退化的区间。
-
-下表由实际张量形状计算，扣除已确认共享的 embedding/lm_head 副本。分母分别是可量化矩阵元素和完整模型元素。预算包含 NVFP4 块尺度、FP32 张量尺度、FP8 行尺度及未量化张量；GB=10⁹ 字节。
+PTQ 先在动作头使用 FP4，再逐步将语言、视觉和其余候选矩阵加入 FP4；对行为敏感或暂未纳入候选的张量保留 FP8。下表是由真实张量形状计算的预算账本，扣除已确认共享的 embedding/lm_head 别名。它描述目标编码大小，不等于稠密 checkpoint 文件体积。
 
 | 配方 | FP4／可量化元素 | FP4／全部元素 | 纯 PTQ 编码／GB | 加 BF16 残差／GB | 加残差后压缩比 |
 |---|---:|---:|---:|---:|---:|
@@ -628,37 +642,38 @@ CUDA Graph 把固定形状的设备操作捕获为可重复执行的图。图内
 | `head_lang_vision` | 79.41% | 71.12% | 2.495115 | 2.612277 | 2.4071× |
 | `calib` | 100.00% | 89.55% | 2.240670 | 2.357832 | 2.6669× |
 
-同口径 BF16 参考为 6.288032 GB。364 个 Linear 的 rank-32 适配器共有 58,580,992 个参数，BF16 载荷为 117.162 MB；上表每级均计入这笔成本。训练时 A/B 为 FP32，其参数占 234.324 MB，梯度与优化器另计。目标编码不含内核对齐、激活与工作区，也不是当前稠密导出文件的实测大小。物理副本口径及逐张量账目保留在 `paper/evidence/recipe_inventory.json`。
+同口径 BF16 参考为 6.288032 GB。`head+lang_all` 的 rank=32 低秩旁路共有 58,580,992 个参数，按 BF16 保存增加 117.162 MB；上表已将这笔成本计入“加 BF16 残差”列。目标预算包含尺度元数据，不包含激活、内核对齐和工作区。逐张量账目见 `paper/evidence/recipe_inventory.json`。
+
+正式开发阶段先完成 BF16 与预注册的高 FP4 候选，再按协议判断是否存在“相对 BF16 下降至少 20 个百分点且绝对成功率不低于 30%”的压力窗口。只有通过该规则且完成独立验收的候选，才进入恢复主线；若无合格候选，协议要求停止恢复，不修改阈值。
+
+<!-- BEGIN DEVELOPMENT RESULTS -->
+**开发结论（待回填）：** 最终配方为 $\textcolor{#b42318}{\mathrm{xxx}}$；其纯 PTQ 成功率为 $\textcolor{#b42318}{\mathrm{xxx}\%}$，相对 BF16 变化为 $\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点。候选搜索和选择依据只作为可复核记录，不替代 heldout 结果。
+<!-- END DEVELOPMENT RESULTS -->
 
 ![图 4　量化阶梯的完整编码预算与低秩旁路成本](images/budget_ladder.png)
 
 *图 4　量化阶梯的完整编码预算与低秩旁路成本。依据真实张量形状分别计算物理张量与已知共享别名去重口径，包含未量化张量、格式缩放和统一 BF16 旁路。条形表示基座加旁路字节数，并列出纯 PTQ 与加旁路后的完整模型压缩比；目标编码预算不等于稠密 BF16 文件或实测显存。*
 
-<!-- BEGIN DEVELOPMENT RESULTS -->
-开发集选中配方 $\textcolor{#b42318}{\mathrm{xxx}}$；其 PTQ 成功率为 $\textcolor{#b42318}{\mathrm{xxx}\%}$，相对 BF16 变化为 $\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点。完整开发阶梯与选择依据在完成后回填。
-<!-- END DEVELOPMENT RESULTS -->
+## 4.5 闭环主结果：BF16 → PTQ → QAD → QAD+OPD
 
-## 4.4 闭环恢复：PTQ、QAD 与 OPD
+四个主臂从同一协议出发。BF16 是原始 checkpoint；PTQ 只改权重表示；QAD 在冻结 PTQ 基座上训练低秩旁路；QAD+OPD 从同一 QAD 检查点继续训练，并加入学生访问状态上的教师速度监督。QAD 和 OPD 都不重新训练完整模型。
 
-主比较使用同一个量化基座。QAD 首先用演示训练；随后从这一检查点分出两条支路：一条继续 QAD，一条在相同演示更新预算下加入 OPD。两者使用新优化器和相同学习率计划。这样，PTQ→QAD 衡量演示恢复，QAD→QAD+OPD 衡量最终变化，而继续 QAD→QAD+OPD 用来检查额外教师监督的作用。
-
-<!-- BEGIN HELDOUT RESULTS -->
-| 实验臂 | 权重处理与训练方式 | 成功回合／100 | 闭环成功率 |
+| 主臂 | 训练或权重处理 | 成功回合／100 | 闭环成功率 |
 |---|---|---:|---:|
-| BF16 | 原始参考 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
-| PTQ | 仅校准与量化 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
-| QAD | 演示监督、低秩恢复 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
-| 继续 QAD | 额外演示更新 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
-| QAD+OPD | 相同额外更新预算，加入教师监督 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
+| BF16 | 原始参考 checkpoint | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
+| 纯 PTQ | 校准、混合精度量化 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
+| QAD | 演示流匹配损失，rank=32 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
+| QAD+OPD | QAD 基础上加入学生状态教师损失 | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}\%}$ |
 
-QAD 相对 PTQ 的变化为 $\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点；QAD+OPD 相对 QAD 和继续 QAD 的变化分别为 $\textcolor{#b42318}{\mathrm{xxx}}$、$\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点。最终表格补齐十任务明细及配对回合的成败变化，据此解释收益集中在哪些任务。
-<!-- END HELDOUT RESULTS -->
+主结论按三个差值写出：QAD 相对纯 PTQ 的恢复为 $\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点；QAD+OPD 相对 QAD 的增量为 $\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点；最终配方相对 BF16 的差值为 $\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点。只有逐任务日志、配对初态摘要和完整 100 回合分母均通过验收，才回填这些数字。
+
+continued-QAD 从同一 QAD 检查点出发，使用相同的额外演示更新预算，不加入教师项。它用于判断 OPD 的变化是否只是“多训练了一段时间”，结果与训练成本放在附录 B；正文不把它列为第二条方法主线。
 
 ![图 5　同协议五臂闭环结果](images/ladder.png)
 
 *图 5　同协议五臂闭环结果。五臂结果位置已固定；红色 xxx% 为待测值，回填完整独立评测后再比较 QAD 与 OPD。*
 
-训练损失只用于检查优化过程，恢复效果以上述闭环为准。下面两张截图展示完整模型 QAD 和教师辅助训练的短程执行，具体步数由图注给出。
+QAD 和 OPD 的训练截图只说明执行链已经跑通，不替代闭环结果。下列截图保留完整命令、模型身份和日志摘要。
 
 ![运行截图 14　完整模型 QAD 2 步 smoke](images/shot_qad.png)
 
@@ -668,64 +683,69 @@ QAD 相对 PTQ 的变化为 $\textcolor{#b42318}{\mathrm{xxx}}$ 个百分点；Q
 
 *运行截图 09　QAD 初始适配器上的 4 步教师辅助 smoke。精确载入本次 QAD checkpoint-2 的 728 个 A/B 张量，以新优化器继续 4 次更新：microbatch=1、累积 2 次、有效 batch=2，共 8 次演示窗口抽样。每 4 次更新加入权重 1 的 masked velocity MSE，第 4 步执行 2 次学生对缓存教师目标的串行探针反向；教师本体冻结且 no_grad。完整 checkpoint-4 已保存。本图不测量恢复后的成功率，额外探针计算另计。*
 
-## 4.5 恢复是否值得额外成本
+## 4.6 净压缩收益
 
-只比较 FP4 比例会漏掉低秩残差。最终将恢复方案与相邻纯 PTQ 配方放在同一张“完整编码预算—成功率”图中：若在该候选集合中计入残差后仍能以更少字节达到相当的观测成功率，才说明恢复扩大了这组候选中的有用压缩范围。
+低秩旁路会占用额外字节，因此最终比较使用“完整编码预算—闭环成功率”而不是只看 FP4 比例。正文只展示最终选中的恢复模型和冻结的相邻纯 PTQ 参考；开发搜索的其他配方留在证据包。
 
 <!-- BEGIN PTQ FRONTIER RESULTS -->
-同协议纯 PTQ 参考成功率为 $\textcolor{#b42318}{\mathrm{xxx}\%}$；恢复方案的净预算为 $\textcolor{#b42318}{\mathrm{xxx}}$ GB，成功率为 $\textcolor{#b42318}{\mathrm{xxx}\%}$。比较覆盖冻结的候选集合，不据此宣称跨论文 SOTA。
+纯 PTQ 的 heldout 成功率为 $\textcolor{#b42318}{\mathrm{xxx}\%}$；最终恢复模型在计入低秩旁路后的编码预算为 $\textcolor{#b42318}{\mathrm{xxx}}$ GB，成功率为 $\textcolor{#b42318}{\mathrm{xxx}\%}$。二者使用相同任务、初态和分母，差值只用于说明恢复是否扩大了当前候选集合中的可用压缩范围。
 <!-- END PTQ FRONTIER RESULTS -->
 
 ![图 6　净编码预算与成功率的有限候选比较](images/ptq_frontier.png)
 
 *图 6　净编码预算与成功率的有限候选比较。比较完整编码预算与同协议成功率，恢复臂包含 BF16 低秩残差。审阅稿保留图位，不预设结果曲线。*
 
-<!-- BEGIN RECOVERY COSTS -->
-| 阶段 | 墙钟时间／s | 训练峰值已分配显存／GiB | 补充成本 |
+## 4.7 恢复成本
+
+OPD 的额外成本包括学生 rollout、教师标注和探针反向；因此它不能只用优化步数与 QAD 比较。所有时间、峰值显存、实际 microbatch、梯度累积和探针数量从运行日志读取。
+
+| 阶段 | 墙钟时间／s | 峰值已分配显存／GiB | 成本内容 |
 |---|---:|---:|---|
 | QAD | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}}$ | 演示更新 |
-| 继续 QAD | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}}$ | 相同额外演示预算 |
-| QAD+OPD | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}}$ | 额外学生探针前后向 |
-| 学生采集与教师标注 | $\textcolor{#b42318}{\mathrm{xxx}}$ | — | 分项记录轨迹、缓存与标注次数 |
-<!-- END RECOVERY COSTS -->
+| QAD+OPD | $\textcolor{#b42318}{\mathrm{xxx}}$ | $\textcolor{#b42318}{\mathrm{xxx}}$ | 学生探针、教师标注和续训 |
+| 学生采集与教师标注 | $\textcolor{#b42318}{\mathrm{xxx}}$ | — | rollout、缓存和标注次数 |
 
-相同更新步数不等于相同总算力：OPD 增加采集、教师标注和学生探针。耗时边界、实际 microbatch、累积次数、优化步数及显存统计源随日志记录，分别核算。
+## 4.8 APXInf 原生执行
 
-## 4.6 APXInf 原生执行结果
+这一节回答“低位宽算子是否真的执行得更快”，使用独立的 APXInf 算子与 π0.5 模型基准，不把它写成 GR00T 的闭环结果。
 
-这一组实验检验低比特执行路径，使用独立的算子与 π0.5 模型基准。完整形状表、原始计时入口和运行截图见附录 C。
-
-| 测量对象 | 主要结果 | 测量范围 |
+| 测量对象 | 结果 | 测量范围 |
 |---|---|---|
-| NVFP4 GEMM，大矩阵 5 组 | 相对 BF16 为 4.590–5.559×，相对 FP8 为 1.541–1.831× | 仅矩阵乘，不含编码与算法查找 |
-| 在线激活量化＋单层 GEMM，18 组 | 17/18 组快于 BF16，倍率 0.613–4.831× | 包含激活量化和输出布局适配 |
-| APXInf π0.5，BF16→NVFP4 混合 | Policy P50 48.651→36.985 ms，降低 23.98% | 同输入、同入口；预热 10 次、测量 30 次 |
+| NVFP4 GEMM，大矩阵 5 组 | 相对 BF16 为 4.590–5.559×，相对 FP8 为 1.541–1.831× | 只含矩阵乘 |
+| 在线激活量化＋单层 GEMM，18 组 | 17/18 组快于 BF16，倍率 0.613–4.831× | 含激活量化和输出布局适配 |
+| APXInf π0.5，BF16→NVFP4 混合 | Policy P50 为 48.651→36.985 ms，降低 23.98% | 预热 10 次、测量 30 次、同一入口 |
 
-小矩阵并非总能受益：纯 GEMM 的四个小批量形状中，三项慢于 FP8；包含激活量化的 18 项中，一项慢于 BF16。上述结果说明应按实际形状和完整调用测量收益。GR00T 恢复模型的原生 NVFP4/FP8＋低秩旁路部署尚未完成，本表不作为它的端到端加速数字。
+小矩阵可能因量化和布局开销而变慢；因此表中同时保留形状范围和计时入口。GR00T 恢复模型的原生 NVFP4/FP8 与低秩旁路部署需要单独完成，不能由 π0.5 延迟外推。
 
 # 5. 讨论与结论
 
-## 5.1 三个阶段分别解决什么问题
+## 5.1 结果应怎样理解
 
-PTQ、QAD 和 OPD 处理的是同一条误差链上的不同环节。PTQ 根据校准激活减小单层输出扰动；QAD 用演示监督调整任务相关变换；OPD 将监督扩展到学生执行后实际到达的状态。机器人会改变自己的下一次输入，因此最后一步关注的是前两步无法仅靠离线重建误差描述的问题。
+本文把同一个量化基座上的四个状态排成一条因果链。PTQ 改变权重表示，测量纯表示误差带来的闭环损失；QAD 只增加低秩参数，测量演示监督能恢复多少动作；QAD+OPD 再使用学生实际访问的状态，测量教师监督是否能处理演示轨迹之外的偏移。只有这四个状态使用相同任务、相同初态和相同分母，差值才有明确含义。
 
-低秩修正提供了一种成本受限的调整方式，但量化误差不一定都能由低秩矩阵表达。教师在偏离演示的状态上也不保证总是正确，过强的教师约束可能损害任务适配。本文通过独立闭环和继续 QAD 对照判断这些设计在具体配置中的作用。
+量化误差不能只用权重均方误差描述。它先改变层输出，再改变动作块，最后改变下一次观测。QAD 适合修正演示分布上的系统偏差；OPD 的作用取决于学生访问状态是否与演示分布不同，以及教师速度标签是否在这些状态上提供了有用方向。若 QAD+OPD 没有超过 QAD，结论应写成“本配置下未观察到额外增益”，不能把训练损失下降解释为行为提升。
 
-## 5.2 从恢复效果走向实际部署
+## 5.2 压缩、恢复和速度是三个独立结论
 
-当前 GR00T 评测将量化格点值放在稠密权重中，并把低秩修正合并为 BF16 checkpoint，便于验证行为。部署时若要兑现编码预算，需要保留打包基座与高精度旁路。合并权重后重新量化会引入新的误差，必须另行验证。
+完整权重编码预算必须包含 FP4/FP8 的尺度、未量化张量和低秩旁路。只报告 FP4 百分比会高估恢复模型的压缩收益；只报告稠密导出文件又无法反映原生打包表示。本文因此同时给出逐张量预算、净压缩比和成功率。
 
-原生算子还量化激活，而当前恢复训练主要模拟权重量化。将恢复模型迁入 APXInf 时，需要固定激活精度和旁路计算精度，依次对齐单层输出、完整动作块和闭环结果。原生路径的实际文件大小、常驻显存与策略延迟也应在同一模型上重新测量。
+APXInf 的 GEMM 与 π0.5 计时证明低位宽路径在合适的矩阵形状上能够减少计算时间，但这不是 GR00T 恢复模型的端到端延迟。GR00T 当前闭环采用稠密反量化 checkpoint，目的是隔离行为实验；将恢复模型迁移到 APXInf 原生路径后，还需重新核对打包权重、激活精度、低秩旁路、常驻显存和完整策略调用时间。
 
-## 5.3 适用范围
+## 5.3 复现边界
 
-本文实验限于单张笔记本 Blackwell GPU、LIBERO-10 仿真任务及三个任务的少量演示。每臂 100 回合的成功率是有限样本估计，几个百分点的差异需要结合逐任务和配对回合记录理解。OPD 使用一次学生采集得到的固定缓存，训练后状态分布可能继续变化；它代表一轮学生分布蒸馏，并非持续在线重采样。
+实验限于一张 RTX 5090 Laptop GPU、LIBERO-10 仿真环境和 5 条演示轨迹。每臂 100 个 episode 是有限样本估计；少量百分点的差异应结合逐任务结果和配对回合表阅读。OPD 使用一轮学生 rollout 形成的固定缓存，不是持续在线重采样，也不构成 DAgger 的完整迭代保证。
+
+复现时最重要的身份检查有三项：量化配方必须与父模型和校准摘要一致；QAD 与 OPD 必须从同一冻结 PTQ 基座和同一 QAD 检查点分支；最终评测必须核对任务、官方初态、稳定后状态和实际分母。任一项不一致，结果只能作为新的实验，不能并入本文主表。
 
 ## 5.4 结论
 
-本文将 APXInf、GR00T、NVFP4/FP8 混合精度、块适配 PTQ 和量化后低秩恢复连接为一条可复现的工程路线。核心思想是：先明确可压缩的表示和模块，再用任务监督恢复动作，最后在学生访问的状态上补充教师约束。
+本文建立了从 APXInf 执行表示到 GR00T 闭环行为的完整路线：用面向 NVFP4 块缩放的 PTQ 扩大 FP4 覆盖，用 QAD 的低秩旁路恢复量化后的动作，再用 OPD 检验学生状态上的教师监督是否能进一步恢复行为。它把数值格式、模块分配、训练恢复和环境反馈放在同一套可验收协议中。
 
-最终独立评测中，纯 PTQ、QAD 与 QAD+OPD 的成功率分别为 $\textcolor{#b42318}{\mathrm{xxx}\%}$、$\textcolor{#b42318}{\mathrm{xxx}\%}$、$\textcolor{#b42318}{\mathrm{xxx}\%}$；计入残差后的编码压缩比为 $\textcolor{#b42318}{\mathrm{xxx}\times}$。这些结果将决定恢复能否扩大纯 PTQ 的可用范围，以及 OPD 是否带来额外收益。已完成的 APXInf 原生执行验证则表明，NVFP4 在合适的矩阵形状与模型路径上可以降低计算时间；行为保持、编码压缩和执行加速仍须分别给出证据。
+最终主表只保留四个状态：BF16、纯 PTQ、QAD 和 QAD+OPD。待独立 heldout 评测完成后，文章将在此处回填三项数字：纯 PTQ 相对 BF16 的损失、QAD 带来的恢复、以及 OPD 相对 QAD 的增量；同时给出计入低秩旁路后的净压缩比。APXInf 原生执行结果作为独立系统证据列出。这样，读者可以沿着一条明确链条判断本文究竟压缩了什么、恢复了什么，以及哪些结论仍受执行路径限制。
+
+<!-- BEGIN FINAL CONCLUSION -->
+**最终结论（待回填）：** 在冻结的最高 FP4 配方下，纯 PTQ 成功率为 $\textcolor{#b42318}{\mathrm{xxx}\%}$，QAD 恢复至 $\textcolor{#b42318}{\mathrm{xxx}\%}$，QAD+OPD 为 $\textcolor{#b42318}{\mathrm{xxx}\%}$；计入旁路后完整编码压缩比为 $\textcolor{#b42318}{\mathrm{xxx}\times}$。这些数字只在完整逐集证据通过验收后发布。
+<!-- END FINAL CONCLUSION -->
 
 # 附录 A. 一份量化权重如何成为可评测的策略
 
@@ -972,7 +992,7 @@ W_export = (W_base.float() + delta).to(W_base.dtype)
 
 完整模型驻留策略服务器，LIBERO 客户端经 ZMQ 发送观测并执行动作；每次执行动作块前 8 步，每 episode 最多 720 步。`run_recovery_eval.py` 串行启动任务和服务器，以一环境对应一个 episode 计数流，保存逐集布尔结果、实际分母、进程退出码、重置记录和日志摘要。缺失或超时使该任务验收失败，结果按实际完成状态保存。
 
-环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、采集与最终评测使用不相交的初态集合。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。仓内示例协议将开发、采集、最终评测索引分别设为 0、1，2、3 和 10 至 19；服务器另按任务固定推理随机种子。新实验的分区以冻结协议为准。
+环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、采集与最终评测使用不相交的初态集合。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。本文使用 `exp/recovery_protocol_v3_high_fp4.json`：开发索引 4–8、采集索引 20–23、最终评测索引 30–39，对应起始 seed 为 440000、550000、660000。每任务 seed 加 1000 倍任务索引，环境每集再加 episode 索引；服务器另按任务固定推理随机种子。执行短测使用独立 index=0、seed=770000。
 
 `run_recovery_eval.py::validate_resets` 严格检查实际前 $N$ 个 episode 的索引、种子、三个状态或文件摘要和稳定步数。五分支汇总前，`compare_recovery.py::compare_round` 逐集比对这些摘要，并保存每任务结果、配对成功/失败的 $2\times2$ 表与探索性精确 McNemar 检验。该检验作为有限配对样本的探索性统计一并保存。
 
@@ -1110,7 +1130,7 @@ Python 的 `AutoPolicy.from_pretrained` 对 π0.5 使用 `model_variant=`，对 
 
 ## A.10 实现范围与辅助研究入口
 
-前面的主线描述当前代码如何工作；新实验的配方和恢复超参数由冻结协议决定。阅读产物时，以下几种量使用各自的定义。
+前面的主线描述代码如何工作；配方和恢复超参数由 v3 开发选择记录固定，最终评测只读取这些选择。阅读产物时，以下几种量使用各自的定义。
 
 | 对象 | 本实现采用的口径 |
 |---|---|
@@ -1133,9 +1153,9 @@ RWR 按任务成功率 $w_i$ 加权，目标为 $\sum_iw_i\mathcal L_i/\sum_iw_i
 
 复现从一份完整的 GR00T checkpoint 开始。安装依赖后，依次采集校准统计、生成量化配方、在开发集选择恢复设置、训练并导出策略，最后用独立初态完成闭环评测。每个阶段的输出都是下一阶段的输入，来源由 manifest 和 SHA-256 相连。
 
-**本附录命令是一组基于仓内现有入口的可执行流程示例。** 其中 128 窗口、500/100 次更新、教师权重和初态索引用于说明参数如何传递；新研究会提高 FP4 覆盖并在开发集调整恢复设置，运行时以新一轮冻结协议为准。示例参数不代表新实验的最终配置，也不与已有轮次的结果拼接。
+**本附录统一使用高 FP4 v3 协议。** 校准 128 窗口、QAD 每候选 500 步、续训每候选 100 步及初态分区均已固定；PTQ 配方、QAD 学习率与 OPD 权重由声明的开发候选选出，实际值随选择记录保存。当前闭环结果尚未齐备，正文保留红色占位。
 
-为每轮实验分配一个新的 `PTQAD_RUN_DIR`，将开发选择、训练、最终评测和归档都留在该根目录下。GPU 阶段逐个执行；某阶段失败时保留原目录，在定位问题后以新目录重试。每步验收关注具体产物，而不是只看进程是否结束。
+为实验分配一个新的 `PTQAD_RUN_DIR`；开发选择保存在 `DEV_ROOT`，恢复阶段保存在独立的 `RECOVERY_ROOT`。GPU 阶段逐个执行。恢复调度器核验完成阶段后可以续跑，未完成目录不会自动覆盖；失败日志保留供定位问题。每步验收检查具体产物与身份。
 
 ## B.1 安装环境，准备源码、权重与演示数据
 
@@ -1155,7 +1175,11 @@ source setup/recovery-env.sh
 export PROJECT=$(pwd)
 export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
-export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_run_01"
+export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_v3_run_01"
+export PTQAD_PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v3_high_fp4.json"
+export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
+export DEV_ROOT="$PTQAD_RUN_DIR/evaluations/development"
+export RECOVERY_ROOT="$PTQAD_RUN_DIR/recovery_v3"
 ```
 
 恢复环境固定 Python 3.12.14、PyTorch 2.9.0+cu128、torchvision 0.24.0+cu128、transformers 4.57.3、torchcodec 0.8.0；仿真环境独立固定 robosuite 1.4.0、MuJoCo 3.3.1、gym 0.25.2。FFmpeg 7.1.1 通过独立 conda 环境提供。完整逐包版本、构建号与依赖锁文件散列见 `setup/locks/manifest.json`。
@@ -1221,49 +1245,63 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 \
 
 ## B.3 生成配方，在开发集选择量化强度
 
-输入完整 H 缓存和候选精度范围，输出逐层量化配方、可加载 checkpoint，以及开发集选择记录。选择先于恢复和最终评测完成。
+输入完整 H 缓存和候选精度范围，输出逐层配方、可加载 checkpoint 与开发选择。共享 embedding/lm_head 以 embedding 为规范来源，先核对原值一致，再向两个键写入同一量化值。`ptq_recipe.json` 同时记录物理张量及去共享别名后的预算。
 
-共享的 embedding/lm_head 使用相同量化值。bake 检查源两份物理张量相等，以 embedding 为 canonical，输出 lm_head 复制相同值并记录别名。`ptq_recipe.json` 同时给出物理 checkpoint 与去除已记录别名后的编码预算。
+工程提供 `fp8 → head_ffn → head_lang → head_lang_vision → calib` 五级嵌套分配。它们依次扩大动作头、语言 gate/up、语言 q/k/v、视觉与剩余候选矩阵的 FP4 范围。v3 的实际压力搜索只评测最后两级，并共用 128 窗口完整统计。
 
-用于选择恢复难度的配方阶梯为 `fp8 → head_ffn → head_lang → head_lang_vision → calib`。每一级保留前一级的全部 FP4 张量，依次增加语言 gate/up、语言 q/k/v、视觉 backbone，最后覆盖剩余 eligible 张量。数值格式和任务难度保持一致，变化的是量化范围。
+正式协议为 `exp/recovery_protocol_v3_high_fp4.json`。开发阶段依次评测 BF16、`head_lang_vision`、`calib`，两个压力候选都须完成。合格候选的开发成功率必须比 BF16 至少低 20 个百分点，同时不低于 30%；从中选择 FP4 覆盖最高者。若没有合格候选，保存 `selected_recipe=null` 并停止恢复流程，不自动改阈值或改选其他配方。
 
 ```bash
-export DEV_ROOT="${PTQAD_EVAL_RUNS_ROOT:-$PTQAD_RUN_DIR/evaluations}/development"
-bash exp/run_development.sh --development-root "$DEV_ROOT" --dry-run
-bash exp/run_development.sh --development-root "$DEV_ROOT"
+bash exp/run_development.sh \
+  --run-dir "$PTQAD_RUN_DIR" --development-root "$DEV_ROOT" \
+  --protocol-file "$PTQAD_PROTOCOL_FILE" --base "$PTQAD_BASE" \
+  --gr00t "$GR00T_REPO" --server-python "$PTQAD_PYTHON" \
+  --rollout-python "$LIBERO_PYTHON" --dry-run
 
-# 本机生成可迁移预算；随后在恢复训练与 heldout 之前冻结参考组。
+# 检查打印的路径和配置后，执行同一计划。
+bash exp/run_development.sh \
+  --run-dir "$PTQAD_RUN_DIR" --development-root "$DEV_ROOT" \
+  --protocol-file "$PTQAD_PROTOCOL_FILE" --base "$PTQAD_BASE" \
+  --gr00t "$GR00T_REPO" --server-python "$PTQAD_PYTHON" \
+  --rollout-python "$LIBERO_PYTHON"
+
 CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" exp/recipe_inventory.py \
   --base "$PTQAD_BASE" --calibration-meta "$PTQAD_RUN_DIR/calibration/calib_meta.json" \
   --out "$DEV_ROOT/recipe_inventory.json"
 
+# 在任何恢复训练与最终评测之前冻结纯 PTQ 参考及预算。
 python3 eval/compare_ptq_frontier.py freeze \
   --selection "$DEV_ROOT/selection.json" --development-root "$DEV_ROOT" \
-  --budget "$DEV_ROOT/recipe_inventory.json" --out "$DEV_ROOT/frontier_plan.json"
+  --budget "$DEV_ROOT/recipe_inventory.json" \
+  --protocol-file "$PTQAD_PROTOCOL_FILE" --out "$DEV_ROOT/frontier_plan.json"
 ```
 
-`run_development.sh` 采用固定子目录 `bf16/`、`fp8/` 等。每臂完成后验证日志哈希、实际分母和初态配对，再调用开发集比较器；首次选出配方便保存 `selection.json` 并停止，不构建或评测更高一级。失败或已完成开发目录均拒绝覆盖。已有 bake 仅在源/输出权重、配置及统计身份正确，且正式升级配方使用完整 required/full-scope/128 窗口校准时才能复用。
+每臂完成后核对原始日志、实际分母和初态配对，保存 `comparison_after_<arm>.json`；所有声明候选完成后才写选择。已有 bake 仅在源／输出权重、配置、统计和 required/full-scope/128 窗口身份均正确时复用；失败或已有开发输出目录拒绝覆盖。
 
-预算生成器只读取头部形状、校准元数据和流式文件散列，不加载模型、权重张量或 H。它用实际 Linear 覆盖与共享的 LoRA 范围谓词计算旁路参数及 BF16 字节，缺少覆盖时失败。输出 base 路径属于本机；论文附带的 `paper/evidence/recipe_inventory.json` 保留原实验身份，不能直接充当新目录实验的冻结输入。
+预算生成器读取头部形状、校准元数据与流式文件散列，不加载模型、权重张量或 H。它用实际 Linear 覆盖与 LoRA 范围谓词计算旁路参数及 BF16 字节；缺少覆盖时失败。`bake_manifest.json` 另记实际输出 dtype、shard 大小和散列。形状预算与实际文件大小采用各自单位，见 B.9。
 
-仓内阶梯示例在十任务的官方初态 0、1 上评测，选择首个相对 BF16 下降至少 0.10 的升级配方；若始终未触发，选择最大覆盖的 `calib`。新研究将在开发阶段同时确定更高 FP4 覆盖与恢复设置，并把选择记录、超参数和独立评测分区一并冻结。
+### B.3.1 冻结独立比较
 
-`bake_manifest.json` 记录实际输出 dtype、shard 大小与散列；编码预算的解释见 B.9。
+PTQ 配方由 `DEV_ROOT/selection.json` 固定。QAD 与 OPD 配置由下述两个开发选择记录固定，heldout 不参与任何选择。相邻纯 PTQ 参考也须在 heldout 开始前固定，采用同一分区、collection 身份与逐集初态配对。比较完整编码预算时，恢复臂须计入 BF16 低秩残差；不能根据最终分数删去已声明参考。
 
 ## B.4 训练 QAD，导出可直接加载的策略
 
-输入开发阶段选定的 PTQ 基座和演示数据，输出 A/B checkpoint、恢复 manifest、实际运行计量，以及合并后的完整模型。
-
-示例从已完成的开发选择读取配方：
+恢复入口为 `exp/run_high_fp4_v3.py`。它核对 PTQ 选择与协议身份，再串行训练两个 QAD 候选：学习率 `5e-5` 和 `1e-4`，各 500 次优化器更新。二者使用同一 PTQ 基座、训练 seed=20260929、`head+lang_all`、rank=32、alpha=64、microbatch=1、累积 16 次及有效演示 batch=16，并启用非重入激活重算。每个候选评测开发集后，选择宏平均较高者；平分时选择较小学习率。每个候选的预算为 8,000 个演示窗口，窗口可以重复。
 
 ```bash
-export PTQAD_RECOVERY_RECIPE="$(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["selection_uses_heldout"] is False and r["selected_recipe"]; print(r["selected_recipe"])' "$DEV_ROOT/selection.json")"
-export QAD_LORA_SCOPE=head+lang_all
-QAD_STEPS=500 QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=16 QAD_LR=0.0001 QAD_ACTIVATION_CHECKPOINTING=1 \
-  bash exp/reproduce_ptqad.sh train-qad merge-qad
+run_recovery_v3() {
+  python3 "$PROJECT/exp/run_high_fp4_v3.py" \
+    --run-dir "$RECOVERY_ROOT" --ptq-selection "$DEV_ROOT/selection.json" \
+    --protocol-file "$PTQAD_PROTOCOL_FILE" --base "$PTQAD_BASE" \
+    --gr00t-repo "$GR00T_REPO" --python "$PTQAD_PYTHON" \
+    --rollout-python "$LIBERO_PYTHON" --dataset "$QAD_DATASET" "$@"
+}
+
+run_recovery_v3 --validate-only
+run_recovery_v3 --until qad_selection
 ```
 
-初始 QAD 训练前，应按 `rl/RECOVERY.md` 在独立目录做两步演示训练 smoke。OPD 则在教师缓存完成后另做一个完整调度周期的 smoke，示例为四步，并验证第 4 次更新的 16 次教师微批反传。单卡 microbatch=1、有效 batch=16 对应 16 次梯度累积。入口读取真实 Trainer 参数，将三者写入 manifest。示例 500 次更新对应 8,000 次演示窗口抽样。
+`--until qad_selection` 完成两组训练、导出、开发评测与学习率选择。开始正式训练前，可按 `rl/RECOVERY.md` 用独立输出做两步演示训练短测；该适配器不进入正式模型。OPD 执行验证须覆盖 4 步调度周期，并检查触发更新的 16 次有限探针反向。调度器的资源与预算以实际 manifest 核验。
 
 训练冻结 PTQ 基座，仅更新 LoRA。`head+lang_all` 包含动作头及语言注意力和 MLP，视觉参数保持冻结。rank=32、alpha=64；训练启动后的实际 LoRA 数量、head/language 梯度检查与参数 dtype 都应留在日志中。B 零初始化时，首步 A 梯度为零、B 梯度非零是预期行为。
 
@@ -1275,97 +1313,104 @@ W_export = cast_to_base_dtype(W_PTQ + (alpha / rank) × B @ A)
 
 输出保留完整 base 键集合及 dtype，未实例化但属于基座的键仍保留；LoRA 张量既不留在 index，也不留在物理 safetensors 中。`merge_manifest.json` 记录残差统计、实际张量字节数、输入和输出 shard 散列。最后一次 dtype 舍入不保证与独立低秩旁路逐位相同，所以闭环评测必须加载实际导出文件。导出模型按稠密权重进入策略服务器。
 
-## B.5 采集学生状态，建立两条续训分支
+## B.5 采集学生状态，建立续训对照
 
-输入同一份 QAD 适配器与合并策略，先得到学生访问的观测和教师速度标签，再生成 continued-QAD 与 QAD→OPD 两个模型。
-
-QAD→OPD 和 continued-QAD 从同一份 QAD A/B 与同一个冻结 PTQ base 开始，都重新初始化 Adam 与学习率计划。续训通过加载 A/B 保持共同起点，冻结基座沿用原 PTQ 文件。
+从选中的同一 QAD A/B 出发，调度器创建 continued-QAD、OPD 权重 0.25、OPD 权重 1.0 三个续训候选。三者都重置优化器，沿用选中学习率、相同学习率计划与有效演示批量，各更新 100 步；每个候选的预算为 1,600 个演示窗口。OPD 每 4 次优化器更新启用教师项，触发更新内逐累积微批执行独立探针反向。两个 OPD 候选按开发宏平均选择，平分取较小权重。continued-QAD 始终保留为同起点、同额外演示更新预算的对照。
 
 ```bash
-PTQ_BASE="$PTQAD_RUN_DIR/$PTQAD_RECOVERY_RECIPE" \
-BF16_TEACHER="$PTQAD_BASE" \
-QAD_ADAPTER="$PTQAD_RUN_DIR/train_qad/checkpoint-500" \
-QAD_MERGED="$PTQAD_RUN_DIR/qad" \
-ROUND_OUT="$PTQAD_RUN_DIR/round_01" \
-EXTRA_STEPS=100 OPD_WEIGHT=1.0 OPD_EVERY=4 \
-  bash rl/run_onpolicy_round.sh
+run_recovery_v3 --until opd_selection
 ```
 
-该脚本依次完成观察采集、教师标注、两组续训及导出、五臂最终评测。正式续训前执行四步 OPD 冒烟，覆盖默认每四步启用教师项的完整调度周期，并要求 16 次有限教师项反向传播；该检查产生的适配器不进入正式分支。collection 在每个任务上使用官方初态索引 2、3，采集实际送入 QAD 学生的观测；捕获的数据应标识 `source_kind=student_rollout`。每个样本重新独立 collate，不能按第 0 维简单切片 Qwen 扁平图像块。默认最多保留 160 个观察探针，实际数量由缓存 metadata 给出。
+该阶段先运行选中的 QAD 学生，在十任务的 collection 索引 20–23 上各执行 4 回合，保存实际送入策略的观测；随后用未量化教师标注，建立 continued-QAD 与两个 OPD 候选，导出并评测开发集，最后固定 OPD 权重。`source_kind` 必须为 `student_rollout`，缓存请求 160 个探针，实际数量与十任务覆盖由 metadata 验收。每个样本重新独立 collate，不能按第 0 维直接切分 Qwen 扁平图像块。
 
-BF16 教师对相同观测与插值条件预测速度场。学生生成的归一化动作作为插值端点，不作为专家动作标签。教师和学生共享完整 40×132 端点上的噪声和扩散时间，采用 eval 模式禁用 dropout；学生探针仍保留 autograd。缓存 v3 的 `action_mask` 从 base 的处理器和统计推导，只有真实的 16 个时间步、7 个动作维度参与 MSE，按每样本 112 个有效元素归一化。
+BF16 教师对相同观测与插值条件预测速度场。学生生成的归一化动作作为插值端点，不作为专家动作标签。师生共享完整 40×132 端点上的噪声和扩散时间，探针使用 eval 模式禁用 dropout，学生仍保留 autograd。缓存 v3 的 `action_mask` 由 base 处理器与统计推导，只有 16 个时间步、7 个动作维度参与 MSE，按每样本 112 个有效元素归一化。
 
-教师项每 4 个优化器更新启用一次；在被选中的更新内，每个累积微批执行一个独立探针前向与反向。主演示损失先反向传播释放计算图，随后处理探针，避免同时保留多份大图。其余更新仅使用演示损失。逐样本随机数重放会恢复进入探针前的随机状态，使探针采样不改变下一批主演示训练的随机序列。
+教师项每 4 次优化器更新启用一次；触发更新内，每个累积微批执行一个独立探针前向与反向。主演示损失先反传释放计算图，再处理探针，控制峰值显存。逐样本随机数重放会恢复进入探针前的随机状态，避免改变下一批演示训练的随机序列。教师标注、学生交互与额外探针计算分别计量。
 
-一次采集对应一轮学生分布蒸馏；参数更新后不会自动刷新该缓存。仅从演示数据生成的缓存会标记为 `demo`，不进入本轮 on-policy 结论。教师项的行为效果在独立初态评测中比较。
+一次采集对应一轮学生分布蒸馏，训练后不会自动刷新缓存。仅从演示生成的缓存标为 `demo`，不进入 on-policy 结论。continued-QAD 与 OPD 均从同一 QAD 适配器和冻结 PTQ 基座开始，重置 Adam 及学习率计划，不从稠密合并模型重新分解 LoRA。
 
 ## B.6 在独立初态上完成最终评测
 
-输入冻结的模型清单和评测分区，输出每个任务的布尔结果、实际分母及初态摘要。完整五臂和冻结的纯 PTQ 前驱共同构成比较范围。
+输入冻结的模型清单与评测分区，输出逐任务布尔结果、实际分母及初态摘要。主比较的五臂为 BF16、压力 PTQ、QAD、continued-QAD、QAD+OPD。
 
-正式入口为仓内 `eval/run_recovery_eval.py`，按任务串行启动一个模型服务和一个仿真环境。模型服务直接加载 bake 或 merge 的 checkpoint。服务进程、端口和输出目录属于本次运行；阶段退出后再启动下一个 GPU 作业。
-
-| 用途 | 每任务集数 | 官方初态索引 | 起始 seed |
+| 分区 | 每任务回合 | 官方初态索引 | 起始 seed |
 |---|---:|---|---:|
-| development（高 FP4 v3） | 5 | 4–8 | 440000 |
-| collection（高 FP4 v3） | 4 | 20–23 | 550000 |
-| heldout（高 FP4 v3） | 10 | 30–39 | 660000 |
-
-正式用途必须覆盖全部十任务。入口按 `--purpose` 固定 episode 数和初态分区；显式传入的值必须与协议一致。`heldout` 还要求 `--collection-manifest`，同时检查官方初态索引和种子不重叠。`smoke` 可以缩减任务与集数，但不给完整十任务结论。
-
-每个任务使用起始 seed 加 `1000 × task_index`，环境每集再加 episode 索引。官方初态通过 LIBERO 的 `get_task_init_states` 和 `set_init_state` 应用，随后用 7 维原始模拟器零动作稳定 10 步；稳定动作在策略 episode 时域之外。策略每次执行 8 个动作步，episode 上限 720。完整契约以 `exp/recovery_protocol.json` 为准。
-
-每集记录 `episode_index`、seed、`init_state_index`、`settle_steps`，以及官方 bank、恢复状态和初态的 SHA-256。wrapper 检查这些记录后才接受结果。这些字段定义跨策略的环境初态配对；模型随机噪声按任务播种。
-
-高 FP4 v3 的最终比较至少包含 BF16、相邻纯 PTQ、压力纯 PTQ、QAD、continued-QAD、QAD→OPD，统一使用 heldout 初态索引 30–39。旧一轮的 10–19 仅为探索分区，不能作为新结论的测试集。完成每任务后写入 `task_results.json`；全部任务有效完成后才生成最终 `summary.json`。最终汇总以全部任务完成为条件。
-
-主五臂完成后，执行训练前已经冻结的纯 PTQ 前驱比较：
+| development | 5 | 4–8 | 440000 |
+| collection | 4 | 20–23 | 550000 |
+| heldout | 10 | 30–39 | 660000 |
+| smoke | 1 | 0 | 770000 |
 
 ```bash
+run_recovery_v3 --until all
+
+# 主五臂完成后，评测开发阶段已经冻结的另一项压力候选。
 bash exp/run_ptq_frontier.sh --plan "$DEV_ROOT/frontier_plan.json" \
-  --round "$PTQAD_RUN_DIR/round_01" --out "$PTQAD_RUN_DIR/frontier_01" --port 5595
+  --round "$RECOVERY_ROOT/artifacts/heldout_round" \
+  --out "$RECOVERY_ROOT/frontier" --port 5595
 ```
 
-参考组包括选中配方之前所有已完成的纯 PTQ 前驱，采用同一 100 集 heldout、collection 身份及逐集初态配对；不根据最终结果删去不利前驱。比较同时保留成功率和计入 BF16 低秩旁路后的净编码预算，不重新选择配方。
+底层 `eval/run_recovery_eval.py` 按任务串行启动模型服务和单环境仿真，直接加载 bake 或 merge 产物。每次动作决策执行前 8 步，每回合最多 720 个策略环境步。初态由 LIBERO 官方 bank 恢复，再执行 10 个原始七维零动作稳定步；稳定步骤不计入策略时域。
 
-生成一轮新结果的发布包时，应在独立发布目录将该轮冻结计划所引用的预算原字节作为 `paper/evidence/recipe_inventory.json`，让图表与冻结比较使用同一份输入；同时重新归档证据并执行发布检查。归档保留冻结计划与预算原字节，使用独立发布目录。
+每任务使用分区起始 seed 加 `1000 × task_index`，环境每集再加 episode 索引。评测显式传入 `--protocol-file "$PTQAD_PROTOCOL_FILE"`；正式用途必须覆盖十任务，显式集数与索引须符合 v3。heldout 必须提供 collection manifest，并检查分区与 seed 不交叉。smoke 只验证执行，不产生十任务结论。
+
+每集保存 episode 索引、seed、初态库索引及 bank／恢复状态／稳定后状态 SHA-256。汇总核对五臂这些身份完全相同；相同环境起点不表示不同轨迹消费相同模型噪声。任务完成后保存 `task_results.json`，所有任务有效完成后生成 summary，异常或缺失记录不当作成功或失败。
+
+调度器把训练、合并、开发评测、采集和教师缓存放在 `RECOVERY_ROOT/artifacts/`，原始命令日志放在 `logs/`，阶段验收记录放在 `stages/`。`artifacts/select_qad_lr/selection.json` 与 `artifacts/select_opd_weight/selection.json` 保存开发选择。最终五臂位于 `artifacts/heldout_round/heldout_<arm>/`，全部完成后写出 `paired_comparison.json` 和根目录的 `final_manifest.json`。后者绑定实际选中模型、协议与两个选择记录，归档时按它读取路径，不凭目录名猜测所选配置。
+
+对同一个 `RECOVERY_ROOT` 重复调用时，入口先核验已完成阶段的产物与身份，再继续后续阶段。未完成目录不会自动覆盖；保留失败日志后定位问题。`--adopt-complete` 仅接受重新验真的完整工件；`--cleanup-duplicates` 仅删除已确认与保留 checkpoint 逐字节相同的训练根目录 shard，并写删除收据。
+
+相邻纯 PTQ 参考按 B.3.1 的冻结清单补齐同协议 100 回合。参考模型、collection 与预算身份全部核对后，才比较恢复是否扩大净编码预算与成功率的可用范围。全部已声明参考均进入证据表，不重新选择主配方。
 
 ## B.7 归档结果，生成统一的证据包
 
-归档输入是已经完成的运行目录，输出是保留原字节、来源映射和验证结果的轻量证据包。大权重、观察张量与教师缓存留在本地，公开包保留采集时核对的摘要。
+归档以 `final_manifest.json` 指向的五臂模型与完整评测为入口，另附开发选择、逐层配方、预算、三项训练成本和教师采集／标注成本。开发搜索的两个 QAD 与三个续训候选保留完整日志，搜索成本另列；主表的训练成本对应最终选中的 QAD、continued-QAD 与 OPD。原始 JSON 与逐任务日志按原字节保存，来源路径、大小和 SHA-256 进入证据清单；模型权重、观察张量和教师缓存留在本地，公开包保留核对后的身份。
 
-正式发布以完整五臂配对比较、冻结 PTQ 前驱比较和训练成本为同一套证据链。`run_onpolicy_round.sh` 完成时已经调用 `eval/compare_recovery.py` 生成 `round_01/paired_comparison.json`；该文件直接进入后续归档。`collect_frontier_evidence.py` 会重算五臂与前驱比较，再按字节归档原始 JSON、逐任务日志和来源映射。 `collect_pairing_evidence.py` 另外归档发布校验所需的 16 份顶层 JSON：一份总表及五臂各自的 manifest、逐任务结果、summary。它在原目录、临时副本与目标目录重算比较，保留原字节，只接受缺失文件或内容相同的已有副本。
+`paper/collect_pairing_evidence.py` 重算五臂比较并归档 16 份顶层 JSON：五臂各自的 manifest、task_results、summary，加一份总比较。它在原目录、临时副本与目标目录复核，保留原字节。`paper/collect_training_costs.py` 核对训练与教师成本，`paper/capture_runtime.py` 记录两个解释器的包、源码与模型散列。归档器必须读取同一 v3 协议和实际选择记录。量化配方、合并输出、评测 checkpoint 及训练起点应逐项连通，不能只复制一个成功率表。
 
-以下命令在为本轮新结果准备的发布 checkout 中执行：其中 `paper/evidence/recipe_inventory.json` 必须是冻结计划引用的预算原字节，`frontier/`、`training/`、`runtime/` 和顶层比较输出均须尚不存在。归档工具检查每臂完整性和初态配对。
+相邻纯 PTQ 比较使用开始 heldout 前冻结的参考清单，保存全部已声明参考的结果与净预算。其原始证据由 `paper/collect_frontier_evidence.py` 归档；缺少完整同协议参考时，压缩前沿图继续保留待测标记。完整发布命令与校验顺序见 `paper/README.md`。
+
+以下命令在本次结果的发布目录执行；`frontier/`、`training/`、`runtime/` 以及五臂证据输出均须为新目录。`RECOVERY_ROOT` 仍指向已完成的实验，权重和缓存不搬入发布包。
 
 ```bash
-set -e
+cp -- "$DEV_ROOT/recipe_inventory.json" paper/evidence/recipe_inventory.json
 cmp "$DEV_ROOT/recipe_inventory.json" paper/evidence/recipe_inventory.json
-python3 paper/collect_frontier_evidence.py --frontier "$PTQAD_RUN_DIR/frontier_01"
+
+python3 paper/collect_frontier_evidence.py --frontier "$RECOVERY_ROOT/frontier"
 python3 paper/collect_pairing_evidence.py \
-  --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence
+  --round "$RECOVERY_ROOT/artifacts/heldout_round" --out paper/evidence
 CUDA_VISIBLE_DEVICES= "$PTQAD_PYTHON" paper/collect_training_costs.py \
-  --qad-dir "$PTQAD_RUN_DIR/train_qad" --qad-merged "$PTQAD_RUN_DIR/qad" \
-  --round "$PTQAD_RUN_DIR/round_01" --out paper/evidence/training
+  --orchestrator-run "$RECOVERY_ROOT" --protocol "$PTQAD_PROTOCOL_FILE" \
+  --out paper/evidence/training
 python3 paper/collect_training_costs.py --verify-published paper/evidence/training
 ```
 
-配对比较保留每集布尔结果、实际分母、初态身份与逐任务结果。成本收据分别报告 QAD、两种续训、教师标注和状态采集的真实计时范围；等演示与更新预算不表示等总计算。公开验证可重算轻量元数据和日志；未随包分发的权重、观察张量和教师缓存只保留收集时核对的散列。
-
-随后采集实际运行环境与全部五个最终模型身份；`--out` 使用尚不存在的目录：
+从最终评测 manifest 读取五臂的真实 checkpoint 路径，再记录环境和权重身份，避免手写路径指向未选中的候选：
 
 ```bash
-"$PTQAD_PYTHON" paper/capture_runtime.py \
-  --out paper/evidence/runtime --gr00t "$GR00T_REPO" \
-  --server-python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --checkpoint "bf16=$PTQAD_BASE" \
-  --checkpoint "ptq=$PTQAD_RUN_DIR/$PTQAD_RECOVERY_RECIPE" \
-  --checkpoint "qad=$PTQAD_RUN_DIR/qad" \
-  --checkpoint "continued_qad=$PTQAD_RUN_DIR/round_01/continued_qad_merged" \
-  --checkpoint "qad_opd=$PTQAD_RUN_DIR/round_01/qad_opd_merged"
+"$PTQAD_PYTHON" - "$RECOVERY_ROOT/final_manifest.json" <<'PY'
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+final = json.loads(Path(sys.argv[1]).read_text())
+round_dir = Path(final["heldout_round"])
+command = [sys.executable, "paper/capture_runtime.py",
+           "--out", "paper/evidence/runtime",
+           "--gr00t", os.environ["GR00T_REPO"],
+           "--server-python", os.environ["PTQAD_PYTHON"],
+           "--rollout-python", os.environ["LIBERO_PYTHON"]]
+for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd"):
+    record = json.loads((round_dir / ("heldout_" + arm) / "eval_manifest.json").read_text())
+    if record["protocol_sha256"] != final["protocol_sha256"]:
+        raise RuntimeError("Protocol identity differs: " + arm)
+    command += ["--checkpoint", arm + "=" + record["checkpoint"]]
+subprocess.run(command, check=True)
+PY
 ```
 
-该清单记录两个解释器的实际安装包、GR00T/project Git HEAD、公开源码和五臂 checkpoint 的散列。构建与发布验证会将它们与配对结果、导出记录和成本证据相连。
+公开证据的输出目录须全新，或仅含经核对字节相同的副本。最终图表从同一套证据生成，再按“HTML／Markdown 构建、浏览器检查、发布验证、ZIP 打包”的顺序验收。`paper/sections/` 是两种正文的唯一来源，17 张真实运行截图均须保留。
 
 ## B.8 编译并测量 APXInf 原生路径
 
@@ -1432,7 +1477,7 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 
 | 要核对的事项 | 首要证据 | 核对内容 |
 |---|---|---|
-| 环境与源码可定位 | `setup/locks/manifest.json`、`<RUN>/run_parameters.json`、实际命令日志 | 固定上游/补丁、解释器与库版本、源码散列及工作树身份 |
+| 环境与源码可定位 | `setup/locks/manifest.json`、`<RUN>/run_parameters.json`、`<RECOVERY_ROOT>/run_manifest.json`、实际命令日志 | 固定上游/补丁、解释器与库版本、源码散列及工作树身份 |
 | 基座和校准是否一致 | `<RUN>/calibration/calib_meta.json` | 16/32/4 结构、权重/配置/统计散列、实际窗口和每层行数 |
 | 某层究竟如何量化 | `<RUN>/<recipe>/ptq_recipe.json` | requested/actual 方法、裁剪、H 覆盖、RTN 回退、tied alias 和未量化张量 |
 | 编码比例与分母 | `<DEV_ROOT>/recipe_inventory.json` 及实际配方账目；本轮发布快照为 `paper/evidence/recipe_inventory.json` | 物理 checkpoint 与去已知 alias 两个口径；是否计入 scale 和 LoRA |
@@ -1453,7 +1498,7 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 
 | 内容 | 范围与记录方法 |
 |---|---|
-| 示例与新实验 | 示例说明入口和参数传递；新实验将开发选择及恢复设置冻结后使用独立 heldout。各轮结果分别归档。 |
+| 冻结协议 | v3 固定分区、候选与预算；开发选择决定配方和超参数，最终 heldout 只检验冻结模型。 |
 | 配方账本 | 按模型形状计算目标 payload 与 scale，分别报告物理张量和共享别名去重分母。实际稠密文件体积读取 shard。 |
 | 恢复部署 | 当前闭环使用反量化基座与合并残差；独立 packed 基座加旁路部署需另行完成模型接入。 |
 | 监督预算 | 原始演示为 5 episode / 1,406 帧 / 3 任务，窗口抽样可重复；OPD 另使用十任务交互及教师标签。 |
@@ -1461,7 +1506,7 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 | 环境配对 | 校验官方 bank、恢复状态和稳定后状态摘要；推理噪声按任务固定，探索性配对检验保留任务结构。 |
 | 运行计量 | wall time、Trainer 计时、PyTorch allocated/reserved 峰值和整卡占用采用各自采样范围。 |
 | 数值与速度 | CPU 格点、GPU 算子、原生模型调用、完整策略调用、LIBERO 成功率各自报告；MXFP4 不可用项记为无可用算法。 |
-| 截图 | 15 张新短测与 2 张 BF16 执行展示共 17 张，真实任务、样本量、日志与裁剪链保存在 capture 清单中。 |
+| 截图 | 15 张执行短测与 2 张 BF16 执行展示共 17 张，真实任务、样本量、日志与裁剪链保存在 capture 清单中。 |
 | 安装验证 | 固定源码补丁与锁文件已验证；跨空白机器全套安装仍需按本附录逐阶段验收。 |
 
 # 附录 C. 执行基准与完整测量
