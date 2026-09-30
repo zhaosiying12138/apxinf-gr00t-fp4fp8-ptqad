@@ -15,16 +15,12 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 from typing import Any
 
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 PUBLIC_ARMS = ("bf16", "ptq", "qad", "qad_opd")
-FINAL_FORMATS = {
-    "high_fp4_v3_final_manifest",
-    "high_fp4_v4_final_manifest",
-    "high_fp4_v5_final_manifest",
-    "high_fp4_category_final_manifest",
-}
+FINAL_FORMAT_RE = re.compile(r"high_fp4_[a-z0-9_]+_final_manifest\Z")
 
 
 def _read(path: Path) -> Any:
@@ -109,7 +105,7 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
     _require(final_path.is_file() and not final_path.is_symlink(),
              f"completed final_manifest.json is missing: {final_path}")
     final = _read(final_path)
-    _require(final.get("format") in FINAL_FORMATS,
+    _require(isinstance(final.get("format"), str) and FINAL_FORMAT_RE.fullmatch(final["format"]),
              f"unsupported or incomplete final manifest format: {final.get('format')!r}")
     _require(final.get("selection_uses_heldout") is False,
              "final selection must be independent of heldout results")
