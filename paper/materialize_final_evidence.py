@@ -160,6 +160,27 @@ def materialize(final_manifest: str | Path, out: str | Path,
                    "frozen_recipe_inventory")
         for source, role in _selected_recipe_sources(final):
             _copy_file(source, stage / "evidence" / "selected_recipe" / source.name, mapping, role)
+        selected_checkpoint = Path(final["selected_ptq_checkpoint"]).resolve(strict=True)
+        selected_recipe_file = selected_checkpoint / "category_ptq_recipe.json"
+        if selected_recipe_file.is_file():
+            category_recipe = json.loads(selected_recipe_file.read_text(encoding="utf-8"))
+            category_memory = category_recipe.get("memory")
+            require(isinstance(category_memory, dict), "selected category recipe lacks memory accounting")
+            # Keep the extreme candidate explicit: a category recipe with no
+            # FP8 tensors must never be rendered as a mixed FP4/FP8 result.
+            require(category_memory.get("fp8_params") == 0 and
+                    category_memory.get("fraction_of_eligible_params", {}).get("fp8") == 0.0,
+                    "selected category memory does not declare FP8=0")
+            summary = {
+                "format": "selected_category_recipe_memory_v1",
+                "checkpoint": str(selected_checkpoint),
+                "recipe": category_recipe.get("recipe"),
+                "memory": category_memory,
+                "source_category_recipe_sha256": digest(selected_recipe_file),
+                "note": "Selected candidate accounting. FP8=0 is explicit; this is an extreme NVFP4 endpoint, not a mixed FP4/FP8 claim.",
+            }
+            (stage / "evidence" / "selected_recipe" / "category_memory.json").write_text(
+                json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
         round_dir = Path(final["heldout_round"]).resolve(strict=True)
         pair_dir = stage / "evidence" / "heldout"
