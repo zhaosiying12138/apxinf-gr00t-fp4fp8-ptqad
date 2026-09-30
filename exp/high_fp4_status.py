@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only progress for the v3 study; never a source of publication results."""
+"""Read-only progress for the selected high-FP4 study; not publication evidence."""
 import argparse
 import json
 from pathlib import Path
@@ -51,11 +51,15 @@ def evaluation(folder):
 
 
 def status(development, recovery):
+    selection = load(development.parent / "exploratory_selection_v5.json") or load(development / "selection.json")
+    candidates = (selection or {}).get("arms", {})
+    if not candidates:
+        candidates = ("bf16", "head_lang_vision_category", "calib_category")
     result = {"scope": "progress_only_not_final_results",
               "note": "Incomplete records do not prove that a process is currently running.",
+              "paths": {"development": str(development), "recovery": str(recovery)},
               "development": {arm: evaluation(development / arm)
-                              for arm in ("bf16", "head_lang_vision", "calib")}}
-    selection = load(development / "selection.json")
+                              for arm in candidates}}
     if selection is not None:
         result["ptq_selection"] = {key: selection.get(key) for key in
                                    ("selected_recipe", "protocol_sha256", "selection_uses_heldout")}
@@ -82,8 +86,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     base = ROOT / "results/ptqad_20260929"
     parser.add_argument("--development-root", type=Path,
-                        default=base / "high_fp4_v3/evaluations/development")
-    parser.add_argument("--recovery-root", type=Path, default=base / "high_fp4_v3_recovery")
+                        default=base / "high_fp4_v4_retry5/development")
+    parser.add_argument("--recovery-root", type=Path, default=base / "exploratory_recovery_v5_retry")
     args = parser.parse_args()
     print(json.dumps(status(args.development_root, args.recovery_root), ensure_ascii=False, indent=2))
 
