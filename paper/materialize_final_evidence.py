@@ -92,11 +92,15 @@ def _selected_recipe_sources(final: dict[str, Any]) -> list[tuple[Path, str]]:
                         (bake_file, "selected_bake_manifest")))
         recipe = json.loads(recipe_file.read_text(encoding="utf-8"))
         parent = Path(recipe.get("base", "")).resolve(strict=True)
-    require(parent.is_dir(), f"selected PTQ parent is missing: {parent}")
+    # Category checkpoints retain byte-identical copies of the parent recipe
+    # and bake manifest.  The large parent weight shards are intentionally not
+    # bundled; if the original directory was cleaned, preserve those copies
+    # and mark exact parent reconstruction as an external prerequisite.
     for name in ("ptq_recipe.json", "bake_manifest.json"):
-        path = parent / name
+        path = (parent / name) if parent.is_dir() else (checkpoint / name)
         require(path.is_file(), f"selected PTQ parent provenance is missing: {path}")
-        sources.append((path, "selected_parent_" + name.removesuffix(".json")))
+        role = "selected_parent_" + name.removesuffix(".json")
+        sources.append((path, role + ("_copy" if path.parent == checkpoint else "")))
     return sources
 
 
