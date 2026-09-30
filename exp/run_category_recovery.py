@@ -21,7 +21,10 @@ from pathlib import Path
 import sys
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+# ``HERE`` is ``<repo>/exp``; keep the default protocol path inside this
+# repository.  Using ``parents[1]`` silently climbed to ``<codebase>`` and
+# made the documented no-argument/default invocation fail.
+ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 import run_high_fp4_v3 as v3
 
