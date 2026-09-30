@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,7 +30,8 @@ DEFAULT_SOURCE_FILES = (
     'exp/bench_engine.py', 'exp/prepare_native_pi05.py',
     'exp/prepare_native_pi05.sh', 'exp/run_native_graph_gates.sh', 'exp/recovery_protocol.json',
     'exp/reproduce_ptqad.sh',
-    'exp/recovery_protocol_v3_high_fp4.json', 'exp/run_high_fp4_v3.py',
+    'exp/recovery_protocol_v5_exploratory_fp4.json', 'exp/run_category_development.py',
+    'exp/run_category_recovery.py',
     'exp/verify_teacher_cache_cpu.py',
     "exp/run_development.py", "exp/run_development.sh", "exp/recipe_inventory.py", 'exp/run_ptq_frontier.sh', 'exp/ptq_frontier_protocol.json',
     'baselines/bench_gr00t_pt.py', 'baselines/bench_pi05_lerobot.py',
@@ -71,6 +73,38 @@ def command(args):
     return {'command': args, 'stdout': result.stdout}
 
 
+ARMS = frozenset(('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd'))
+
+
+def validate_final_manifest(path):
+    """Validate the explicit completed-run boundary used for publication provenance."""
+    path = Path(path).resolve(strict=True)
+    if path.name != 'final_manifest.json' or path.is_symlink():
+        raise ValueError('--final-manifest must name a regular final_manifest.json')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    if not re.fullmatch(r'high_fp4_[a-z0-9_]+_final_manifest', str(data.get('format', ''))):
+        raise ValueError('unsupported or incomplete final manifest format')
+    if data.get('selection_uses_heldout') is not False:
+        raise ValueError('final selection must be independent of heldout results')
+    if set(data.get('required_arms', ())) != ARMS:
+        raise ValueError('final manifest does not declare the complete five-arm comparison')
+    comparison = Path(data.get('heldout_comparison', {}).get('path', ''))
+    if not comparison.is_file():
+        raise ValueError('final manifest heldout comparison is missing')
+    declared = data['heldout_comparison']
+    if declared.get('sha256') != digest(comparison) or declared.get('bytes') != comparison.stat().st_size:
+        raise ValueError('final manifest heldout comparison identity differs')
+    paired = json.loads(comparison.read_text(encoding='utf-8'))
+    if paired.get('environment_pairing_verified') is not True or paired.get('protocol_consistency_verified') is not True:
+        raise ValueError('final heldout comparison has not passed pairing/protocol checks')
+    if set(paired.get('arms', ())) != ARMS:
+        raise ValueError('final heldout comparison does not contain exactly five arms')
+    state = path.parent / 'run_manifest.json'
+    if state.is_file() and json.loads(state.read_text(encoding='utf-8')).get('status') != 'complete':
+        raise ValueError('run_manifest is not complete')
+    return path, data
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
@@ -78,11 +112,18 @@ def main():
     parser.add_argument('--server-python')
     parser.add_argument('--rollout-python')
     parser.add_argument('--checkpoint', action='append', required=True, metavar='ARM=PATH')
+    boundary = parser.add_mutually_exclusive_group(required=True)
+    boundary.add_argument('--final-manifest', type=Path,
+                          help='Completed run final_manifest.json; required for publication provenance')
+    boundary.add_argument('--run-dir', type=Path,
+                          help='Completed run directory containing final_manifest.json')
     parser.add_argument('--source-file', action='append', default=[], metavar='RELATIVE_PATH',
                         help='Also hash this published repository file; repeat as needed')
     args = parser.parse_args()
     if args.out.exists():
         raise FileExistsError('Use a new provenance output directory')
+    final_path = args.final_manifest or (args.run_dir / 'final_manifest.json')
+    final_path, final = validate_final_manifest(final_path)
     source_files = resolve_source_files(ROOT, args.source_file)
     groot = args.gr00t.resolve()
     python = args.server_python or str(groot / '.venv/bin/python')
@@ -94,7 +135,10 @@ def main():
                'gr00t_head': command(['git', '-C', str(groot), 'rev-parse', 'HEAD']),
                'training_packages': command([python, '-c', code]),
                'rollout_packages': command([simulation, '-c', code]),
-               'source_files': {}, 'checkpoints': {}}
+               'source_files': {}, 'checkpoints': {},
+               'final_manifest': {'path': str(final_path), 'sha256': digest(final_path),
+                                 'bytes': final_path.stat().st_size,
+                                 'format': final['format'], 'required_arms': sorted(ARMS)}}
     records['source_selection'] = {
         'policy': 'explicit_public_allowlist_v1',
         'additional_files': args.source_file,
