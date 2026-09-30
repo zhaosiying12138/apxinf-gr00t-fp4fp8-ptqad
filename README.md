@@ -92,7 +92,7 @@ export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
 export PTQAD_MEDIA_LIB="$HOME/miniforge3/envs/media7/lib"
 export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_run_01"
-export PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v4_category_fp4.json"
+export PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v5_exploratory_fp4.json"
 ```
 
 ### 1. CPU/加载冒烟
@@ -107,7 +107,7 @@ export PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v4_category_fp4.json"
 
 ### 2. 校准和高 FP4 配方
 
-标准校准入口为 `exp/reproduce_ptqad.sh calibrate`。高 FP4 类别扩展使用冻结的 `recovery_protocol_v4_category_fp4.json`，先以 `--dry-run` 检查路径，再运行开发分区：
+标准校准入口为 `exp/reproduce_ptqad.sh calibrate`。高 FP4 类别扩展使用冻结的 `recovery_protocol_v5_exploratory_fp4.json`，先以 `--dry-run` 检查路径，再运行开发分区：
 
 下面两个父 checkpoint 由前置 `head_lang_vision`/`calib` PTQ 阶段生成，并放在当前运行目录的 `parents/` 下。
 
@@ -116,7 +116,7 @@ PTQAD_CAL_SCOPE=calib PTQ_CAL_WINDOWS=128 PTQ_CAL_BATCH=1 \
   bash exp/reproduce_ptqad.sh calibrate
 
 "$PTQAD_PYTHON" -u exp/run_category_development.py \
-  --run-dir "$PTQAD_RUN_DIR/development_v4" \
+  --run-dir "$PTQAD_RUN_DIR/development_v5" \
   --protocol-file "$PROTOCOL_FILE" \
   --base "$PTQAD_BASE" \
   --parent-head-lang-vision "$PTQAD_RUN_DIR/parents/head_lang_vision" \
@@ -135,8 +135,8 @@ PTQAD_CAL_SCOPE=calib PTQ_CAL_WINDOWS=128 PTQ_CAL_BATCH=1 \
 
 ```bash
 "$PTQAD_PYTHON" exp/run_category_recovery.py \
-  --run-dir "$PTQAD_RUN_DIR/recovery_v4" \
-  --ptq-selection "$PTQAD_RUN_DIR/development_v4/selection.json" \
+  --run-dir "$PTQAD_RUN_DIR/recovery_v5" \
+  --ptq-selection "$PTQAD_RUN_DIR/development_v5/selection.json" \
   --protocol-file "$PROTOCOL_FILE" \
   --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
