@@ -647,7 +647,7 @@ class Driver:
         result={"format":"high_fp4_v3_final_manifest","protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
                 "selection_file":str(self.selection_path),"selection_sha256":self.selection["selection_sha256"],
                 "qad_selection":qsd,"opd_selection":od,"selection_uses_heldout":False,"selected_pressure_recipe":self.selection["selected_recipe"],
-                "selected_pressure_checkpoint":str(base),"heldout_round":str(round_dir),"heldout_comparison":identity(comparison),
+                "selected_pressure_checkpoint":str(base),"selected_ptq_checkpoint":str(base),"heldout_round":str(round_dir),"heldout_comparison":identity(comparison),
                 "selected_qad_learning_rate":win_lr,"selected_qad_checkpoint_identity":model_id(qad_ck),
                 "selected_qad_model_identity":model_id(qad_model),"selected_continued_model_identity":model_id(rec["continued_qad"]),
                 "selected_opd_weight":win_w,"selected_opd_model_identity":model_id(rec[win_arm]),
