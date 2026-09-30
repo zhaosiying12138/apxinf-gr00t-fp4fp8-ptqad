@@ -17,6 +17,23 @@ from probe_distill import CACHE_VERSION, file_sha256, flow_signature, prediction
 from gr00t_runtime import configure_libero_data, verify_libero_statistics, libero_action_spec, action_mask
 from runtime_metrics import cuda_memory_peaks
 
+PROJECT = Path(__file__).resolve().parents[1]
+
+
+def use_local_hf_metadata() -> None:
+    """Keep teacher labeling offline when the checkpoint is fully local.
+
+    Transformers may query ``huggingface_hub.model_info`` while constructing
+    the Qwen tokenizer even with ``local_files_only=True``.  The query only
+    detects a Mistral-specific regex; GR00T's cached Qwen tokenizer does not
+    need it, so an empty tag response preserves the local tokenizer bytes.
+    """
+    if os.environ.get("PTQAD_LOCAL_HF_METADATA", "1") != "1":
+        return
+    import huggingface_hub
+    from types import SimpleNamespace
+    huggingface_hub.model_info = lambda *args, **kwargs: SimpleNamespace(tags=[])
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -36,6 +53,7 @@ def main():
     if outpath.exists():
         raise FileExistsError(f"Refusing to overwrite teacher evidence: {outpath}")
     outpath.parent.mkdir(parents=True, exist_ok=True)
+    use_local_hf_metadata()
     sys.path.insert(0, os.getcwd())
     from gr00t.configs.base_config import get_default_config
     from gr00t.configs.model.gr00t_n1d7 import Gr00tN1d7Config

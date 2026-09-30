@@ -330,7 +330,9 @@ class Driver:
                     "GR00T_BASE_CKPT", "TRAIN_SEED", "PROTOCOL_FILE", "PTQAD_PROTOCOL_FILE"):
                 env.pop(key)
         env.update(extra); env.setdefault("HF_HUB_OFFLINE","1")
-        env.setdefault("TRANSFORMERS_OFFLINE","1"); env.setdefault("NO_ALBUMENTATIONS_UPDATE","1")
+        env.setdefault("TRANSFORMERS_OFFLINE","1")
+        env.setdefault("PTQAD_LOCAL_HF_METADATA","1")
+        env.setdefault("NO_ALBUMENTATIONS_UPDATE","1")
         with log.open("x") as f:
             f.write(f"UTC {time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}\nCWD {cwd}\nCOMMAND {cmdtext(c)}\n")
             r=subprocess.run(c,cwd=str(cwd),env=env,stdout=f,stderr=subprocess.STDOUT)
