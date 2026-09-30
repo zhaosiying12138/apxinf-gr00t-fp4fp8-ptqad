@@ -56,6 +56,18 @@ class ReleaseAuditTest(unittest.TestCase):
         pressure = next(x for x in checker.checks if x["id"] == "protocol.pressure_text")
         self.assertEqual(pressure["status"], "failed")
 
+    def test_pure_fp4_recipe_cannot_pass_mixed_format_check(self):
+        checker = audit.Audit(ROOT, payload=False)
+        audit.format_check(checker, {"memory": {"fraction_of_eligible_params": {"fp4": 1.0, "fp8": 0.0}}})
+        row = next(x for x in checker.checks if x["id"] == "quantization.fp8_coverage")
+        self.assertEqual(row["status"], "failed")
+
+    def test_missing_format_declaration_is_unverifiable(self):
+        checker = audit.Audit(ROOT, payload=False)
+        audit.format_check(checker, {"memory": {}})
+        row = next(x for x in checker.checks if x["id"] == "quantization.fp8_coverage")
+        self.assertEqual(row["status"], "unverifiable")
+
     def test_audit_run_does_not_create_or_mutate_report(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

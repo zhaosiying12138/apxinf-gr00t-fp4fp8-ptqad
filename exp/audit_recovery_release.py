@@ -169,12 +169,26 @@ def protocol_checks(audit, protocol, run):
         audit.equal(f"protocol.disjoint.{left}.{right}", overlap, [], "Official initial-state partitions are disjoint")
 
 
+def format_check(audit, recipe):
+    """Check the declared target format; an absent FP8 allocation is explicit."""
+    memory = recipe.get("memory", {}) if isinstance(recipe, dict) else {}
+    fp8 = memory.get("fraction_of_eligible_params", {}).get("fp8")
+    if fp8 is None:
+        return audit.missing("quantization.fp8_coverage", "Category recipe has no format coverage declaration")
+    if float(fp8) <= 0:
+        return audit.add("quantization.fp8_coverage", "failed",
+                         "The selected category recipe contains no FP8 eligible parameters; it cannot support the declared FP4/FP8 mixed claim",
+                         actual=fp8, remedy="Produce and bind a parent recipe with a nonzero FP8 allocation before publishing a mixed-precision result.")
+    return audit.add("quantization.fp8_coverage", "matched", "Selected recipe declares a nonzero FP8 allocation", actual=fp8)
+
+
 def parent_checks(audit, base):
     """A missing parent is not declared rebuildable merely because a script exists."""
     recipe = audit.read(base / "category_ptq_recipe.json", "category.recipe")
     manifest = audit.read(base / "category_bake_manifest.json", "category.manifest")
     if not recipe or not manifest:
         return
+    format_check(audit, recipe)
     audit.file(base / "category_ptq_recipe.json", manifest.get("category_recipe"), "category.recipe_binding")
     audit.file(base / "ptq_recipe.json", recipe.get("parent_recipe_sha256"), "category.parent_recipe_copy")
     audit.file(base / "bake_manifest.json", recipe.get("parent_bake_manifest_sha256"), "category.parent_bake_copy")
