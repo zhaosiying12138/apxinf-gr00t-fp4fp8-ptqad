@@ -139,6 +139,8 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
     qad_rate = validated["qad"]["success_rate"]
     opd_rate = validated["qad_opd"]["success_rate"]
     control_rate = validated["continued_qad"]["success_rate"]
+    selected_checkpoint = final.get("selected_ptq_checkpoint", final.get("selected_pressure_checkpoint"))
+    _require(selected_checkpoint, "final manifest has no selected PTQ checkpoint identity")
     result = {
         "format": "publication_final_results_v1",
         "status": "complete",
@@ -153,7 +155,7 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
                                     "bytes": declared_comparison["bytes"]},
         },
         "selected_recipe": final["selected_pressure_recipe"],
-        "selected_ptq_checkpoint": final.get("selected_ptq_checkpoint"),
+        "selected_ptq_checkpoint": selected_checkpoint,
         "public_arms": {name: validated[name] for name in PUBLIC_ARMS},
         "control": {"continued_qad": validated["continued_qad"]},
         "deltas": {
