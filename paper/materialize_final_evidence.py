@@ -69,7 +69,9 @@ def _copy_tree(source: Path, target: Path, mapping: list[dict[str, Any]], role: 
 
 
 def _selected_recipe_sources(final: dict[str, Any]) -> list[tuple[Path, str]]:
-    checkpoint = Path(final["selected_ptq_checkpoint"]).resolve(strict=True)
+    checkpoint_value = final.get("selected_ptq_checkpoint", final.get("selected_pressure_checkpoint"))
+    require(checkpoint_value, "final manifest has no selected PTQ checkpoint")
+    checkpoint = Path(checkpoint_value).resolve(strict=True)
     require(checkpoint.is_dir(), f"selected PTQ checkpoint is missing: {checkpoint}")
     sources: list[tuple[Path, str]] = []
     category_recipe = checkpoint / "category_ptq_recipe.json"
@@ -160,7 +162,9 @@ def materialize(final_manifest: str | Path, out: str | Path,
                    "frozen_recipe_inventory")
         for source, role in _selected_recipe_sources(final):
             _copy_file(source, stage / "evidence" / "selected_recipe" / source.name, mapping, role)
-        selected_checkpoint = Path(final["selected_ptq_checkpoint"]).resolve(strict=True)
+        selected_value = final.get("selected_ptq_checkpoint", final.get("selected_pressure_checkpoint"))
+        require(selected_value, "final manifest has no selected PTQ checkpoint")
+        selected_checkpoint = Path(selected_value).resolve(strict=True)
         selected_recipe_file = selected_checkpoint / "category_ptq_recipe.json"
         if selected_recipe_file.is_file():
             category_recipe = json.loads(selected_recipe_file.read_text(encoding="utf-8"))
