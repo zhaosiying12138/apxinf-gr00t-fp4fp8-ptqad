@@ -68,8 +68,24 @@ def orchestrator_source(protocol, state=None):
     state = state or {}
     relative = state.get('implementation_path')
     if relative is None:
+        # v5 category runs use the category orchestrator.  Older manifests
+        # omitted the implementation path, so select an existing producer
+        # from the current checkout rather than inventing a stale vN file.
+        # If the run recorded a producer hash, prefer the checked-in source
+        # snapshot that matches it; this preserves provenance after the live
+        # orchestrator has evolved.
+        candidates = ['exp/run_category_recovery.py', 'exp/run_high_fp4_v3_run_snapshot.py']
         match = re.search(r'v(\d+)', str(protocol.get('id', '')))
-        relative = 'exp/run_high_fp4_v%s.py' % (match.group(1) if match else '3')
+        candidates.append('exp/run_high_fp4_v%s.py' % (match.group(1) if match else '3'))
+        expected = state.get('implementation_sha256')
+        if expected:
+            for candidate in candidates:
+                path = ROOT / candidate
+                if path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == expected:
+                    relative = candidate
+                    break
+        if relative is None:
+            relative = next((candidate for candidate in candidates if (ROOT / candidate).is_file()), candidates[0])
     path = Path(relative)
     need(not path.is_absolute() and '..' not in path.parts and path.parts[:1] == ('exp',),
          'Invalid orchestrator implementation path')

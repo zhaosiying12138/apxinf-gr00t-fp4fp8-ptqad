@@ -82,7 +82,11 @@ def _selected_recipe_sources(final: dict[str, Any]) -> list[tuple[Path, str]]:
         sources.extend(((category_recipe, "selected_category_recipe"),
                         (category_bake, "selected_category_bake_manifest")))
         recipe = json.loads(category_recipe.read_text(encoding="utf-8"))
-        parent = Path(recipe.get("parent", "")).resolve(strict=True)
+        # The original parent checkpoint may be intentionally cleaned after
+        # the category checkpoint was baked.  Resolve its recorded path
+        # without requiring the directory to exist; the byte-identical
+        # provenance copies below are the fallback in that case.
+        parent = Path(recipe.get("parent", "")).resolve()
     else:
         recipe_file = checkpoint / "ptq_recipe.json"
         bake_file = checkpoint / "bake_manifest.json"
@@ -91,7 +95,7 @@ def _selected_recipe_sources(final: dict[str, Any]) -> list[tuple[Path, str]]:
         sources.extend(((recipe_file, "selected_ptq_recipe"),
                         (bake_file, "selected_bake_manifest")))
         recipe = json.loads(recipe_file.read_text(encoding="utf-8"))
-        parent = Path(recipe.get("base", "")).resolve(strict=True)
+        parent = Path(recipe.get("base", "")).resolve()
     # Category checkpoints retain byte-identical copies of the parent recipe
     # and bake manifest.  The large parent weight shards are intentionally not
     # bundled; if the original directory was cleaned, preserve those copies

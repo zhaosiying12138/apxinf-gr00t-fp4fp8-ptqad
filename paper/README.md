@@ -29,7 +29,7 @@ uv run --with-requirements paper/requirements-build.txt python paper/validate_pu
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
-当前审阅稿使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成。它保留全部 17 张截图，并用红色 `xxx` 标出尚未完成的高 FP4 结果；这是给作者审阅结构的离线预览，不是正式发布。`validate_publication.py` 会按设计拒绝含有这些占位符的审阅稿；完整结果回填后再执行上面的正式构建、验证和打包流程。
+当前审阅稿使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成。它保留全部 17 张截图，并用红色 `xxx` 标出尚未完成的结果；这是给作者审阅结构的离线预览，不是正式发布。`validate_publication.py` 会按设计拒绝含有这些占位符的审阅稿；完整结果回填后再执行上面的正式构建、验证和打包流程。
 
 `make_figs.py` 从结果 JSON 读取图表数值，并验证缩放地址映射。截图文件不会由构建脚本改写。`validate_publication.py` 核对已审验截图的 SHA-256、全部图位、代码块、图像路径和离线资源完整性。
 
