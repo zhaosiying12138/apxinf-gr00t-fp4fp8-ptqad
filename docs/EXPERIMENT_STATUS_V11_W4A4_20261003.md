@@ -1,6 +1,6 @@
 # v11 全覆盖 W4A4 实验状态与交接说明
 
-本文档给后续 agent 做只读交接，不是论文正文，也不产生新的实验结果。后续分析必须先阅读 `exp/recovery_protocol_v11_w4a4_category.json`、`exp/run_high_fp4_v3.py`、量化与恢复训练源码，以及本目录下的最终日志。除已在运行的 v11 进程外，不要另启 GPU 实验，不要覆盖现有 checkpoint。
+本文档给后续 agent 做只读交接，不是论文正文，也不产生新的实验结果。后续分析必须先阅读 `exp/recovery_protocol_v11_w4a4_category.json`、`exp/run_w4a4_recovery.py`（及其委托的 `exp/run_high_fp4_v3.py`）、量化与恢复训练源码，以及本目录下的最终日志。除已在运行的 v11 进程外，不要另启 GPU 实验，不要覆盖现有 checkpoint。
 
 ## 冻结的问题与协议
 
@@ -46,4 +46,3 @@ paper/evidence/recipe_inventory.json
 不得沿用旧 `.incomplete-*` 路径、旧 recipe SHA 或 v5/v7 bank 的结果。旧的“43.4%→99.0%”、v5 的 86/89/92/96 等数字没有当前 v11 的同一协议、分母和 reset ledger，不能进入正文、图表、摘要或 README。
 
 正文目前保留红色 `xxx` 占位符是有意的。必须等五臂 160 回合证据和压缩账本通过 `extract_final_evidence.py`、`materialize_final_evidence.py`、`audit_recovery_release.py` 与 publication validation 后，才回填成功率、恢复幅度和压缩比例；训练 loss、development 分数和 smoke 回合都不能代替闭环成功率。
-
