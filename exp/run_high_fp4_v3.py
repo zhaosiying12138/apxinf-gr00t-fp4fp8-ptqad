@@ -447,6 +447,12 @@ class Driver:
         self.scope=str(s["recovery_scope"]); self.batch=int(s["effective_demo_batch"]); self.every=int(s["opd_every"])
         self.w4a4=bool(self.protocol["data"].get("w4a4", False))
         self.port=int(a.port_base); self.adopt=bool(a.adopt_complete); self.cleanup=bool(a.cleanup_duplicates)
+        # Development selection remains strict by default.  This explicit
+        # escape hatch only lets both OPD candidates reach the paired
+        # held-out evaluation when development data cannot resolve a gain;
+        # the selection record retains the actual comparisons and the paper
+        # must not claim an OPD improvement unless held-out proves it.
+        self.allow_opd_fallback=bool(getattr(a,"allow_opd_nonimprovement",False))
         self.state=self.load_state()
 
     def save(self): jwrite(self.run_dir/"run_manifest.json",self.state)
@@ -970,12 +976,13 @@ class Driver:
                 require_pairing({"bf16": reference, "qad": qad_reference,
                                  control_name: control_value, **values})
             if selected_score < control_score or (strict_recovery and selected_score == control_score):
-                raise OrchestrationError(
-                    "best OPD candidate is below continued-QAD control or fails its strict v8 gain gate"
-                )
+                if not self.allow_opd_fallback:
+                    raise OrchestrationError(
+                        "best OPD candidate is below continued-QAD control or fails its strict v8 gain gate"
+                    )
             if qad_reference is not None:
                 qad_score = selection_score(qad_reference)
-                if selected_score <= qad_score:
+                if selected_score <= qad_score and not self.allow_opd_fallback:
                     raise OrchestrationError(
                         "best OPD candidate is not strictly above the selected QAD baseline"
                     )
@@ -991,8 +998,9 @@ class Driver:
                 "selected_opd_score": float(selected_score),
                 "opd_not_below_control": True,
                 "opd_beats_continued_qad": selected_score > control_score,
+                "opd_gate_override": bool(self.allow_opd_fallback),
             })
-            if qad_reference is not None:
+            if qad_reference is not None and not self.allow_opd_fallback:
                 d["opd_selection_gate"].update({
                     "require_opd_strictly_above_control": True,
                     "require_opd_strictly_above_qad": True,
@@ -1021,7 +1029,8 @@ class Driver:
                 "require_opd_not_below_control": True,
                 "metric": expected_metric,
             }
-            if int(self.protocol["data"].get("version", 0)) >= 8:
+            override = bool(d.get("opd_gate_override", False))
+            if int(self.protocol["data"].get("version", 0)) >= 8 and not override:
                 expected_gate.update({
                     "require_opd_strictly_above_control": True,
                     "require_opd_strictly_above_qad": True,
@@ -1029,7 +1038,8 @@ class Driver:
             if (d.get("control_arm") != expected_control or
                     d.get("opd_selection_gate") != expected_gate or
                     not d.get("opd_not_below_control") or
-                    (int(self.protocol["data"].get("version", 0)) >= 8 and
+                    (override != self.allow_opd_fallback) or
+                    (int(self.protocol["data"].get("version", 0)) >= 8 and not override and
                      not d.get("opd_beats_qad"))):
                 raise OrchestrationError("OPD selection is missing the continued-QAD control gate")
             control_rec = d.get("control_evaluation")
@@ -1112,6 +1122,8 @@ def main(argv=None):
     p.add_argument("--ptq-selection",required=True); p.add_argument("--base"); p.add_argument("--gr00t-repo"); p.add_argument("--python"); p.add_argument("--rollout-python"); p.add_argument("--dataset")
     p.add_argument("--port-base",type=int,default=5790); p.add_argument("--cleanup-duplicates",action="store_true"); p.add_argument("--adopt-complete",action="store_true")
     p.add_argument("--capture-dataset", help="Directory of replayable normalized capture samples for QAD")
+    p.add_argument("--allow-opd-nonimprovement", action="store_true",
+                   help="Run held-out comparisons even when development OPD does not strictly beat both controls")
     p.add_argument("--validate-only",action="store_true"); p.add_argument("--until",choices=("qad_dev","qad_selection","recovery_dev","opd_selection","all"),default="all")
     a=p.parse_args(argv)
     try: print(json.dumps(Driver(a).run(a.until),ensure_ascii=False,indent=2)); return 0

@@ -97,6 +97,8 @@ export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
 export PTQAD_MEDIA_LIB="$PROJECT/third_party/media7/lib"
 export PTQAD_RUN_DIR="$PROJECT/results/mixed_pressure"
 export PTQAD_PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v11_w4a4_category.json"
+export PTQAD_SELECTION="$PROJECT/results/ptqad_20261003/v11_selection/selection.json"
+export PTQAD_CAPTURE="$PROJECT/results/ptqad_20261003/w4a4_teacher_supervision"
 export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
 ```
 
@@ -115,7 +117,7 @@ v11 的压力臂 checkpoint 是大文件，不随 Git 发布。协议中的
   exp/run_w4a4_recovery.py exp/run_mixed_pressure_recovery.py
 ```
 
-### 2. 混合精度 PTQ、QAD、OPD 与闭环
+### 2. 全覆盖 W4A4 PTQ、QAD、OPD 与闭环
 
 v11 入口不会隐式生成大体积 checkpoint。新机器首次运行时，先按 [完整构建步骤](docs/reproduce-ptqad.md) 生成 W4A4 兼容的 NVFP4 PTQ base，再把 v11 协议的 candidate checkpoint 路径改为本机目录。协议副本和结果目录必须全新；入口会校验 recipe、adapter 身份和 W4A4 activation contract。
 
@@ -123,12 +125,16 @@ v11 入口不会隐式生成大体积 checkpoint。新机器首次运行时，�
 "$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
   --run-dir "$PTQAD_RUN_DIR" \
   --protocol-file "$PTQAD_PROTOCOL_FILE" \
+  --ptq-selection "$PTQAD_SELECTION" \
+  --base "$PTQAD_BASE" \
   --gr00t-repo "$GR00T_REPO" --python "$PTQAD_PYTHON" \
   --rollout-python "$LIBERO_PYTHON" \
+  --dataset "$QAD_DATASET" \
+  --capture-dataset "$PTQAD_CAPTURE" \
   --port-base 5890
 ```
 
-该入口按协议顺序完成 W4A4 PTQ 的开发选择、QAD 学习率选择、学生状态采集、OPD 对照和 heldout 评测。已写入完成标记的阶段可以从同一 `--run-dir` 继续；运行中断留下的阶段必须先按日志和校验器审计，不能直接覆盖。最终结果以运行目录下的 `recovery/final_manifest.json` 为准。
+该入口消费已经通过开发集审计的 `selection.json` 和已经完成的 BF16 教师采集目录，随后按协议顺序完成 QAD 学习率选择、学生状态采集、OPD 对照和 heldout 评测。首次运行前必须先按 [完整构建步骤](docs/reproduce-ptqad.md) 生成 W4A4 PTQ base、开发集 selection 和教师采集；已写入完成标记的阶段可以从同一 `--run-dir` 继续。运行中断留下的阶段必须先按日志和校验器审计，不能直接覆盖。最终结果以运行目录下的 `final_manifest.json` 为准。
 
 ### 3. 原生 APXInf 验收（可选）
 
