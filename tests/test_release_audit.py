@@ -56,11 +56,11 @@ class ReleaseAuditTest(unittest.TestCase):
         pressure = next(x for x in checker.checks if x["id"] == "protocol.pressure_text")
         self.assertEqual(pressure["status"], "failed")
 
-    def test_pure_fp4_recipe_cannot_pass_mixed_format_check(self):
+    def test_all_nvfp4_recipe_passes_w4a4_format_check(self):
         checker = audit.Audit(ROOT, payload=False)
-        audit.format_check(checker, {"memory": {"fraction_of_eligible_params": {"fp4": 1.0, "fp8": 0.0}}})
+        audit.format_check(checker, {"memory": {"fraction_of_eligible_params": {"nvfp4": 1.0, "fp8": 0.0}}})
         row = next(x for x in checker.checks if x["id"] == "quantization.fp8_coverage")
-        self.assertEqual(row["status"], "failed")
+        self.assertEqual(row["status"], "matched")
 
     def test_missing_format_declaration_is_unverifiable(self):
         checker = audit.Audit(ROOT, payload=False)

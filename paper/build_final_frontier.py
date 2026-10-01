@@ -136,8 +136,9 @@ def load_inventory(path: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str
             require(math.isclose(finite(fractions.get(name), f"selected fraction {name}"),
                              count / mixed["linear_params"], rel_tol=0, abs_tol=1e-12),
                 f"mixed fraction {name} disagrees with format count")
-    require(counts[0] > 0 and counts[1] > 0,
-            "v11 all-NVFP4 recipe must contain no FP8 or BF16 eligible elements")
+    # v11 freezes full-coverage W4A4: every eligible element is NVFP4.
+    # FP8 is a supported fallback format in the allocator, but it is
+    # intentionally absent from the selected main recipe.
     require(counts[0] > 0 and counts[1] == 0 and counts[2] == 0,
             "selected recipe is not full NVFP4")
     require(type(mixed.get("source_tensor_bytes")) is int and mixed["source_tensor_bytes"] > 0 and
