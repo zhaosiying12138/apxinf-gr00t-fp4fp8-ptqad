@@ -136,6 +136,8 @@ v11 入口不会隐式生成大体积 checkpoint。新机器首次运行时，�
 
 该入口消费已经通过开发集审计的 `selection.json` 和已经完成的 BF16 教师采集目录，随后按协议顺序完成 QAD 学习率选择、学生状态采集、OPD 对照和 heldout 评测。首次运行前必须先按 [完整构建步骤](docs/reproduce-ptqad.md) 生成 W4A4 PTQ base、开发集 selection 和教师采集；已写入完成标记的阶段可以从同一 `--run-dir` 继续。运行中断留下的阶段必须先按日志和校验器审计，不能直接覆盖。最终结果以运行目录下的 `final_manifest.json` 为准。
 
+如果开发集上的 OPD 没有超过两个对照，但仍需完成预注册的 paired held-out 对比，可在续跑时显式追加 `--allow-opd-nonimprovement`。该开关只允许实验继续，不改变选择分数；selection 证据会记录实际比较，正文只有在 held-out 同时超过 QAD 与 continued-QAD 时才宣称 OPD 有独立增益。
+
 ### 3. 原生 APXInf 验收（可选）
 
 先按 [原生 π0.5 复现说明](docs/native-pi05.md) 准备 packed 模型、候选 wheel 和验收程序，并串行运行算子与模型检查。`run_native_graph_gates.sh` 必须显式传入本次模型路径和一个尚不存在的输出目录：
