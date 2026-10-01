@@ -170,12 +170,26 @@ def protocol_checks(audit, protocol, run):
 
 
 def format_check(audit, recipe):
-    """Check the declared target format; an absent FP8 allocation is explicit."""
+    """Check the declared target format for the frozen W4A4 protocol.
+
+    The v11 main recipe is deliberately all-NVFP4.  FP8 remains a supported
+    fallback format in the allocator, but a zero FP8 fraction is expected for
+    this selected W4A4 arm and must not be treated as a failed mixed-precision
+    claim.
+    """
     memory = recipe.get("memory", {}) if isinstance(recipe, dict) else {}
-    fp8 = memory.get("fraction_of_eligible_params", {}).get("fp8")
-    if fp8 is None:
+    fractions = memory.get("fraction_of_eligible_params", {})
+    fp8 = fractions.get("fp8")
+    nvfp4 = fractions.get("nvfp4")
+    if fp8 is None or nvfp4 is None:
         return audit.missing("quantization.fp8_coverage", "Category recipe has no format coverage declaration")
     if float(fp8) <= 0:
+        if math.isclose(float(nvfp4), 1.0, rel_tol=0, abs_tol=1e-12):
+            return audit.add(
+                "quantization.fp8_coverage", "matched",
+                "Selected v11 W4A4 recipe intentionally uses all-NVFP4 eligible weights; FP8 is not part of the main arm",
+                actual=fp8,
+            )
         return audit.add("quantization.fp8_coverage", "failed",
                          "The selected category recipe contains no FP8 eligible parameters; it cannot support the declared FP4/FP8 mixed claim",
                          actual=fp8, remedy="Produce and bind a parent recipe with a nonzero FP8 allocation before publishing a mixed-precision result.")

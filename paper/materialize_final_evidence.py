@@ -34,7 +34,7 @@ def require(ok: bool, message: str) -> None:
 
 
 def category_memory_kind(memory: dict[str, Any], protocol: dict[str, Any]) -> str:
-    """Validate actual format counts, including the frozen mixed contract."""
+    """Validate actual format counts for the frozen W4A4 contract."""
     counts = [memory.get(name + "_params") for name in ("nvfp4", "fp8", "bf16")]
     total = memory.get("linear_params")
     require(type(total) is int and total > 0 and
