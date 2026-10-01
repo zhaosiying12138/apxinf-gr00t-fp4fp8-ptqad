@@ -65,13 +65,13 @@
     },
     {
       "path": "paper/evidence/selected_recipe/category_memory.json",
-      "sha256": "249cb167542779658462e34212719ce5af2d6acd4459831a6ceb25606a1f3c23",
-      "bytes": 2931
+      "sha256": "f6b92749bc1fabbe2dfd61b23d3090dd441e47093401d8ed543a5404e397d189",
+      "bytes": 3013
     },
     {
       "path": "paper/evidence/selected_recipe/category_ptq_recipe.json",
-      "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
-      "bytes": 337442
+      "sha256": "2ad0a80552c0f6d89c7977f71567173ff0fb63f34eff48ae192501c9d56c49db",
+      "bytes": 337250
     }
   ],
   "files": [
