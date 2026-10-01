@@ -77,13 +77,13 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "bfa2aa8c4c6f254dbe837b54bd055db65d02a5b72adbc4f911ebbe3f23503cdd",
-      "bytes": 8350301
+      "sha256": "6a7cb8b24ce50c1d1811b803fb55d1f8fd2c9b5cb6c2fc387637bf2403afd552",
+      "bytes": 8357887
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "e97fd50840d6915bc4941a3516a7f9a718982284bf7a77b5af8ae9d8e07bf2c6",
-      "bytes": 121280
+      "sha256": "e916eb2c7f9c889b90c3bc698830a2b4048fcabab202f871b3bed6c84ef821f9",
+      "bytes": 121671
     },
     {
       "path": "meta.json",
@@ -102,13 +102,13 @@
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "sha256": "3edc16fde05c2c0c197786c3ffa39fb08d6ad9f4a9abc52bb728444253f98a38",
-      "bytes": 15109
+      "sha256": "1a4645df5c3bc8f86b105130c482fccb0a4bb819c5454a77b14b5246b192169d",
+      "bytes": 15236
     },
     {
       "path": "sections/03-方法.md",
-      "sha256": "dec87491217718f952e558ac82105cfc45d863ead87da58c2becfb11760dca8b",
-      "bytes": 3621
+      "sha256": "35b7613c5b868f2be60e8cc6419f57f44b807b5c3c97961d218d949b6cba060b",
+      "bytes": 3885
     },
     {
       "path": "sections/04-实验.md",
