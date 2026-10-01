@@ -102,6 +102,7 @@ def main():
         "lora_pairs": len(pairs), "retained_base_only_keys": sorted(missing),
         "storage": "dense original-base dtype; BF16 residual merged without requantization",
         "numerical_note": "Dense casting introduces final rounding; this is not an assertion of bitwise identity to a separate low-rank branch.",
+        "w4a4_note": "If recovery_manifest.w4a4_enabled is true, formal deployment must load base and A/B separately; this dense export is retained for diagnostics only.",
         "recovery_manifest_source": str(recovery_source) if recovery_source else None,
         "recovery_manifest_sha256": file_hash(recovery_source) if recovery_source else None,
         "recovery_manifest": recovery_manifest,

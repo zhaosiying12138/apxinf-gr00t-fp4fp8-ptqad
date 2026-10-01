@@ -27,7 +27,8 @@ from quantizers import nvfp4_dequant, fp8_e4m3_dequant, gptq_nvfp4, rtnc_best_cl
 
 CLIP_GRID = (1.0, 0.95, 0.9, 0.85, 0.8, 0.7, 0.6, 0.5)
 RECIPE_VERSION = "corrected-allocation-v2"
-RECIPES = ["rtn", "calib", "fp8", "mixed", "aggr", "head_ffn", "head_lang", "head_lang_vision"]
+RECIPES = ["rtn", "calib", "fp8", "mixed", "mixed_fp8_to_fp4", "aggr",
+           "head_ffn", "head_lang", "head_lang_vision"]
 EMBED = "backbone.model.model.language_model.embed_tokens.weight"
 LM_HEAD = "backbone.model.lm_head.weight"
 
@@ -98,6 +99,12 @@ def alloc(name, W, recipe):
         return "fp8"
     if recipe == "mixed":
         return alloc_mixed(name, W)
+    if recipe == "mixed_fp8_to_fp4":
+        # Isolate the FP8->FP4 step in the published mixed recipe.  Existing
+        # NVFP4 assignments keep their calibrated GPTQ/RTN path; only sites
+        # that the mixed recipe protected as FP8 are lowered to NVFP4 RTN.
+        mixed = alloc_mixed(name, W)
+        return "nvfp4_rtn" if mixed == "fp8" else mixed
     if recipe == "aggr":
         return alloc_aggr(name, W)
     raise ValueError(recipe)
@@ -239,10 +246,14 @@ def main():
     parser.add_argument("--calibration-mode", choices=["none", "auto", "required"], default="auto",
                         help="none: deliberate RTN fallback; auto: load supplied cache if it exists; required: require supplied cache")
     parser.add_argument("--gptq-damp", type=float, default=0.01)
+    parser.add_argument("--rtn-clip", type=float, default=1.0,
+                        help="Shared NVFP4 tensor clip for RTN layers (1.0 is standard RTN)")
     parser.add_argument("--head-bf16", action="store_true")
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cuda")
     parser.add_argument("--plan-only", action="store_true", help="CPU metadata inventory only; creates allocation_plan.json")
     args = parser.parse_args()
+    if not (0.0 < args.rtn_clip <= 1.0):
+        parser.error("--rtn-clip must be in (0,1]")
     start = time.time()
     base, output = Path(args.base).resolve(), Path(args.out).resolve()
     if output.exists():
@@ -259,6 +270,7 @@ def main():
             "tied_weight_aliases": aliases,
             "tied_weight_note": "GR00T Qwen3VL embedding is canonical; physically duplicated lm_head receives identical output. Parameter/storage denominators count physical checkpoint tensors, including both copies.",
             "head_bf16": args.head_bf16, "gptq_damp": args.gptq_damp}
+    plan["rtn_clip"] = args.rtn_clip
     if args.plan_only:
         output.mkdir(parents=True)
         (output / "allocation_plan.json").write_text(json.dumps(plan, indent=2) + "\n")
@@ -340,7 +352,7 @@ def main():
             if kind == "fp8":
                 quantized = fp8_e4m3_dequant(weight)
             elif kind == "nvfp4_rtn":
-                quantized = nvfp4_dequant(weight)
+                quantized = nvfp4_dequant(weight, clip=args.rtn_clip)
             elif name in calib:
                 print(f"[bake] GPTQ {name}: shape={tuple(weight.shape)}, calibration_rows={calib[name].get('n')}", flush=True)
                 hessian = calib[name]["H"].to(args.device)
@@ -357,9 +369,14 @@ def main():
                 record["fallback_reason"] = ("calibration_explicitly_disabled" if args.calibration_mode == "none"
                                              else "documented_non_linear_target" if name in (calib_meta or {}).get("nonlinear_targets", {})
                                              else "layer_missing_from_cache" if calib else "no_cache_loaded")
-                quantized = nvfp4_dequant(weight)
+                quantized = nvfp4_dequant(weight, clip=args.rtn_clip)
             if not torch.isfinite(quantized).all():
                 raise ValueError(f"nonfinite quantized tensor: {name}")
+            # Record the exact scale policy used for the output.  Keep this
+            # outside the finite-value guard: a finite tensor is the normal
+            # path, so provenance must be written for every quantized layer.
+            if actual == "nvfp4_rtn":
+                clip = args.rtn_clip
             record.update(method=actual, actual_method=actual, clip=clip,
                           wmse=float((quantized - weight).square().mean()))
             tensors[key] = quantized.to(dtype=tensors[key].dtype, device="cpu").contiguous()

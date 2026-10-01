@@ -1,5 +1,6 @@
 {
-  "title": "PTQAD：APXInf 生态下 GR00T 的 FP4/FP8 混合精度量化与闭环恢复",
-  "meta": "结构审阅稿 · 红色 xxx 为待测结果 · 块适配 PTQ、QAD/OPD 与 LIBERO 闭环恢复",
-  "date": "2026-09-29"
+  "title": "PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与 QAD/OPD 闭环恢复",
+  "meta": "APXInf 生态下 GR00T 的全 NVFP4 W4A4 PTQ、QAD/OPD 恢复与 LIBERO 闭环评测",
+  "date": "2026-10-02",
+  "status": "v11 W4A4 category 结构审阅稿：最终五臂评测完成后回填结果并验收"
 }

@@ -22,11 +22,22 @@ import sys
 
 import os as _os
 _FP4_SCOPE = _os.environ.get("FP4VLA_SCOPE", "all")
-if _os.environ.get("FP4VLA_QUANT") == "1":
+_W4A4_ADAPTER = _os.environ.get("FP4VLA_W4A4_ADAPTER", "0") == "1"
+_W4A4_PTQ = (_os.environ.get("FP4VLA_W4A4", "0") == "1" and
+              not _W4A4_ADAPTER and _os.environ.get("FP4VLA_QUANT", "0") != "1")
+if _os.environ.get("FP4VLA_QUANT") == "1" or _W4A4_ADAPTER or _W4A4_PTQ:
     import sys as _sys
     _sys.path.insert(0, "/home/zhaosiying/codebase/fp4vla/rl")
-    from scoped_quant import install_scoped_fakequant, mark_scope
-    install_scoped_fakequant(_FP4_SCOPE)
+    _sys.path.insert(0, "/home/zhaosiying/codebase/fp4vla/quant")
+    if _W4A4_ADAPTER:
+        from scoped_quant import configure_quant_recipe, install_scoped_activation, mark_activation_scope
+        install_scoped_activation(_FP4_SCOPE)
+    elif _W4A4_PTQ:
+        from scoped_quant import configure_quant_recipe, install_scoped_activation, mark_activation_scope
+        install_scoped_activation(_FP4_SCOPE)
+    else:
+        from scoped_quant import configure_quant_recipe, install_scoped_fakequant, mark_scope
+        install_scoped_fakequant(_FP4_SCOPE)
 
 from gr00t.data.embodiment_tags import EmbodimentTag
 from gr00t.data.types import ModalityConfig
@@ -117,13 +128,53 @@ def main(config: ServerConfig):
         # check if the model path exists
         if config.model_path.startswith("/") and not os.path.exists(config.model_path):
             raise FileNotFoundError(f"Model path {config.model_path} does not exist")
+        model_path = config.model_path
+        merge_manifest = None
+        if _W4A4_ADAPTER:
+            merge_path = Path(config.model_path) / "merge_manifest.json"
+            if not merge_path.is_file():
+                raise FileNotFoundError(
+                    "FP4VLA_W4A4_ADAPTER requires a merge_manifest.json beside the output")
+            merge_manifest = json.loads(merge_path.read_text())
+            if merge_manifest.get("status") != "complete":
+                raise ValueError("W4A4 adapter merge manifest is not complete")
+            model_path = merge_manifest.get("base")
+            adapter_path = merge_manifest.get("training_checkpoint")
+            if not model_path or not adapter_path:
+                raise ValueError("W4A4 merge manifest lacks base/training_checkpoint")
+            print(f"  W4A4 base: {model_path}")
+            print(f"  W4A4 adapter: {adapter_path}")
+        if (_os.environ.get("FP4VLA_QUANT") == "1" or _W4A4_ADAPTER or _W4A4_PTQ):
+            configure_quant_recipe(model_path)
         policy = Gr00tPolicy(
             embodiment_tag=config.embodiment_tag,
-            model_path=config.model_path,
+            model_path=model_path,
             device=config.device,
             strict=config.strict,
         )
-        if os.environ.get("FP4VLA_QUANT") == "1":
+        if _W4A4_ADAPTER:
+            from native_activation import native_activation_qdq_torch
+            from w4a4_deploy import install_saved_w4a4_adapter
+            # ``mark_activation_scope`` is imported at module load when the
+            # W4A4 adapter/PTQ mode is armed.  Re-importing it inside this
+            # function would make the name local to ``main`` and leave the
+            # PTQ branch below unbound.
+            mark_activation_scope(policy.model)
+            recovery = merge_manifest.get("recovery_manifest", {})
+            rank = int(recovery.get("rank", os.environ.get("QAD_LORA_R", "32")))
+            alpha = float(recovery.get("alpha", os.environ.get("QAD_LORA_ALPHA", "64")))
+            patch = install_saved_w4a4_adapter(
+                policy.model, adapter_path,
+                activation_qdq=lambda value: native_activation_qdq_torch(value, ste=False),
+                rank=rank, alpha=alpha)
+            print(f"[fp4vla] W4A4 adapter branch installed on {patch.count} Linear modules", flush=True)
+        elif _W4A4_PTQ:
+            # The checkpoint already contains the frozen NVFP4-dequantized
+            # weights. Applying fake quantization again would quantize the
+            # PTQ result twice and invalidate the PTQ/adapter comparison.
+            mark_activation_scope(policy.model)
+            print("[fp4vla] W4A4 PTQ activation branch installed; frozen weights unchanged", flush=True)
+        elif os.environ.get("FP4VLA_QUANT") == "1":
             from scoped_quant import mark_scope
             mark_scope(policy.model)
         _log_dir = os.environ.get("FP4VLA_LOG_DIR", "")

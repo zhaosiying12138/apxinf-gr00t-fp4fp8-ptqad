@@ -20,7 +20,7 @@ from typing import Any
 
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 PUBLIC_ARMS = ("bf16", "ptq", "qad", "qad_opd")
-FINAL_FORMAT_RE = re.compile(r"high_fp4_[a-z0-9_]+_final_manifest\Z")
+FINAL_FORMAT_RE = re.compile(r"(?:high_fp4_[a-z0-9_]+|w4a4_recovery_v11)_final_manifest\Z")
 
 
 def _read(path: Path) -> Any:
@@ -49,7 +49,7 @@ def _validate_arm(name: str, row: dict[str, Any]) -> dict[str, Any]:
     _require(isinstance(row, dict), f"{name} arm is not an object")
     successes, count = row.get("successes"), row.get("count")
     _require(type(successes) is int and type(count) is int, f"{name} arm totals are not integers")
-    _require(count == 100 and 0 <= successes <= count, f"{name} is not a complete 100-episode heldout arm")
+    _require(count == 160 and 0 <= successes <= count, f"{name} is not a complete 160-episode heldout arm")
     per_task = row.get("per_task")
     _require(isinstance(per_task, dict) and len(per_task) == 10, f"{name} lacks ten task totals")
     task_successes = 0
@@ -57,8 +57,8 @@ def _validate_arm(name: str, row: dict[str, Any]) -> dict[str, Any]:
     for task, task_row in per_task.items():
         _require(isinstance(task_row, dict), f"{name}/{task} is not an object")
         k, n = task_row.get("successes"), task_row.get("episodes")
-        _require(type(k) is int and type(n) is int and n == 10 and 0 <= k <= n,
-                 f"{name}/{task} is not a complete ten-episode task")
+        _require(type(k) is int and type(n) is int and n == 16 and 0 <= k <= n,
+                 f"{name}/{task} is not a complete sixteen-episode task")
         rate = _number(task_row.get("success_rate"), f"{name}/{task}.success_rate")
         _require(math.isclose(rate, k / n, rel_tol=0, abs_tol=1e-12),
                  f"{name}/{task} success rate disagrees with totals")

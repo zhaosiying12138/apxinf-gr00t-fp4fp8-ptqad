@@ -164,9 +164,18 @@ def install_sequential_probe(trainer_cls, cache_path, weight, every=4):
     def training_step(self, model, inputs, *args, **kwargs):
         # The integration has only been audited for HF Trainer + Accelerator on
         # one device. Do not silently invent scaling for FSDP/DeepSpeed/Apex.
+        accelerator_accumulation = int(getattr(self.accelerator,
+                                               "gradient_accumulation_steps", 1) or 1)
+        trainer_accumulation = int(getattr(self.args,
+                                           "gradient_accumulation_steps", 1) or 1)
+        # Transformers versions differ in where accumulation is represented:
+        # some leave Accelerator at one and let Trainer accumulate, while
+        # others pass the configured value through Accelerator.  Divide here
+        # only when Trainer owns accumulation; Accelerator.backward() already
+        # applies the divisor when it owns it.
         if (getattr(self, "use_apex", False) or
             getattr(self.accelerator, "num_processes", 1) != 1 or
-            getattr(self.accelerator, "gradient_accumulation_steps", 1) != 1 or
+            accelerator_accumulation not in (1, trainer_accumulation) or
             getattr(self, "is_deepspeed_enabled", False) or
             getattr(self, "is_fsdp_enabled", False)):
             raise ValueError("Probe hook supports single-device HF Trainer accumulation only")
@@ -178,11 +187,14 @@ def install_sequential_probe(trainer_cls, cache_path, weight, every=4):
             return result
         micro = getattr(self, "_probe_micro_step", 0)
         sample = anchor.samples[micro % len(anchor.samples)]
-        accumulation = getattr(self, "current_gradient_accumulation_steps",
-                               self.args.gradient_accumulation_steps)
+        accumulation = int(getattr(self, "current_gradient_accumulation_steps",
+                                   trainer_accumulation) or trainer_accumulation)
+        if accumulation not in (1, trainer_accumulation):
+            raise ValueError("Probe hook saw an unexpected gradient accumulation count")
         with replay_context(model, sample["seed"], anchor.meta["autocast_dtype"]):
             mse = anchor.loss(model, micro)
-            scaled = weight * mse / accumulation
+            backward_divisor = accumulation if accelerator_accumulation == 1 else 1
+            scaled = weight * mse / backward_divisor
             self.accelerator.backward(scaled)
             extra = scaled.detach()
         self._probe_micro_step = micro + 1

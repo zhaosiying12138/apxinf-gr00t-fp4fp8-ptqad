@@ -1,100 +1,100 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="640" viewBox="0 0 1080 640" role="img" aria-label="NVFP4 scale：从逻辑索引到物理字节" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
 <rect width="100%" height="100%" fill="white"/>
-<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start">NVFP4 scale：从逻辑索引到物理字节</text>
-<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start">每个逻辑 scale 管理 16 个连续权重；128 行 × 4 个 scale 块组成 512 字节 tile。</text>
-<text x="30" y="110" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start">逻辑 scale[r, b]：同一行的 4 个块</text>
-<text x="34" y="159" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start">r = 0</text>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">NVFP4 scale：从逻辑索引到物理字节</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">每个逻辑 scale 管理 16 个连续权重；128 行 × 4 个 scale 块组成 512 字节 tile。</tspan></text>
+<text x="30" y="110" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">逻辑 scale[r, b]：同一行的 4 个块</tspan></text>
+<text x="34" y="159" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">r = 0</tspan></text>
 <rect x="125" y="132" width="64" height="40" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="157" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=0</text>
+<text x="157" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=0</tspan></text>
 <rect x="196" y="132" width="64" height="40" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="228" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=1</text>
+<text x="228" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=1</tspan></text>
 <rect x="267" y="132" width="64" height="40" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="299" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=2</text>
+<text x="299" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=2</tspan></text>
 <rect x="338" y="132" width="64" height="40" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="370" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=3</text>
-<text x="34" y="217" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start">r = 32</text>
+<text x="370" y="158" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=3</tspan></text>
+<text x="34" y="217" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">r = 32</tspan></text>
 <rect x="125" y="190" width="64" height="40" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="157" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=0</text>
+<text x="157" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=0</tspan></text>
 <rect x="196" y="190" width="64" height="40" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="228" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=1</text>
+<text x="228" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=1</tspan></text>
 <rect x="267" y="190" width="64" height="40" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="299" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=2</text>
+<text x="299" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=2</tspan></text>
 <rect x="338" y="190" width="64" height="40" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="370" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=3</text>
-<text x="34" y="275" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start">r = 64</text>
+<text x="370" y="216" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=3</tspan></text>
+<text x="34" y="275" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">r = 64</tspan></text>
 <rect x="125" y="248" width="64" height="40" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="157" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=0</text>
+<text x="157" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=0</tspan></text>
 <rect x="196" y="248" width="64" height="40" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="228" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=1</text>
+<text x="228" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=1</tspan></text>
 <rect x="267" y="248" width="64" height="40" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="299" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=2</text>
+<text x="299" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=2</tspan></text>
 <rect x="338" y="248" width="64" height="40" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="370" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=3</text>
-<text x="34" y="333" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start">r = 96</text>
+<text x="370" y="274" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=3</tspan></text>
+<text x="34" y="333" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">r = 96</tspan></text>
 <rect x="125" y="306" width="64" height="40" fill="#e6def2" stroke="none" rx="5"/>
-<text x="157" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=0</text>
+<text x="157" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=0</tspan></text>
 <rect x="196" y="306" width="64" height="40" fill="#e6def2" stroke="none" rx="5"/>
-<text x="228" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=1</text>
+<text x="228" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=1</tspan></text>
 <rect x="267" y="306" width="64" height="40" fill="#e6def2" stroke="none" rx="5"/>
-<text x="299" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=2</text>
+<text x="299" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=2</tspan></text>
 <rect x="338" y="306" width="64" height="40" fill="#e6def2" stroke="none" rx="5"/>
-<text x="370" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle">b=3</text>
-<text x="460" y="206" fill="#2368a0" font-size="35" font-weight="400" text-anchor="start">→</text>
-<text x="520" y="110" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start">物理缓冲：前 16 个字节</text>
+<text x="370" y="332" fill="#183c4d" font-size="14" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="14">b=3</tspan></text>
+<text x="460" y="206" fill="#2368a0" font-size="35" font-weight="400" text-anchor="start"><tspan dy="0" font-size="35">→</tspan></text>
+<text x="520" y="110" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">物理缓冲：前 16 个字节</tspan></text>
 <rect x="520" y="152" width="56" height="46" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="548" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">0 B</text>
-<text x="548" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">0,0</text>
+<text x="548" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">0 B</tspan></text>
+<text x="548" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">0,0</tspan></text>
 <rect x="582" y="152" width="56" height="46" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="610" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">1 B</text>
-<text x="610" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">0,1</text>
+<text x="610" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">1 B</tspan></text>
+<text x="610" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">0,1</tspan></text>
 <rect x="644" y="152" width="56" height="46" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="672" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">2 B</text>
-<text x="672" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">0,2</text>
+<text x="672" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">2 B</tspan></text>
+<text x="672" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">0,2</tspan></text>
 <rect x="706" y="152" width="56" height="46" fill="#d8e9f4" stroke="none" rx="5"/>
-<text x="734" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">3 B</text>
-<text x="734" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">0,3</text>
+<text x="734" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">3 B</tspan></text>
+<text x="734" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">0,3</tspan></text>
 <rect x="768" y="152" width="56" height="46" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="796" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">4 B</text>
-<text x="796" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">32,0</text>
+<text x="796" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">4 B</tspan></text>
+<text x="796" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">32,0</tspan></text>
 <rect x="830" y="152" width="56" height="46" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="858" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">5 B</text>
-<text x="858" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">32,1</text>
+<text x="858" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">5 B</tspan></text>
+<text x="858" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">32,1</tspan></text>
 <rect x="892" y="152" width="56" height="46" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="920" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">6 B</text>
-<text x="920" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">32,2</text>
+<text x="920" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">6 B</tspan></text>
+<text x="920" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">32,2</tspan></text>
 <rect x="954" y="152" width="56" height="46" fill="#d9eee9" stroke="none" rx="5"/>
-<text x="982" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">7 B</text>
-<text x="982" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">32,3</text>
+<text x="982" y="171" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">7 B</tspan></text>
+<text x="982" y="189" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">32,3</tspan></text>
 <rect x="520" y="257" width="56" height="46" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="548" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">8 B</text>
-<text x="548" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">64,0</text>
+<text x="548" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">8 B</tspan></text>
+<text x="548" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">64,0</tspan></text>
 <rect x="582" y="257" width="56" height="46" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="610" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">9 B</text>
-<text x="610" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">64,1</text>
+<text x="610" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">9 B</tspan></text>
+<text x="610" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">64,1</tspan></text>
 <rect x="644" y="257" width="56" height="46" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="672" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">10 B</text>
-<text x="672" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">64,2</text>
+<text x="672" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">10 B</tspan></text>
+<text x="672" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">64,2</tspan></text>
 <rect x="706" y="257" width="56" height="46" fill="#f6e7cb" stroke="none" rx="5"/>
-<text x="734" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">11 B</text>
-<text x="734" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">64,3</text>
+<text x="734" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">11 B</tspan></text>
+<text x="734" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">64,3</tspan></text>
 <rect x="768" y="257" width="56" height="46" fill="#e6def2" stroke="none" rx="5"/>
-<text x="796" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">12 B</text>
-<text x="796" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">96,0</text>
+<text x="796" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">12 B</tspan></text>
+<text x="796" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">96,0</tspan></text>
 <rect x="830" y="257" width="56" height="46" fill="#e6def2" stroke="none" rx="5"/>
-<text x="858" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">13 B</text>
-<text x="858" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">96,1</text>
+<text x="858" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">13 B</tspan></text>
+<text x="858" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">96,1</tspan></text>
 <rect x="892" y="257" width="56" height="46" fill="#e6def2" stroke="none" rx="5"/>
-<text x="920" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">14 B</text>
-<text x="920" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">96,2</text>
+<text x="920" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">14 B</tspan></text>
+<text x="920" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">96,2</tspan></text>
 <rect x="954" y="257" width="56" height="46" fill="#e6def2" stroke="none" rx="5"/>
-<text x="982" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle">15 B</text>
-<text x="982" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle">96,3</text>
-<text x="520" y="375" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start">第 16～31 字节依次放 r=1,33,65,97 的 b=0…3。</text>
-<text x="520" y="399" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start">b=4…7 的下一个 tile 从字节 512 开始。</text>
+<text x="982" y="276" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">15 B</tspan></text>
+<text x="982" y="294" fill="#183c4d" font-size="11" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="11">96,3</tspan></text>
+<text x="520" y="375" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">第 16～31 字节依次放 r=1,33,65,97 的 b=0…3。</tspan></text>
+<text x="520" y="399" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">b=4…7 的下一个 tile 从字节 512 开始。</tspan></text>
 <rect x="30" y="429" width="1020" height="112" fill="#f1f6f8" stroke="none" rx="5"/>
-<text x="48" y="457" fill="#2368a0" font-size="16" font-weight="400" text-anchor="start">KB = K / 16；P = 512 × ceil(KB / 4)；// 表示整数除法。</text>
-<text x="48" y="487" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start">offset(r,b) = P × (r // 128) + 512 × (b // 4)</text>
-<text x="48" y="517" fill="#183c4d" font-size="17" font-weight="400" text-anchor="start">                         + 16 × (r % 32) + 4 × ((r // 32) % 4) + (b % 4)</text>
-<text x="30" y="573" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start">例：(0,0)→0；(32,0)→4；(1,0)→16；(3,2)→50；(0,5)→513。</text>
-<text x="30" y="603" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start">这里只说明可验证的布局映射。普通行主序的同一行相邻块本来就连续；不据此猜测内部 warp 读法。</text>
+<text x="48" y="457" fill="#2368a0" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">K′ = 16 × ceil(K / 16)；KB = K′ / 16；P = 512 × ceil(KB / 4)。</tspan></text>
+<text x="48" y="487" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">offset(r,b) = P × (r // 128) + 512 × (b // 4)</tspan></text>
+<text x="48" y="517" fill="#183c4d" font-size="17" font-weight="400" text-anchor="start"><tspan dy="0" font-size="17">                         + 16 × (r % 32) + 4 × ((r // 32) % 4) + (b % 4)</tspan></text>
+<text x="30" y="573" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">例：(0,0)→0；(32,0)→4；(1,0)→16；(3,2)→50；(0,5)→513。</tspan></text>
+<text x="30" y="603" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">这里只说明可验证的布局映射。普通行主序的同一行相邻块本来就连续；不据此猜测内部 warp 读法。</tspan></text>
 </svg>

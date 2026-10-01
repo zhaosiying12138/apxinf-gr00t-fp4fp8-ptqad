@@ -14,6 +14,8 @@ Env knobs:
     head       action_head.* Linears (default)
     head+lang  + language attention q/k/v/o
     head+lang_all  + language attention and MLP gate/up/down
+    all_ordinary_linear  + every eligible two-dimensional Linear, including
+      the visual tower; CategorySpecificLinear banks remain frozen
   QAD_STEPS (1000), QAD_MICRO_BATCH (1), QAD_GLOBAL_BATCH (16)
   QAD_ACCUM_STEPS must equal GLOBAL/MICRO if also supplied (single GPU)
   QAD_OPD_MSE_W (0: off; QAD_OPD_KL_W is a deprecated alias)
@@ -25,6 +27,7 @@ Env knobs:
 Run from ~/codebase/groot-fsdp2/Isaac-GR00T with .venv python.
 """
 import json, os, sys, time
+from glob import glob
 from pathlib import Path
 METRICS_STARTED = time.perf_counter()
 
@@ -68,6 +71,88 @@ if TRAIN_SEED < 0:
 
 _lora_count = [0]
 _runtime_trainer = [None]
+_w4a4_patch = [None]
+W4A4 = os.environ.get("QAD_W4A4", "0") == "1"
+_W4A4_NVFP4_NAMES = None
+
+
+def _w4a4_nvfp4(name, base):
+    """Return whether a frozen recipe assigns NVFP4 to this Linear."""
+    global _W4A4_NVFP4_NAMES
+    if _W4A4_NVFP4_NAMES is None:
+        recipe_path = Path(base) / "ptq_recipe.json"
+        if recipe_path.is_file():
+            payload = json.loads(recipe_path.read_text())
+            layers = payload.get("layers", {})
+            _W4A4_NVFP4_NAMES = {
+                layer for layer, record in layers.items()
+                if str(record.get("actual_method", record.get("method", ""))).startswith("nvfp4")
+            }
+        else:
+            _W4A4_NVFP4_NAMES = set()
+    return name in _W4A4_NVFP4_NAMES
+
+
+class CapturedStateDataset(torch.utils.data.Dataset):
+    """Replay already-collated teacher snapshots as a training dataset.
+
+    ``capture_onpolicy.py`` stores the exact normalized model inputs and the
+    action endpoint used by the flow-matching loss.  Replaying these tensors
+    avoids silently converting a rollout into a different image/state
+    representation.  The recovery trainer is intentionally single-device and
+    micro-batch one, so each item retains the original one-sample shapes.
+    """
+
+    def __init__(self, root):
+        self.root = Path(root).expanduser().resolve()
+        self.paths = sorted(self.root.rglob("sample_*.pt"))
+        if not self.paths:
+            raise ValueError(f"QAD_CAPTURE_DATASET has no sample_*.pt files: {self.root}")
+        self.samples = []
+        for path in self.paths:
+            sample = torch.load(path, map_location="cpu", weights_only=True)
+            inputs = sample.get("inputs")
+            if not isinstance(inputs, dict):
+                raise ValueError(f"Captured sample lacks inputs: {path}")
+            required = {"embodiment_id", "state", "input_ids", "attention_mask",
+                        "pixel_values", "image_grid_thw", "action", "action_mask"}
+            if set(inputs) != required:
+                raise ValueError(f"Captured sample keys differ at {path}: {sorted(inputs)}")
+            for key, value in inputs.items():
+                if not torch.is_tensor(value):
+                    raise ValueError(f"Captured input is not a tensor: {path} {key}")
+            # Captures are saved as a one-sample inference batch.  Store the
+            # sample without that leading batch axis; the Trainer collator
+            # adds it back exactly once.
+            for key, value in list(inputs.items()):
+                if key not in {"pixel_values", "image_grid_thw"} and value.ndim >= 1 and value.shape[0] == 1:
+                    inputs[key] = value[0].contiguous()
+            self.samples.append({"path": path, "inputs": inputs,
+                                 "task_text": sample.get("task_text", "")})
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        return self.samples[index]["inputs"]
+
+
+class CapturedStateCollator:
+    """Collate one captured sample while preserving VLM patch dimensions."""
+
+    _non_batch = {"pixel_values", "image_grid_thw"}
+
+    def __call__(self, features):
+        if len(features) != 1:
+            raise ValueError("Captured recovery dataset requires micro-batch one")
+        sample = features[0]
+        batch = {}
+        for key, value in sample.items():
+            if key in self._non_batch:
+                batch[key] = value
+            else:
+                batch[key] = value.unsqueeze(0)
+        return {"inputs": batch}
 
 
 def in_scope(name):
@@ -99,8 +184,36 @@ def install_lora(model):
                         z = torch.nn.functional.linear(z, m.lora_B)
                         return y + (z * s).to(y.dtype)
                     return fwd
-                mod.forward = make_fwd(mod, scale)
+                # W4A4 installs the two branches after every adapter exists,
+                # so the base receives Qa(x) while B(Ax) keeps raw BF16 x.
+                # The legacy branch remains available for registered W4A16
+                # protocols and is never silently mixed with W4A4.
+                if not W4A4 or not _w4a4_nvfp4(name, os.environ["GR00T_BASE_CKPT"]):
+                    mod.forward = make_fwd(mod, scale)
                 _lora_count[0] += 1
+    if W4A4:
+        from native_activation import native_activation_qdq_torch
+        from scoped_quant import configure_quant_recipe, install_activation_only
+        from w4a4_lora import install_w4a4_lora
+        # Install the activation contract on the complete frozen base first.
+        # The adapter patch below replaces only LoRA-bearing Linear modules so
+        # their residual branch can keep the original BF16 input.  Without
+        # this first pass, non-LoRA vision/DiT layers would silently remain
+        # BF16 during QAD/OPD while the PTQ service ran W4A4 everywhere.
+        configure_quant_recipe(os.environ["GR00T_BASE_CKPT"])
+        base_report = install_activation_only(model, mode="all", ste=True)
+        print(f"[lora-qad] W4A4 base activation contract installed on "
+              f"{base_report.count} modules (padded={base_report.padded_modules}); "
+              "LoRA residual keeps raw BF16 input", flush=True)
+        _w4a4_patch[0] = install_w4a4_lora(
+            model,
+            lambda value: native_activation_qdq_torch(value, ste=True),
+            rank=R,
+            alpha=ALPHA,
+            scope=lambda name, module: in_scope(name) and _w4a4_nvfp4(name, os.environ["GR00T_BASE_CKPT"]),
+        )
+        print(f"[lora-qad] W4A4 activation contract installed on {_w4a4_patch[0].count} LoRA Linears; "
+              "residual input remains raw BF16", flush=True)
     for pname, p in model.named_parameters():
         p.requires_grad = "lora_" in pname.split(".")[-1]
         if p.requires_grad:
@@ -155,19 +268,37 @@ def load_initial_adapter(model, checkpoint):
 def install_gradient_audit(trainer_cls):
     original = trainer_cls.training_step
 
+    # GR00T's LIBERO action policy never evaluates the language-model logits
+    # head.  ``all_ordinary_linear`` still installs an adapter there so the
+    # checkpoint inventory remains complete, but its B matrix is intentionally
+    # inactive and cannot receive a gradient from the action loss.  Keep this
+    # explicit allow-list separate from the three active branches so a missing
+    # gradient in an actually used module still fails closed.
+    inactive_prefixes = ("backbone.model.lm_head.",)
+
     def audited_step(self, model, *args, **kwargs):
         result = original(self, model, *args, **kwargs)
         if not getattr(self, "_lora_grad_verified", False):
-            groups = {"head": []}
-            if SCOPE != "head":
-                groups["language"] = []
+            groups = {"head": [], "language": [], "vision": [], "other": []}
+            expected_groups = set()
             for name, parameter in model.named_parameters():
                 if not name.endswith(".lora_B"):
                     continue
-                group = "language" if ".language_model.layers." in name else "head"
-                if group in groups and parameter.grad is not None:
+                if name.startswith(inactive_prefixes):
+                    continue
+                if name.startswith("action_head."):
+                    group = "head"
+                elif ".language_model.layers." in name:
+                    group = "language"
+                elif ".visual." in name:
+                    group = "vision"
+                else:
+                    group = "other"
+                expected_groups.add(group)
+                if parameter.grad is not None:
                     groups[group].append(parameter.grad.detach().float().square().sum())
-            for group, squares in groups.items():
+            for group in sorted(expected_groups):
+                squares = groups[group]
                 if not squares:
                     raise RuntimeError(f"No {group} LoRA B gradients after first backward")
                 norm = torch.stack(squares).sum().sqrt().item()
@@ -187,6 +318,7 @@ def install_trainer_hooks():
     from transformers import TrainerCallback
     original_model = Gr00tN1d7Pipeline._create_model
     original_dataset = Gr00tN1d7Pipeline._create_dataset
+    original_collator = Gr00tN1d7Pipeline._create_collator
 
     def full_checkpoint_model(self, *args, **kwargs):
         restore_checkpoint_model_config(self.config, os.environ["GR00T_BASE_CKPT"])
@@ -198,9 +330,22 @@ def install_trainer_hooks():
         configure_libero_data(self.config, os.environ["GR00T_BASE_CKPT"])
         result = original_dataset(self, *args, **kwargs)
         verify_libero_statistics(self.processor, os.environ["GR00T_BASE_CKPT"])
+        capture_root = os.environ.get("QAD_CAPTURE_DATASET")
+        if capture_root:
+            replay = CapturedStateDataset(capture_root)
+            self._capture_dataset = replay
+            print(f"[lora-qad] replaying {len(replay)} captured teacher snapshots from {replay.root}", flush=True)
+            return replay, None
         return result
 
     Gr00tN1d7Pipeline._create_dataset = fixed_statistics
+
+    def fixed_collator(self, *args, **kwargs):
+        if hasattr(self, "_capture_dataset"):
+            return CapturedStateCollator()
+        return original_collator(self, *args, **kwargs)
+
+    Gr00tN1d7Pipeline._create_collator = fixed_collator
     orig_init = Gr00tTrainer.__init__
 
     def patched_init(self, *a, **kw):
@@ -233,23 +378,37 @@ def install_trainer_hooks():
                     "base_config_sha256": file_sha256(base / "config.json"),
                     "base_statistics_sha256": file_sha256(base / "statistics.json"),
                     "base_recipe_sha256": file_sha256(base / "ptq_recipe.json"),
+                    "base_category_recipe_sha256": (file_sha256(base / "category_ptq_recipe.json")
+                                                     if (base / "category_ptq_recipe.json").is_file() else None),
+                    "base_category_manifest_sha256": (file_sha256(base / "category_bake_manifest.json")
+                                                       if (base / "category_bake_manifest.json").is_file() else None),
                     "initial_adapter": initial, "optimizer_resumed": False,
                     "probe_weight": MSE_W, "probe_every": int(os.environ.get("OPD_EVERY", "4")),
                     "probe_cache": os.environ.get("OPD_CACHE_PATH") if MSE_W else None,
                     "probe_cache_sha256": file_sha256(os.environ["OPD_CACHE_PATH"]) if MSE_W else None,
                     "probe_action_mask": libero_action_spec(base) if MSE_W else None,
                     "objective": "demo flow loss + scheduled sequential teacher velocity MSE" if MSE_W else "demo flow loss",
+                    "activation_format": "NVFP4",
+                    "execution_mode": "W4A4 numerical QDQ + BF16 LoRA residual" if W4A4 else "W4A16 weight-only",
+                    "w4a4_enabled": W4A4,
                     "normalization": "frozen base statistics", "seed": self.args.seed,
                     "train_seed": TRAIN_SEED,
                     "protocol_file": str(PROTOCOL_FILE),
-                    "protocol_sha256": file_sha256(PROTOCOL_FILE)}
+                    "protocol_sha256": file_sha256(PROTOCOL_FILE),
+                    "capture_dataset": os.environ.get("QAD_CAPTURE_DATASET"),
+                    "capture_dataset_sha256": os.environ.get("QAD_CAPTURE_DATASET_SHA256"),
+                    "capture_dataset_samples": (len(list(Path(os.environ["QAD_CAPTURE_DATASET"]).expanduser().rglob("sample_*.pt")))
+                                                 if os.environ.get("QAD_CAPTURE_DATASET") else None)}
         manifest["activation_checkpointing"] = activation_checkpointing
-        manifest["recovery_source_sha256"] = {
-            str(path.relative_to(PROJECT)): file_sha256(path)
-            for path in (PROJECT / "rl" / filename for filename in (
+        recovery_sources = [
+            PROJECT / "rl" / filename for filename in (
                 "lora_qad.py", "probe_distill.py", "lora_scope.py", "recovery_batch.py",
-                "gr00t_runtime.py", "activation_checkpoint.py", "runtime_metrics.py"))
-        }
+                "gr00t_runtime.py", "activation_checkpoint.py", "runtime_metrics.py",
+                "w4a4_lora.py")]
+        if W4A4:
+            recovery_sources.append(PROJECT / "quant" / "native_activation.py")
+        manifest["recovery_source_sha256"] = {
+            str(path.relative_to(PROJECT)): file_sha256(path) for path in recovery_sources}
         manifest.update({"micro_batch": MICRO_BATCH, "gradient_accumulation_steps": ACCUM_STEPS,
                          "effective_global_batch": GLOBAL_BATCH,
                          "upstream_global_batch_size_cli": MICRO_BATCH,
@@ -289,6 +448,12 @@ if __name__ == "__main__":
 
     def _seeded_run(config):
         config.data.seed = TRAIN_SEED
+        # The recovery orchestrator controls checkpoint retention explicitly.
+        # Respect it here so long W4A4 runs do not accumulate full-model shards
+        # at every save interval and exhaust the experiment volume.
+        save_limit = os.environ.get("QAD_SAVE_TOTAL_LIMIT")
+        if save_limit is not None:
+            config.training.save_total_limit = int(save_limit)
         return _original_run(config)
 
     _experiment.run = _seeded_run

@@ -35,17 +35,33 @@ RESULT_FILES = [
         'installed_extension.json','fp4_contract_rowmajor_and_tensor_scale.log',
         'fp4_graph_replay_bf16_and_distinct_scales.log',
         'fp4_activation_padding_zero_after_capture.log','pi05_require_graph.log')],
-    'results/ptqad_20260929/ptq_frontier_plan.json',
+    'results/ptqad_20261001/mixed_pressure/recovery/run_manifest.json',
 ]
 FINAL_REPORTS = [f'paper/validation/{name}.json' for name in (
     'figure-inputs','figure-renders','html-build','browser-validation',
-    'publication-validation')]
-WEIGHT_MAPPINGS = {
-    f'weights/ptqad_20260929/{arm}/{name}.json':
-    f'results/ptqad_20260929/artifacts/{arm}/{name}.json'
-    for arm in ('fp8base','head_ffn','head_lang')
-    for name in ('bake_manifest','ptq_recipe')
-}
+    'publication-validation','publication-validation-v7')]
+CURRENT_SOURCE_FILES = (
+    'exp/recovery_protocol_v7_mixed_pressure.json',
+    'exp/run_mixed_pressure_study.py',
+    'exp/run_mixed_pressure_recovery.py',
+    'exp/run_high_fp4_v3.py',
+    'paper/build_final_frontier.py',
+    'paper/build_html.py',
+    'paper/export_zhihu.py',
+    'paper/extract_final_evidence.py',
+    'paper/materialize_final_evidence.py',
+    'paper/evidence/selected_recipe/category_memory.json',
+    'paper/evidence/selected_recipe/category_ptq_recipe.json',
+    'paper/evidence/selected_recipe/category_bake_manifest.json',
+)
+RETIRED_SEED_PREFIXES = (
+    'results/ptqad_20260929/development/',
+    'results/ptqad_20260929/calibration',
+    'results/ptqad_20260929/bake_',
+    'weights/ptqad_20260929/',
+)
+# No model payload or weights/ -> results/ metadata mapping is approved in v7.
+WEIGHT_MAPPINGS = {}
 FORBIDDEN_SUFFIXES = {'.pt','.pth','.safetensors','.so','.whl','.pyc','.bin','.mp4'}
 
 
@@ -109,12 +125,16 @@ def validate_final_manifest(path, root):
             'Final export requires a regular final_manifest.json')
     require(path.is_relative_to(root), 'Final manifest must be inside the source repository')
     data = read_json(path)
-    require(re.fullmatch(r'high_fp4_[a-z0-9_]+_final_manifest', str(data.get('format', ''))),
+    require(re.fullmatch(r'(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7)_final_manifest', str(data.get('format', ''))),
             'Unsupported or incomplete final manifest format')
     require(data.get('selection_uses_heldout') is False,
             'Final selection must be independent of heldout results')
     require(set(data.get('required_arms', ())) == set(ARMS),
             'Final manifest does not declare exactly five arms')
+    if data.get('protocol_file'):
+        protocol = Path(data['protocol_file']).resolve(strict=True)
+        require(protocol.is_file() and data.get('protocol_sha256') == sha(protocol),
+                'Final protocol identity differs')
     comparison_info = data.get('heldout_comparison')
     require(isinstance(comparison_info, dict), 'Final manifest lacks heldout comparison identity')
     comparison = Path(comparison_info.get('path', '')).resolve(strict=True)
@@ -127,6 +147,9 @@ def validate_final_manifest(path, root):
     require(paired.get('environment_pairing_verified') is True and
             paired.get('protocol_consistency_verified') is True,
             'Final heldout comparison has not passed pairing/protocol checks')
+    if str(data.get('format', '')).startswith('mixed_pressure_v7_'):
+        require(paired.get('source_accounting_verified') is True,
+                'v7 heldout comparison lacks source accounting verification')
     require(set(paired.get('arms', ())) == set(ARMS),
             'Final heldout comparison does not contain exactly five arms')
     state = path.parent / 'run_manifest.json'
@@ -151,8 +174,14 @@ def mapped_files(root, manifest_name, kind):
                 or (kind == 'frontier' and path == 'paper/evidence/frontier_comparison.json'),
                 'Unexpected '+kind+' destination: '+path)
         require(path not in seen, 'Duplicate manifest destination: '+path)
-        require(Path(row['original_absolute_path']).is_absolute(), 'Original identity is not absolute')
-        checked_file(root,path,row);seen.add(path);names.append(path)
+        source = row.get('source')
+        if isinstance(source, dict):
+            require(Path(source.get('path', '')).is_absolute(), 'Original identity is not absolute')
+            expected = source
+        else:
+            require(Path(row.get('original_absolute_path', '')).is_absolute(), 'Original identity is not absolute')
+            expected = row
+        checked_file(root,path,expected);seen.add(path);names.append(path)
     return names
 
 
@@ -189,9 +218,14 @@ def refresh(seed, root, target, final_manifest=None):
         return row
 
     for original in seed['source_export']:
+        if any(original['source'].startswith(prefix) for prefix in RETIRED_SEED_PREFIXES):
+            continue
         require(original['target'] not in rows, 'Duplicate manually reviewed seed target')
         rows[original['target']]=copy.deepcopy(original)
         add(original['source'],original['category'],original['target'])
+
+    for name in CURRENT_SOURCE_FILES:
+        add(name, 'v7_reproducibility_source')
 
     if final_path is not None:
         final_rel = final_path.relative_to(Path(root).resolve()).as_posix()
@@ -210,6 +244,12 @@ def refresh(seed, root, target, final_manifest=None):
         for name in [frontier,*mapped_files(root,frontier,'frontier')]:
             add(name,'completed_frontier_manifest_bound_evidence')
     else:pending.append({'path':frontier,'reason':'Await complete frontier collector'})
+
+    for name in ('paper/evidence/final_results.json', 'paper/evidence/frontier_comparison.json'):
+        if (root/name).is_file():
+            add(name, 'v7_final_frontier_evidence')
+        else:
+            pending.append({'path':name, 'reason':'Await v7 final evidence/frontier builder'})
 
     paired=['paper/evidence/paired_comparison.json'] + [
         f'paper/evidence/heldout_{arm}/{name}.json' for arm in ARMS

@@ -71,8 +71,31 @@ class CaptureTests(unittest.TestCase):
             result = parse_log(log)
             self.assertEqual((result["successes"], result["episodes"]), (2, 3))
             self.assertEqual(result["resets"][0]["seed"], 12)
+            self.assertEqual(result["raw_reset_count"], 1)
+            self.assertEqual(result["scored_reset_count"], 1)
+            self.assertEqual(result["ignored_auto_reset_count"], 0)
             log.write_text("TimeoutError: server did not reply\n")
             self.assertIsNone(parse_log(log)["success_rate"])
+
+    def test_terminal_auto_resets_are_excluded_from_scored_resets(self):
+        with tempfile.TemporaryDirectory() as directory:
+            log = Path(directory) / "task.log"
+            scored = [
+                {"episode_index": i, "seed": 100 + i,
+                 "initial_state_sha256": "a" * 64}
+                for i in range(2)
+            ]
+            terminal = {"episode_index": 1, "seed": 101,
+                        "initial_state_sha256": "b" * 64}
+            log.write_text("".join(
+                "FP4VLA_EPISODE_RESET " + json.dumps(row) + "\n"
+                for row in [*scored, terminal]
+            ) + "results: ('libero_sim/task', [True, False])\n")
+            result = parse_log(log)
+            self.assertEqual(result["resets"], scored)
+            self.assertEqual(result["raw_reset_count"], 3)
+            self.assertEqual(result["scored_reset_count"], 2)
+            self.assertEqual(result["ignored_auto_reset_count"], 1)
 
     def test_heldout_overlap_is_rejected_before_process_launch(self):
         with tempfile.TemporaryDirectory() as directory:

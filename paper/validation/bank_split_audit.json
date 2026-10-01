@@ -1,0 +1,806 @@
+{
+  "status": "passed",
+  "utc": "2026-09-29T04:29:36.780410+00:00",
+  "gpu_execution": false,
+  "cuda_initialized": false,
+  "torch": "2.9.0+cu128",
+  "numpy": "1.26.4",
+  "scope": "Within each task: exact official bank vector uniqueness before simulator restoration and settling; no claim of statistical independence or different postsettle states.",
+  "vector_encoding": "C-contiguous little-endian float64 bytes, finite values, signed zero normalized to +0",
+  "tasks": 10,
+  "selected_vectors": 140,
+  "selected_splits_disjoint": true,
+  "script_sha256": "27bf521f1a8397b0f385a5351e74ecb17a22d6b2331b17de5df94a7ff90eab47",
+  "rows": [
+    {
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.pruned_init",
+      "file_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        123
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "747b653b2ca1feeae8f3bd994880ce743730993ea5ce4bd003623e877f26b3bd"
+          },
+          {
+            "index": 1,
+            "sha256": "cf85ed132ae09bfad8798a3126b14879071228e0e2e7bd17c3e9d20e519cdb5a"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "be0c23f82748baf99eea1ecc4ff28eb82163945bc0bfffb509eeef0decced138"
+          },
+          {
+            "index": 3,
+            "sha256": "6929d3090ef9a3431c21b84539c99c3b481b09042bc6f3cf07ea0cc44fb65a70"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "f3f14a7829a2265990d40f5a6212c297fb802727b98a8e1a66fcb16c757f5143"
+          },
+          {
+            "index": 11,
+            "sha256": "8498d72842ad1b202a7909f4bf280eb10043dd4f5586fe0c34b93dc6c599ce87"
+          },
+          {
+            "index": 12,
+            "sha256": "55d40072429fe5faa1a13b6c94d2a0c044a5c280b0374c43ee9fd0db799364c7"
+          },
+          {
+            "index": 13,
+            "sha256": "a5772da869875502626dac37ef4f7ecf06ed2ebd12624447bfe8436d42f2ce49"
+          },
+          {
+            "index": 14,
+            "sha256": "3e0acc5cb5b991a14bf29326f068b47fa444be1e51e65debcf25f80db7aaa3d6"
+          },
+          {
+            "index": 15,
+            "sha256": "a6cd41d3a9cf563d539bb4bc3d01b60ba964162635ec6c99b5fd23bdc981d95f"
+          },
+          {
+            "index": 16,
+            "sha256": "5d4fe04c48519affced9c5486a50710cc496f6f4df1f7c4ba0e4db594fba8601"
+          },
+          {
+            "index": 17,
+            "sha256": "9db3fd136836ad8fb6293e03825c32b527869a18e69791190fc5efc7268dfc7e"
+          },
+          {
+            "index": 18,
+            "sha256": "bbbc83e66162ac23c060a6cdafc5bbd90ed62856ff9de8da4b70607d091e1e34"
+          },
+          {
+            "index": 19,
+            "sha256": "a6fb28270e5509da8619115495b070fe25bec4e644f15080bf7a3a61f8382a16"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.pruned_init",
+      "file_sha256": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        123
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "5abdf8f466f490901dee9f931b32eb181b2928eaa17bb6379742f988581d564a"
+          },
+          {
+            "index": 1,
+            "sha256": "cd3e7f86ef217ee7b7d26cc505b3f56ea8f49664ef10f6749270dfcd39dd17a6"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "ab6bf2ca98e96f1692d8ec7a5b7ec25eee1ea61c57d45c2816ac3dcc938ea3ee"
+          },
+          {
+            "index": 3,
+            "sha256": "3e0d23df2cf22ae6e897e15a1739d5bf25474b4e33196644890b8485f0e880f5"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "9277007e6616dc82740a46e99a7fe08550cd26c47d92ec095c657f7666dd0136"
+          },
+          {
+            "index": 11,
+            "sha256": "1b216c4f2afb1847271a3869e33c719b2893eb7ffc37e141a47835943ecf3f1c"
+          },
+          {
+            "index": 12,
+            "sha256": "48bf59dc13ae0ebd7c0074dd270d570f96c9820240e2592fafc5e888336a2af9"
+          },
+          {
+            "index": 13,
+            "sha256": "71dad013f8cacc07d59079034dca9c3d43390196a58a7dd4afd226cc6bd59334"
+          },
+          {
+            "index": 14,
+            "sha256": "ff9df67d8709a5a98116ddcc02bb5ffbb3175e428206c0872010d6359650edf8"
+          },
+          {
+            "index": 15,
+            "sha256": "2081f0108dd0342f6d988855910777de3564d9f294477cac22590765942f27ae"
+          },
+          {
+            "index": 16,
+            "sha256": "bb8073f96294281b7008501d0b6ebdec3668f90448421c5937b58f57c1b8c5e2"
+          },
+          {
+            "index": 17,
+            "sha256": "d20cd4b25c7f416d14d47847a8df274779924d47c5f6ee304486c967971690a3"
+          },
+          {
+            "index": 18,
+            "sha256": "501646e50339d7ac9536e7cd7029f44aefa2bd43c91a1db90c2d5bdd2d331796"
+          },
+          {
+            "index": 19,
+            "sha256": "59bd069bff4e6a8e871bbf7ddb52221691c51810219e35590def72105c183d5a"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.pruned_init",
+      "file_sha256": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        47
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "9ae67aa7e7dd9987ecd1f2930e2b061fb66a414dd94e4b575417356a556cbd90"
+          },
+          {
+            "index": 1,
+            "sha256": "453d74e45f2f7141904a047d4237db1ee0b5576fe7a3f6c2cb4801e83bacb88a"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "8227fd36ba47ae92020986ff9b090acd500ddadcc057c66b04f8afe6fb4de2bb"
+          },
+          {
+            "index": 3,
+            "sha256": "53956839e3584f29993eb41169934902624a2f06d531b13bec4cd8f8cdd5de9d"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "f75f908010665975aa51b3dd00798d8da79ee47d1d2c0a2460941e507dbd5736"
+          },
+          {
+            "index": 11,
+            "sha256": "0bfd037c32ffebeb7c8ea5012159c73e72d411dbbbcb431f0662b71496436d9f"
+          },
+          {
+            "index": 12,
+            "sha256": "8df0a87a2f79cb89dedc7095b129cb777731a9784103b26a14553765f2641721"
+          },
+          {
+            "index": 13,
+            "sha256": "43869c6215ec48f33579fa3b144035e14c9ee8c677812f52734172ac799e9ee9"
+          },
+          {
+            "index": 14,
+            "sha256": "029086333120d279dcc64cc6ef4373c76359a218ebcbb173d3e7eabbe5c321b4"
+          },
+          {
+            "index": 15,
+            "sha256": "cfc8d05c8752fa81ab4c060beec45a7a37642fe316367a2d14328e05ac7d2c60"
+          },
+          {
+            "index": 16,
+            "sha256": "59a44550ba158e8a2bdf09b7c4ffce0920fa98beb41ab6e90fa6a4f89426f757"
+          },
+          {
+            "index": 17,
+            "sha256": "8f07a846fa8d0d80064caee54702772391b77841a12fe47d94e3ac084d91b1f6"
+          },
+          {
+            "index": 18,
+            "sha256": "ba0d3188c6e86421a401c75c1309471405c4d91d483678092f60129cb74e990b"
+          },
+          {
+            "index": 19,
+            "sha256": "5785bea3fc341770a8749bf65c50aa4cee45741219d23f3fedbaca44025d3c78"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.pruned_init",
+      "file_sha256": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        51
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "ea2ad0a67ceabe915bc4744e8231bf7fe71bddb74ff8c67eae6c821ff82078a4"
+          },
+          {
+            "index": 1,
+            "sha256": "4163733ff3615b450aeebdbe916059b6c8b8f899330378fde0f00efc2f795efe"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "d4452cb6d293450305537a0160f36840b3351a6b381b8e487f3bf2db1b30399b"
+          },
+          {
+            "index": 3,
+            "sha256": "3304c9b023454e5f857390d21d8992a71c0491af9b7be42cd2b96d38fad671c9"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "5fd1895f41fc1fd6032c6ea5592fb32d61cc6cb0e5af3e89e6ee06ad287187e9"
+          },
+          {
+            "index": 11,
+            "sha256": "163d19b5b7ba8f4ae1a9abd652b429ced34817799c94171852fa6775fd6da1f1"
+          },
+          {
+            "index": 12,
+            "sha256": "2338f1117044e1f570956b03990b0a68523ecb07c32fa68fbe017085a7797748"
+          },
+          {
+            "index": 13,
+            "sha256": "e8023763a1f25b673a9b0ddb9cd665629eb1c1939676cf736e177950fa119c23"
+          },
+          {
+            "index": 14,
+            "sha256": "82c1ac02203c34fbf6a582ae4b65d1f98ecf0bf48e49e375bea8f760cdcb9503"
+          },
+          {
+            "index": 15,
+            "sha256": "0684c8840637a00464a2691c2cf511694028e8662f6060a893445a6eb4f60d5a"
+          },
+          {
+            "index": 16,
+            "sha256": "722d65318c097beda924a0bc2da9798f4e6f54024ad8388637cc92dbcd5b1995"
+          },
+          {
+            "index": 17,
+            "sha256": "6499f1c4037293ed106450c575be907fda9a46a8c94bb6893d4142984da82d0d"
+          },
+          {
+            "index": 18,
+            "sha256": "99afc052ff99002ae0d69402286b25865ad616d3c4d2e01d1db851c3fd9844ec"
+          },
+          {
+            "index": 19,
+            "sha256": "633426e634d29745a1df5f8c16dd19e292de894cc819f3c2ff09b6dea3324ba2"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.pruned_init",
+      "file_sha256": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        84
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "4365b3c5a82da7f8818c11ef5fd494c4890c17c4c3e27948dc290a9ac2f08131"
+          },
+          {
+            "index": 1,
+            "sha256": "b55dd89278457f3c00d7b4d871dc8d64e84534e5a119dd35a53e5a152c831d6a"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "1d2fdd615bb32a097ad2781dd5e9203104555e54521dd9bce6eacbb5bf718e33"
+          },
+          {
+            "index": 3,
+            "sha256": "79a2ec18a6067d027a62de697a1931bf818dffc4dd7572c39c4426e122bd35d0"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "03d2ad0efa258979c55567ee8c76735572d94d9d542184f28b3870213f119953"
+          },
+          {
+            "index": 11,
+            "sha256": "7d0034440f25275f8160619177394ba604e5179340e52da8d4a1bdfb17e05b2b"
+          },
+          {
+            "index": 12,
+            "sha256": "15954d8f96d3f923d28e4ab44fd0dde7cd5e8a9767aa35b5bfb0ee49ae84977d"
+          },
+          {
+            "index": 13,
+            "sha256": "d1e95f79455d03edcd88f8bcd8536986dc3cf8ef1da9ac586fe00d443f8e0b2e"
+          },
+          {
+            "index": 14,
+            "sha256": "188e919dae3e22390e0cf5cc177d0ad36687c7e606c4d81fa3a763313e98fe73"
+          },
+          {
+            "index": 15,
+            "sha256": "d8e1f6fd54ddf89b241b1e2d065bb75d245ab49e19895d65fad446caf55076c5"
+          },
+          {
+            "index": 16,
+            "sha256": "5bbc47559d41b7331d5e15c0651986ab93b72818c00972065e5ed5299143ed15"
+          },
+          {
+            "index": 17,
+            "sha256": "aed6339a72e4d78f18315a1a7aa3911cc4106da0517a5ffe5022a0bd7b03aa59"
+          },
+          {
+            "index": 18,
+            "sha256": "e689768abc5b5ec64fa02cf6dddccb5956e914217acb6eef342aa177c1d0d0de"
+          },
+          {
+            "index": 19,
+            "sha256": "cab25360bce4cdcbd230316d1d8ce1142c95303b9120ca48dd4c6c731ebaba99"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.pruned_init",
+      "file_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        45
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "407c3d5eb11fd5b33bd2a6dea73a37415a99d7e72f0cc291074de29b1c63c37c"
+          },
+          {
+            "index": 1,
+            "sha256": "fbf82707bd0a7721f0e118ac32aad30182e487e7a940bec7128ad6f18457e139"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "83ff554be370e25fb3b049d5c3db3f2cf4f20524a0eab8beeda093c6a81bad66"
+          },
+          {
+            "index": 3,
+            "sha256": "72e9938805b4da92baeb254ab7611081832edbb30e3f07c8136e1ea8a00fa235"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "ec85606b107d6c4ec253bea2b62b13171069c1546d6d27214dbf37f05965477b"
+          },
+          {
+            "index": 11,
+            "sha256": "9401b9f3228c86e527dabafc4a1c25dcd40b4b80d14ba6c3c2ea9ee3cbba6976"
+          },
+          {
+            "index": 12,
+            "sha256": "ea8e8a4c936d846d3f81bd606b8805e2502f7f892caa3f8088457a463bd4e4f9"
+          },
+          {
+            "index": 13,
+            "sha256": "167b213a6a6cfd130bef808353233e9ea395beca833ba9b8f0654344414c2a1f"
+          },
+          {
+            "index": 14,
+            "sha256": "9cf453b16ec5820c8d73cc7995ad6ac52db3d13ebfcdd3a9ab0bb7380869aa66"
+          },
+          {
+            "index": 15,
+            "sha256": "18789855054f53dc0771f9a9bc1a69aee708e48eb4c59626dd484595587f5f04"
+          },
+          {
+            "index": 16,
+            "sha256": "7a48f484188b5fa8d1d3ab8a730daa6348851bf761278da2fd051cd4a2308285"
+          },
+          {
+            "index": 17,
+            "sha256": "d121f7c9801ed2290b394f2b8402608cf52218712e7ef9da27bcfc210607b52a"
+          },
+          {
+            "index": 18,
+            "sha256": "375083ca6c9ac0148a8821ed2b9cf5aedd191661dc54707967e67f777bc0e3ba"
+          },
+          {
+            "index": 19,
+            "sha256": "92c976d02e613510fb751c05f197861f4ce9d405d06624760ec79630ba768a96"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.pruned_init",
+      "file_sha256": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        71
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "533340bd717874417ec05cd3d626b05c9464795440da917ce21e8a0a6fc50f72"
+          },
+          {
+            "index": 1,
+            "sha256": "606fa88e4dcd86bf0c84c6c2954eb002166e93037b39e7ed893f0c41e7a15577"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "872632a4cac778497e06fa377164090997928a7b5bfb7783d112807e03c5fa99"
+          },
+          {
+            "index": 3,
+            "sha256": "3d019c0aa2cfc2ea5d7cc5a49fc727bcb0dd0c6164a273733a6c47f21db80e43"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "4eac5afc960c2d6641be206178848b6623f9b98dcb191644d7563bef6118ef87"
+          },
+          {
+            "index": 11,
+            "sha256": "88464478ea50d1dc610b5178aa6619bbbe7c3758007d6246e5a9f3ff115dffa8"
+          },
+          {
+            "index": 12,
+            "sha256": "db9b505b50f800b326febca3c6525a1a8bf35bbb4b271cd661129a98f721bae0"
+          },
+          {
+            "index": 13,
+            "sha256": "32f4aa89f01886c82df87c7616d7f1e090e476986f96f21e97a316325b82f3ab"
+          },
+          {
+            "index": 14,
+            "sha256": "47a0a589a343a89446f23421036719e5afd5bfd6fb1fc975c9a3546d867c3c82"
+          },
+          {
+            "index": 15,
+            "sha256": "4b46faa0a312ee358ce179d85b4b568aa0ebb6a8f73c08c610db5a653f352410"
+          },
+          {
+            "index": 16,
+            "sha256": "69ae650a056fb394005b7f1df0876b5032ee6cb92c63df8eaed2a31c014eedf0"
+          },
+          {
+            "index": 17,
+            "sha256": "9dfc0d981bc039516532e4f6ba8680908d57a5641434fc91582c4d52f57c4c2e"
+          },
+          {
+            "index": 18,
+            "sha256": "93a250a364e88090015a66c6c3479f285d59a685514e29964225df7785998d13"
+          },
+          {
+            "index": 19,
+            "sha256": "78ef2241378b126da8534db773f9b4930b368b2efb356662cfeb6c652fe64f76"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.pruned_init",
+      "file_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        84
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "d02d4d5533fbcab414bfc49e4896182cd40e173dfa6316e39a2b418e902ae826"
+          },
+          {
+            "index": 1,
+            "sha256": "44f0d75550c414e622b03a43e56497e8c9bd0fe4a494c1d2b9c0c9625ed80120"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "9e8c129dc9a5047a34f8772063534c9948acdba167fee37ece92b48f33ea4b34"
+          },
+          {
+            "index": 3,
+            "sha256": "2f4104e7e2996340ed513d08c011e119ca975165933374a1d1d67e78bea6abee"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "b619ce531bfa83ae1288b4041e436bba44c2202a823892d2f06387e366a98e68"
+          },
+          {
+            "index": 11,
+            "sha256": "a007caed9790181b5d6008ba50f6434fe85fac1911c905ce6c6f74bd0d1fb54e"
+          },
+          {
+            "index": 12,
+            "sha256": "d861f803233adb1061f3753c59cd23ee2f77d48030d5cf01fc597de260f088a7"
+          },
+          {
+            "index": 13,
+            "sha256": "c1d8342fea2f060478ed452dcd788f2539c550f66d9eb8595390e9d49bff4bce"
+          },
+          {
+            "index": 14,
+            "sha256": "7aed266205f1e1127662b1e780284666e9578246167b063fc3ae0b4618fc1a41"
+          },
+          {
+            "index": 15,
+            "sha256": "6706f32529b15f587b257a7f83e9f9dee157264afdee7edc73777e0358f97679"
+          },
+          {
+            "index": 16,
+            "sha256": "ba6c626c2d5922ebfd400d34369caa3180d24ceda44d3161df56315aca0cb349"
+          },
+          {
+            "index": 17,
+            "sha256": "00b17039829501f73cd97b0545493af90d6fe8f8b39fd85e6b843c5140b30ae6"
+          },
+          {
+            "index": 18,
+            "sha256": "475799546c80be5f70b67f2f6d38850a25c4e7556049d56268d7bb103a1ff473"
+          },
+          {
+            "index": 19,
+            "sha256": "a2db6a182c4e6c18c125690df2c7ecee019b33fd5e0d2bfe30b99615060abdd9"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.pruned_init",
+      "file_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        47
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "61a34575b44313156895ce73996cf18dd243c396572fd0e1cd476e0e9fbe70af"
+          },
+          {
+            "index": 1,
+            "sha256": "cf1b859b0688c3c3ea64fba0ab5bd29b88ff7f28dc5893df4cb7564ac4db8cce"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "9f3bbe14f940c66de58d1dbecf0b5a2af12b48cbb93deec15c094fe4a9f5323a"
+          },
+          {
+            "index": 3,
+            "sha256": "f53dd32b70bd23ffa2dd5b1e41267ba1c59e88e245857be8b71d5f9b93865763"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "098c331d6cad1772de3e8ee22a7f983b4c109493f657735e7e7e78319ac1f455"
+          },
+          {
+            "index": 11,
+            "sha256": "7753c014bd3caf96ff9694b20b5ea40358f64730fa10607312183377f69fb305"
+          },
+          {
+            "index": 12,
+            "sha256": "230f07540196aa91799ebd810aaec17e00d69f9677b9a9b095fae44fe5311e0b"
+          },
+          {
+            "index": 13,
+            "sha256": "b014292aff379f3a31351d630b9a03d4bb5477cdbf8ff90c24c7240296bc7d9d"
+          },
+          {
+            "index": 14,
+            "sha256": "b7805a0b589913928301e7e62b6a18bd4cad027d01e652d641923c6ae4042748"
+          },
+          {
+            "index": 15,
+            "sha256": "f61035b0fbe8869fd2fd387f57118072503138d60900d156a3b0f0fd5be8f44d"
+          },
+          {
+            "index": 16,
+            "sha256": "39498952ad2e1bdfa0ca05e0674649d579d50f96f948768aa36b9565861f9e2a"
+          },
+          {
+            "index": 17,
+            "sha256": "abaa40e960c745b6fa8a239eb1f954b913290f6140ff655107d956f811e534e4"
+          },
+          {
+            "index": 18,
+            "sha256": "f5917b74fdfaa72e9bbf2bcb52ea66a10f24fb0a7fc575219d38c9681acd9090"
+          },
+          {
+            "index": 19,
+            "sha256": "2d314d6bfc7b88a7a31d4fb7b632fa43780c50fe1ceceb1c3b431e4723e1e5d9"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    },
+    {
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "file": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/init_files/libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.pruned_init",
+      "file_sha256": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+      "bank_count": 50,
+      "all_bank_unique_vectors": 50,
+      "state_shape": [
+        47
+      ],
+      "selected": {
+        "development": [
+          {
+            "index": 0,
+            "sha256": "ea7db2b727794199cfa1e42f8d924c5841e4af18716a392adf30d5517114c87f"
+          },
+          {
+            "index": 1,
+            "sha256": "8a1664e433521b5f995c9840cd9d41bf796b38742e57ad57786d67076de8b0cd"
+          }
+        ],
+        "collection": [
+          {
+            "index": 2,
+            "sha256": "1cc5eefc998751de4d0e86462742176ed71a470e4846013c1a92ac47cefb9b67"
+          },
+          {
+            "index": 3,
+            "sha256": "ac150060868f6d48b6b53f5d8f07e71e04d3ca8883ff52edae6b0f543c05659a"
+          }
+        ],
+        "heldout": [
+          {
+            "index": 10,
+            "sha256": "c9bcb378e751faef595e7c5f2fadddb734dcf966958b899d483ce60e65005bd8"
+          },
+          {
+            "index": 11,
+            "sha256": "3e3e1b5c2487269fa2404dfe87ad17f3d2ea66c1fe47c165fcf98c49a699ee60"
+          },
+          {
+            "index": 12,
+            "sha256": "0449641ea1810c2c7f48f2d9d5cd992cb4022e35bb1c400bf167f13004decae3"
+          },
+          {
+            "index": 13,
+            "sha256": "c116575c40aebc30dd05d0c986072d54c6463a4436eb3edb1b15695dc4f4a230"
+          },
+          {
+            "index": 14,
+            "sha256": "20365011999da99f8dae3761dd475aec07f9a927a6a64d4aba4b18787f80518a"
+          },
+          {
+            "index": 15,
+            "sha256": "71f5da9b9b727811f31b0878fa0037c5d54a233cc16662bea3fbaf554c2888c6"
+          },
+          {
+            "index": 16,
+            "sha256": "fcaede80ee19d1d5be4fecf8cfb2229c4ef98566fdb5c1d7248738dbaae20b01"
+          },
+          {
+            "index": 17,
+            "sha256": "7b0c0e1375704995df0a3cd7a3ddb84cea1c35725ffbd92dc761953302c7ba26"
+          },
+          {
+            "index": 18,
+            "sha256": "ca9c8948227c7fc9b0a5e15ec2be8324c29542ed617eebb38b496e7d717aa904"
+          },
+          {
+            "index": 19,
+            "sha256": "50deae41902e1e7b21212c732d9d617c78ad9fad8ee3735f97d6918bbc785d47"
+          }
+        ]
+      },
+      "split_intersections": {
+        "development__collection": [],
+        "development__heldout": [],
+        "collection__heldout": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "kind": "CPU fixture execution of actual teacher hook, not a formal training measurement",
+  "optimizer_updates_simulated": 100,
+  "accumulation_microbatches_per_update": 16,
+  "teacher_backward_calls_in_fixture": 400,
+  "logged_records_in_fixture": 80,
+  "logged_update_numbers": [
+    4,
+    24,
+    44,
+    64,
+    84
+  ],
+  "producer_sha256": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6",
+  "checker_sha256": "fe158b9b3efbbdc1a5d5895cfc2e688b0d5f0982a7d1b8dac2106e1f851a0c56",
+  "cuda_initialized": false
+}

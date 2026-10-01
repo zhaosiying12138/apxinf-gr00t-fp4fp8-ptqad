@@ -190,13 +190,14 @@ def decode_exact(encoding):
 
 
 @torch.no_grad()
-def quantize_bank(weight, entry=None, damp=0.01):
+def quantize_bank(weight, entry=None, damp=0.01, rtn_clip=1.0):
     """Compare GPTQ to the best clipped RTN using the same H and saved dtype.
 
 Selection uses calibration only. Ties retain RTN; clipping ties retain the
 first (largest) clip. Any failed/nonfinite GPTQ calculation aborts the bake.
 """
     require(math.isfinite(damp) and damp > 0, "GPTQ damping must be finite and positive")
+    require(math.isfinite(rtn_clip) and 0 < rtn_clip <= 1, "RTN clip must be in (0,1]")
     matrix, k, n = prepare_bank(weight)
     h = None if entry is None else validate_hessian(entry, k).to(matrix.device)
     if h is not None:
@@ -210,7 +211,7 @@ first (largest) clip. Any failed/nonfinite GPTQ calculation aborts the bake.
         return max(value, 0.0)
 
     candidates, best = [], None
-    for clip in CLIP_GRID if h is not None else (1.0,):
+    for clip in CLIP_GRID if h is not None else (rtn_clip,):
         values, metadata = _rtn(matrix, clip)
         objective = score(values)
         candidates.append({"method": "nvfp4_rtn", "clip": clip, "objective": objective})

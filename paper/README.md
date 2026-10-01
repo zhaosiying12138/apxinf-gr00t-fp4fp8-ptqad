@@ -1,6 +1,6 @@
 # 中文论文与知乎发布包
 
-主稿：**PTQAD：APXInf 生态下 GR00T 的 FP4/FP8 混合精度量化与闭环恢复**。
+主稿：**PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与 QAD/OPD 闭环恢复**。
 
 - `paper.html`：单文件离线阅读版，包含公式、字体、图表和 17 张原始运行截图；桌面截图可点击放大。
 - `zhihu/article.md`：与 HTML 共用正文的 Markdown 发表稿，代码块和 LaTeX 公式完整保留。

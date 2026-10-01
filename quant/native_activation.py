@@ -26,13 +26,66 @@ from dataclasses import dataclass
 import numpy as np
 import torch
 
-from .fp4_quant import (
-    decode_e2m1,
-    decode_e4m3,
-    encode_e2m1,
-    encode_e4m3,
-    swizzle_scales,
-)
+try:  # package import (tests) and direct quant/ path import (GR00T runtime)
+    from .fp4_quant import (
+        decode_e2m1, decode_e4m3, encode_e2m1, encode_e4m3, swizzle_scales,
+    )
+except ImportError:  # pragma: no cover - exercised by external runtime loader
+    from fp4_quant import (
+        decode_e2m1, decode_e4m3, encode_e2m1, encode_e4m3, swizzle_scales,
+    )
+
+
+@torch.no_grad()
+def _torch_native_activation_qdq(x: torch.Tensor) -> torch.Tensor:
+    """Torch implementation of the fixed-secondary-scale native contract.
+
+    The CPU encoder above is the audit oracle.  This function keeps the same
+    order of operations on CPU or CUDA so training and service evaluation can
+    exercise W4A4 without copying activations to the host.  It intentionally
+    returns only the dequantized value; packing and the APXInf GEMM are owned
+    by the native runtime.
+    """
+    try:
+        from .torch_fp4 import _quant_e2m1, _quant_e4m3
+    except ImportError:  # pragma: no cover - external runtime loader
+        from torch_fp4 import _quant_e2m1, _quant_e4m3
+
+    if not isinstance(x, torch.Tensor):
+        raise TypeError("activation must be a torch.Tensor")
+    if x.ndim == 0 or x.numel() == 0 or x.shape[-1] % 16:
+        raise ValueError("activation must be nonempty with final K divisible by 16")
+    if x.dtype not in (torch.float16, torch.bfloat16, torch.float32, torch.float64):
+        raise TypeError("activation must have float16, bfloat16, float32 or float64 dtype")
+    # The CUDA contract casts to F16 before finding block maxima.  Fail closed
+    # on overflow: silently propagating infinities would make an invalid
+    # episode look like a valid quantized rollout.
+    half = x.detach().to(torch.float16)
+    if not bool(torch.isfinite(half).all()):
+        raise ValueError("activation overflows F16 or contains nonfinite values")
+    width = x.shape[-1]
+    blocks = half.float().reshape(-1, width // 16, 16)
+    amax = blocks.abs().amax(dim=-1)
+    # float32(1/6) is intentional; the native adapter does not use a dynamic
+    # tensor scale for activations.
+    requested = amax * torch.tensor(1.0 / 6.0, dtype=torch.float32, device=x.device)
+    scales = _quant_e4m3(requested)
+    divisor = torch.where(scales > 0, scales, torch.ones_like(scales))
+    normalized = blocks / divisor.unsqueeze(-1)
+    q = _quant_e2m1(normalized)
+    decoded = (q * scales.unsqueeze(-1)).reshape(x.shape)
+    return decoded.to(x.dtype)
+
+
+def native_activation_qdq_torch(x: torch.Tensor, *, ste: bool = False) -> torch.Tensor:
+    """Device-preserving W4A4 activation QDQ for training and evaluation.
+
+    ``ste=True`` supplies an identity straight-through derivative for QAD and
+    OPD.  The low-rank residual must call this function's input *before* QDQ;
+    see :mod:`rl.w4a4_lora` for the enforced branch structure.
+    """
+    decoded = _torch_native_activation_qdq(x)
+    return decoded + (x - x.detach()) if ste else decoded
 
 
 @dataclass(frozen=True)

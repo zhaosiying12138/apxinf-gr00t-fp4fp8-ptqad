@@ -1,0 +1,31 @@
+{
+  "status": "complete",
+  "base": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+  "source_weight_files": {
+    "model-00001-of-00002.safetensors": {
+      "bytes": 4990519232,
+      "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+    },
+    "model-00002-of-00002.safetensors": {
+      "bytes": 1919980184,
+      "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+    }
+  },
+  "recipe_version": "corrected-allocation-v2",
+  "elapsed_seconds": 527.2130403518677,
+  "implementation_sha256": {
+    "quant/ptq/bake.py": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae",
+    "quant/ptq/quantizers.py": "e7310601f5cb0a80d13c7a7be79714bc8ea4a85b03866968ef493646df6acfd2",
+    "quant/torch_fp4.py": "b8f1d073b7904e08c11d9d2c2dba8998e60acb80e0a317098ccfca8890a468e9"
+  },
+  "output_weight_files": {
+    "model-00001-of-00002.safetensors": {
+      "bytes": 4990519232,
+      "sha256": "d56aee188feaa4275f780852a218a1998180556fe49c2032ac30f969c1b9f5c9"
+    },
+    "model-00002-of-00002.safetensors": {
+      "bytes": 1919980184,
+      "sha256": "ff8d3d38d7e05ffb21ac11762b2ba96e463e7c2a382e02defe906c753984713c"
+    }
+  }
+}

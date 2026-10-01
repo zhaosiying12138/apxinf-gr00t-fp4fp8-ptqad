@@ -8,7 +8,7 @@
 <text x="985" y="134" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
 <rect x="30" y="167" width="1040" height="52" fill="#f4f7f8" stroke="none" rx="5"/>
 <text x="48" y="199" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">PTQ</tspan></text>
-<text x="250" y="199" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">固定混合精度配方</tspan></text>
+<text x="250" y="199" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">冻结 W4A4 配方</tspan></text>
 <text x="985" y="199" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
 <rect x="30" y="232" width="1040" height="52" fill="#f4f7f8" stroke="none" rx="5"/>
 <text x="48" y="264" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">QAD</tspan></text>
@@ -22,5 +22,5 @@
 <text x="48" y="394" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">QAD + OPD</tspan></text>
 <text x="250" y="394" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">从同一 QAD 检查点加入教师监督</tspan></text>
 <text x="985" y="394" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
-<text x="32" y="475" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">每臂 10 任务 × 10 回合；最终补齐逐任务计数与 OPD 的两项增量比较。</tspan></text>
+<text x="32" y="475" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">每臂 10 任务 × 16 回合（160 回合）；最终补齐逐任务计数与 OPD 的两项增量比较。</tspan></text>
 </svg>

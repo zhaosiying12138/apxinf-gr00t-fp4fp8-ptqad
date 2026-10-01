@@ -41,7 +41,13 @@ def main():
     parser.add_argument("--out", required=True, help="New checkpoint directory")
     parser.add_argument("--expected-windows", type=int, default=128)
     parser.add_argument("--gptq-damp", type=float, default=0.01)
+    parser.add_argument("--method", choices=("gptq_active", "rtn_all"), default="gptq_active",
+                        help="Active bank method; inactive banks always use RTN")
+    parser.add_argument("--rtn-clip", type=float, default=1.0,
+                        help="Shared clip for the rtn_all pressure arm")
     args = parser.parse_args()
+    if not (0.0 < args.rtn_clip <= 1.0):
+        parser.error("--rtn-clip must be in (0,1]")
     parent = Path(args.parent).resolve(strict=True)
     output = Path(args.out).resolve()
     if output.exists() or output == parent or parent in output.parents:
@@ -57,7 +63,7 @@ def main():
                                "parent_bake_sha256": identity(parent / "bake_manifest.json")["sha256"]}
         cache, cache_meta, cache_records = load_calibration(calib_dir, expected_provenance,
                                                             entries, args.expected_windows)
-    elif args.calib is None:
+    elif args.calib is None and args.method != "rtn_all":
         raise ValueError("A complete category calibration cache is required for the active LIBERO bank")
 
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -87,7 +93,15 @@ def main():
                 for bank in range(value.shape[0]):
                     bank_tensor = value[bank]
                     entry = bank_records.get(str(ACTIVE_BANK)) if bank == ACTIVE_BANK else None
-                    quantized, record, encoding = quantize_bank(bank_tensor, entry, args.gptq_damp)
+                    if args.method == "rtn_all":
+                        # quantize_bank(None) uses its padding-aware category
+                        # RTN path, including exact packed/decode verification.
+                        quantized, record, encoding = quantize_bank(
+                            bank_tensor, None, args.gptq_damp, rtn_clip=args.rtn_clip)
+                        record["uncalibrated_reason"] = "rtn_all pressure arm"
+                        record["selection_rule"] = "forced RTN pressure arm"
+                    else:
+                        quantized, record, encoding = quantize_bank(bank_tensor, entry, args.gptq_damp)
                     output_banks.append(quantized)
                     output_record = dict(record)
                     output_record.update({"bank": bank, "source_key": key,
@@ -117,7 +131,8 @@ def main():
             "parent_recipe_sha256": identity(parent / "ptq_recipe.json")["sha256"],
             "parent_bake_manifest_sha256": identity(parent / "bake_manifest.json")["sha256"],
             "source_base": source["root_bf16"], "active_libero_bank": ACTIVE_BANK,
-            "categories": records, "memory": budget,
+            "categories": records, "memory": budget, "active_bank_method": args.method,
+            "rtn_clip": args.rtn_clip,
             "source_category_sha256": category_sources,
             "calibration": cache_records, "calibration_metadata": cache_meta,
             "implementation_sha256": identity(Path(__file__))["sha256"],
@@ -131,6 +146,8 @@ def main():
             "output_category_sha256": {},
             "category_recipe": identity(stage / "category_ptq_recipe.json"),
             "methods": dict(methods), "active_libero_bank": ACTIVE_BANK,
+            "active_bank_method": args.method,
+            "rtn_clip": args.rtn_clip,
             "memory": budget, "implementation_sha256": identity(Path(__file__))["sha256"],
         }
         # Populate output identities only after all replacement tensors exist.

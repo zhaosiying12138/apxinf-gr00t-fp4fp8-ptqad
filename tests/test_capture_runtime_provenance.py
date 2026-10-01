@@ -39,6 +39,32 @@ class CaptureRuntimeProvenanceTests(unittest.TestCase):
             self.assertEqual(path, final_path.resolve())
             self.assertEqual(data['format'], final['format'])
 
+    def test_v7_mixed_final_manifest_is_accepted(self):
+        """The current mixed-pressure run is a first-class provenance boundary."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); run = root / 'run'; run.mkdir()
+            comparison = run / 'heldout' / 'paired_comparison.json'
+            comparison.parent.mkdir()
+            comparison.write_text(json.dumps({
+                'environment_pairing_verified': True,
+                'protocol_consistency_verified': True,
+                'arms': {name: {} for name in mod.ARMS},
+            }))
+            final = {
+                'format': 'mixed_pressure_v7_final_manifest',
+                'selection_uses_heldout': False,
+                'required_arms': list(mod.ARMS),
+                'heldout_comparison': {
+                    'path': str(comparison), 'bytes': comparison.stat().st_size,
+                    'sha256': mod.digest(comparison),
+                },
+            }
+            final_path = run / 'final_manifest.json'
+            final_path.write_text(json.dumps(final))
+            (run / 'run_manifest.json').write_text(json.dumps({'status': 'complete'}))
+            _, data = mod.validate_final_manifest(final_path)
+            self.assertEqual(data['format'], final['format'])
+
     def test_v3_or_incomplete_boundary_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'final_manifest.json'

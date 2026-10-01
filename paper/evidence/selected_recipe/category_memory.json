@@ -1,0 +1,82 @@
+{
+  "format": "selected_category_recipe_memory_v2",
+  "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+  "recipe": "category_nvfp4_extension",
+  "memory": {
+    "all_checkpoint_params": 3455180928,
+    "linear_params": 3452239872,
+    "eligible_tensor_count": 479,
+    "excluded_tensor_count": 552,
+    "nvfp4_params": 3452239872,
+    "fp8_params": 0,
+    "bf16_params": 0,
+    "fraction_of_eligible_params": {
+      "nvfp4": 1.0,
+      "fp8": 0.0,
+      "bf16": 0.0
+    },
+    "fraction_of_all_checkpoint_params": {
+      "nvfp4": 0.9991487982651889,
+      "fp8": 0.0,
+      "bf16": 0.0
+    },
+    "source_tensor_bytes": 6910361856,
+    "eligible_source_bytes": 6904479744,
+    "excluded_source_bytes": 5882112,
+    "target_eligible_bytes": 1942440672,
+    "target_full_checkpoint_bytes": 1948322784,
+    "target_bytes_by_format": {
+      "nvfp4": 1942440672
+    },
+    "linear_compression_x": 3.554538289651299,
+    "full_checkpoint_compression_x": 3.5468259739860435,
+    "bf16_GB": 6.904479744,
+    "quantized_GB": 1.942440672,
+    "known_tied_alias_deduplicated": {
+      "all_tensor_elements": 3144016000,
+      "eligible_tensor_elements": 3141074944,
+      "elements_by_format": {
+        "nvfp4": 3141074944,
+        "fp8": 0,
+        "bf16": 0
+      },
+      "excluded_elements": 2941056,
+      "fraction_of_all": {
+        "nvfp4": 0.9990645543788581,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "fraction_of_eligible": {
+        "nvfp4": 1.0,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "target_eligible_bytes": 1767410396,
+      "target_full_bytes": 1773292508,
+      "target_bytes_by_format": {
+        "excluded": 5882112,
+        "nvfp4": 1767410396
+      },
+      "source_tensor_bytes": 6288032000,
+      "eligible_source_bytes": 6282149888,
+      "eligible_compression_x": 3.554437555769588,
+      "full_compression_x": 3.545964341264786,
+      "omitted_physical_alias_elements": 311164928,
+      "note": "Deduplicates only explicitly recorded embedding/lm_head aliases."
+    },
+    "category": {
+      "weights": 325517312,
+      "banks_per_layer": 32,
+      "active_libero_bank": 2,
+      "active_libero_weight_elements": 10172416,
+      "padding_elements": 983040,
+      "target_bytes": 183657344,
+      "tensor_scale_count": 224
+    },
+    "storage_note": "Target FP4 payload plus E4M3 scale/16 and FP32 scale per category; includes internal K padding. FP8 uses FP32 row scales. Excludes runtime alignment/activations/LoRA residuals. Checkpoint shards remain original dtype. Inactive categories do not contribute to LIBERO execution."
+  },
+  "source_recipe": "category_ptq_recipe.json",
+  "source_recipe_sha256": "2ad0a80552c0f6d89c7977f71567173ff0fb63f34eff48ae192501c9d56c49db",
+  "weight_allocation": "nvfp4_only",
+  "note": "Format fractions use the recorded eligible-element denominator; runtime storage and LoRA residuals are separate."
+}

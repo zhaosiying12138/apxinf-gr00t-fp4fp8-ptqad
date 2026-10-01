@@ -243,17 +243,41 @@ def ladder_chart():
 
 
 def budget_rows():
+    # v11 publishes one selected all-NVFP4 category recipe.  The old PTQ ladder was an
+    # exploration aid; reading it here would make it possible for a stale
+    # candidate to leak into the paper.  Keep the inventory as a compact,
+    # auditable snapshot, then bind it byte-for-byte to the selected recipe
+    # artifacts that produced the checkpoint.
     path='paper/evidence/recipe_inventory.json'
     data=read(path)
-    order=('fp8','head_ffn','head_lang','head_lang_vision','calib')
-    if tuple(data['ladder'])!=order:raise ValueError(f'{path}: unexpected nested ladder')
+    category_memory_path='paper/evidence/selected_recipe/category_memory.json'
+    category_recipe_path='paper/evidence/selected_recipe/category_ptq_recipe.json'
+    category_memory_record=read(category_memory_path)
+    category_recipe_record=read(category_recipe_path)
+    order=('all_nvfp4_gptq_category',)
+    if data.get('schema_version') != 'v11-selected-all-nvfp4-category' or tuple(data.get('ladder',())) != order:
+        raise ValueError(f'{path}: v11 inventory must contain only the selected all-NVFP4 recipe')
+    if category_memory_record.get('format') != 'selected_category_recipe_memory_v2':
+        raise ValueError(f'{category_memory_path}: unsupported selected memory format')
+    if category_memory_record.get('recipe') != 'category_nvfp4_extension' or category_recipe_record.get('recipe') != category_memory_record.get('recipe'):
+        raise ValueError('Selected category recipe identity differs')
+    if category_memory_record.get('source_recipe') != 'category_ptq_recipe.json':
+        raise ValueError(f'{category_memory_path}: source recipe identity is missing')
+    category_recipe_digest=file_record(ROOT/category_recipe_path)['sha256']
+    if category_memory_record.get('source_recipe_sha256') != category_recipe_digest:
+        raise ValueError(f'{category_memory_path}: source recipe digest differs')
+    selected_memory=category_memory_record.get('memory')
+    if not isinstance(selected_memory,dict) or category_recipe_record.get('memory') != selected_memory:
+        raise ValueError('Selected category memory differs between recipe and memory artifacts')
+    if data.get('recipes',{}).get(order[0]) != selected_memory:
+        raise ValueError(f'{path}: inventory selected memory is not the category memory')
     residual=data['recovery_residual']
-    if residual['scope']!='head+lang_all' or residual['dtype']!='bfloat16' or residual['rank']!=32:
+    if residual['scope']!='all_ordinary_linear' or residual['dtype']!='bfloat16' or residual['rank']!=32:
         raise ValueError(f'{path}: unsupported recovery budget scope/dtype/rank')
     extra=positive_number(residual['target_bytes'],'residual target_bytes')
     if extra!=residual['tensor_elements']*residual['bytes_per_element'] or residual['bytes_per_element']!=2:
         raise ValueError(f'{path}: inconsistent residual byte budget')
-    rows=[];sources=None;previous=0
+    rows=[];sources=None
     for key in order:
         record=data['recipes'][key];unique=record['known_tied_alias_deduplicated']
         physical_source=positive_number(record['source_tensor_bytes'],key+':physical source')
@@ -262,8 +286,6 @@ def budget_rows():
         unique_target=positive_number(unique['target_full_bytes'],key+':deduplicated target')
         if sources is None:sources=(physical_source,unique_source)
         elif sources!=(physical_source,unique_source):raise ValueError('Ladder source byte denominators changed')
-        if record['nvfp4_params']<previous:raise ValueError('NVFP4 coverage decreases in nested ladder')
-        previous=record['nvfp4_params']
         if not math.isclose(physical_source/physical_target,record['full_checkpoint_compression_x'],rel_tol=1e-12):
             raise ValueError(f'{key}: inconsistent physical compression')
         if not math.isclose(unique_source/unique_target,unique['full_compression_x'],rel_tol=1e-12):
@@ -276,7 +298,7 @@ def budget_rows():
 
 def budget_ladder():
     data,rows,extra=budget_rows()
-    s=SVG(1420,775,'混合量化阶梯：完整权重的目标编码预算','GB = 10⁹ 字节 · 含未量化张量与格式缩放 · 单独叠加相同的 BF16 LoRA 旁路预算')
+    s=SVG(1420,620,'选定 W4A4 量化基座：完整权重的目标编码预算','v11 W4A4 category 唯一冻结配方 · GB = 10⁹ 字节 · 含未量化张量与格式缩放 · 单独叠加 BF16 LoRA 旁路预算')
     for x,color,label in [(30,BLUE,'物理张量口径'),(267,TEAL,'已知共享别名去重'),(555,AMBER,f'独立 BF16 旁路：{extra/1e6:.2f} MB')]:
         s.rect(x,91,18,18,color);s.text(x+28,106,label,15)
     maximum=max(max(row['targets'])+extra for row in rows)/1e9*1.07
@@ -286,7 +308,7 @@ def budget_ladder():
         s.text(origin,150,heading,18,color,600)
         s.text(origin,178,f'BF16 源字节分母：{source/1e9:.3f} GB',14)
         for tick in range(4):
-            x=left+width*tick/maximum;s.line(x,213,x,640);s.text(x,204,str(tick),12,anchor='middle')
+            x=left+width*tick/maximum;s.line(x,213,x,480);s.text(x,204,str(tick),12,anchor='middle')
         for i,row in enumerate(rows):
             y=231+i*82;target=row['targets'][panel];fraction=row['fractions'][panel]
             s.text(origin,y+16,row['key'],15,color,600)
@@ -295,10 +317,10 @@ def budget_ladder():
             s.rect(left,y,base_width,23,color,rx=0);s.rect(left+base_width,y,extra_width,23,AMBER,rx=0)
             s.text(left+base_width+extra_width+8,y+17,f'{(target+extra)/1e9:.3f} GB',13,color,600)
             s.text(left,y+47,f'PTQ {source/target:.3f}× → 加旁路 {source/(target+extra):.3f}×',13)
-    s.rect(30,665,1360,83,'#fff6e9')
-    s.text(48,692,f'旁路：head+lang_all，rank = 32，{data["recovery_residual"]["linear_modules"]} 个 Linear；两种口径均完整计入旁路。',15,AMBER)
-    s.text(48,716,'各配方统一叠加相同旁路以比较预算，不表示每一级均完成恢复训练；该图不包含激活、优化器、对齐和运行时工作区。',14,AMBER)
-    s.text(48,738,'当前闭环采用稠密 BF16 合并 checkpoint；此处是保留 packed 基座与独立旁路时的编码预算，不是已测文件或显存压缩。',14,AMBER)
+    s.rect(30,510,1360,83,'#fff6e9')
+    s.text(48,537,f'旁路：all_ordinary_linear，rank = 32，{data["recovery_residual"]["linear_modules"]} 个 Linear；两种口径均完整计入旁路。',15,AMBER)
+    s.text(48,561,'同一旁路成本叠加到唯一 all-NVFP4 基座；该图不包含激活、优化器、对齐和运行时工作区。',14,AMBER)
+    s.text(48,583,'当前闭环采用稠密 BF16 合并 checkpoint；此处是保留 packed 基座与独立旁路时的编码预算，不是已测文件或显存压缩。',14,AMBER)
     s.save('budget_ladder')
 def swizzle_layout():
     # 128 rows × 8 scale blocks: verify a bijection over two 512-byte tiles.
@@ -321,7 +343,7 @@ def swizzle_layout():
     s.text(520,375,'第 16～31 字节依次放 r=1,33,65,97 的 b=0…3。',13)
     s.text(520,399,'b=4…7 的下一个 tile 从字节 512 开始。',13)
     s.rect(30,429,1020,112)
-    s.text(48,457,'KB = K / 16；P = 512 × ceil(KB / 4)；// 表示整数除法。',16,BLUE)
+    s.text(48,457,'K′ = 16 × ceil(K / 16)；KB = K′ / 16；P = 512 × ceil(KB / 4)。',16,BLUE)
     s.text(48,487,'offset(r,b) = P × (r // 128) + 512 × (b // 4)',18)
     s.text(48,517,'                         + 16 × (r % 32) + 4 × ((r // 32) % 4) + (b % 4)',17)
     s.text(30,573,'例：(0,0)→0；(32,0)→4；(1,0)→16；(3,2)→50；(0,5)→513。',15)
@@ -399,28 +421,29 @@ def frontier_rows():
     if data.get('version')!=1 or data.get('status')!='complete' or data.get('environment_pairing_verified') is not True:
         raise ValueError('Frontier requires a completed, paired current comparison')
     points=data['points'];names=[row['name'] for row in points]
-    # Older reports froze two references. Versioned studies carry their exact
-    # reference order so changing the study cannot silently relabel a point.
-    references=data.get('reference_order',['fp8','head_ffn'])
-    recipes={'fp8','head_ffn','head_lang','head_lang_vision','calib'}
-    selected=data.get('selected_recipe','head_lang')
-    if (not isinstance(references,list) or not references or
-        any(not isinstance(name,str) or name not in recipes for name in references) or
+    # v11 has no auxiliary PTQ references: the paper freezes the selected
+    # selected W4A4 recipe and compares it directly with BF16 and the recovery arms.
+    # Keep the order supplied by the evidence rather than embedding an old
+    # candidate ladder in the renderer.
+    references=data.get('reference_order', list((data.get('references') or {}).keys()))
+    selected=data.get('selected_recipe','all_nvfp4_gptq_category')
+    if (not isinstance(references,list) or
+        any(not isinstance(name,str) or not name for name in references) or
         len(references)!=len(set(references)) or not isinstance(selected,str) or
-        selected not in recipes or selected in references):
+        not selected or selected in references):
         raise ValueError('Frontier has invalid frozen recipe identities')
     expected=['bf16',*references,'ptq','qad','continued_qad','qad_opd']
-    if names!=expected or set(data['references'])!=set(references):
+    if names!=expected or set(data.get('references',{}))!=set(references):
         raise ValueError('Frontier requires every frozen reference and recovery arm in order')
     ptq=next(row for row in points if row['name']=='ptq')
     denominators={};residual=None
     for row in points:
-        if row['count']!=100 or type(row['successes']) is not int or not 0<=row['successes']<=100:
-            raise ValueError('Frontier counts must describe 100 completed heldout episodes')
+        if row['count']!=160 or type(row['successes']) is not int or not 0<=row['successes']<=160:
+            raise ValueError('Frontier counts must describe 160 completed heldout episodes')
         tasks=row['per_task']
-        if len(tasks)!=10 or any(value['episodes']!=10 or type(value['successes']) is not int or not 0<=value['successes']<=10 or value['success_rate']!=value['successes']/10 for value in tasks.values()):
+        if len(tasks)!=10 or any(value['episodes']!=16 or type(value['successes']) is not int or not 0<=value['successes']<=16 or value['success_rate']!=value['successes']/16 for value in tasks.values()):
             raise ValueError('Frontier task counts/rates differ')
-        if sum(value['successes'] for value in tasks.values())!=row['successes'] or not math.isclose(row['macro_success_rate'],row['successes']/100,abs_tol=1e-12):
+        if sum(value['successes'] for value in tasks.values())!=row['successes'] or not math.isclose(row['macro_success_rate'],row['successes']/160,abs_tol=1e-12):
             raise ValueError('Frontier macro or total differs from per-task outcomes')
         recovery=row['name'] in ('qad','continued_qad','qad_opd')
         if set(row['encoding_budget'])!={'physical','known_alias_deduplicated'}:
@@ -544,7 +567,7 @@ def ptq_frontier():
     data,points=frontier_rows()
     footer=716+34*len(points)
     s=SVG(1120,footer+36,'纯 PTQ 与恢复策略：净编码预算—闭环成功率',
-          f'{len(points)} 个冻结候选均为同协议 100 回合；描述本次观测，不代表全局 PTQ 最优或统计非劣性。')
+          f'{len(points)} 个冻结候选均为同协议 160 回合；描述本次观测，不代表全局 PTQ 最优或统计非劣性。')
     scope='known_alias_deduplicated';left,right,top,bottom=100,1040,124,505
     maximum=max(row['encoding_budget'][scope]['total_bytes']/1e9 for row in points)*1.06
     def x(value):return left+(right-left)*value/maximum
@@ -556,7 +579,7 @@ def ptq_frontier():
     s.line(left,top,left,bottom,INK);s.line(left,bottom,right,bottom,INK)
     s.text(left,103,'十任务宏平均成功率',15,BLUE,600)
     s.text(570,558,'已知共享副本去重后的净编码预算 / GB（1 GB = 10 亿字节）',15,anchor='middle')
-    labels={'bf16':'BF16','ptq':data.get('selected_recipe','head_lang')+' 纯 PTQ',
+    labels={'bf16':'BF16','ptq':data.get('selected_recipe','all_nvfp4_gptq_category')+' 纯 PTQ',
             'qad':'QAD','continued_qad':'继续 QAD','qad_opd':'QAD + OPD'}
     reference_order=data.get('reference_order', list((data.get('references') or {}).keys()))
     if not reference_order:
@@ -608,6 +631,8 @@ def write_figure_manifest(source):
     required={
         'paper/evidence/paired_comparison.json',
         'paper/evidence/recipe_inventory.json',
+        'paper/evidence/selected_recipe/category_memory.json',
+        'paper/evidence/selected_recipe/category_ptq_recipe.json',
         'paper/evidence/frontier_comparison.json',
         'results/engine/pi05_nvfp4_ptqad_20260929.json',
         'results/baselines/pi05_pt_bf16_ptqad_20260929.json',

@@ -1,0 +1,318 @@
+{
+  "version": 1,
+  "status": "passed",
+  "inputs": [
+    {
+      "path": "assets/katex/LICENSE",
+      "bytes": 1107,
+      "sha256": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_AMS-Regular.woff2",
+      "bytes": 28076,
+      "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Caligraphic-Bold.woff2",
+      "bytes": 6912,
+      "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Caligraphic-Regular.woff2",
+      "bytes": 6908,
+      "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Fraktur-Bold.woff2",
+      "bytes": 11348,
+      "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Fraktur-Regular.woff2",
+      "bytes": 11316,
+      "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Main-Bold.woff2",
+      "bytes": 25324,
+      "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Main-BoldItalic.woff2",
+      "bytes": 16780,
+      "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Main-Italic.woff2",
+      "bytes": 16988,
+      "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Main-Regular.woff2",
+      "bytes": 26272,
+      "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Math-BoldItalic.woff2",
+      "bytes": 16400,
+      "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Math-Italic.woff2",
+      "bytes": 16440,
+      "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_SansSerif-Bold.woff2",
+      "bytes": 12216,
+      "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_SansSerif-Italic.woff2",
+      "bytes": 12028,
+      "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_SansSerif-Regular.woff2",
+      "bytes": 10344,
+      "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Script-Regular.woff2",
+      "bytes": 9644,
+      "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Size1-Regular.woff2",
+      "bytes": 5468,
+      "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Size2-Regular.woff2",
+      "bytes": 5208,
+      "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Size3-Regular.woff2",
+      "bytes": 3624,
+      "sha256": "73d591271b1604960cb10bb90fee021670af7297017e0e98480b332d11f51995"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Size4-Regular.woff2",
+      "bytes": 4928,
+      "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0"
+    },
+    {
+      "path": "assets/katex/fonts/KaTeX_Typewriter-Regular.woff2",
+      "bytes": 13568,
+      "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b"
+    },
+    {
+      "path": "assets/katex/katex.min.css",
+      "bytes": 23352,
+      "sha256": "19095127357ed6d29fe0a63a6b000c913a89f7f1963b765dd3715e97c9852e75"
+    },
+    {
+      "path": "assets/katex/katex.min.js",
+      "bytes": 276701,
+      "sha256": "e8d885505949f3a5f4abdd5dd0d53696bd1371ad26ffbf4f310dcd77c8cdae89"
+    },
+    {
+      "path": "build_html.py",
+      "bytes": 10560,
+      "sha256": "d1c11c3f64ab82c6f9d5fcf0639302acd9f96ca662df885da7b0054592b8347b"
+    },
+    {
+      "path": "figs/budget_ladder.svg",
+      "bytes": 6627,
+      "sha256": "22de5402090d6a1b9d907377d30b8bbe6d2479373f05729e11015fd562933960"
+    },
+    {
+      "path": "figs/e1_latency.svg",
+      "bytes": 5308,
+      "sha256": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1"
+    },
+    {
+      "path": "figs/gptq_block.svg",
+      "bytes": 8363,
+      "sha256": "b76200e8d5f3018b454b672f8c2e8ffedf08ad302353bc2e9b1c3c80c70fae23"
+    },
+    {
+      "path": "figs/ladder.svg",
+      "bytes": 3488,
+      "sha256": "37186724447ccc2b870fc536d00515caa2ab22751f6b5aa4c47de15b41b317b8"
+    },
+    {
+      "path": "figs/ptq_frontier.svg",
+      "bytes": 3751,
+      "sha256": "86d5def34ce6c24f9ecd682ad3d908119710189bd5c8a19eab5fa65c62d8468b"
+    },
+    {
+      "path": "figs/recovery_protocol.svg",
+      "bytes": 7472,
+      "sha256": "c18c9f0c06738149eb78861b7dcaa6dd32ba587b2e1bf1beec560adca18533a4"
+    },
+    {
+      "path": "figs/shot_bake.png",
+      "bytes": 460385,
+      "sha256": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519"
+    },
+    {
+      "path": "figs/shot_collect.png",
+      "bytes": 349151,
+      "sha256": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede"
+    },
+    {
+      "path": "figs/shot_evalserver.png",
+      "bytes": 278598,
+      "sha256": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf"
+    },
+    {
+      "path": "figs/shot_fp8probe.png",
+      "bytes": 283707,
+      "sha256": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484"
+    },
+    {
+      "path": "figs/shot_gemm.png",
+      "bytes": 305541,
+      "sha256": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08"
+    },
+    {
+      "path": "figs/shot_gr00t.png",
+      "bytes": 294040,
+      "sha256": "41567c4c73bedf5d4b89068e60d38a10f3cbdaf61d5b3440e21d7bf7df44ce88"
+    },
+    {
+      "path": "figs/shot_nvfp4.png",
+      "bytes": 300991,
+      "sha256": "0215b53e09317e03eed6d7b980cd5845ef89d16f54d6059f46e3ff44fbed0bd0"
+    },
+    {
+      "path": "figs/shot_opbench.png",
+      "bytes": 401815,
+      "sha256": "c7db35ef39dd99022c6595b5f32a0730c84aea266f888f9084c9c96816be2f4d"
+    },
+    {
+      "path": "figs/shot_opd.png",
+      "bytes": 382536,
+      "sha256": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194"
+    },
+    {
+      "path": "figs/shot_opdcache.png",
+      "bytes": 309583,
+      "sha256": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0"
+    },
+    {
+      "path": "figs/shot_packed.png",
+      "bytes": 279477,
+      "sha256": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c"
+    },
+    {
+      "path": "figs/shot_pi05.png",
+      "bytes": 247960,
+      "sha256": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1"
+    },
+    {
+      "path": "figs/shot_probe.png",
+      "bytes": 259228,
+      "sha256": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c"
+    },
+    {
+      "path": "figs/shot_qad.png",
+      "bytes": 423906,
+      "sha256": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346"
+    },
+    {
+      "path": "figs/shot_qat.png",
+      "bytes": 278520,
+      "sha256": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12"
+    },
+    {
+      "path": "figs/shot_rollout.png",
+      "bytes": 445539,
+      "sha256": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170"
+    },
+    {
+      "path": "figs/shot_verify.png",
+      "bytes": 326669,
+      "sha256": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db"
+    },
+    {
+      "path": "figs/swizzle_layout.svg",
+      "bytes": 12588,
+      "sha256": "62da8e6496c030f0fa5e17486051d0fd3ccedbf125376c0e23666b2085c02ff9"
+    },
+    {
+      "path": "figures.json",
+      "bytes": 8140,
+      "sha256": "4a6ba3e2d7669932fa2e78242b8f6d5b6c28834c5575edae7a4c7d5ddc0eac3b"
+    },
+    {
+      "path": "meta.json",
+      "bytes": 319,
+      "sha256": "624b2568e5e673b721189321d3155cbbb18d65b801175ab7db9335275e7d9364"
+    },
+    {
+      "path": "publication_guard.py",
+      "bytes": 3444,
+      "sha256": "d4e8766387da69cb5c19bb69189e14fe14cd913fad0caf5a5cb09dc0628791e0"
+    },
+    {
+      "path": "render_math.cjs",
+      "bytes": 419,
+      "sha256": "2648cae741916896b93dd0a09edd0d7f59a4f686a58fb435ea494617f9e789de"
+    },
+    {
+      "path": "sections/01-摘要与引言.md",
+      "bytes": 4403,
+      "sha256": "45936daf16a23d7387f8c3458a388b0d6aa34cf983c5b5dfdacdb7fd17828d49"
+    },
+    {
+      "path": "sections/02-背景与相关工作.md",
+      "bytes": 15109,
+      "sha256": "3edc16fde05c2c0c197786c3ffa39fb08d6ad9f4a9abc52bb728444253f98a38"
+    },
+    {
+      "path": "sections/03-方法.md",
+      "bytes": 3621,
+      "sha256": "dec87491217718f952e558ac82105cfc45d863ead87da58c2becfb11760dca8b"
+    },
+    {
+      "path": "sections/04-实验.md",
+      "bytes": 2737,
+      "sha256": "0cc8adce67ef37768c09caf48f878218d938d859594a4977feeeb7e21c849894"
+    },
+    {
+      "path": "sections/05-讨论与结论.md",
+      "bytes": 1231,
+      "sha256": "3655da4bb933549c442440408c0dd8ccd52922fb8549040696037d523e260d6f"
+    },
+    {
+      "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
+      "bytes": 43115,
+      "sha256": "703450528f83c59d9acb4cb5bdc52ce081677a4560fe592768d52beb2aa94f65"
+    },
+    {
+      "path": "sections/15-附录B-复现与证据索引.md",
+      "bytes": 17600,
+      "sha256": "9ea86fc8104e562111a7322d811dda8d3083f763381bd3fe5e67ec95f5a1e0ba"
+    },
+    {
+      "path": "sections/15-附录C-执行基准与完整测量.md",
+      "bytes": 12468,
+      "sha256": "c3af30695e82f9c62c5f48e5d0da7ae6d2d5277820e5780ecd25a90ff01a29e5"
+    },
+    {
+      "path": "sections/16-参考文献.md",
+      "bytes": 12054,
+      "sha256": "84dcc6943ff79284e8ab31f651006234fd2a62e4fc42fd32709f5e593e56beea"
+    }
+  ],
+  "output": {
+    "path": "paper.html",
+    "bytes": 8350131,
+    "sha256": "9a8eb0a7a755fd2363c3438dd071f37adb50de6f9d009a04902ebc9fd0540b60"
+  },
+  "math_expressions": 215,
+  "figures": 24
+}

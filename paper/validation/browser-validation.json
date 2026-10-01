@@ -27,24 +27,24 @@
     "shot_verify",
     "swizzle_layout"
   ],
-  "html_sha256": "a326fe1130e9c54aef5c49262057ed22f1cb93ae7066f079ab9e54f20c156bf6",
+  "html_sha256": "76c362a50ca4adf4149a31e20c24a2b7e66573f33382607a23031c046749ae9b",
   "qa_script_sha256": "4a4a97832d688cf87760702f15f7d733c1c1c3984bf35b7ea5b27e81965715c5",
-  "figures_manifest_sha256": "27975de514c56ae3ee0860dc1692a65a27c70a439e37748e455259bdff58d8a0",
+  "figures_manifest_sha256": "12d8d304acb91b281b94335a81dc4bf127356e19d75982a4c03fdf379d8ee1c1",
   "svg_sha256": {
-    "budget_ladder": "583f93ed72487a8eb6a88f7046f4ee0d70a9a1fe5222c66c15227d8cfe8e7fee",
+    "budget_ladder": "26c03dc3a36aac97be735aad8f8277755ce3b6328787b580e10993a496c7b56d",
     "e1_latency": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
     "gptq_block": "b76200e8d5f3018b454b672f8c2e8ffedf08ad302353bc2e9b1c3c80c70fae23",
     "ladder": "05fec0701d6ed9a572428d5884406ae50d69f36c7d4e84ad5c882ed9adc050c0",
-    "ptq_frontier": "6f83c1134906612f16f9e1f2c91032c8c4b06de516f92f3623af75f6c534cfeb",
+    "ptq_frontier": "c1e024f9c9774d2fe4581278006b1cd294870efc46f985ea13f3f739a8b9552f",
     "recovery_protocol": "c18c9f0c06738149eb78861b7dcaa6dd32ba587b2e1bf1beec560adca18533a4",
-    "swizzle_layout": "346b21002ebdbf9cf9a2479fec65d25a33a43d89d1cb0f79edcd91d9bf476b73"
+    "swizzle_layout": "55cbed60070afe283813422d367aacf68c7001330627a5a985bbfc635873548e"
   },
   "png_sha256": {
-    "budget_ladder": "43a9ba72aeee541687a6bd9ec0729c11125e7fc80d0e888eb2151487bf4635aa",
+    "budget_ladder": "6a8cedb632bdcc32af61de217f07ea7246de08e05b8423ed47ba9c2867762b35",
     "e1_latency": "fa164675b28844757083507a2c5f92742beb18b805c072f2c562ee8c6cfc6c20",
     "gptq_block": "045260cb338429083207d3ec2b9b3fff44e7c03f9522c66dab23e3de1c6fd39e",
     "ladder": "40c1146d1e398bb79e6eddcf26b12b93bf7beba8d10bec03bcb3ee1e4ee2de92",
-    "ptq_frontier": "07560c34ab7acf18dcd02b3f22d0005480fe2e56963b189b270213127eb13735",
+    "ptq_frontier": "f23462585e5ac968e2c26e5e6e3512c1f310884e3753589f84e499ea8a0de355",
     "recovery_protocol": "4f29f1aed9cb7da454d96d5abe8e03df4d3248f658089a3cfab3e2a09c8c6e59",
     "shot_bake": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
     "shot_collect": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
@@ -95,7 +95,7 @@
       "shot_verify",
       "swizzle_layout"
     ],
-    "mathCount": 386,
+    "mathCount": 413,
     "mathErrors": 0,
     "svgOverflow": [],
     "decoded": [

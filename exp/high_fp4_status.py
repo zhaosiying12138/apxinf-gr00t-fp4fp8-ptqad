@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only progress for the selected high-FP4 study; not publication evidence."""
+"""Read-only progress for the frozen v11 W4A4 recovery study."""
 import argparse
 import json
 from pathlib import Path
@@ -51,14 +51,30 @@ def evaluation(folder):
 
 
 def status(development, recovery):
-    selection = load(development.parent / "exploratory_selection_v5.json") or load(development / "selection.json")
+    # v11 keeps the development arms in named run directories and the frozen
+    # selection one level below them.  Accept either the parent directory or
+    # the selection directory so this read-only helper remains convenient.
+    selection_path = development / "selection.json"
+    if not selection_path.is_file() and (development / "v11_selection" / "selection.json").is_file():
+        selection_path = development / "v11_selection" / "selection.json"
+        development = development
+    selection = load(selection_path)
     candidates = (selection or {}).get("arms", {})
     if not candidates:
-        candidates = ("bf16", "head_lang_vision_category", "calib_category")
+        candidates = ("bf16", "all_nvfp4_gptq_category")
+    candidate_dirs = {
+        "bf16": development / "w4a4_dev_bf16_v11",
+        "all_nvfp4_gptq_category": development / "w4a4_dev_full_category",
+    }
+    if development.name == "v11_selection":
+        candidate_dirs = {
+            "bf16": development.parent / "w4a4_dev_bf16_v11",
+            "all_nvfp4_gptq_category": development.parent / "w4a4_dev_full_category",
+        }
     result = {"scope": "progress_only_not_final_results",
               "note": "Incomplete records do not prove that a process is currently running.",
               "paths": {"development": str(development), "recovery": str(recovery)},
-              "development": {arm: evaluation(development / arm)
+              "development": {arm: evaluation(candidate_dirs.get(arm, development / arm))
                               for arm in candidates}}
     if selection is not None:
         result["ptq_selection"] = {key: selection.get(key) for key in
@@ -76,6 +92,24 @@ def status(development, recovery):
                     metrics = load(folder / "runtime_metrics.json") or {}
                     stages[folder.name] = {key: metrics.get(key) for key in
                                            ("status", "global_steps", "requested_optimizer_steps")}
+                elif folder.name.startswith("train_"):
+                    log = recovery / "logs" / (folder.name + ".log")
+                    if log.is_file():
+                        with log.open("rb") as stream:
+                            stream.seek(max(0, log.stat().st_size - 65536))
+                            tail = stream.read().decode(errors="replace")
+                        progress = re.findall(r"\|\s*(\d+)/(\d+)\s*\[", tail)
+                        stages[folder.name] = {
+                            "status": "incomplete",
+                            "log": str(log),
+                            "last_log_update_unix": log.stat().st_mtime,
+                        }
+                        if progress:
+                            done, total = map(int, progress[-1])
+                            stages[folder.name].update(
+                                logged_optimizer_steps=done,
+                                requested_optimizer_steps=total,
+                            )
         result["recovery"]["stages"] = stages
         result["heldout"] = {arm: evaluation(recovery / "artifacts" / "heldout_round" / f"heldout_{arm}")
                              for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd")}
@@ -84,10 +118,11 @@ def status(development, recovery):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    base = ROOT / "results/ptqad_20260929"
+    base = ROOT / "results/ptqad_20261003/v11_recovery_r2"
+    default_development = ROOT / "results/ptqad_20261003/v11_selection"
     parser.add_argument("--development-root", type=Path,
-                        default=base / "high_fp4_v4_retry5/development")
-    parser.add_argument("--recovery-root", type=Path, default=base / "exploratory_recovery_v5_retry")
+                        default=default_development)
+    parser.add_argument("--recovery-root", type=Path, default=base)
     args = parser.parse_args()
     print(json.dumps(status(args.development_root, args.recovery_root), ensure_ascii=False, indent=2))
 

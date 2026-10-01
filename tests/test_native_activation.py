@@ -9,7 +9,9 @@ import unittest
 import numpy as np
 import torch
 
-from quant.native_activation import encode_native_activation, native_activation_qdq
+from quant.native_activation import (
+    encode_native_activation, native_activation_qdq, native_activation_qdq_torch,
+)
 
 
 def f32(value):
@@ -150,6 +152,19 @@ class NativeActivationTests(unittest.TestCase):
             encode_native_activation(torch.zeros(1, 16, dtype=torch.int64))
         with self.assertRaisesRegex(ValueError, 'CPU-only'):
             encode_native_activation(torch.empty(1, 16, device='meta'))
+
+    def test_torch_device_path_matches_cpu_oracle(self):
+        torch.manual_seed(29)
+        x = torch.randn(3, 32, dtype=torch.float32) * 2
+        expected = native_activation_qdq(x)
+        actual = native_activation_qdq_torch(x)
+        torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+
+    def test_torch_ste_keeps_identity_gradient(self):
+        base = torch.linspace(-2, 2, 32, requires_grad=True)
+        x = base.reshape(2, 16)
+        native_activation_qdq_torch(x, ste=True).sum().backward()
+        torch.testing.assert_close(base.grad, torch.ones_like(base), rtol=0, atol=0)
 
 
 if __name__ == '__main__':

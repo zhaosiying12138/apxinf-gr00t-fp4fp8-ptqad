@@ -66,6 +66,20 @@ def protocol_partition(path, purpose):
 def validate_resets(result, seed, indices):
     """Fail closed: result-only logs cannot certify paired evaluation."""
     resets = result["resets"]
+    # New parser output distinguishes resets belonging to scored episodes from
+    # the simulator's terminal auto-resets.  Once those counters are present,
+    # require an exact one-to-one scored reset list; silently accepting extra
+    # records would make the paired manifest ambiguous.
+    if "scored_reset_count" in result:
+        if result.get("scored_reset_count") != len(resets):
+            raise ValueError("Scored reset count disagrees with parsed reset records")
+        raw_count = result.get("raw_reset_count")
+        ignored = result.get("ignored_auto_reset_count")
+        if (type(raw_count) is not int or type(ignored) is not int or
+                raw_count < len(resets) or ignored != raw_count - len(resets)):
+            raise ValueError("Raw/ignored reset accounting is inconsistent")
+        if len(resets) != len(indices):
+            raise ValueError("Scored reset count differs from declared episode count")
     if len(resets) < len(indices):
         raise ValueError("Missing episode initial-state records")
     for episode, bank_index in enumerate(indices):
@@ -83,10 +97,18 @@ def parse_log(path):
     text = Path(path).read_text(errors="replace")
     records = re.findall(r"results:\s*\('[^']+',\s*\[([^\]]*)\]", text)
     values = [x == "True" for x in re.findall(r"\b(?:True|False)\b", records[-1])] if records else []
-    resets = [json.loads(x) for x in re.findall(r"FP4VLA_EPISODE_RESET (\{[^\n]+\})", text)]
+    raw_resets = [json.loads(x) for x in re.findall(r"FP4VLA_EPISODE_RESET (\{[^\n]+\})", text)]
+    # rollout_seeded emits an additional reset after a terminal episode.  The
+    # result list is the authoritative scored-episode count, so retain only
+    # the first N reset records and expose the discarded tail explicitly.
+    scored_count = len(values)
+    resets = raw_resets[:scored_count]
     return {"results": values, "successes": sum(values), "episodes": len(values),
             "success_rate": sum(values) / len(values) if values else None,
-            "resets": resets, "log_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest()}
+            "resets": resets, "raw_reset_count": len(raw_resets),
+            "scored_reset_count": len(resets),
+            "ignored_auto_reset_count": max(0, len(raw_resets) - len(resets)),
+            "log_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest()}
 
 
 def stop(process):
@@ -99,12 +121,138 @@ def stop(process):
             process.wait()
 
 
+def configure_capture_environment(env, output, task, purpose, manifest, seed, indices):
+    """Configure optional rollout capture variables for one task.
+
+    The reset-event path is deliberately exported even when the rollout has
+    not created the file yet.  ``serve_recovery`` creates that file while it
+    runs; conditioning the environment update on ``event_file.exists()``
+    would therefore disable capture for every fresh output directory.
+    """
+    env.pop("OPD_CAPTURE_DIR", None)
+    if purpose not in ("teacher_supervision", "collection"):
+        return None
+
+    capture_dir = Path(output) / "observations" / task
+    capture_dir.mkdir(parents=True, exist_ok=True)
+    event_file = capture_dir / "reset_events.jsonl"
+    if event_file.exists():
+        event_file.unlink()
+    env.update({
+        "OPD_CAPTURE_DIR": str(capture_dir),
+        "FP4VLA_CAPTURE_EVENT_FILE": str(event_file),
+        "FP4VLA_CAPTURE_TASK_NAME": task,
+        "FP4VLA_CAPTURE_PURPOSE": purpose,
+        "FP4VLA_CAPTURE_SEED": str(seed),
+        "FP4VLA_CAPTURE_INIT_STATE_INDICES": ",".join(map(str, indices)),
+        "FP4VLA_CAPTURE_PROTOCOL_SHA256": manifest["protocol_sha256"],
+        # The recovery protocol captures a fixed number of snapshots from
+        # every scored training episode.  Without these explicit values
+        # serve_recovery's small historical defaults would silently keep only
+        # the first episode/task and invalidate teacher coverage.
+        "OPD_CAPTURE_EVERY": "4",
+        "OPD_CAPTURE_PER_TASK": "16",
+        "OPD_CAPTURE_LIMIT": "160",
+        "OPD_CAPTURE_PER_EPISODE": "4",
+    })
+    return capture_dir
+
+
+def finalize_capture_samples(directory, task_name, result, purpose):
+    """Bind captured inputs to scored episodes and retain successful samples.
+
+    The policy server records reset identity while the rollout is still
+    running, but only the rollout process knows the terminal success label.
+    This post-pass joins the two sources using ``episode_index`` and fails
+    closed on any mismatch.  Teacher-supervision captures are then restricted
+    to successful episodes: rejected samples are renamed (and preserved) so a
+    recursive ``QAD_CAPTURE_DATASET`` cannot accidentally train on failures.
+    """
+    paths = sorted(Path(directory).rglob("sample_*.pt"))
+    if not paths:
+        return {"total_samples": 0, "accepted_samples": 0, "rejected_samples": 0,
+                "unsuccessful_samples": 0,
+                "successful_episode_indices": []}
+    try:
+        import torch
+    except ImportError as exc:
+        raise RuntimeError("Capture finalization requires torch to read sample metadata") from exc
+    resets = result.get("resets", [])
+    values = result.get("results", [])
+    if len(resets) != len(values):
+        raise ValueError(f"Capture/result episode counts differ for {task_name}: "
+                         f"{len(resets)} resets vs {len(values)} results")
+    accepted, rejected = 0, 0
+    episodes = set()
+    for path in paths:
+        sample = torch.load(path, map_location="cpu", weights_only=True)
+        episode = sample.get("episode_index")
+        if type(episode) is not int or not 0 <= episode < len(values):
+            raise ValueError(f"Sample {path} lacks a valid scored episode_index")
+        reset = resets[episode]
+        checks = {
+            "task_name": (sample.get("task_name"), task_name),
+            "episode_index": (sample.get("episode_index"), episode),
+            "episode_seed": (sample.get("episode_seed"), reset.get("seed")),
+            "init_state_index": (sample.get("init_state_index"), reset.get("init_state_index")),
+        }
+        identity = sample.get("reset_identity")
+        if not isinstance(identity, dict):
+            raise ValueError(f"Sample {path} lacks reset_identity")
+        checks["reset_identity.task_name"] = (identity.get("task_name"), task_name)
+        checks["reset_identity.episode_index"] = (identity.get("episode_index"), episode)
+        for key in ("initial_state_sha256", "restored_state_sha256", "init_state_bank_sha256"):
+            checks[f"reset_identity.{key}"] = (identity.get(key), reset.get(key))
+        mismatches = [key for key, (actual, expected) in checks.items() if actual != expected]
+        if mismatches:
+            raise ValueError(f"Sample {path} reset identity mismatch: {mismatches}")
+        success = bool(values[episode])
+        sample["episode_success"] = success
+        sample["episode_result_source"] = "run_recovery_eval.task_results"
+        sample["episode_result_index"] = episode
+        tmp = path.with_name(path.name + ".tmp")
+        torch.save(sample, tmp)
+        tmp.replace(path)
+        if success:
+            accepted += 1
+            episodes.add(episode)
+        elif purpose == "teacher_supervision":
+            target = path.with_name(path.name.replace("sample_", "rejected_", 1))
+            if target.exists():
+                raise FileExistsError(f"Refusing to overwrite rejected capture {target}")
+            path.rename(target)
+            rejected += 1
+    manifest_path = Path(directory) / "capture_manifest.json"
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.is_file() else {}
+    unsuccessful = len(paths) - accepted
+    manifest.update({
+        "finalized": True,
+        "finalized_purpose": purpose,
+        "episode_success_source": "run_recovery_eval.task_results",
+        "total_samples": len(paths),
+        "accepted_samples": accepted,
+        "rejected_samples": rejected,
+        "unsuccessful_samples": unsuccessful,
+        "successful_episode_indices": sorted(episodes),
+        "successful_episode_count": sum(bool(x) for x in values),
+        "scored_episode_count": len(values),
+    })
+    event_file = manifest.get("reset_event_file")
+    if event_file and Path(event_file).is_file():
+        manifest["reset_event_file_sha256"] = hashlib.sha256(
+            Path(event_file).read_bytes()).hexdigest()
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+    return {"total_samples": len(paths), "accepted_samples": accepted,
+            "rejected_samples": rejected, "unsuccessful_samples": unsuccessful,
+            "successful_episode_indices": sorted(episodes)}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--checkpoint", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--seed", required=True, type=int)
-    ap.add_argument("--purpose", required=True, choices=("development", "collection", "heldout", "smoke"))
+    ap.add_argument("--purpose", required=True, choices=("development", "teacher_supervision", "collection", "heldout", "smoke"))
     ap.add_argument("--protocol-file", help="Versioned protocol JSON supplying the bank partition; defaults to exp/recovery_protocol.json")
     ap.add_argument("--collection-manifest", help="Required for heldout: prove disjoint reset seeds")
     ap.add_argument("--episodes", type=int, help="Default 2 development/collection, 10 heldout, 1 smoke")
@@ -191,16 +339,34 @@ def main():
     for index, task in enumerate(TASKS[:args.task_count]):
         seed = args.seed + 1000 * index
         env = os.environ.copy()
-        env.update({"HF_HUB_OFFLINE": "1", "FP4VLA_QUANT": "0", "PYTHONPATH": str(gr00t),
+        # Infer the numerical path from the checkpoint itself.  This prevents
+        # a stale shell export from turning a BF16 baseline or teacher replay
+        # into an activation-quantized run.  Recovery merge checkpoints carry
+        # the PTQ recipe/manifest and therefore remain on the W4A4 path.
+        checkpoint_path = Path(args.checkpoint).resolve()
+        checkpoint_is_quantized = any(
+            (checkpoint_path / name).is_file()
+            for name in ("ptq_recipe.json", "category_ptq_recipe.json", "merge_manifest.json")
+        )
+        w4a4 = checkpoint_is_quantized
+        adapter_w4a4 = checkpoint_is_quantized and (checkpoint_path / "merge_manifest.json").is_file()
+        env.update({"HF_HUB_OFFLINE": "1",
+                    # Both PTQ and adapter evaluation use the frozen
+                    # checkpoint weights as-is.  W4A4 is an explicit
+                    # activation-only path for PTQ; setting FP4VLA_QUANT=1
+                    # here would quantize an already baked checkpoint twice.
+                    "FP4VLA_QUANT": "0",
+                    "FP4VLA_W4A4": "1" if w4a4 else "0",
+                    "FP4VLA_W4A4_ADAPTER": "1" if adapter_w4a4 else "0",
+                    "PYTHONPATH": str(gr00t),
                     "GR00T_EVAL_SEED": str(seed + 10000000),
                     "MUJOCO_GL": "egl", "PYOPENGL_PLATFORM": "egl"})
         media = env.get("PTQAD_MEDIA_LIB")
         if media:
             env["LD_LIBRARY_PATH"] = media + (":" + env["LD_LIBRARY_PATH"] if env.get("LD_LIBRARY_PATH") else "")
         env["PATH"] = video_path
-        env.pop("OPD_CAPTURE_DIR", None)
-        if args.purpose == "collection":
-            env["OPD_CAPTURE_DIR"] = str(output / "observations" / task)
+        configure_capture_environment(
+            env, output, task, args.purpose, manifest, seed, indices)
         server_cmd = [python, str(project / "eval/serve_recovery.py"), "--model-path", manifest["checkpoint"],
                       "--embodiment-tag", "LIBERO_PANDA", "--use-sim-policy-wrapper", "--port", str(args.port)]
         with open(output / f"{task}.server.log", "w") as log:
@@ -235,12 +401,25 @@ def main():
                 if completed.returncode or result["episodes"] != args.episodes:
                     raise RuntimeError(f"Incomplete task {task}: rc={completed.returncode}, episodes={result['episodes']}")
                 validate_resets(result, seed, indices)
+                if args.purpose in ("teacher_supervision", "collection"):
+                    capture_summary = finalize_capture_samples(
+                        output / "observations" / task, task, result, args.purpose)
+                    result["capture"] = capture_summary
+                    # Rewrite task_results after the join so its provenance
+                    # records exactly how many usable teacher samples remain.
+                    (output / "task_results.json").write_text(json.dumps(results, indent=2) + "\n")
                 print(f"[eval] {task}: {result['successes']}/{result['episodes']}", flush=True)
             finally:
                 stop(server)
-    summary = {"tasks_complete": len(results), "total_successes": sum(x["successes"] for x in results.values()),
-               "total_episodes": sum(x["episodes"] for x in results.values()),
+    total_successes = sum(x["successes"] for x in results.values())
+    total_episodes = sum(x["episodes"] for x in results.values())
+    summary = {"tasks_complete": len(results), "total_successes": total_successes,
+               "total_episodes": total_episodes,
+               # Keep both denominators explicit.  The task-macro value is
+               # the primary summary rate; micro is useful for raw accounting.
                "macro_success_rate": sum(x["success_rate"] for x in results.values()) / 10 if len(results) == 10 else None,
+               "micro_success_rate": total_successes / total_episodes if total_episodes else None,
+               "score_definition": "macro_success_rate=unweighted mean of ten task rates; micro_success_rate=total successes/episodes",
                "purpose": args.purpose, "seed": args.seed,
                "wall_seconds_including_server_loads": time.time() - started}
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")

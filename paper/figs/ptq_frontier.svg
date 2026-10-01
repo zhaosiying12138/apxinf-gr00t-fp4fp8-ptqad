@@ -1,18 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="420" viewBox="0 0 1100 420" role="img" aria-label="压缩与成功率：计入恢复参数后的比较" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="580" viewBox="0 0 1100 580" role="img" aria-label="同一 W4A4 基座：编码预算与闭环恢复" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
 <rect width="100%" height="100%" fill="white"/>
-<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">压缩与成功率：计入恢复参数后的比较</tspan></text>
-<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">结构审阅稿 · 最终展示开发阶段选定配方及必要的纯 PTQ 参考。</tspan></text>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">同一 W4A4 基座：编码预算与闭环恢复</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">成功率待最终评测；预算由实际权重形状推导，按已知共享别名去重。</tspan></text>
 <text x="45" y="132" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">比较项</tspan></text>
 <text x="470" y="132" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">完整目标编码预算</tspan></text>
 <text x="850" y="132" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">闭环成功率</tspan></text>
-<text x="45" y="198" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">纯 PTQ 参考</tspan></text>
-<text x="520" y="198" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="45" y="198" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">BF16</tspan></text>
+<text x="520" y="198" fill="#183c4d" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">6.2880 GB</tspan></text>
 <text x="880" y="198" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
-<text x="45" y="260" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">高 FP4 配方 + QAD</tspan></text>
-<text x="520" y="260" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="45" y="260" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ</tspan></text>
+<text x="520" y="260" fill="#183c4d" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">1.7733 GB</tspan></text>
 <text x="880" y="260" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
-<text x="45" y="322" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">高 FP4 配方 + QAD + OPD</tspan></text>
-<text x="520" y="322" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="45" y="322" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ + QAD</tspan></text>
+<text x="520" y="322" fill="#183c4d" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">1.9193 GB</tspan></text>
 <text x="880" y="322" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
-<text x="45" y="387" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">预算包含格式缩放、未量化张量和 BF16 低秩参数；图中尚无实测成功率。</tspan></text>
+<text x="45" y="384" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ + 继续 QAD</tspan></text>
+<text x="520" y="384" fill="#183c4d" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">1.9193 GB</tspan></text>
+<text x="880" y="384" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
+<text x="45" y="446" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ + QAD + OPD</tspan></text>
+<text x="520" y="446" fill="#183c4d" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">1.9193 GB</tspan></text>
+<text x="880" y="446" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
+<text x="45" y="506" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">量化基座含 payload、格式缩放及未量化权重；恢复臂另计完整 BF16 低秩参数。</tspan></text>
+<text x="45" y="543" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">该预算不是稠密 checkpoint 文件体积、实际显存或延迟；不预设恢复收益。</tspan></text>
 </svg>

@@ -1,0 +1,61 @@
+{
+  "status": "existing_build_identity_verified_and_current_cpu_self_test_passed",
+  "scope": "Existing recorded build and current artifact identity review plus a newly executed CPU-only opbench self-test; no compilation, GPU call, or benchmark measurement was performed in this review.",
+  "review_started_utc": "2026-09-29T06:10:05.709572+00:00",
+  "review_completed_utc": "2026-09-29T06:10:05.984898+00:00",
+  "compiled_in_this_review": false,
+  "gpu_execution_performed": false,
+  "existing_build_manifest": {
+    "path": "paper/validation/native-graph-preparation/build_manifest.json",
+    "bytes": 4901,
+    "sha256": "ae61e8c3bfb2e8289d39eecf74d2143cd81a6e0a7647c83279925435f3a13ef5"
+  },
+  "existing_build_manifest_created_at": "2026-09-29T05:14:00.910956+00:00",
+  "existing_opbench_build_log": {
+    "path": "paper/validation/native-graph-preparation/native_fp4_opbench_build.log",
+    "bytes": 414,
+    "sha256": "f8c97409c4a424cdd08b7aac7c8bad21d356b237ebbb4dd29cb23e1d009336cf"
+  },
+  "source_sha256": {
+    "spike/fp4_opbench.cu": "a80e32f8783ae92b26e37af8d195d57527deb831d644d8a7c85b251ff7ba431a",
+    "spike/fp4_gemm_bench.cu": "3240546f20c9bae73ef109a8412534379d034683de6e3fed05683a997e0bc1e4",
+    "spike/Makefile": "8085b41aa59c57a65bb9a1131dd51750fb9db90fd93fbb200f132434a1e1eb89",
+    "third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu": "266b37eb1bfb3c265a991747b50689ba55399edb73a59db587b5c53b4ebed812"
+  },
+  "artifact_identity_observed_now": {
+    "spike/fp4_opbench": {
+      "sha256": "f81c952db476bb9a58106ef8f0dca6bed6f1853228f0836664202fbd4125016d",
+      "bytes": 1184360,
+      "mtime_ns_observed": 1790658471963090610,
+      "mtime_utc_observed": "2026-09-29T05:07:51.963091+00:00",
+      "matches_existing_build_manifest": true
+    },
+    "spike/fp4_gemm_bench": {
+      "sha256": "aa4e3f5386fc0d9d68ffdda948347872df2219f105a0ed05b2f2754812a236cd",
+      "bytes": 1130672,
+      "mtime_ns_observed": 1790652913006247328,
+      "mtime_utc_observed": "2026-09-29T03:35:13.006247+00:00",
+      "matches_existing_build_manifest": true
+    }
+  },
+  "cpu_command": [
+    "./spike/fp4_opbench",
+    "--cpu-self-test"
+  ],
+  "cpu_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2"
+  },
+  "cpu_returncode": 0,
+  "cpu_stdout": "CPU self-test PASS: true median, finite deterministic encoding; no CUDA API called\n",
+  "cpu_process_wall_seconds": 0.2754538640001556,
+  "cpu_log": {
+    "path": "paper/validation/operator-benchmark-self-test.log",
+    "bytes": 83,
+    "sha256": "d9183978349b518ff891ef3bf34eb90962b18a36aefe6764f62e44dc33237b92"
+  },
+  "provenance_boundary": "Hashes and mtimes above were observed during this CPU review. Matching the existing 05:14 build manifest establishes artifact continuity; it does not invent a new compilation timestamp or a hash recorded before later benchmark measurements.",
+  "fp8_probe_scope": "The FP8 probe was not compiled, executed or certified by this current opbench receipt; its current numerical/GPU evidence must be assessed from its own run.",
+  "superseded_receipt_sha256": "5cdbd2697d9bbcf28e61cad7e0e6995eaa0b6e9af04f1c37d749b5749c052790"
+}

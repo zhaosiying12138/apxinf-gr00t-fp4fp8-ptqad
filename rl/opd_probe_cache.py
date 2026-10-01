@@ -67,6 +67,8 @@ def main():
     if not teacher_weights:
         raise ValueError("Teacher checkpoint has no safetensors weights")
     source_files = []
+    student_checkpoint = None
+    student_weights = None
     # model_path is NOT a pipeline load argument; start_from_checkpoint is.
     config = get_default_config().load_dict({"data": {
         "download_cache": False, "override_pretraining_statistics": False,
@@ -103,6 +105,19 @@ def main():
         raw_samples = [torch.load(p, map_location="cpu", weights_only=True) for p in paths]
         if any(s.get("source_kind") != "student_rollout" for s in raw_samples):
             raise ValueError("Input is not a captured student rollout")
+        student_values = [s.get("student_checkpoint") for s in raw_samples]
+        if any(not isinstance(value, str) or not value for value in student_values):
+            raise ValueError("Captured observations lack student checkpoint identity")
+        student_paths = {str(Path(value).resolve()) for value in student_values}
+        if len(student_paths) != 1:
+            raise ValueError("Captured observations do not share one student checkpoint")
+        student_checkpoint = Path(next(iter(student_paths)))
+        student_weights = {
+            p.name: {"bytes": p.stat().st_size, "sha256": file_sha256(p)}
+            for p in sorted(student_checkpoint.glob("*.safetensors"))
+        }
+        if not student_weights:
+            raise ValueError("Student checkpoint has no safetensors weights")
         stats_hash = file_sha256(teacher / "statistics.json")
         if any(s["student_statistics_sha256"] != stats_hash for s in raw_samples):
             raise ValueError("Student/teacher normalization differs; cannot reuse normalized rollout inputs")
@@ -158,6 +173,13 @@ def main():
                 "timing_scope": "checkpoint loading and teacher labeling, before cache serialization",
                 "cuda_peak_scope": "PyTorch allocator peaks for this labeling process",
                 "elapsed_seconds": time.time() - start}
+    if student_checkpoint is not None:
+        metadata.update({
+            "student_checkpoint": str(student_checkpoint),
+            "student_config_sha256": file_sha256(student_checkpoint / "config.json"),
+            "student_statistics_sha256": file_sha256(student_checkpoint / "statistics.json"),
+            "student_weights": student_weights,
+        })
     torch.save({"version": CACHE_VERSION, "metadata": metadata, "samples": samples}, outpath)
     outpath.with_suffix(".json").write_text(json.dumps(metadata, indent=2) + "\n")
     print(f"[probe-cache] saved {outpath} source={source} architecture={arch}", flush=True)

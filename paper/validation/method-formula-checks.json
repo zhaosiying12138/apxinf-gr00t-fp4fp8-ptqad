@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "scope": "CPU-only review and numerical checks; no running training, quantization or frozen protocol sources modified.",
+  "tested_utc": "2026-09-29T04:56:03.698825+00:00",
+  "runs": [
+    {
+      "command": [
+        "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
+        "paper/validation/method_formula_checks.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"mask_valid_elements\": 112,\n  \"masked_mse\": 4.0,\n  \"padding_output_gradient_max_abs\": 0.0,\n  \"valid_gradient_reference_max_abs\": 0.0,\n  \"lora_matrix_order_max_abs\": 6.938893903907228e-18,\n  \"probe_backwards_per_optimizer_update\": [\n    0,\n    0,\n    0,\n    16\n  ],\n  \"first_period_teacher_log_lines\": 16,\n  \"gptq_upper_factor_inverse_max_abs\": 2.3283064365386963e-08,\n  \"gptq_scale_shape\": [\n    7,\n    2\n  ],\n  \"cuda_initialized\": false,\n  \"flow_time_transform_max_abs\": 0.0,\n  \"flow_interpolation_max_abs\": 0.0,\n  \"flow_velocity_target_max_abs\": 0.0,\n  \"four_step_euler_endpoint_max_abs\": 4.76837158203125e-07,\n  \"upstream_flow_source\": \"/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/gr00t_n1d7/gr00t_n1d7.py\",\n  \"upstream_flow_source_sha256\": \"6c99d403765f1b1eab4b4d4ce6027fc63df8dd599bb328f76794a70c06f85950\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_quantization_semantics.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_awq_gqa_mapping_and_producer_consumer_objective (test_quantization_semantics.QuantizationSemantics.test_awq_gqa_mapping_and_producer_consumer_objective) ... ok\ntest_awq_norm_objective_equals_explicit_outputs (test_quantization_semantics.QuantizationSemantics.test_awq_norm_objective_equals_explicit_outputs) ... ok\ntest_e2m1_all_codes_midpoints_and_neighbors (test_quantization_semantics.QuantizationSemantics.test_e2m1_all_codes_midpoints_and_neighbors) ... ok\ntest_e4m3_all_codes_midpoints_native_fp8_oracle (test_quantization_semantics.QuantizationSemantics.test_e4m3_all_codes_midpoints_native_fp8_oracle) ... ok\ntest_fp8_row_scale_reference (test_quantization_semantics.QuantizationSemantics.test_fp8_row_scale_reference) ... ok\ntest_gptq_diagonal_equals_rtn_one_tensor_scale (test_quantization_semantics.QuantizationSemantics.test_gptq_diagonal_equals_rtn_one_tensor_scale) ... ok\ntest_gptq_representability_and_matrix_objective (test_quantization_semantics.QuantizationSemantics.test_gptq_representability_and_matrix_objective) ... ok\ntest_rtn_packed_reference_and_matrix_outputs (test_quantization_semantics.QuantizationSemantics.test_rtn_packed_reference_and_matrix_outputs) ... ok\ntest_ste_value_and_identity_gradient (test_quantization_semantics.QuantizationSemantics.test_ste_value_and_identity_gradient) ... ok\ntest_zero_tiny_weights_and_zero_physical_scale (test_quantization_semantics.QuantizationSemantics.test_zero_tiny_weights_and_zero_physical_scale) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 0.096s\n\nOK\n"
+    },
+    {
+      "command": [
+        "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_probe_distill.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "[lora-qad] LoRA on 3 Linears (r=32, scope=head+lang_all); trainable=0.0M frozen=0M\n[opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1\n[opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1\n",
+      "stderr": "test_explicit_batch_contract (test_probe_distill.ProbeTests.test_explicit_batch_contract) ... ok\ntest_gradient_and_rng_and_mode_restoration (test_probe_distill.ProbeTests.test_gradient_and_rng_and_mode_restoration) ... ok\ntest_identical_seed_matches_noise_time_without_global_rng_effect (test_probe_distill.ProbeTests.test_identical_seed_matches_noise_time_without_global_rng_effect) ... ok\ntest_padding_differences_have_no_loss_or_gradient (test_probe_distill.ProbeTests.test_padding_differences_have_no_loss_or_gradient) ... ok\ntest_prediction_contracts (test_probe_distill.ProbeTests.test_prediction_contracts) ... ok\ntest_real_lora_injection_keeps_language_eval_differentiable (test_probe_distill.ProbeTests.test_real_lora_injection_keeps_language_eval_differentiable) ... ok\ntest_reject_legacy_and_mismatched_dtype (test_probe_distill.ProbeTests.test_reject_legacy_and_mismatched_dtype) ... ok\ntest_sequential_backward_accumulation_and_return_outputs (test_probe_distill.ProbeTests.test_sequential_backward_accumulation_and_return_outputs) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.067s\n\nOK\n"
+    }
+  ],
+  "source_sha256": {
+    "quant/torch_fp4.py": "b8f1d073b7904e08c11d9d2c2dba8998e60acb80e0a317098ccfca8890a468e9",
+    "quant/ptq/quantizers.py": "e7310601f5cb0a80d13c7a7be79714bc8ea4a85b03866968ef493646df6acfd2",
+    "quant/ptq/awq.py": "150089ee6533114b7842bbba82819f35930da87c17f2788eaf5a1964ce17ea81",
+    "rl/probe_distill.py": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6",
+    "rl/lora_qad.py": "e74b776e2fd0552597eea292afd0041450afba209aa20d6c08439d9e7cf0acce",
+    "rl/opd_probe_cache.py": "acc4d9f1981a452817bff8448a53b6ad2c41216c9b703c45e09aa15a1a1befc1",
+    "rl/run_onpolicy_round.sh": "ebfec9be5b241873e058d3a571da16b13e22cdd41bab2c886384b46d19a72627",
+    "paper/validation/method_formula_checks.py": "ddcbd30db1b14c4a42aef19ba13531e23d36ab0328c3d460c0709a98a8e8dd4a"
+  },
+  "measured": {
+    "mask_valid_elements": 112,
+    "masked_mse": 4.0,
+    "padding_output_gradient_max_abs": 0.0,
+    "valid_gradient_reference_max_abs": 0.0,
+    "lora_matrix_order_max_abs": 6.938893903907228e-18,
+    "probe_backwards_per_optimizer_update": [
+      0,
+      0,
+      0,
+      16
+    ],
+    "first_period_teacher_log_lines": 16,
+    "gptq_upper_factor_inverse_max_abs": 2.3283064365386963e-08,
+    "gptq_scale_shape": [
+      7,
+      2
+    ],
+    "cuda_initialized": false,
+    "flow_time_transform_max_abs": 0.0,
+    "flow_interpolation_max_abs": 0.0,
+    "flow_velocity_target_max_abs": 0.0,
+    "four_step_euler_endpoint_max_abs": 4.76837158203125e-07,
+    "upstream_flow_source": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/gr00t_n1d7/gr00t_n1d7.py",
+    "upstream_flow_source_sha256": "6c99d403765f1b1eab4b4d4ce6027fc63df8dd599bb328f76794a70c06f85950"
+  }
+}

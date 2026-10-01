@@ -14,7 +14,7 @@
 | PTQ 反量化权重 | $Q(W)$ 转回源 dtype 后的普通张量 | PyTorch 浮点线性层 | 单独研究权重扰动与闭环行为 |
 | 恢复后的稠密权重 | $W_{\mathrm{baked}}+(\alpha/r)BA$ 再转回源 dtype | PyTorch 浮点线性层 | 与既有 GR00T 策略服务器兼容的恢复评测 |
 
-接下来先走完 GR00T 的 PyTorch 路径：源 checkpoint → 校准统计 → PTQ 基座 → LoRA 恢复 → 稠密导出 → LIBERO 评测。A.8 再展开 APXInf 的 packed 权重路径，其中原生算子还会在线量化激活。这样，同一个低精度数值格式在两种执行方式中的作用就有了明确位置。两条路径的测量范围统一列在 A.10。
+接下来先走完 GR00T 的 PyTorch 数值路径：源 checkpoint → 校准统计 → 全 NVFP4 PTQ 基座 → W4A4 activation QDQ → QAD/OPD adapter → LIBERO 评测。A.8 再展开 APXInf 的 packed 权重路径，其中原生算子也会在线量化激活。dense merge 仅用于诊断，不进入主结果。两条路径的测量范围统一列在 A.10。
 
 ## A.2 把浮点权重映射到低精度格点
 
@@ -131,11 +131,13 @@ $$
 
 ### A.3.4 精度配方、共享别名与完整索引
 
-`quant/ptq/bake.py::inventory` 根据 safetensors 文件头建立物理键清单，并核对索引与实际 shard。量化谓词为 `.weight`、二维、$K\bmod16=0$；因此 472 个候选键既包含线性层，也包含词嵌入和位置嵌入。清单外张量按源 dtype 保持原值。
+`quant/ptq/bake.py::inventory` 根据 safetensors 文件头建立物理键清单，并核对索引与实际 shard。二维路径的量化谓词为键以 `.weight` 结尾、形状为二维且 $K\bmod16=0$，共得到 472 个候选。动作头的 7 个 `CategorySpecificLinear` 权重由 `quant/ptq/category_fp4.py` 单独识别，源形状为 $[32,K,N]$，因此最终账本是 472+7=479 个候选张量。清单外张量按源 dtype 保持原值。
 
-`alloc` 把模块名映射到请求方法。`fp8` 起点将动作头候选权重置为 NVFP4 RTN、backbone 置为 FP8；`head_ffn` 增加语言 gate/up，`head_lang` 再增加 q/k/v，`head_lang_vision` 再增加视觉候选矩阵；`calib` 请求所有候选矩阵使用 NVFP4。各级 NVFP4 集合嵌套。`mixed` 与 `aggr` 作为额外模块分配保留，其中动作头 FFN 按完整的 `transformer_blocks.<i>.ff.net.0.proj/2` 名称识别。
+`bake.py::alloc` 是显式模块规则，而不是根据 held-out 成功率事后调参。v11 的最终 parent 统一采用 `all_nvfp4_gptq_category`：479 个 eligible 权重张量全部写入 NVFP4，普通 Linear 使用校准后的 GPTQ 块补偿，7 个 CategorySpecificLinear 使用独立 category 配方。每个层的请求方法、校准覆盖和实际编码都写入 `ptq_recipe.json` 与 `category_ptq_recipe.json`，不再把旧的 FP8/NVFP4 混合分配带入主结果。
 
-实际量化方法由校准模式与模块类型共同决定。`calibration-mode=none` 显式使用 RTN；`required` 校验完整结构、源配置、统计与缓存身份，并拒绝真正线性层缺失 Hessian 的情形；不属于 Linear 的嵌入矩阵则记录 RTN 回退。`auto` 使用可用统计。每层的请求方法、实际方法、裁剪值和回退原因都写入 `ptq_recipe.json`。
+`category_fp4.py` 再沿真实输入轴处理 7 个类别权重。对每个 bank，代码把 `[K,N]` 转成量化器使用的 `[N,K]`，将 $K$ 补齐到 $16\lceil K/16\rceil$，并为该 bank 单独保存 tensor scale 和每 16 个输入值的 block scale。v11 的 category manifest 记录每个活动 bank 的实际格式、padding 和来源；运行时只安装模型真正调用的 7 个 CategorySpecificLinear，其他未执行 bank 不参与 LIBERO 前向，也不被误计为额外的激活算子。
+
+实际量化方法由模块规则、校准模式和张量类型共同决定。`calibration-mode=none` 显式使用 RTN；`required` 校验完整结构、源配置、统计与缓存身份，并拒绝真正线性层缺失 Hessian 的情形；非 Linear 的二维嵌入记录规则指定的 RTN。类别路径对 bank 2 使用 `required` 的 128 窗口统计，对其余 bank 记录“未被 LIBERO 校准观察”并显式回退 RTN。每个二维层和每个类别 bank 的请求方法、实际方法、裁剪值、尺度与回退原因都写入 `ptq_recipe.json` 或 `category_ptq_recipe.json`。
 
 共享权重必须先于逐键写盘处理。该 checkpoint 的 `embed_tokens.weight` 与 `lm_head.weight` 在文件中各保存一份，运行时却共享同一参数。`tied_aliases` 将词嵌入定义为规范来源：先确认源文件两个张量相同，只量化规范张量，再把结果复制给别名；即使输出投影存在独立 Hessian，也不允许给同一个运行时参数产生另一份量化值。这样，加载顺序不会决定最终模型取到哪一份权重。
 
@@ -159,7 +161,7 @@ return y + (z * (alpha / rank)).to(y.dtype)
 
 $m.weight$ 是冻结的 PTQ 反量化权重，不在每次前向重新量化。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
 
-默认 `head` 覆盖 252 个动作头 Linear，含 38,658,048 个训练参数；`head+lang` 加入语言 q/k/v/o，覆盖 316 个 Linear；`head+lang_all` 再加入 gate/up/down，覆盖 364 个 Linear、58,580,992 个参数。以下实现说明以最后一种范围为例；实际选择由该轮恢复 manifest 记录。动作头位置嵌入属于量化候选但不属于 Linear，故不安装 LoRA。
+v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
 
 只有 A/B 的 `requires_grad` 为真，冻结基座仍向输入传递梯度。`eval` 控制 dropout 等模块行为，`no_grad` 控制自动求导；因此语言栈保持 eval 时，低秩分支仍可接收动作损失的梯度。首个反向传播后，`install_gradient_audit` 检查动作头与所选语言范围的 B 梯度是否存在、有限且非零。B 零初始化使 A 的首步梯度为零，这是预期行为。
 
@@ -239,11 +241,11 @@ W_export = (W_base.float() + delta).to(W_base.dtype)
 
 输入是一份经过导出核验的 checkpoint 和固定的环境初态，输出是逐集成功布尔值、初态身份及日志。这里的主角从单次前向变成策略与环境的反复交互。
 
-`eval/serve_recovery.py` 加载准备好的 PTQ 或合并 checkpoint，保持 `FP4VLA_QUANT=0`，防止对已准备的权重再次量化。`rl/scoped_quant.py::mark_scope` 提供另一个独立入口：从原始浮点模型出发，加载时将指定 Linear 的权重替换一次，随后恢复原线性层前向。对固定权重和固定 weight-only 量化器，量化一次与每次重复量化产生相同权重值；二者仅执行开销不同。bake 产物直接使用 checkpoint 路径。
+`eval/serve_recovery.py` 加载准备好的 PTQ 或 adapter checkpoint。W4A4 基座服务设置 `FP4VLA_W4A4=1`，adapter 服务再设置 `FP4VLA_W4A4_ADAPTER=1`；`FP4VLA_QUANT=0` 只用于关闭原始权重的一次性替换，不能关闭 activation QDQ。`rl/scoped_quant.py::mark_scope` 提供另一个独立入口：从原始浮点模型出发，加载时将指定 Linear 的权重替换一次，随后恢复原线性层前向。对固定权重和固定 weight-only 量化器，量化一次与每次重复量化产生相同权重值；二者仅执行开销不同。v11 的 W4A4 部署回到冻结 base，再加载 A/B adapter，避免把合并矩阵再次量化。
 
 完整模型驻留策略服务器，LIBERO 客户端经 ZMQ 发送观测并执行动作；每次执行动作块前 8 步，每 episode 最多 720 步。`run_recovery_eval.py` 串行启动任务和服务器，以一环境对应一个 episode 计数流，保存逐集布尔结果、实际分母、进程退出码、重置记录和日志摘要。缺失或超时使该任务验收失败，结果按实际完成状态保存。
 
-环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、采集与最终评测使用不相交的初态集合。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。本文使用 `exp/recovery_protocol_v5_exploratory_fp4.json`：开发索引 4–8、采集索引 20–23、最终评测索引 30–39，对应起始 seed 为 440000、550000、660000。每任务 seed 加 1000 倍任务索引，环境每集再加 episode 索引；服务器另按任务固定推理随机种子。执行短测使用独立 index=0、seed=770000。
+环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、教师监督、学生 collection 与最终评测使用协议声明的分区。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。本文使用冻结的 `exp/recovery_protocol_v11_w4a4_category.json`：开发索引 4–8（seed 940000）、教师监督索引 20–23（seed 950000）、学生 collection 索引 20–23（seed 960000）、最终评测索引 9–19 与 24–28（seed 970000）。held-out 每任务 16 回合，共 160 回合/臂；smoke 使用 index=0、seed 980000，只验证接口。479 个 eligible 权重张量全部使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 走 W4A4 activation QDQ，3 个 embedding/position 张量仅权重量化。QAD/OPD 残差保留原始 BF16 输入。
 
 `run_recovery_eval.py::validate_resets` 严格检查实际前 $N$ 个 episode 的索引、种子、三个状态或文件摘要和稳定步数。五分支汇总前，`compare_recovery.py::compare_round` 逐集比对这些摘要，并保存每任务结果、配对成功/失败的 $2\times2$ 表与探索性精确 McNemar 检验。该检验作为有限配对样本的探索性统计一并保存。
 
@@ -291,8 +293,6 @@ offset(r,b) = PS × floor(r/128) + 512 × floor(b/4)
 
 下面的 Ubuntu 记录展示打包产物的实际生成与检查。目录文件数只用于检查文件生成过程，量化覆盖量以 manifest 为准。
 
-{{fig:shot_packed}}
-
 ### A.8.3 在线激活量化、二级缩放和输出布局
 
 `apxinf_nvfp4_quantize_activation` 先用同一 stream 的 `cudaMemsetAsync` 将完整 scale tile 清零，再启动激活量化 kernel。每个线程读取一个 16 元素 F16 块，计算 `amax/6`、编码 E4M3 缩放、选择 E2M1 码，并写入 packed 数据与有效 swizzled scale。清零操作也被记录进 CUDA Graph，因此 arena 中原有的字节不会成为 padding 缩放。在线激活路径固定 $\tau_x=1$，与离线权重的可变 $\tau_w$ 分别定义。零缩放用于编码时采用安全除数，物理缩放仍是零；归一化采用除法，避免改为倒数乘法后在中点附近产生不同舍入。
@@ -332,7 +332,7 @@ $$
 准备阶段包含分配、算法选择和图捕获，稳定 replay 只提交已经记录的设备操作。类型转换、scale 清零、在线激活量化与 GEMM 仍实际执行，必须共同计时。普通 eager 调用继续分配或复用输出缓冲。`ModelRunner.execution_mode` 只读取已有准备状态，不触发推理：π0.5 未准备时返回 `unprepared`，准备就绪后返回 `graph` 或 `eager`，另有 `invalidated`、`runtime-managed` 状态；GR00T 已捕获图时返回 `cuda-graph`，否则返回 `eager`。计时记录在 warmup 后及每个样本后保存模型实际返回的字符串。
 
 <!-- BEGIN NATIVE GRAPH VALIDATION -->
-本轮设备验收包含以下四项，原始记录位于 `results/native_graph_20260929/`。每项日志的退出状态与总任务 `exit_code.txt` 均为 0。
+本轮设备验收包含以下四项，原始记录位于冻结发布目录的 `results/native_graph_<run>/`。每项日志的退出状态与总任务 `exit_code.txt` 均为 0。
 
 | 检查 | 实际覆盖 | 结果 |
 |---|---|---|
@@ -372,7 +372,7 @@ Python 的 `AutoPolicy.from_pretrained` 对 π0.5 使用 `model_variant=`，对 
 | 原生执行 | `Fp4DeviceWeights`、`fp4_linear`、行主序 scaled adapter | packed/scale 文件、manifest、GPU 测试与引擎日志 |
 | 演示适配 | `install_lora`、`resolve_batch` | A/B checkpoint、`recovery_manifest.json` |
 | 教师蒸馏 | `install_capture`、`replay_context`、`ProbeAnchor`、`install_sequential_probe` | 采集清单、教师缓存、有效 mask、训练日志 |
-| 稠密导出 | `lora_merge_bake.py` | 完整 checkpoint、`merge_manifest.json` |
+| 诊断导出 | `lora_merge_bake.py` | dense merge 与 `merge_manifest.json`；正式评测仍加载冻结 base + A/B adapter |
 | 闭环评测 | `serve_recovery.py`、`rollout_seeded.py`、`run_recovery_eval.py` | 初态摘要、逐集结果、实际分母与计时 |
 
 附录 B 给出环境、构建和分阶段命令；`paper/validation/source_refs.json` 记录本附录引用函数在当前源码中的定位及文件摘要，`paper/validation/cpu-tests.log` 保存可重跑的 CPU 检查结果。
@@ -383,7 +383,7 @@ Python 的 `AutoPolicy.from_pretrained` 对 π0.5 使用 `model_variant=`，对 
 
 | 对象 | 本实现采用的口径 |
 |---|---|
-| GR00T 恢复评测 | 对权重施加 NVFP4/FP8 数值扰动，LoRA 合并后以 PyTorch 稠密权重执行。 |
+| GR00T 恢复评测 | 全 NVFP4 权重和 W4A4 activation QDQ；冻结 base 上加载独立 BF16 A/B adapter，dense merge 只作诊断。 |
 | 编码预算 | packed payload、scale、未量化参数及适用的低秩旁路；另列物理副本与已知共享别名去重口径。 |
 | 磁盘与显存 | 分别读取真实 shard 字节数、进程峰值与整卡占用；激活、图 arena、scratch 和优化器按实际用途计入。 |
 | 原生部署 | APXInf π0.5 实现在线激活量化与 FP4 路由；GR00T packed 基座加低秩旁路属于后续模型集成工作。 |

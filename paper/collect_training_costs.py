@@ -25,6 +25,11 @@ TRAIN_SOURCES = tuple("rl/" + name for name in (
 ARCH = {"language_layers": 16, "dit_layers": 32, "vl_layers": 4}
 TRAIN_SCOPE = "script import through training and checkpoint serialization"
 TEACHER_SCOPE = "checkpoint loading and teacher labeling, before cache serialization"
+# The v7 run is the current formal publication boundary.  The category form
+# remains readable so the CPU verifier can audit older archived packages, but
+# no caller may infer a winner from a filename alone: protocol SHA and the
+# completed run receipts are checked below.
+FINAL_FORMAT_RE = re.compile(r"(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7)_final_manifest\Z")
 DTYPE_BYTES = {"bfloat16":2,"float16":2,"float32":4,"float64":8,"int8":1,"uint8":1,"bool":1,"int16":2,"int32":4,"int64":8}
 SHARED_KEYS = ("base", "rank", "alpha", "scope", "base_config_sha256", "base_statistics_sha256", "base_recipe_sha256",
     "parameter_dtype", "compute_dtype", "seed", "micro_batch", "effective_global_batch", "gradient_accumulation_steps",
@@ -58,34 +63,38 @@ def is_orchestrated_protocol(protocol):
             isinstance(selection.get('pressure_candidates'), list))
 
 
-def orchestrator_source(protocol, state=None):
-    """Return the producer source named by a run, with a compatibility default.
+def orchestrator_source(protocol, state=None, source_root=None):
+    """Resolve the source identity recorded when run_manifest was initialized.
 
     New run manifests should record ``implementation_path``. For the first
-    published orchestrator that field was absent, so derive its v3 filename
-    from the frozen protocol id; this does not select a different protocol.
+    published orchestrator that field was absent, so derive a checked-in
+    snapshot filename from its recorded implementation hash. This hash is not
+    retroactive proof of the driver imported by later resumed invocations.
     """
     state = state or {}
+    source_root = Path(source_root).resolve() if source_root is not None else ROOT
     relative = state.get('implementation_path')
     if relative is None:
-        # v5 category runs use the category orchestrator.  Older manifests
-        # omitted the implementation path, so select an existing producer
-        # from the current checkout rather than inventing a stale vN file.
+        # Older manifests omitted the implementation path, so select an
+        # existing producer from the current checkout rather than inventing a
+        # stale versioned filename.
         # If the run recorded a producer hash, prefer the checked-in source
         # snapshot that matches it; this preserves provenance after the live
         # orchestrator has evolved.
-        candidates = ['exp/run_category_recovery.py', 'exp/run_high_fp4_v3_run_snapshot.py']
+        candidates = ['exp/run_mixed_pressure_recovery.py', 'exp/run_category_recovery.py',
+                      'exp/run_high_fp4_v3_producer.py',
+                      'exp/run_high_fp4_v3_run_snapshot.py']
         match = re.search(r'v(\d+)', str(protocol.get('id', '')))
         candidates.append('exp/run_high_fp4_v%s.py' % (match.group(1) if match else '3'))
         expected = state.get('implementation_sha256')
         if expected:
             for candidate in candidates:
-                path = ROOT / candidate
+                path = source_root / candidate
                 if path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == expected:
                     relative = candidate
                     break
         if relative is None:
-            relative = next((candidate for candidate in candidates if (ROOT / candidate).is_file()), candidates[0])
+            relative = next((candidate for candidate in candidates if (source_root / candidate).is_file()), candidates[0])
     path = Path(relative)
     need(not path.is_absolute() and '..' not in path.parts and path.parts[:1] == ('exp',),
          'Invalid orchestrator implementation path')
@@ -95,12 +104,16 @@ def orchestrator_source(protocol, state=None):
 def normalized_protocol(protocol, final=None):
     """Derive audit settings without rewriting the archived protocol bytes."""
     if not is_orchestrated_protocol(protocol):return protocol
-    need(isinstance(final,dict),'v3 costs require the completed orchestrator final manifest')
+    need(isinstance(final,dict),'cost audit requires the completed orchestrator final manifest')
     selection=protocol['selection'];lr=final['selected_qad_learning_rate'];weight=final['selected_opd_weight']
     need(lr in selection['qad_learning_rates'] and weight in selection['opd_weights'],
-         'Selected recovery setting is outside the frozen v3 search')
+         'Selected recovery setting is outside the frozen protocol search')
+    initial_state_protocol = protocol.get('initial_state_protocol',
+        protocol.get('evaluation_contract', {}).get('initial_state_protocol'))
+    need(isinstance(initial_state_protocol, str) and initial_state_protocol,
+         'Frozen protocol has no initial-state protocol identity')
     return {**protocol,**protocol['partitions'],
-        'initial_states':{'protocol':protocol['initial_state_protocol']},
+        'initial_states':{'protocol':initial_state_protocol},
         'recovery':{'initial_qad_optimizer_steps':selection['qad_optimizer_steps'],
             'effective_demo_batch':selection['effective_demo_batch'],'rank':selection['rank'],
             'alpha':selection['alpha'],'scope':selection['recovery_scope'],'activation_checkpointing':True},
@@ -294,7 +307,7 @@ def audit_stage(folder, name, steps, protocol, protocol_sha, evidence, expected_
             'QAD_LR':str(float(protocol['selected_learning_rate'])),'TRAIN_SEED':str(protocol['train_seed']),
             'QAD_OPD_MSE_W':str(float(expected_weight)),'QAD_ACTIVATION_CHECKPOINTING':'1'}
         need(request.get('protocol_sha256')==protocol_sha and all(env.get(k)==v for k,v in expected_env.items()),
-             name+': training request differs from selected v3 settings')
+             name+': training request differs from selected protocol settings')
         need(manifest.get('train_seed')==manifest.get('seed')==protocol['train_seed'],name+': training seed differs')
     need(set(manifest.get("recovery_source_sha256", {})) == set(TRAIN_SOURCES), name + ": incomplete source SHA coverage")
     for relative, digest in manifest["recovery_source_sha256"].items():
@@ -377,6 +390,166 @@ def audit_collection(folder, qad_merged, protocol, protocol_sha, evidence, publi
             "cuda_peak_memory": None, "cuda_peak_note": "Collection wrapper does not record allocator peaks"}, captures
 
 
+INVOCATION_FORMAT = "mixed_pressure_recovery_invocation_v1"
+INVOCATION_SOURCES = {
+    "exp/run_mixed_pressure_study.py", "exp/run_mixed_pressure_recovery.py",
+    "exp/run_high_fp4_v3.py", "exp/recovery_invocation.py",
+}
+INITIALIZATION_SCOPE = (
+    "Source identity recorded when run_manifest.json was created; this does not attest "
+    "the orchestration source imported by every resumed process.")
+INVOCATION_SCOPE = (
+    "File snapshots taken before and after recorded recovery launches. Stages completed "
+    "before the first recorded launch have no launch-source snapshot; later snapshots "
+    "do not retroactively prove their orchestration source identity.")
+TRAINING_SOURCE_SCOPE = (
+    "The selected final three training arms separately verify the seven producer-attested "
+    "recovery_source_sha256 entries. This verification does not supply a missing orchestration launch snapshot.")
+
+
+def _invocation_file(path, recorded, label):
+    need(isinstance(recorded, dict) and set(recorded) == {"bytes", "sha256"} and
+         type(recorded.get("bytes")) is int and recorded["bytes"] >= 0 and
+         isinstance(recorded.get("sha256"), str) and
+         re.fullmatch(r"[0-9a-f]{64}", recorded["sha256"]), "Malformed " + label)
+    need(identity(path) == recorded, label + " hash differs")
+
+
+def _invocation_stage_snapshots(folder, phase, declared, state, expected_files):
+    need(isinstance(declared, dict), "Invocation stage map is missing: " + phase)
+    result = {}
+    for name, recorded in declared.items():
+        need(isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9_.-]+", name),
+             "Invalid invocation stage name")
+        relative = phase + "/" + name + ".json"
+        expected_files.add(relative)
+        _invocation_file(folder / relative, recorded, "Invocation stage snapshot " + name)
+        marker = json.loads((folder / relative).read_bytes())
+        need(marker.get("status") == "complete" and
+             marker.get("protocol_sha256") == state["protocol_sha256"] and
+             name in state["stages"] and marker == state["stages"][name],
+             "Invocation stage snapshot differs from final stage: " + name)
+        result[name] = recorded
+    return result
+
+
+def verify_recovery_invocation(folder, protocol_sha, state, *, published=False, run_dir=None):
+    """Audit one launch from bytes only; never execute archived source files."""
+    folder = Path(folder).resolve(strict=True)
+    need(re.fullmatch(r"mixed-recovery-attempt-\d{4,}", folder.name), "Invalid invocation directory")
+    invocation_path, result_path = folder / "invocation.json", folder / "result.json"
+    need(result_path.is_file(), "Recovery invocation has no completion result: " + folder.name)
+    invocation = json.loads(invocation_path.read_bytes())
+    result = json.loads(result_path.read_bytes())
+    need(invocation.get("format") == result.get("format") == INVOCATION_FORMAT and
+         invocation.get("attempt") == folder.name, "Unknown/inconsistent recovery invocation format")
+    need(invocation.get("protocol_sha256") == protocol_sha, "Recovery invocation protocol differs")
+    need(isinstance(invocation.get("command"), list) and invocation["command"] and
+         all(isinstance(x, str) and x for x in invocation["command"]), "Invocation command is missing")
+    need(Path(invocation.get("run_dir", "")).is_absolute() and
+         (run_dir is None or Path(invocation["run_dir"]).resolve() == Path(run_dir).resolve()),
+         "Invocation recovery directory differs")
+    selection = invocation.get("selection", {})
+    need(selection.get("sha256") == state.get("selection_sha256") and
+         selection.get("path") == state.get("selection_file"), "Invocation selection identity differs")
+    need(result.get("invocation_identity") == identity(invocation_path),
+         "Recovery invocation result does not bind invocation snapshot")
+    sources = invocation.get("sources")
+    need(isinstance(sources, dict) and set(sources) == INVOCATION_SOURCES and
+         isinstance(result.get("sources_at_end"), dict) and set(result["sources_at_end"]) == INVOCATION_SOURCES,
+         "Invocation source inventory is incomplete")
+    expected_files = {"invocation.json", "result.json"}
+    for relative, recorded in sources.items():
+        snapshot = "source/" + relative
+        expected_files.add(snapshot)
+        _invocation_file(folder / snapshot, recorded, "Invocation source snapshot " + relative)
+    # Source identities are bound to the archived launch, not to whatever
+    # checkout happens to be current when evidence is collected or published.
+    need(result["sources_at_end"] == sources, "Orchestration source files changed during invocation")
+    before = _invocation_stage_snapshots(folder, "stages_before",
+                                         invocation.get("completed_stages_before"), state, expected_files)
+    after = _invocation_stage_snapshots(folder, "stages_after",
+                                        result.get("completed_stages_after"), state, expected_files)
+    need(set(before) <= set(after) and all(after[name] == row for name, row in before.items()),
+         "Previously completed stages changed during invocation")
+    new = sorted(set(after) - set(before))
+    need(result.get("newly_completed_stages") == new, "Invocation newly completed stage list differs")
+    status, code = result.get("status"), result.get("returncode")
+    need((code is None or type(code) is int) and
+         ((status == "completed" and code == 0 and result.get("error") is None) or
+          (status == "failed" and (code != 0 or isinstance(result.get("error"), str)))),
+         "Invocation result status/return code is inconsistent")
+    log_record = result.get("log")
+    need(isinstance(log_record, dict) and set(log_record) == {"path", "bytes", "sha256"} and
+         Path(log_record["path"]).is_absolute(), "Invocation log identity is missing")
+    log = folder / "recovery.log" if published else Path(log_record["path"])
+    _invocation_file(log, {k: log_record[k] for k in ("bytes", "sha256")}, "Invocation log")
+    codes = re.findall(r"^RETURN_CODE (-?\d+)\s*$", log.read_text(errors="replace"), re.MULTILINE)
+    need((int(codes[-1]) if codes else None) == code, "Invocation return code differs from raw log")
+    if published:
+        expected_files.add("recovery.log")
+    actual_files = {p.relative_to(folder).as_posix() for p in folder.rglob("*") if p.is_file()}
+    need(actual_files == expected_files, "Unmapped/missing files in invocation snapshot")
+    return {"attempt": folder.name, "status": status, "returncode": code,
+            "invocation_identity": identity(invocation_path), "result_identity": identity(result_path),
+            "completed_stages_before": sorted(before), "completed_stages_after": sorted(after),
+            "newly_completed_stages": new, "sources_unchanged_at_completion": True}
+
+
+def verify_published_invocations(root, protocol_sha, state, initialization_relative):
+    parent = Path(root) / "orchestration/invocations"
+    if not parent.is_dir():
+        records = []
+    else:
+        records = [verify_recovery_invocation(folder, protocol_sha, state, published=True)
+                   for folder in sorted(parent.iterdir()) if folder.is_dir()]
+    return recovery_provenance_summary(state, records, initialization_relative)
+
+
+def recovery_provenance_summary(state, records, initialization_relative):
+    covered = set()
+    previous_after = set()
+    for record in records:
+        before, after = set(record["completed_stages_before"]), set(record["completed_stages_after"])
+        need(previous_after <= before, "Invocation stage history is not monotonic")
+        new = set(record["newly_completed_stages"])
+        need(not covered.intersection(new), "Stage attributed to multiple recovery invocations")
+        covered.update(new)
+        previous_after = after
+    missing = sorted(set(state["stages"]) - covered)
+    return {
+        "version": 1,
+        "initialization_snapshot": {"published_path": "source/" + initialization_relative,
+                                    "sha256": state["implementation_sha256"], "scope": INITIALIZATION_SCOPE},
+        "launch_snapshot_scope": INVOCATION_SCOPE,
+        "launch_snapshot_coverage": "none" if not records else "partial" if missing else "complete",
+        "stages_without_launch_snapshot": missing,
+        "stages_completed_during_recorded_invocations": sorted(covered),
+        "recorded_invocations": records,
+        "training_source_verification": {"status": "verified", "scope": TRAINING_SOURCE_SCOPE,
+                                         "arms": ["qad", "continued_qad", "qad_opd"]},
+    }
+
+
+def audit_recovery_invocations(run_dir, protocol_sha, evidence, state):
+    """Collect sibling study/invocations, preserving gaps in earlier coverage."""
+    run = Path(run_dir).resolve(strict=True)
+    invocations = run.parent / "invocations"
+    records = []
+    if not invocations.is_dir():
+        return records
+    need(all(p.is_dir() for p in invocations.iterdir()), "Unexpected file in invocation directory")
+    for folder in sorted(invocations.iterdir()):
+        record = verify_recovery_invocation(folder, protocol_sha, state, run_dir=run)
+        target = "orchestration/invocations/" + folder.name + "/"
+        for path in sorted(p for p in folder.rglob("*") if p.is_file()):
+            evidence.add(path, target + path.relative_to(folder).as_posix(), "recovery_invocation_snapshot")
+        result = json.loads((folder / "result.json").read_bytes())
+        evidence.add(Path(result["log"]["path"]), target + "recovery.log", "recovery_invocation_log")
+        records.append(record)
+    return records
+
+
 def validate_teacher_source(metadata, cache, observations_root, student, captures):
     need(cache.get("version") == 3 and cache.get("metadata") == metadata, "Teacher cache and JSON metadata differ")
     samples = cache.get("samples", [])
@@ -417,7 +590,7 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     run=Path(run_dir).resolve(strict=True)
     final=evidence.json(run/'final_manifest.json','orchestration/final_manifest.json','completed_orchestrator')
     state=evidence.json(run/'run_manifest.json','orchestration/run_manifest.json','completed_orchestrator')
-    need(isinstance(final.get('format'), str) and re.fullmatch(r'high_fp4_[a-z0-9_]+_final_manifest', final['format']) and
+    need(isinstance(final.get('format'), str) and FINAL_FORMAT_RE.fullmatch(final['format']) and
          state.get('status')=='complete' and
          state.get('output_layout')=='stable_paths_v2' and
          final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and
@@ -427,6 +600,9 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     implementation_relative = orchestrator_source(protocol, state)
     need(state.get('implementation_sha256')==identity(ROOT/implementation_relative)['sha256'],
          'Orchestrator source differs from completed run')
+    invocations = audit_recovery_invocations(run, protocol_sha, evidence, state)
+    invocation_summary = recovery_provenance_summary(
+        state, invocations, implementation_relative)
     def resolve(record):
         path=Path(record['path']).resolve(strict=True)
         need(identity(path)=={k:record[k] for k in ('bytes','sha256')},'Orchestrator source identity differs')
@@ -472,7 +648,8 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     verifier = ROOT/'exp/verify_teacher_cache_cpu.py'
     if verifier.is_file():
         evidence.add(verifier,'source/exp/verify_teacher_cache_cpu.py','collector_time_orchestrator_dependency')
-    return {'final':final,'training':training,'merged':merged,'logs':logs,'collection':collection,'teacher':cache.parent}
+    return {'final':final,'training':training,'merged':merged,'logs':logs,'collection':collection,'teacher':cache.parent,
+            'invocations': invocations, 'invocation_summary': invocation_summary}
 
 
 def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None,orchestrator_run=None):
@@ -592,6 +769,7 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None,orc
         result['selected_recovery_settings']={'learning_rate':protocol['selected_learning_rate'],
             'opd_weight':protocol['continuation']['opd_weight'],'train_seed':protocol['train_seed']}
         result['cost_scope']='Selected final three training arms. Hyperparameter-search training and development evaluations are separate and excluded from these stage costs.'
+        result['recovery_provenance'] = layout['invocation_summary']
     # All audit checks finish before creating the output. Existing paths are never reused.
     out.mkdir(parents=True, exist_ok=False)
     for row, data in evidence.files.values():
@@ -635,7 +813,7 @@ def verify_published(directory):
     final=None
     if is_orchestrated_protocol(raw_protocol):
         final=read('orchestration/final_manifest.json');state=read('orchestration/run_manifest.json')
-        need(isinstance(final.get('format'), str) and re.fullmatch(r'high_fp4_[a-z0-9_]+_final_manifest', final['format']) and
+        need(isinstance(final.get('format'), str) and FINAL_FORMAT_RE.fullmatch(final['format']) and
              state.get('status')=='complete' and
              state.get('output_layout')=='stable_paths_v2' and
              final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and
@@ -651,16 +829,22 @@ def verify_published(directory):
         weight=audit_recovery_selection(final['opd_selection'],'opd',raw_protocol,protocol_sha,resolve,evaluation)
         need(lr==final['selected_qad_learning_rate'] and weight==final['selected_opd_weight'],
              'Published final settings differ from development selection')
-        implementation_relative = orchestrator_source(raw_protocol, state)
+        # In a portable package the live repository is absent; resolve the
+        # implementation identity against copied ``source/`` files.
+        implementation_relative = orchestrator_source(raw_protocol, state, root/'source')
         need(identity(root/('source/'+implementation_relative))['sha256']==state['implementation_sha256'],
              'Published orchestrator source differs from completed run')
+        published_provenance = verify_published_invocations(
+            root, protocol_sha, state, implementation_relative)
+        need(costs.get('recovery_provenance') == published_provenance,
+             'Published recovery provenance differs from invocation snapshots')
     protocol=normalized_protocol(raw_protocol,final)
     if final:
         need(costs.get('selected_recovery_settings')=={'learning_rate':protocol['selected_learning_rate'],
              'opd_weight':protocol['continuation']['opd_weight'],'train_seed':protocol['train_seed']},
              'Published selected recovery settings differ')
         need(costs.get('cost_scope')=='Selected final three training arms. Hyperparameter-search training and development evaluations are separate and excluded from these stage costs.',
-             'Published v3 cost scope differs')
+             'Published cost scope differs')
     evidence = Evidence()
     exports = {n:read("exports/"+n+"/merge_manifest.json") for n in ("qad","continued_qad","qad_opd")}
     adapter = Path(exports["qad"]["training_checkpoint"]).resolve()
@@ -741,7 +925,7 @@ def verify_published(directory):
         seen.add(str(path));used[path.parent.name]+=1
     need(set(used)==set(evaluation.TASKS) and all(used[k]<=captures[k]["counts"]["saved"] for k in used), "Published teacher task coverage differs")
     if final:need(metadata['count']==metadata['requested_count']==160 and all(used[task]==16 for task in used),
-                  'Published v3 teacher cache is incomplete')
+                  'Published teacher cache is incomplete')
     cache = costs["teacher_labeling"]["cache_identity"]
     need(cache["sha256"]==opd["probe_cache_sha256"] and type(cache["bytes"]) is int and cache["bytes"]>0, "Published teacher cache identity differs")
     teacher_cost = {"elapsed_seconds":positive(metadata["elapsed_seconds"],"teacher elapsed"),"timing_scope":metadata["timing_scope"],
@@ -768,7 +952,7 @@ def main():
     parser.add_argument("--out", default=str(ROOT/"paper/evidence/training"))
     parser.add_argument("--protocol", default=str(ROOT/"exp/recovery_protocol.json"))
     parser.add_argument("--qad-log")
-    parser.add_argument('--orchestrator-run',help='Completed v3 run directory; derive selected actual stages from final_manifest.json')
+    parser.add_argument('--orchestrator-run',help='Completed recovery run directory; derive selected actual stages from final_manifest.json')
     parser.add_argument("--verify-published", metavar="DIRECTORY", help="Read-only public verification; no private weights/cache or torch required")
     args = parser.parse_args()
     if args.verify_published:

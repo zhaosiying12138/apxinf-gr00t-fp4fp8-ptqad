@@ -1,9 +1,9 @@
 """Explicit W4A4 base + raw-input LoRA forward contract.
 
-This module is intentionally *not* imported by the current evaluation server
-or training driver. It is the smallest safe integration seam for a future
-native APXInf operator: a caller supplies an activation-QDQ callable and,
-optionally, a native base operator. The resulting layer computes
+The recovery training driver imports this module for its W4A4 path. It is also
+the smallest safe integration seam for a future native APXInf operator: a
+caller supplies an activation-QDQ callable and, optionally, a native base
+operator. The resulting layer computes
 
     base_operator(module, QDQ(x)) + (B(A(x)) * alpha / rank)
 

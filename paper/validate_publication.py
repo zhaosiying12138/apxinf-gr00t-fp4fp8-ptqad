@@ -17,6 +17,8 @@ from publication_guard import capture_crop_contract, check_record, file_record, 
 P = Path(__file__).resolve().parent
 CURRENT_INPUTS = {
     'paper/evidence/paired_comparison.json', 'paper/evidence/recipe_inventory.json',
+    'paper/evidence/selected_recipe/category_memory.json',
+    'paper/evidence/selected_recipe/category_ptq_recipe.json',
     'paper/evidence/frontier_comparison.json',
     'results/baselines/pi05_pt_bf16_ptqad_20260929.json',
     'results/baselines/gr00t_pt_bf16_ptqad_20260929.json',
@@ -174,16 +176,22 @@ def capture_records(captures,required,package_inputs):
 def check_pairing(data,protocol_file=None):
     sys.path.insert(0,str(P.parent/'eval'))
     from compare_ptq_frontier import protocol_contract
-    expected=protocol_contract(protocol_file or P.parent/'exp/recovery_protocol.json')['heldout']
+    expected=protocol_contract(protocol_file or P.parent/'exp/recovery_protocol_v11_w4a4_category.json')['heldout']
     indices=expected['init_state_indices']
+    episodes_per_task=expected['episodes_per_task']
+    expected_total=expected['tasks'] * episodes_per_task
     require(data.get('environment_pairing_verified') is True,'Environment pairing has not passed')
     order={'bf16','ptq','qad','continued_qad','qad_opd'}
     require(set(data['arms'])==order,'Exactly five completed heldout arms are required')
     baseline=data['arms']['bf16']['episodes']
-    require(len(baseline)==100,'Expected 100 heldout episodes per arm')
+    require(len(baseline)==expected_total,
+            f'Expected {expected_total} heldout episodes per arm')
     for name,arm in data['arms'].items():
-        episodes=arm['episodes'];require(arm['count']==100 and len(episodes)==100,f'Incomplete heldout arm: {name}')
-        require(len(arm['per_task'])==10 and all(x['episodes']==10 for x in arm['per_task'].values()),'Expected ten episodes per task')
+        episodes=arm['episodes'];require(arm['count']==expected_total and len(episodes)==expected_total,
+                                         f'Incomplete heldout arm: {name}')
+        require(len(arm['per_task'])==expected['tasks'] and
+                all(x['episodes']==episodes_per_task for x in arm['per_task'].values()),
+                f'Expected {episodes_per_task} episodes per task')
         for actual,expected in zip(episodes,baseline):
             require(type(actual['success']) is bool,'Episode outcome must be Boolean')
             require({k:v for k,v in actual.items() if k!='success'}=={k:v for k,v in expected.items() if k!='success'},
@@ -194,7 +202,7 @@ def check_pairing(data,protocol_file=None):
         require(sum(x['success'] for x in episodes)==arm['successes'],'Episode outcome count differs')
         for task,record in arm['per_task'].items():
             task_rows=[x for x in episodes if x['task']==task]
-            require({x['init_state_index'] for x in task_rows}==set(indices) and len(task_rows)==10,
+            require({x['init_state_index'] for x in task_rows}==set(indices) and len(task_rows)==episodes_per_task,
                     'Heldout initial states repeated or missing')
             require(sum(x['success'] for x in task_rows)==record['successes'],'Task success count differs')
 
@@ -204,9 +212,17 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
     from collect_training_costs import verify_published
     folder=P/'evidence/training'
     costs=verify_published(folder)
+    # The publication package is frozen to the v11 full-coverage W4A4
+    # category protocol.  Reject archived recovery receipts from earlier
+    # mixed-pressure experiments before they can enter the article.
+    protocol=load(protocol_file or P.parent/'exp/recovery_protocol_v11_w4a4_category.json')
+    if protocol.get('partitions') and protocol.get('selection'):
+        require(protocol.get('id') == 'w4a4-recovery-v11-category' and
+                protocol.get('version') == 11 and protocol.get('w4a4') is True,
+                'Publication training evidence must use the frozen v11 W4A4 category protocol')
     require(costs.get('status')=='complete' and set(costs['training'])=={'qad','continued_qad','qad_opd'},
             'Exactly three completed formal training stages are required')
-    require(costs['protocol_sha256']==sha(protocol_file or P.parent/'exp/recovery_protocol.json'),
+    require(costs['protocol_sha256']==sha(protocol_file or P.parent/'exp/recovery_protocol_v11_w4a4_category.json'),
             'Training costs used a different frozen protocol')
     manifest=load(folder/'evidence_manifest.json')
     records={row['published_path']:row for row in manifest['files']}
@@ -230,6 +246,14 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
                 f'Training export does not match evaluated checkpoint: {arm}')
         require(merge['output_weights']==weights(arm),f'Training export weight identity differs from heldout: {arm}')
         require(merge['base_weights']==weights('ptq'),f'Training base weight identity differs from evaluated PTQ: {arm}')
+        # Bind the plotted LoRA storage budget to the actual selected export,
+        # preserving the check formerly provided by the PTQ-ladder validator.
+        residual=load(P/'evidence/recipe_inventory.json')['recovery_residual']
+        recovery=merge['recovery_manifest']
+        require(merge['lora_pairs']==residual['linear_modules'] and
+                recovery['trainable_parameters']==residual['tensor_elements'] and
+                all(recovery[key]==residual[key] for key in ('rank','alpha','scope')),
+                f'Recovery export differs from the plotted LoRA budget: {arm}')
     collection=load(folder/'collection/eval_manifest.json')
     require(Path(collection['checkpoint']).resolve()==Path(runtime['checkpoints']['qad']['path']).resolve(),
             'Collection student identity differs from evaluated QAD')
@@ -237,6 +261,62 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
     require(Path(teacher['teacher']).resolve()==Path(runtime['checkpoints']['bf16']['path']).resolve() and
             teacher['teacher_weights']==weights('bf16'),'Teacher identity differs from evaluated BF16')
     return costs
+
+
+def check_v11_frontier(package_inputs, paired):
+    """Rebuild the selected W4A4 frontier from verified v11 result inputs.
+
+    The old ``frontier_evidence`` contract froze a PTQ ladder and reference
+    runs.  v11 deliberately has one selected W4A4 checkpoint, so accepting a
+    stale ladder here would make the published chart disagree with the paper.
+    ``build_final_frontier`` is deterministic and fail-closed.  Origin paths
+    remain in copied evidence as provenance; a relocated checkout binds those
+    identities to its local byte-identical evidence before reconstruction.
+    """
+    from build_final_frontier import build
+    final_path = P / 'evidence/final_results.json'
+    comparison_path = P / 'evidence/frontier_comparison.json'
+    inventory_path = P / 'evidence/recipe_inventory.json'
+    require(final_path.is_file(), 'v11 final_results.json is missing')
+    require(comparison_path.is_file(), 'v11 frontier_comparison.json is missing')
+    final = load(final_path)
+    source = final.get('source', {}).get('heldout_comparison', {})
+    local_pair = P / 'evidence/paired_comparison.json'
+    require(local_pair.is_file(), 'v11 local heldout paired comparison is missing')
+    require(type(source.get('bytes')) is int and source['bytes'] == local_pair.stat().st_size and
+            source.get('sha256') == sha(local_pair),
+            'v11 local heldout paired comparison identity differs from final_results')
+    require(load(local_pair) == paired, 'v11 frontier source differs from the paper heldout comparison')
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix='validate-v11-frontier-') as tmp:
+        expected_path = Path(tmp) / 'frontier_comparison.json'
+        expected = build(final_path, local_pair, inventory_path, expected_path)
+    recorded = load(comparison_path)
+    # Only the location field of each explicit source identity may relocate.
+    # Every data/method field and source digest/size must still match; do not
+    # recursively drop arbitrary path keys from numerical or method records.
+    recorded_sources = recorded.get('source')
+    expected_sources = expected['source']
+    require(isinstance(recorded_sources, dict) and set(recorded_sources) == set(expected_sources),
+            'v11 frontier source identity set differs')
+    for name, current in expected_sources.items():
+        previous = recorded_sources[name]
+        require(isinstance(previous, dict) and set(previous) == {'path','bytes','sha256'} and
+                isinstance(previous['path'], str) and Path(previous['path']).is_absolute() and
+                type(previous['bytes']) is int and
+                (previous['bytes'], previous['sha256']) == (current['bytes'], current['sha256']),
+                'v11 frontier source identity differs: ' + name)
+    require({key:value for key,value in recorded.items() if key != 'source'} ==
+            {key:value for key,value in expected.items() if key != 'source'},
+            'frontier_comparison.json differs from deterministic v11 reconstruction')
+    for path in (final_path, comparison_path, inventory_path, local_pair,
+                 P / 'evidence/selected_recipe/category_memory.json',
+                 P / 'evidence/selected_recipe/category_ptq_recipe.json',
+                 P / 'evidence/selected_recipe/category_bake_manifest.json'):
+        if path.is_file():
+            if path.resolve().is_relative_to(P.parent.resolve()):
+                package_inputs.add(path.resolve())
+    return recorded
 
 
 def validate(write_report=True,protocol_file=None):
@@ -297,9 +377,10 @@ def validate(write_report=True,protocol_file=None):
     sys.path.insert(0,str(P.parent/'eval'))
     from compare_recovery import compare_round
     require(compare_round(P/'evidence',protocol_paths)==paired, 'Copied heldout evidence does not reproduce the reported comparison')
-    from frontier_evidence import validate_frontier
-    _,frontier_files=validate_frontier(P,paired)
-    package_inputs.update(frontier_files)
+    # v11 publishes one selected W4A4 checkpoint; rebuild that frontier from
+    # its heldout-only source instead of accepting the retired PTQ ladder
+    # validator and its reference runs.
+    check_v11_frontier(package_inputs, paired)
     renders=load(P/'validation/figure-renders.json')
     require(renders.get('status')=='passed' and renders.get('scale')==2.0,'Figure rasterization did not pass')
     require(len(renders['figures'])==len(expected_svg) and {x['svg'] for x in renders['figures']}==expected_svg,'Raster provenance set differs')

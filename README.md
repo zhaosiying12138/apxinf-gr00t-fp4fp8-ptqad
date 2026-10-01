@@ -1,6 +1,8 @@
-# APXInf × GR00T：FP4/FP8 混合 PTQ 与量化域恢复
+# apxinf-gr00t-fp4fp8-ptqad
 
-本项目研究一个面向真实机器人行为的低位宽量化问题：如何把 **GR00T N1.7** 的更多线性权重压到 NVIDIA NVFP4，同时保持 LIBERO 闭环任务能力。项目把 **APXInf 原生执行路径、面向块缩放格式的训练后量化（PTQ）、量化域低秩恢复（QAD）和学生状态蒸馏（OPD）** 放在同一条可审计流水线上，逐步记录校准统计、权重来源、训练成本、逐回合成功与原始终端截图。
+APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
+
+视觉—语言—动作模型（VLA）把图像、语言和机器人状态映射为动作；本项目研究如何在 **GR00T N1.7** 上把量化推进到 W4A4，同时保持 LIBERO 闭环任务能力。方法由四个环节组成：面向 NVFP4 块缩放格式的训练后量化（PTQ）、固定二级 scale 的 NVFP4 激活 QDQ、量化基座上的低秩恢复（QAD），以及在学生访问状态上加入教师约束的 OPD。QAD/OPD 的残差始终读取原始 BF16 输入，因此不会把恢复分支再次量化。APXInf 的原生算子和图执行作为独立工程验证；GR00T 闭环结果使用同一套固定初态和逐回合日志评测。
 
 论文和可视化发布包是本仓库的主要入口：
 
@@ -11,25 +13,27 @@
 
 ## 研究贡献
 
-1. **混合精度 PTQ。** 以 NVFP4 的 16 元素块缩放格式为目标，结合 FP8 行缩放和模块敏感度分配；校准阶段在 FP32 中累积二阶统计，并用 GPTQ 补偿可观测层。
-2. **量化域恢复。** 在固定 PTQ 基座上训练低秩适配器 QAD；再从学生真实访问的观测出发做一次 on-policy 蒸馏 OPD。QAD 和 OPD 都在部署所用的量化权重上训练，避免训练/推理函数不一致。
-3. **闭环而非静态误差验收。** 所有正式臂使用同一组 LIBERO-10 任务、官方初态和 episode 预算，保留逐回合布尔结果、任务宏平均、配对身份和 SHA-256。
-4. **推理生态验证。** APXInf 的 NVFP4 算子、布局和图重放作为独立执行路径验收；GR00T 行为结果由 PyTorch 策略服务执行，二者的测量口径分别记录。
-5. **可追溯证据。** 每个数字都绑定协议、checkpoint、源码 revision、原始日志和结果数组；失败阶段保留日志，不以缺失记录替代成功或失败。
+1. **W4A4 PTQ。** 权重使用 NVFP4 E2M1，激活先转 F16，再按 16 元素块用 E4M3 scale 和 E2M1 格点 QDQ；二级 activation scale 固定为 1.0，训练与服务使用同一算术契约。
+2. **量化域恢复。** 在固定 PTQ 基座上训练低秩 QAD，再用学生访问的观测和 BF16 教师速度训练 OPD；正式部署保留冻结 base 与 A/B adapter，避免 `Wq+BA` 合并后破坏 W4A4 语义。
+3. **闭环评测。** 所有正式臂使用同一组 LIBERO-10 任务、官方初态和 episode 预算，报告逐回合结果、任务宏平均和配对身份。
+4. **APXInf 验证。** APXInf 的 NVFP4 算子、布局和图重放单独验收；它们的延迟结果不替代 GR00T 的闭环成功率。
+5. **可复现发布。** 协议、配置、权重来源、日志、图表和 17 张 Ubuntu 截图共同组成发布包。
 
 ## 结果状态
 
-最终公开表只从通过完整验收的 `final_manifest.json` 和 `paired_comparison.json` 生成。当前高 FP4 实验仍可能替换先前的候选，README 不展示旧实验结论，也不把开发集分数当作最终结果。
+最终公开表只从冻结协议对应的 `final_manifest.json` 和 `paired_comparison.json` 生成。实验完成前保留“待回填”，不把开发集分数写入最终结论。
 
-| 配置 | 目标编码压缩比 | FP4 覆盖率 | LIBERO-10 闭环成功率 | 备注 |
+| 配置 | 目标编码压缩比（去别名） | FP4／去别名可量化元素 | LIBERO-10 闭环成功率 | 备注 |
 |---|---:|---:|---:|---|
-| BF16 基线 | <span style="color:#c00">待回填</span> | 0% | <span style="color:#c00">待回填</span> | 固定基座 |
-| 选定高 FP4 PTQ | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | 只由开发分区按预注册规则选择 |
-| PTQ + QAD | <span style="color:#c00">待回填</span> | 同 PTQ | <span style="color:#c00">待回填</span> | 低秩恢复 |
-| PTQ + QAD + OPD | <span style="color:#c00">待回填</span> | 同 PTQ | <span style="color:#c00">待回填</span> | 学生状态蒸馏 |
-| continued-QAD 对照 | <span style="color:#c00">待回填</span> | 同 PTQ | <span style="color:#c00">待回填</span> | 与 OPD 使用相同追加更新预算 |
+| BF16 基线 | 1.0000× | 0% | <span style="color:#c00">待回填</span> | 同一 v11 bank、同一 episode 协议 |
+| 全 NVFP4 PTQ + W4A4 | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | 469 个普通 Linear 与 7 个 CategorySpecificLinear 进入 W4A4 QDQ；3 个 embedding/位置参数仅有 NVFP4 权重 |
+| PTQ + QAD（W4A4） | 同 PTQ | 同 PTQ | <span style="color:#c00">待回填</span> | `base(QA(x)) + BF16 LoRA(x)` |
+| PTQ + QAD + OPD（W4A4） | 同 PTQ | 同 PTQ | <span style="color:#c00">待回填</span> | 学生访问状态上的教师速度蒸馏 |
+| continued-QAD 对照 | 同 PTQ | 同 PTQ | <span style="color:#c00">待回填</span> | 与 OPD 使用相同追加更新预算 |
 
-结果回填必须同时写明：十任务逐任务分子/分母、100 回合总数、开发/heldout 分区、实际选中的配方身份、FP4/FP8/旁路的编码口径、QAD/OPD 训练步数与额外教师成本。若压力配方未达到协议规定的成功率下降窗口，恢复阶段应记录 `selected_recipe=null`，不能为了得到更高恢复增益而事后改阈值。
+压缩比统一按去别名后的可量化物理权重计算，并把 E4M3 block scale、FP32 secondary scale、未量化张量和 BF16 adapter 旁路分别计账。最终数值只从 v11 的 `final_manifest.json` 读取；快速 smoke 分数不会写入这张表。正式结果另附十任务逐任务分子/分母、160 回合总数和训练预算。
+
+本文 GR00T 路径是 **数值 W4A4 仿真**：普通 NVFP4 base 的输入激活使用固定 scale 的 QDQ，QAD/OPD 残差以 BF16 保留。当前 GR00T 原生 executor 尚未提供与 APXInf π0.5 相同的 packed W4A4 loader，因此本文不把这条 Torch QDQ 路径称为原生 APXInf GR00T kernel；原生加速只在独立算子和 π0.5 图执行基准中报告。
 
 ## 运行环境
 
@@ -63,103 +67,86 @@ CONDA_EXE="$HOME/miniforge3/bin/conda" bash setup/06_install_recovery.sh
 source setup/recovery-env.sh
 ```
 
-`setup/06_install_recovery.sh` 会准备固定 revision 的 GR00T、训练环境、LIBERO 环境、媒体库和恢复补丁。安装后先检查环境和权重：
+`setup/06_install_recovery.sh` 会准备固定 revision 的 GR00T、训练环境 `.venv`、仿真环境 `.venv-libero`、媒体库和恢复补丁，并生成 `setup/recovery-env.sh`。脚本需要已安装的 conda；若其路径不同，修改 `CONDA_EXE`。安装后先检查环境和权重：
 
 ```bash
-bash setup/00_env_report.sh
-python3 setup/verify_weights.py
+python3 setup/verify_weights.py --models gr00t cosmos
 ```
 
 需要 APXInf 原生引擎时，再确认 CUDA/Rust 工具链后执行：
 
 ```bash
-bash setup/02_build_engine.sh
 bash setup/05_restore_all.sh --with-engine
+source setup/recovery-env.sh
 ```
 
-不需要重新下载权重时可使用 `--skip-download`；不要把本机 Hugging Face snapshot 直接改名成不含 `nvidia/Cosmos-Reason2` 的路径，GR00T 工厂会用该字符串选择 backbone。
+`setup/05_restore_all.sh --with-engine` 会克隆固定 revision 的 APXInf-robo 并调用引擎构建脚本；已有完整权重时可追加 `--skip-download`。不要把本机 Hugging Face snapshot 直接改名成不含 `nvidia/Cosmos-Reason2` 的路径，GR00T 工厂会用该字符串选择 backbone。
 
 ## 复现流程
 
-先设置路径。所有正式运行都应使用新的 `PTQAD_RUN_DIR`，避免覆盖既有日志。
+以下路径对应安装脚本的默认新机器布局；每次打开 shell 先加载生成的环境文件。自定义安装位置时，沿用其中的路径，不覆盖为默认值。所有正式运行都应使用新的 `PTQAD_RUN_DIR`，避免覆盖既有日志。
 
 ```bash
 export PROJECT="$(pwd)"
+source setup/recovery-env.sh
 export GR00T_REPO="$PROJECT/third_party/Isaac-GR00T"
 export PTQAD_PYTHON="$GR00T_REPO/.venv/bin/python"
 export LIBERO_PYTHON="$GR00T_REPO/.venv-libero/bin/python"
 export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
-export PTQAD_MEDIA_LIB="$HOME/miniforge3/envs/media7/lib"
-export PTQAD_RUN_DIR="$PROJECT/weights/reproductions/ptqad_run_01"
-export PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v5_exploratory_fp4.json"
+export PTQAD_MEDIA_LIB="$PROJECT/third_party/media7/lib"
+export PTQAD_RUN_DIR="$PROJECT/results/mixed_pressure"
+export PTQAD_PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v11_w4a4_category.json"
+export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
 ```
+
+运行来源：本次实验机的仿真解释器为 `/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python`。这是已有环境的记录；新机器使用安装脚本生成的 `.venv-libero`，并按锁文件核对依赖。
+
+v11 的压力臂 checkpoint 是大文件，不随 Git 发布。协议中的
+`selection.pressure_candidate_checkpoints` 当前保存的是实验机路径；在另一台机器上，必须先取得同一份已完成的 NVFP4 PTQ checkpoint，
+再在新的协议副本中把这两个字段一起改为本地绝对路径，并将 `PTQAD_PROTOCOL_FILE`、`PROTOCOL_FILE` 指向该副本。修改协议会改变其 SHA-256，必须使用全新的 `PTQAD_RUN_DIR`；脚本会在开始评测前校验 `category_ptq_recipe.json`、`category_bake_manifest.json` 和全 NVFP4 recipe 账本。
 
 ### 1. CPU/加载冒烟
 
 ```bash
 "$PTQAD_PYTHON" -m unittest discover -s tests -v
 "$PTQAD_PYTHON" -m py_compile \
-  quant/ptq/category_fp4.py quant/ptq/collector_category.py \
-  quant/ptq/bake_category.py exp/run_category_development.py \
-  exp/run_category_recovery.py
+  quant/fake_quant.py quant/ptq/bake.py \
+  exp/run_w4a4_recovery.py exp/run_mixed_pressure_recovery.py
 ```
 
-### 2. 校准和高 FP4 配方
+### 2. 混合精度 PTQ、QAD、OPD 与闭环
 
-标准校准入口为 `exp/reproduce_ptqad.sh calibrate`。高 FP4 类别扩展使用冻结的 `recovery_protocol_v5_exploratory_fp4.json`，先以 `--dry-run` 检查路径，再运行开发分区：
-
-下面两个父 checkpoint 由前置 `head_lang_vision`/`calib` PTQ 阶段生成，并放在当前运行目录的 `parents/` 下。
+v11 入口不会隐式生成大体积 checkpoint。新机器首次运行时，先按 [完整构建步骤](docs/reproduce-ptqad.md) 生成 W4A4 兼容的 NVFP4 PTQ base，再把 v11 协议的 candidate checkpoint 路径改为本机目录。协议副本和结果目录必须全新；入口会校验 recipe、adapter 身份和 W4A4 activation contract。
 
 ```bash
-PTQAD_CAL_SCOPE=calib PTQ_CAL_WINDOWS=128 PTQ_CAL_BATCH=1 \
-  bash exp/reproduce_ptqad.sh calibrate
-
-"$PTQAD_PYTHON" -u exp/run_category_development.py \
-  --run-dir "$PTQAD_RUN_DIR/development_v5" \
-  --protocol-file "$PROTOCOL_FILE" \
-  --base "$PTQAD_BASE" \
-  --parent-head-lang-vision "$PTQAD_RUN_DIR/parents/head_lang_vision" \
-  --parent-calib "$PTQAD_RUN_DIR/parents/calib" \
-  --gr00t-repo "$GR00T_REPO" \
-  --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --media-lib "$PTQAD_MEDIA_LIB" \
-  --calibration-windows 128 --calibration-batch 1 --dry-run
-
-# 删除 --dry-run 后执行同一条命令。
+"$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
+  --run-dir "$PTQAD_RUN_DIR" \
+  --protocol-file "$PTQAD_PROTOCOL_FILE" \
+  --gr00t-repo "$GR00T_REPO" --python "$PTQAD_PYTHON" \
+  --rollout-python "$LIBERO_PYTHON" \
+  --port-base 5890
 ```
 
-开发阶段必须完成 BF16、`head_lang_vision_category` 和 `calib_category` 三臂，并由 `selection.json` 记录是否满足预注册压力窗口。开发分区不能替代最终 heldout。
+该入口按协议顺序完成 W4A4 PTQ 的开发选择、QAD 学习率选择、学生状态采集、OPD 对照和 heldout 评测。已写入完成标记的阶段可以从同一 `--run-dir` 继续；运行中断留下的阶段必须先按日志和校验器审计，不能直接覆盖。最终结果以运行目录下的 `recovery/final_manifest.json` 为准。
 
-### 3. QAD、OPD 和独立闭环
+### 3. 原生 APXInf 验收（可选）
 
-```bash
-"$PTQAD_PYTHON" exp/run_category_recovery.py \
-  --run-dir "$PTQAD_RUN_DIR/recovery_v5" \
-  --ptq-selection "$PTQAD_RUN_DIR/development_v5/selection.json" \
-  --protocol-file "$PROTOCOL_FILE" \
-  --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
-  --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --validate-only
-
-# 验证通过后，去掉 --validate-only 执行；阶段可用 --until qad_selection、
-# --until opd_selection 或 --until all 逐步推进。
-```
-
-调度器会固定 QAD 学习率搜索、QAD 续训对照、学生状态采集、教师标注、OPD 权重搜索和 heldout 评测。最终只从协议绑定的 `final_manifest.json` 读取主表，不手工拼接目录中的旧结果。
-
-### 4. 原生 APXInf 验收（可选）
+先按 [原生 π0.5 复现说明](docs/native-pi05.md) 准备 packed 模型、候选 wheel 和验收程序，并串行运行算子与模型检查。`run_native_graph_gates.sh` 必须显式传入本次模型路径和一个尚不存在的输出目录：
 
 ```bash
-bash spike/run.sh
-bash exp/run_native_graph_gates.sh
+# RUN 为原生复现说明中本次打包的输出根目录；GPU 此时应空闲。
+NATIVE_PI05_MODEL="$RUN/model" \
+NATIVE_PY="$PROJECT/third_party/apxinf-robo/.venv/bin/python" \
+PTQAD_GPU_EXCLUSIVE=1 \
+  bash exp/run_native_graph_gates.sh "$PROJECT/results/native_graph_new_run"
 ```
 
 原生算子结果与 GR00T PyTorch 闭环结果分开报告；不要用单个 GEMM 延迟推断闭环成功率。
 
 ## Ubuntu 运行截图
 
-论文 HTML 保留全部 17 张紫色 Ubuntu 终端截图，每张截图都来自真实命令、带原始日志和 SHA-256 清单。README 展示其中四张代表性画面；完整图集可在 [paper/paper.html](paper/paper.html) 和 [截图清单](paper/evidence/captures.json) 中查看。受最终代码影响的截图会在最终实验完成后重新实拍，图位和数量保持不变。
+论文 HTML 保留全部 17 张紫色 Ubuntu 终端截图。每张截图对应一个真实命令，原始日志和 SHA-256 清单见 [截图清单](paper/evidence/captures.json)；README 展示四张代表性画面，完整图集见 [paper/paper.html](paper/paper.html)。
 
 | 阶段 | 运行证据 |
 |---|---|
@@ -219,16 +206,16 @@ weights/     本地权重/训练工件目录，不入库
 uv run --with-requirements paper/requirements-build.txt python paper/make_figs.py
 bash paper/figs/render_pngs.sh
 uv run --with-requirements paper/requirements-build.txt python paper/build_html.py
-python3 paper/export_zhihu.py
+uv run --with-requirements paper/requirements-build.txt python paper/export_zhihu.py
 PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/qa_browser.cjs
 uv run --with-requirements paper/requirements-build.txt python paper/validate_publication.py
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
-含有红色占位符、缺少 heldout 原始日志或截图哈希不匹配时，`validate_publication.py` 应拒绝发布。最终交付前把经过验证的 README、HTML、知乎稿和轻量证据同步到官方 checkout，再由维护者提交和推送。
+含有红色占位符、缺少 heldout 原始日志或截图哈希不匹配时，`validate_publication.py` 会拒绝发布。发布前应完成 HTML、知乎稿、截图和证据校验。
 
 ## 总结
 
-本仓库把低位宽数值格式、模块级 PTQ、量化域恢复和真实环境行为放进同一条可复现链路。读者可以从 HTML 直接理解方法，从协议文件复现实验，从逐回合日志核对结论，从 Ubuntu 截图确认命令确实执行。最终论文只发布通过协议和证据门禁的最强结果；任何待测字段在证据齐备前都保持明确的“待回填”状态。
+本仓库把 NVFP4 W4A4 数值契约、模块级 PTQ、QAD/OPD 恢复和 LIBERO 闭环评测放在同一条复现链路中。读者可以从 HTML 和知乎稿阅读方法，从 v11 协议运行实验，从逐回合日志核对结果，并从 Ubuntu 截图确认关键步骤。
 
 第三方代码、模型权重和数据遵循各自上游许可证。项目自身许可证将在正式发布时确定。

@@ -1,0 +1,272 @@
+{
+  "status": "complete",
+  "version": "category-k-axis-nvfp4-v1",
+  "parent": {
+    "parent": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+      "weights": {
+        "model-00001-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "d56aee188feaa4275f780852a218a1998180556fe49c2032ac30f969c1b9f5c9"
+        },
+        "model-00002-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "ff8d3d38d7e05ffb21ac11762b2ba96e463e7c2a382e02defe906c753984713c"
+        }
+      },
+      "metadata": {
+        "config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        "statistics.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        "processor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        "embodiment_id.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        "model.safetensors.index.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        },
+        "ptq_recipe.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/ptq_recipe.json",
+          "bytes": 468909,
+          "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
+        },
+        "bake_manifest.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/bake_manifest.json",
+          "bytes": 1213,
+          "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
+        }
+      }
+    },
+    "root_bf16": {
+      "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+      "weights": {
+        "model-00001-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00001-of-00002.safetensors",
+          "bytes": 4990519232,
+          "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+        },
+        "model-00002-of-00002.safetensors": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00002-of-00002.safetensors",
+          "bytes": 1919980184,
+          "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+        }
+      },
+      "metadata": {
+        "config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json",
+          "bytes": 2266,
+          "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+        },
+        "statistics.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/statistics.json",
+          "bytes": 4298413,
+          "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+        },
+        "processor_config.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/processor_config.json",
+          "bytes": 26935,
+          "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+        },
+        "embodiment_id.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/embodiment_id.json",
+          "bytes": 2145,
+          "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+        },
+        "model.safetensors.index.json": {
+          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model.safetensors.index.json",
+          "bytes": 104985,
+          "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+        }
+      }
+    },
+    "category_source_sha256": {
+      "action_head.action_decoder.layer1.W": "c8d151f97d5ba625ab47a1e19f40bf012e99cc3a3d49b4264864db61315d7459",
+      "action_head.action_decoder.layer2.W": "5c4ed80f111155f56bfa2fc4826c2d3e40d36caa0a2239087b9982c9ab1696b7",
+      "action_head.action_encoder.W1.W": "07a20d62496fbd42e497d42d51f893a3dd65abea856f73ca4a2b204eb726a83a",
+      "action_head.action_encoder.W2.W": "96b4b45095c9cb3f838a096acac01d684ac0fd1dacc5becac40b8557d29ad6bd",
+      "action_head.action_encoder.W3.W": "bc8f44be915af44f20d38086760723fd9aa4911575a8998e39d24a66b78051c2",
+      "action_head.state_encoder.layer1.W": "83aaeac654da4c29e9f611481acf512b1c0d03e4e5349b799275045144ce0c2d",
+      "action_head.state_encoder.layer2.W": "03b11637cb60146156102c03548824b35f7df73a0b1ba242c6aebffaee81ebc4"
+    }
+  },
+  "parent_recipe": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/ptq_recipe.json",
+    "bytes": 468909,
+    "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
+  },
+  "parent_bake_manifest": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/bake_manifest.json",
+    "bytes": 1213,
+    "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
+  },
+  "root_bf16": {
+    "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
+    "weights": {
+      "model-00001-of-00002.safetensors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00001-of-00002.safetensors",
+        "bytes": 4990519232,
+        "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
+      },
+      "model-00002-of-00002.safetensors": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00002-of-00002.safetensors",
+        "bytes": 1919980184,
+        "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
+      }
+    },
+    "metadata": {
+      "config.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json",
+        "bytes": 2266,
+        "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
+      },
+      "statistics.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/statistics.json",
+        "bytes": 4298413,
+        "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
+      },
+      "processor_config.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/processor_config.json",
+        "bytes": 26935,
+        "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
+      },
+      "embodiment_id.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/embodiment_id.json",
+        "bytes": 2145,
+        "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+      },
+      "model.safetensors.index.json": {
+        "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model.safetensors.index.json",
+        "bytes": 104985,
+        "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
+      }
+    }
+  },
+  "source_category_sha256": {
+    "action_head.action_decoder.layer1.W": "c8d151f97d5ba625ab47a1e19f40bf012e99cc3a3d49b4264864db61315d7459",
+    "action_head.action_decoder.layer2.W": "5c4ed80f111155f56bfa2fc4826c2d3e40d36caa0a2239087b9982c9ab1696b7",
+    "action_head.action_encoder.W1.W": "07a20d62496fbd42e497d42d51f893a3dd65abea856f73ca4a2b204eb726a83a",
+    "action_head.action_encoder.W2.W": "96b4b45095c9cb3f838a096acac01d684ac0fd1dacc5becac40b8557d29ad6bd",
+    "action_head.action_encoder.W3.W": "bc8f44be915af44f20d38086760723fd9aa4911575a8998e39d24a66b78051c2",
+    "action_head.state_encoder.layer1.W": "83aaeac654da4c29e9f611481acf512b1c0d03e4e5349b799275045144ce0c2d",
+    "action_head.state_encoder.layer2.W": "03b11637cb60146156102c03548824b35f7df73a0b1ba242c6aebffaee81ebc4"
+  },
+  "output_category_sha256": {
+    "action_head.action_decoder.layer1.W": "af77b9337e754e1b2fee7908c8cfecb720f89b0a0f2ee2674052b3772986c0b7",
+    "action_head.action_decoder.layer2.W": "348e680dc0d0244d60dc44f09f77dee168858d9d18774a0cad0a92e5ba52f639",
+    "action_head.action_encoder.W1.W": "31fd10495038f1de2d5034237a6b82a78f79ca3687dacf91a4bef5576e92c015",
+    "action_head.action_encoder.W2.W": "d73f43b12720a18f4bf319c77bc0403fb366d2d95ac35b938e66ea1da8879929",
+    "action_head.action_encoder.W3.W": "a2fe102372714bf4c794f7b30a6561df934079f7cdbe9827653758eafad533d1",
+    "action_head.state_encoder.layer1.W": "bb8bece73f72a491be10489cc24076d298e23ae1b6f4aa6aca0f0f1d4d8b3a25",
+    "action_head.state_encoder.layer2.W": "a8c42c44ca87edffe62dd9b40888358768894beecc8e2325cbbb138e57636de2"
+  },
+  "category_recipe": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category.incomplete-u_jqeydj/category_ptq_recipe.json",
+    "bytes": 337442,
+    "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122"
+  },
+  "methods": {
+    "nvfp4_rtn": 217,
+    "nvfp4_gptq": 7
+  },
+  "active_libero_bank": 2,
+  "active_bank_method": "gptq_active",
+  "rtn_clip": 1.0,
+  "memory": {
+    "all_checkpoint_params": 3455180928,
+    "linear_params": 3452239872,
+    "eligible_tensor_count": 479,
+    "excluded_tensor_count": 552,
+    "nvfp4_params": 3452239872,
+    "fp8_params": 0,
+    "bf16_params": 0,
+    "fraction_of_eligible_params": {
+      "nvfp4": 1.0,
+      "fp8": 0.0,
+      "bf16": 0.0
+    },
+    "fraction_of_all_checkpoint_params": {
+      "nvfp4": 0.9991487982651889,
+      "fp8": 0.0,
+      "bf16": 0.0
+    },
+    "source_tensor_bytes": 6910361856,
+    "eligible_source_bytes": 6904479744,
+    "excluded_source_bytes": 5882112,
+    "target_eligible_bytes": 1942440672,
+    "target_full_checkpoint_bytes": 1948322784,
+    "target_bytes_by_format": {
+      "nvfp4": 1942440672
+    },
+    "linear_compression_x": 3.554538289651299,
+    "full_checkpoint_compression_x": 3.5468259739860435,
+    "bf16_GB": 6.904479744,
+    "quantized_GB": 1.942440672,
+    "known_tied_alias_deduplicated": {
+      "all_tensor_elements": 3144016000,
+      "eligible_tensor_elements": 3141074944,
+      "elements_by_format": {
+        "nvfp4": 3141074944,
+        "fp8": 0,
+        "bf16": 0
+      },
+      "excluded_elements": 2941056,
+      "fraction_of_all": {
+        "nvfp4": 0.9990645543788581,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "fraction_of_eligible": {
+        "nvfp4": 1.0,
+        "fp8": 0.0,
+        "bf16": 0.0
+      },
+      "target_eligible_bytes": 1767410396,
+      "target_full_bytes": 1773292508,
+      "target_bytes_by_format": {
+        "excluded": 5882112,
+        "nvfp4": 1767410396
+      },
+      "source_tensor_bytes": 6288032000,
+      "eligible_source_bytes": 6282149888,
+      "eligible_compression_x": 3.554437555769588,
+      "full_compression_x": 3.545964341264786,
+      "omitted_physical_alias_elements": 311164928,
+      "note": "Deduplicates only explicitly recorded embedding/lm_head aliases."
+    },
+    "category": {
+      "weights": 325517312,
+      "banks_per_layer": 32,
+      "active_libero_bank": 2,
+      "active_libero_weight_elements": 10172416,
+      "padding_elements": 983040,
+      "target_bytes": 183657344,
+      "tensor_scale_count": 224
+    },
+    "storage_note": "Target FP4 payload plus E4M3 scale/16 and FP32 scale per category; includes internal K padding. FP8 uses FP32 row scales. Excludes runtime alignment/activations/LoRA residuals. Checkpoint shards remain original dtype. Inactive categories do not contribute to LIBERO execution."
+  },
+  "implementation_sha256": "5a85c358616dc9d12255944a86845dc326774cbacb9e617fe2045bb0b497ec3a",
+  "output_weights": {
+    "model-00002-of-00002.safetensors": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category.incomplete-u_jqeydj/model-00002-of-00002.safetensors",
+      "bytes": 1919980184,
+      "sha256": "69ff092038067087d178be66c69b2f6e27b25105e76023d259015c17ca40ef71"
+    }
+  }
+}

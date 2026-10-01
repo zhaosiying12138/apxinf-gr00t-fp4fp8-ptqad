@@ -10,8 +10,10 @@ import json
 import argparse
 from pathlib import Path
 import shutil
+import sys
 import tempfile
 import unittest
+from unittest import mock
 
 from exp import run_high_fp4_v3 as driver
 
@@ -28,7 +30,9 @@ class HighFp4V3CpuFixture(unittest.TestCase):
             (path / "model-00001.safetensors").write_bytes(b"fixture-weight")
             (path / "config.json").write_text("{}\n")
             (path / "statistics.json").write_text("{}\n")
-        (self.ptq / "ptq_recipe.json").write_text("{}\n")
+        (self.ptq / "ptq_recipe.json").write_text(json.dumps({
+            "memory": {"fraction_of_eligible_params": {"nvfp4": 0.5}}
+        }) + "\n")
         protocol_sha = driver.sha(self.protocol)
         self.selection = self.tmp / "development/selection.json"
         self.selection.parent.mkdir()
@@ -45,6 +49,8 @@ class HighFp4V3CpuFixture(unittest.TestCase):
                 "macro_success_rate": successes / 50,
                 "checkpoint": str(checkpoint),
                 "environment_pairing_verified": True,
+                "model_identity": driver.model_id(checkpoint),
+                "fp4_fraction": 0.0 if name == "bf16" else 0.5,
             }
             folder=self.selection.parent/name
             self.write_evaluation(folder,checkpoint,successes)
@@ -92,6 +98,8 @@ class HighFp4V3CpuFixture(unittest.TestCase):
         driver.jwrite(folder/"summary.json",{
             "tasks_complete":10,"total_successes":successes,"total_episodes":episodes*10,
             "macro_success_rate":successes/(episodes*10),"purpose":purpose,"seed":part["seed"],
+            "micro_success_rate":successes/(episodes*10),
+            "score_definition":"macro=unweighted ten-task mean; micro=total successes/episodes",
         })
         return folder
 
@@ -99,8 +107,8 @@ class HighFp4V3CpuFixture(unittest.TestCase):
         return driver.Driver(argparse.Namespace(
             protocol_file=str(self.protocol),ptq_selection=str(self.selection),
             run_dir=str(self.tmp/"run"),base=str(self.base),gr00t_repo=None,python=None,
-            rollout_python=None,dataset=None,port_base=5790,cleanup_duplicates=False,
-            adopt_complete=adopt,validate_only=True))
+            rollout_python=sys.executable,dataset=None,port_base=5790,cleanup_duplicates=False,
+            adopt_complete=adopt,validate_only=True,capture_dataset=None))
 
     def rewrite_raw_row(self, folder, task, row):
         log=folder/(task+".log")
@@ -119,6 +127,7 @@ class HighFp4V3CpuFixture(unittest.TestCase):
         result = driver.main([
             "--run-dir", str(run_dir), "--protocol-file", str(self.protocol),
             "--ptq-selection", str(self.selection), "--base", str(self.base),
+            "--rollout-python", sys.executable,
             "--validate-only",
         ])
         self.assertEqual(result, 0)
@@ -130,6 +139,7 @@ class HighFp4V3CpuFixture(unittest.TestCase):
         run_dir = self.tmp / "run"
         args = ["--run-dir", str(run_dir), "--protocol-file", str(self.protocol),
                 "--ptq-selection", str(self.selection), "--base", str(self.base),
+                "--rollout-python", sys.executable,
                 "--validate-only"]
         self.assertEqual(driver.main(args), 0)
         changed = json.loads(self.selection.read_text())
@@ -208,6 +218,21 @@ class HighFp4V3CpuFixture(unittest.TestCase):
             rows[value]=folder
         return rows
 
+    def make_opd_selection_fixture(self, drv, opd_successes=(44, 44), control_successes=40):
+        """Build paired OPD candidates plus the continued-QAD control."""
+        rows={}
+        for value, successes in zip((.25, 1.0), opd_successes):
+            model=drv.art/("merge_opd_025" if value == .25 else "merge_opd_100")
+            model.mkdir()
+            folder=drv.art/("dev_opd_"+str(value))
+            self.write_evaluation(folder,model,successes)
+            rows[value]=folder
+        control_model=drv.art/"merge_continued_qad"
+        control_model.mkdir()
+        control=drv.art/"dev_continued_qad"
+        self.write_evaluation(control,control_model,control_successes)
+        return rows, control
+
     def test_qad_tie_chooses_lower_lr_and_tampered_winner_rejected(self):
         drv=self.make_driver()
         rows=self.make_recovery_devs(drv,"qad")
@@ -221,11 +246,44 @@ class HighFp4V3CpuFixture(unittest.TestCase):
         with self.assertRaisesRegex(driver.OrchestrationError,"recomputed"):
             drv.select_verify(out,"qad")
 
-    def test_opd_tie_chooses_lower_weight(self):
+    def test_opd_requires_continued_qad_control(self):
         drv=self.make_driver()
         rows=self.make_recovery_devs(drv,"opd")
-        report=drv.selection_report("opd",rows)
+        with self.assertRaisesRegex(driver.OrchestrationError,"requires the continued-QAD control"):
+            drv.selection_report("opd",rows)
+
+    def test_opd_below_control_is_rejected(self):
+        drv=self.make_driver()
+        rows, control=self.make_opd_selection_fixture(drv,opd_successes=(44, 44),control_successes=45)
+        with self.assertRaisesRegex(driver.OrchestrationError,"below continued-QAD control"):
+            drv.selection_report("opd",rows,control=control)
+
+    def test_opd_tie_chooses_lower_weight_and_records_control_gate(self):
+        drv=self.make_driver()
+        rows, control=self.make_opd_selection_fixture(drv,opd_successes=(44, 44),control_successes=40)
+        out=drv.art/"select_opd_weight"
+        drv.select(out,"opd",rows,control=control)
+        drv.select_verify(out,"opd")
+        report=driver.jread(out/"selection.json")
         self.assertEqual(report["selected_opd_weight"],.25)
+        self.assertEqual(report["control_arm"],"continued_qad")
+        self.assertTrue(report["opd_not_below_control"])
+        self.assertTrue(report["opd_beats_continued_qad"])
+        report["opd_not_below_control"]=False
+        driver.jwrite(out/"selection.json",report)
+        with self.assertRaisesRegex(driver.OrchestrationError,"control gate"):
+            drv.select_verify(out,"opd")
+
+    def test_legacy_opd_control_tie_remains_a_valid_selection(self):
+        drv=self.make_driver()
+        rows, control=self.make_opd_selection_fixture(drv,opd_successes=(44, 44),control_successes=44)
+        out=drv.art/"select_opd_weight"
+        drv.select(out,"opd",rows,control=control)
+        drv.select_verify(out,"opd")
+        report=driver.jread(out/"selection.json")
+        self.assertTrue(report["opd_not_below_control"])
+        self.assertFalse(report["opd_beats_continued_qad"])
+        self.assertNotIn("require_opd_strictly_above_control",report["opd_selection_gate"])
 
     def test_selection_rejects_pairing_mismatch(self):
         drv=self.make_driver()
@@ -332,6 +390,196 @@ class HighFp4V3CpuFixture(unittest.TestCase):
         })
         with self.assertRaisesRegex(driver.OrchestrationError,"merge training checkpoint"):
             drv.merge_verify(out)
+
+
+class HighFp4V8SelectionCpuFixture(unittest.TestCase):
+    """Exercise v8 selection on real tiny evidence files, without training setup."""
+
+    write_evaluation = HighFp4V3CpuFixture.write_evaluation
+    rewrite_raw_row = HighFp4V3CpuFixture.rewrite_raw_row
+    make_opd_selection_fixture = HighFp4V3CpuFixture.make_opd_selection_fixture
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="fp4vla-v8-selection-cpu-"))
+        self.root = Path(__file__).resolve().parents[1]
+        self.protocol = self.tmp / "protocol.json"
+        protocol = driver.jread(self.root / "exp/recovery_protocol_v8_pressure_window_r3.json")
+        protocol["selection"]["pressure_candidates"] = ["pressure"]
+        driver.jwrite(self.protocol, protocol)
+        self.base = self.tmp / "checkpoints/bf16"
+        self.ptq = self.tmp / "checkpoints/ptq"
+        self.make_model(self.base)
+        self.make_model(self.ptq)
+        driver.jwrite(self.ptq / "ptq_recipe.json", {
+            "memory": {"fraction_of_eligible_params": {"nvfp4": 1.0}}})
+        self.selection = self.tmp / "development/selection.json"
+        arms, sources = {}, {}
+        for name, successes, checkpoint in (("bf16",44,self.base),("pressure",30,self.ptq)):
+            folder = self.selection.parent / name
+            self.write_evaluation(folder,checkpoint,successes)
+            arms[name] = {
+                "successes":successes,"episodes":50,
+                "macro_success_rate":successes/50,"micro_success_rate":successes/50,
+                "checkpoint":str(checkpoint),"environment_pairing_verified":True,
+                "model_identity":driver.model_id(checkpoint),
+                "fp4_fraction":0.0 if name == "bf16" else 1.0,
+            }
+            for filename in ("eval_manifest.json","task_results.json","summary.json"):
+                sources[f"{name}/{filename}"] = driver.sha(folder / filename)
+        driver.jwrite(self.selection, {
+            "protocol_sha256":driver.sha(self.protocol),"selection_uses_heldout":False,
+            "selected_recipe":"pressure","pressure_candidates":["pressure"],
+            "candidate_fp4_fraction":{"pressure":1.0},"arms":arms,"source_sha256":sources,
+        })
+        # Selection functions need no trainer, CUDA model or teacher dataset.
+        # Keep this fixture independent of the capture/constructor contract.
+        self.drv = driver.Driver.__new__(driver.Driver)
+        self.drv.protocol_path = self.protocol
+        self.drv.protocol = driver.load_protocol(self.protocol)
+        self.drv.selection_path = self.selection
+        self.drv.selection = driver.validate_ptq(self.selection,self.drv.protocol)
+        self.drv.base = self.base
+        self.drv.art = self.tmp / "artifacts"
+        self.drv.art.mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp,ignore_errors=True)
+
+    def make_model(self, path):
+        path.mkdir(parents=True,exist_ok=True)
+        (path / "model.safetensors").write_bytes(str(path).encode())
+        driver.jwrite(path / "config.json", {})
+        driver.jwrite(path / "statistics.json", {})
+        return path
+
+    def qad_rows(self, successes=(36,35)):
+        rows = {}
+        for lr, count in zip((.00005,.0001),successes):
+            model = self.make_model(self.drv._selection_model("qad",lr))
+            folder = self.drv.art / ("dev_qad_" + str(lr))
+            self.write_evaluation(folder,model,count)
+            rows[lr] = folder
+        return rows
+
+    def freeze_qad(self, successes=(36,35)):
+        rows = self.qad_rows(successes)
+        out = self.drv.art / "select_qad_lr"
+        self.drv.select(out,"qad",rows)
+        self.drv.select_verify(out,"qad")
+        return out
+
+    def opd_rows(self, opd=(40,39), control=38):
+        rows, folder = self.make_opd_selection_fixture(
+            self.drv,opd_successes=opd,control_successes=control)
+        for weight in rows:
+            self.make_model(self.drv._selection_model("opd",weight))
+        self.make_model(self.drv.art / "merge_continued_qad")
+        return rows, folder
+
+    def test_qad_must_strictly_exceed_the_selected_ptq(self):
+        rows = self.qad_rows((30,29))
+        out = self.drv.art / "select_qad_lr"
+        with self.assertRaisesRegex(driver.OrchestrationError,"strictly above the PTQ"):
+            self.drv.select(out,"qad",rows)
+        self.assertFalse((out / "selection.json").exists())
+
+    def test_equal_success_counts_cannot_pass_from_macro_roundoff(self):
+        rows = self.qad_rows((30,29))
+        folder = rows[.00005]
+        raw = driver.jread(folder / "task_results.json")
+        for task, count in zip(driver.TASKS,[4]*5+[2]*5):
+            row = raw[task]
+            row["results"] = [i < count for i in range(5)]
+            row["successes"] = count
+            row["success_rate"] = count / 5
+            self.rewrite_raw_row(folder,task,row)
+        audited = driver.eval_audit(folder,self.drv.protocol,"development")
+        self.assertEqual(audited["successes"],30)
+        real_audit = driver.eval_audit
+        def rounded_audit(path,*args,**kwargs):
+            result = real_audit(path,*args,**kwargs)
+            if Path(path) == folder:
+                # Older Python summation can differ by one ULP for equal
+                # totals spread across tasks; simulate that numeric boundary.
+                result["macro_success_rate"] = .6000000000000001
+            return result
+        with mock.patch.object(driver,"eval_audit",side_effect=rounded_audit):
+            with self.assertRaisesRegex(driver.OrchestrationError,"strictly above the PTQ"):
+                self.drv.selection_report("qad",rows)
+
+    def test_qad_success_binds_ptq_model_and_evaluation_identities(self):
+        out = self.freeze_qad()
+        report = driver.jread(out / "selection.json")
+        self.assertEqual(report["selected_learning_rate"],.00005)
+        self.assertEqual(report["ptq_reference_evaluation"]["model_identity"],driver.model_id(self.ptq))
+        self.assertEqual(report["ptq_reference_evaluation"]["evaluation_path"],
+                         str(self.selection.parent / "pressure"))
+        self.assertEqual(report["ptq_selection_identity"],driver.identity(self.selection))
+        self.assertTrue(report["qad_selection_gate"]["require_qad_strictly_above_ptq"])
+        self.assertTrue(report["recovery_above_ptq"])
+
+    def test_opd_requires_a_persisted_and_valid_qad_selection(self):
+        rows, control = self.opd_rows()
+        with self.assertRaisesRegex(driver.OrchestrationError,"no frozen QAD"):
+            self.drv.selection_report("opd",rows,control=control)
+
+    def test_opd_tied_with_qad_cannot_enter_heldout(self):
+        self.freeze_qad((40,39))
+        rows, control = self.opd_rows(opd=(40,39),control=38)
+        out = self.drv.art / "select_opd_weight"
+        with self.assertRaisesRegex(driver.OrchestrationError,"strictly above the selected QAD"):
+            self.drv.select(out,"opd",rows,control=control)
+        self.assertFalse((out / "selection.json").exists())
+
+    def test_opd_tied_with_control_cannot_enter_heldout(self):
+        self.freeze_qad()
+        rows, control = self.opd_rows(opd=(40,39),control=40)
+        with self.assertRaisesRegex(driver.OrchestrationError,"strict v8 gain gate"):
+            self.drv.selection_report("opd",rows,control=control)
+
+    def test_opd_gain_is_auditable_after_a_new_process_resolves_qad_from_disk(self):
+        qad_out = self.freeze_qad()
+        rows, control = self.opd_rows()
+        out = self.drv.art / "select_opd_weight"
+        self.drv.select(out,"opd",rows,control=control)
+        fresh = driver.Driver.__new__(driver.Driver)
+        fresh.__dict__.update(self.drv.__dict__)
+        self.assertNotIn("_qad_selection",fresh.__dict__)
+        fresh.select_verify(out,"opd")
+        report = driver.jread(out / "selection.json")
+        self.assertTrue(report["opd_beats_qad"])
+        self.assertTrue(report["opd_beats_continued_qad"])
+        self.assertEqual(report["qad_selection_identity"],driver.identity(qad_out / "selection.json"))
+        self.assertEqual(report["qad_reference_evaluation"]["model_identity"],
+                         driver.model_id(self.drv._selection_model("qad",.00005)))
+        self.assertEqual(report["control_evaluation"]["model_identity"],
+                         driver.model_id(self.drv.art / "merge_continued_qad"))
+
+    def test_verification_recomputes_scores_and_rejects_tampered_qad_reference(self):
+        qad_out = self.freeze_qad()
+        rows, control = self.opd_rows()
+        out = self.drv.art / "select_opd_weight"
+        self.drv.select(out,"opd",rows,control=control)
+        report = driver.jread(out / "selection.json")
+        report["qad_reference_score"] = .01
+        driver.jwrite(out / "selection.json",report)
+        with self.assertRaisesRegex(driver.OrchestrationError,"recomputed"):
+            self.drv.select_verify(out,"opd")
+        self.drv.select(out,"opd",rows,control=control)
+        qad = driver.jread(qad_out / "selection.json")
+        qad["selected_learning_rate"] = .0001
+        driver.jwrite(qad_out / "selection.json",qad)
+        with self.assertRaisesRegex(driver.OrchestrationError,"recomputed"):
+            self.drv.select_verify(out,"opd")
+
+    def test_verification_rejects_changed_selected_qad_model_bytes(self):
+        self.freeze_qad()
+        rows, control = self.opd_rows()
+        out = self.drv.art / "select_opd_weight"
+        self.drv.select(out,"opd",rows,control=control)
+        (self.drv._selection_model("qad",.00005) / "model.safetensors").write_bytes(b"changed")
+        with self.assertRaisesRegex(driver.OrchestrationError,"recomputed"):
+            self.drv.select_verify(out,"opd")
 
 
 if __name__ == "__main__":

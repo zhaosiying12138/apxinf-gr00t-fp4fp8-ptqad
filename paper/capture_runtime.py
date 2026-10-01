@@ -30,6 +30,14 @@ DEFAULT_SOURCE_FILES = (
     'exp/bench_engine.py', 'exp/prepare_native_pi05.py',
     'exp/prepare_native_pi05.sh', 'exp/run_native_graph_gates.sh', 'exp/recovery_protocol.json',
     'exp/reproduce_ptqad.sh',
+    # v7 is the only publication protocol.  The shared driver remains named
+    # v3 for compatibility with its import path; its final manifest is bound
+    # to this v7 protocol SHA and the mixed-pressure wrapper.
+    'exp/recovery_protocol_v7_mixed_pressure.json', 'exp/run_mixed_pressure_recovery.py',
+    # Retained for auditability of archived CPU fixtures; v7 publication
+    # validation never selects a result from this protocol.
+    'exp/recovery_protocol_v3_high_fp4.json',
+    'exp/run_high_fp4_v3.py',
     'exp/recovery_protocol_v5_exploratory_fp4.json', 'exp/run_category_development.py',
     'exp/run_category_recovery.py',
     'exp/verify_teacher_cache_cpu.py',
@@ -82,7 +90,11 @@ def validate_final_manifest(path):
     if path.name != 'final_manifest.json' or path.is_symlink():
         raise ValueError('--final-manifest must name a regular final_manifest.json')
     data = json.loads(path.read_text(encoding='utf-8'))
-    if not re.fullmatch(r'high_fp4_[a-z0-9_]+_final_manifest', str(data.get('format', ''))):
+    # Recovery runs have used several internal driver names, but the v7
+    # publication boundary is explicit.  Keep accepting the older category
+    # form for reusable provenance capture; the publication validator binds
+    # the selected protocol and rejects stale result packages.
+    if not re.fullmatch(r'(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7)_final_manifest', str(data.get('format', ''))):
         raise ValueError('unsupported or incomplete final manifest format')
     if data.get('selection_uses_heldout') is not False:
         raise ValueError('final selection must be independent of heldout results')

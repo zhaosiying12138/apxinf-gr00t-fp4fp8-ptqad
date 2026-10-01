@@ -1,9 +1,0 @@
-{
-  "tasks_complete": 10,
-  "total_successes": 18,
-  "total_episodes": 20,
-  "macro_success_rate": 0.9,
-  "purpose": "development",
-  "seed": 330000,
-  "wall_seconds_including_server_loads": 962.0660202503204
-}

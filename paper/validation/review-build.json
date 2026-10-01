@@ -1,68 +1,139 @@
 {
   "status": "incomplete_review_draft",
   "not_final_publication": true,
+  "experiment_protocol": "v11_w4a4_category",
+  "selected_recipe": "pending_v11_selection",
   "screenshots": 17,
+  "screenshot_sha256": {
+    "shot_bake": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
+    "shot_collect": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
+    "shot_evalserver": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf",
+    "shot_fp8probe": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
+    "shot_gemm": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08",
+    "shot_gr00t": "41567c4c73bedf5d4b89068e60d38a10f3cbdaf61d5b3440e21d7bf7df44ce88",
+    "shot_nvfp4": "0215b53e09317e03eed6d7b980cd5845ef89d16f54d6059f46e3ff44fbed0bd0",
+    "shot_opbench": "c7db35ef39dd99022c6595b5f32a0730c84aea266f888f9084c9c96816be2f4d",
+    "shot_opd": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
+    "shot_opdcache": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
+    "shot_packed": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
+    "shot_pi05": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
+    "shot_probe": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
+    "shot_qad": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
+    "shot_qat": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
+    "shot_rollout": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170",
+    "shot_verify": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db"
+  },
+  "screenshot_refresh_pending": [
+    "shot_bake",
+    "shot_qad",
+    "shot_opdcache",
+    "shot_opd",
+    "shot_evalserver",
+    "shot_rollout"
+  ],
   "figures": 24,
+  "input_evidence": [
+    {
+      "path": "results/engine/pi05_nvfp4_ptqad_20260929.json",
+      "sha256": "4a476bb5a37e36695863410657394167c04f40f1da15e177e802cc50cd45c45e",
+      "bytes": 153336
+    },
+    {
+      "path": "results/baselines/pi05_pt_bf16_ptqad_20260929.json",
+      "sha256": "c0446dfbd740b2056d4d4ddb37fa6ca10b8c1455f9cccac2a291745fe8a08aaa",
+      "bytes": 4154
+    },
+    {
+      "path": "results/engine/pi05_bf16_ptqad_20260929.json",
+      "sha256": "7bbb2360704763d57ca9b6b1297debb8b8a16fc8001cc94d985dcccdf9532060",
+      "bytes": 38816
+    },
+    {
+      "path": "results/baselines/gr00t_pt_bf16_ptqad_20260929.json",
+      "sha256": "36f157fb7a764cb9aa27dab21baa1ea87785c004bab0c9b401e80decde1901ab",
+      "bytes": 4792
+    },
+    {
+      "path": "results/engine/gr00t_bf16_ptqad_20260929.json",
+      "sha256": "6d980635fcf6d4cd75ebd15026df9dbac1f4bb7ecbcb1a33df5883487e7d437f",
+      "bytes": 36278
+    },
+    {
+      "path": "paper/evidence/recipe_inventory.json",
+      "sha256": "311660713b93906390248ac808769d91cfc29a896944c9363b793561f15abd04",
+      "bytes": 6072
+    },
+    {
+      "path": "paper/evidence/selected_recipe/category_memory.json",
+      "sha256": "249cb167542779658462e34212719ce5af2d6acd4459831a6ceb25606a1f3c23",
+      "bytes": 2931
+    },
+    {
+      "path": "paper/evidence/selected_recipe/category_ptq_recipe.json",
+      "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+      "bytes": 337442
+    }
+  ],
   "files": [
     {
       "path": "paper.html",
-      "sha256": "a326fe1130e9c54aef5c49262057ed22f1cb93ae7066f079ab9e54f20c156bf6",
-      "bytes": 8668720
+      "sha256": "9a8eb0a7a755fd2363c3438dd071f37adb50de6f9d009a04902ebc9fd0540b60",
+      "bytes": 8350131
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "1c80b7734d9037f4ec5571bf153fae43dbb3f2bece4ea521889d74a7fbd630ad",
-      "bytes": 172188
+      "sha256": "6eab16a2493c31d8e6d12f52009062e57a1a9e369a3e4e9447879555850b610b",
+      "bytes": 121088
     },
     {
       "path": "meta.json",
-      "sha256": "208b2cece6b22f926f5ce2418223831a0c2f1de3bdf283ae25414f8c9d4b2ff3",
-      "bytes": 228
+      "sha256": "624b2568e5e673b721189321d3155cbbb18d65b801175ab7db9335275e7d9364",
+      "bytes": 319
     },
     {
       "path": "figures.json",
-      "sha256": "27975de514c56ae3ee0860dc1692a65a27c70a439e37748e455259bdff58d8a0",
-      "bytes": 9019
+      "sha256": "4a6ba3e2d7669932fa2e78242b8f6d5b6c28834c5575edae7a4c7d5ddc0eac3b",
+      "bytes": 8140
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "sha256": "99df57eff7c486ab31916b066a7b1a3555ebf49c6f97411c96613f4c67f51e09",
-      "bytes": 4867
+      "sha256": "45936daf16a23d7387f8c3458a388b0d6aa34cf983c5b5dfdacdb7fd17828d49",
+      "bytes": 4403
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "sha256": "3f83cdf22e92775b687d74288b88a4ef324279abd7c307b8cff6df8da13b5755",
-      "bytes": 15106
+      "sha256": "3edc16fde05c2c0c197786c3ffa39fb08d6ad9f4a9abc52bb728444253f98a38",
+      "bytes": 15109
     },
     {
       "path": "sections/03-方法.md",
-      "sha256": "334ba16bd840f60f894cd0c357ef5392bde4fed24ade10ac78cccf8c17240155",
-      "bytes": 31900
+      "sha256": "dec87491217718f952e558ac82105cfc45d863ead87da58c2becfb11760dca8b",
+      "bytes": 3621
     },
     {
       "path": "sections/04-实验.md",
-      "sha256": "b26d5780d0f775bdfa24d03f17e6b1bc56b0761e44b78c504259a436d1ff538b",
-      "bytes": 9337
+      "sha256": "0cc8adce67ef37768c09caf48f878218d938d859594a4977feeeb7e21c849894",
+      "bytes": 2737
     },
     {
       "path": "sections/05-讨论与结论.md",
-      "sha256": "bbef5cf7a034bc8d87b71fb8b3326c6e845c5c5fc9a640b8c69ee9f4081204ac",
-      "bytes": 2669
+      "sha256": "3655da4bb933549c442440408c0dd8ccd52922fb8549040696037d523e260d6f",
+      "bytes": 1231
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
-      "sha256": "25e602d8ea1e9821400f56db9feecfadbd4cf1f6ea4a8dd5675cd70c9bbe2d08",
-      "bytes": 41536
+      "sha256": "703450528f83c59d9acb4cb5bdc52ce081677a4560fe592768d52beb2aa94f65",
+      "bytes": 43115
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "sha256": "f8da6ced00dc3f0f0eeb9abf034f68c65b0a476be6e686d5a0dedfd9c03e7645",
-      "bytes": 32378
+      "sha256": "9ea86fc8104e562111a7322d811dda8d3083f763381bd3fe5e67ec95f5a1e0ba",
+      "bytes": 17600
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
-      "sha256": "294977bdd0e4d76e432175825e8edcd8ba48e7d5cb611b6116bd562816f33545",
-      "bytes": 12618
+      "sha256": "c3af30695e82f9c62c5f48e5d0da7ae6d2d5277820e5780ecd25a90ff01a29e5",
+      "bytes": 12468
     },
     {
       "path": "sections/16-参考文献.md",
@@ -70,9 +141,19 @@
       "bytes": 12054
     },
     {
-      "path": "zhihu/images/shot_collect.png",
-      "sha256": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
-      "bytes": 349151
+      "path": "zhihu/images/e1_latency.png",
+      "sha256": "fa164675b28844757083507a2c5f92742beb18b805c072f2c562ee8c6cfc6c20",
+      "bytes": 184607
+    },
+    {
+      "path": "zhihu/images/ladder.png",
+      "sha256": "fadb8174654a3792db4ee8092db9d388db55b4b00297b0753cd443c05ea07c2d",
+      "bytes": 154325
+    },
+    {
+      "path": "zhihu/images/swizzle_layout.png",
+      "sha256": "ac2909b72ce8c7e36e3bd69d909e5860f072111b6ace38163499f0181120be9e",
+      "bytes": 209890
     },
     {
       "path": "zhihu/images/gptq_block.png",
@@ -80,39 +161,19 @@
       "bytes": 298057
     },
     {
-      "path": "zhihu/images/shot_bake.png",
-      "sha256": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
-      "bytes": 460385
-    },
-    {
-      "path": "zhihu/images/shot_probe.png",
-      "sha256": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
-      "bytes": 259228
-    },
-    {
       "path": "zhihu/images/recovery_protocol.png",
       "sha256": "4f29f1aed9cb7da454d96d5abe8e03df4d3248f658089a3cfab3e2a09c8c6e59",
       "bytes": 364280
     },
     {
-      "path": "zhihu/images/shot_opdcache.png",
-      "sha256": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
-      "bytes": 309583
+      "path": "zhihu/images/shot_bake.png",
+      "sha256": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
+      "bytes": 460385
     },
     {
-      "path": "zhihu/images/swizzle_layout.png",
-      "sha256": "681461b2c1f14aa86f9e2f61907a1faea5b1e1a5228c838405d64415f7778558",
-      "bytes": 216797
-    },
-    {
-      "path": "zhihu/images/shot_verify.png",
-      "sha256": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db",
-      "bytes": 326669
-    },
-    {
-      "path": "zhihu/images/shot_fp8probe.png",
-      "sha256": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
-      "bytes": 283707
+      "path": "zhihu/images/shot_collect.png",
+      "sha256": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
+      "bytes": 349151
     },
     {
       "path": "zhihu/images/shot_evalserver.png",
@@ -120,54 +181,14 @@
       "bytes": 278598
     },
     {
-      "path": "zhihu/images/shot_rollout.png",
-      "sha256": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170",
-      "bytes": 445539
+      "path": "zhihu/images/shot_fp8probe.png",
+      "sha256": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
+      "bytes": 283707
     },
     {
-      "path": "zhihu/images/shot_qat.png",
-      "sha256": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
-      "bytes": 278520
-    },
-    {
-      "path": "zhihu/images/budget_ladder.png",
-      "sha256": "43a9ba72aeee541687a6bd9ec0729c11125e7fc80d0e888eb2151487bf4635aa",
-      "bytes": 347820
-    },
-    {
-      "path": "zhihu/images/ladder.png",
-      "sha256": "40c1146d1e398bb79e6eddcf26b12b93bf7beba8d10bec03bcb3ee1e4ee2de92",
-      "bytes": 152868
-    },
-    {
-      "path": "zhihu/images/shot_qad.png",
-      "sha256": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
-      "bytes": 423906
-    },
-    {
-      "path": "zhihu/images/shot_opd.png",
-      "sha256": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
-      "bytes": 382536
-    },
-    {
-      "path": "zhihu/images/ptq_frontier.png",
-      "sha256": "07560c34ab7acf18dcd02b3f22d0005480fe2e56963b189b270213127eb13735",
-      "bytes": 141757
-    },
-    {
-      "path": "zhihu/images/shot_packed.png",
-      "sha256": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
-      "bytes": 279477
-    },
-    {
-      "path": "zhihu/images/e1_latency.png",
-      "sha256": "fa164675b28844757083507a2c5f92742beb18b805c072f2c562ee8c6cfc6c20",
-      "bytes": 184607
-    },
-    {
-      "path": "zhihu/images/shot_pi05.png",
-      "sha256": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
-      "bytes": 247960
+      "path": "zhihu/images/shot_gemm.png",
+      "sha256": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08",
+      "bytes": 305541
     },
     {
       "path": "zhihu/images/shot_gr00t.png",
@@ -180,14 +201,64 @@
       "bytes": 300991
     },
     {
-      "path": "zhihu/images/shot_gemm.png",
-      "sha256": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08",
-      "bytes": 305541
-    },
-    {
       "path": "zhihu/images/shot_opbench.png",
       "sha256": "c7db35ef39dd99022c6595b5f32a0730c84aea266f888f9084c9c96816be2f4d",
       "bytes": 401815
+    },
+    {
+      "path": "zhihu/images/shot_opd.png",
+      "sha256": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
+      "bytes": 382536
+    },
+    {
+      "path": "zhihu/images/shot_opdcache.png",
+      "sha256": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
+      "bytes": 309583
+    },
+    {
+      "path": "zhihu/images/shot_packed.png",
+      "sha256": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
+      "bytes": 279477
+    },
+    {
+      "path": "zhihu/images/shot_pi05.png",
+      "sha256": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
+      "bytes": 247960
+    },
+    {
+      "path": "zhihu/images/shot_probe.png",
+      "sha256": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
+      "bytes": 259228
+    },
+    {
+      "path": "zhihu/images/shot_qad.png",
+      "sha256": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
+      "bytes": 423906
+    },
+    {
+      "path": "zhihu/images/shot_qat.png",
+      "sha256": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
+      "bytes": 278520
+    },
+    {
+      "path": "zhihu/images/shot_rollout.png",
+      "sha256": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170",
+      "bytes": 445539
+    },
+    {
+      "path": "zhihu/images/shot_verify.png",
+      "sha256": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db",
+      "bytes": 326669
+    },
+    {
+      "path": "zhihu/images/budget_ladder.png",
+      "sha256": "1e56a1f4968c1c9d784a4ded9a9cfba1b079d856fd78a56867b5d6bd764efd93",
+      "bytes": 244537
+    },
+    {
+      "path": "zhihu/images/ptq_frontier.png",
+      "sha256": "20eebbd47e18e4484e043b927debe99a893a38bfe4976cc6afe1706c0624669d",
+      "bytes": 197891
     }
   ]
 }

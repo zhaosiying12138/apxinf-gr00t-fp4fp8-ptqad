@@ -120,6 +120,21 @@ def v3_run(root):
 
 
 class V3TrainingCosts(unittest.TestCase):
+    def test_current_v7_manifest_format_is_auditable(self):
+        self.assertIsNotNone(cost.FINAL_FORMAT_RE.fullmatch('mixed_pressure_v7_final_manifest'))
+        self.assertIsNotNone(cost.FINAL_FORMAT_RE.fullmatch('high_fp4_category_final_manifest'))
+        self.assertIsNone(cost.FINAL_FORMAT_RE.fullmatch('mixed_pressure_v8_final_manifest'))
+
+    def test_v7_nested_evaluation_contract_normalizes_for_cost_audit(self):
+        protocol = json.loads((ROOT / 'exp/recovery_protocol_v7_mixed_pressure.json').read_text())
+        normalized = cost.normalized_protocol(protocol, {
+            'selected_qad_learning_rate': protocol['selection']['qad_learning_rates'][0],
+            'selected_opd_weight': protocol['selection']['opd_weights'][0],
+        })
+        self.assertEqual(normalized['initial_states']['protocol'],
+                         protocol['evaluation_contract']['initial_state_protocol'])
+        self.assertEqual(normalized['heldout']['episodes_per_task'], 10)
+
     def test_orchestrator_schema_survives_protocol_label_bump(self):
         protocol = read(ROOT/'exp/recovery_protocol_v3_high_fp4.json')
         protocol['version'] = 4

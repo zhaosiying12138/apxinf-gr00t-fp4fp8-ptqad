@@ -10,6 +10,11 @@ results/**/rollouts/
 results/**/videos/
 results/**/observations/
 
+# Active v11 W4A4 recovery runs are local execution state.  The publication
+# keeps only compact manifests, hashes, summaries and selected logs under
+# paper/evidence/; never commit the raw checkpoints or live run directory.
+results/ptqad_20261003/
+
 # Local acceptance attempts are retained on disk, outside the formal evidence.
 results/ptqad_20260929/bank_bf16_smoke*
 results/ptqad_20260929/calibration_smoke*

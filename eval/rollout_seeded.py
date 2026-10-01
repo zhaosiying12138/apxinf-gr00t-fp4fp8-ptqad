@@ -29,6 +29,25 @@ def install_bank_resets(env_class, task_name, indices, settle_steps=10):
     bank_hash = hashlib.sha256(bank_path.read_bytes()).hexdigest()
     original = env_class.reset
 
+    def append_capture_event(record):
+        """Publish reset identity to the co-located policy server.
+
+        The rollout and policy server are separate processes.  A reset is the
+        only unambiguous boundary at which the server can associate a captured
+        observation with an episode, so use a line-buffered JSONL sidecar.  A
+        missing sidecar is intentional for ordinary evaluations; it is only
+        enabled by ``run_recovery_eval`` when on-policy captures are requested.
+        """
+        event_path = os.environ.get("FP4VLA_CAPTURE_EVENT_FILE")
+        if not event_path:
+            return
+        path = Path(event_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(record, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+
     def reset(self, seed=None, options=None):
         if seed is not None:
             self._recovery_seed = int(seed)
@@ -51,12 +70,16 @@ def install_bank_resets(env_class, task_name, indices, settle_steps=10):
         observation = self._process_observation(raw)
         info = {"success": self._env.check_success()}
         state = self._env.sim.get_state().flatten()
-        print("FP4VLA_EPISODE_RESET " + json.dumps({
+        reset_record = {
+            "event": "reset",
+            "task_name": task_name,
             "episode_index": episode, "seed": actual, "task_id": task_id,
             "init_state_index": bank_index, "init_state_bank_size": len(bank),
             "init_state_bank_sha256": bank_hash,
             "restored_state_sha256": restored_hash, "settle_steps": settle_steps,
-            "initial_state_sha256": hashlib.sha256(state.tobytes()).hexdigest()}), flush=True)
+            "initial_state_sha256": hashlib.sha256(state.tobytes()).hexdigest()}
+        print("FP4VLA_EPISODE_RESET " + json.dumps(reset_record), flush=True)
+        append_capture_event(reset_record)
         self._recovery_episode += 1
         return observation, info
 

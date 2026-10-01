@@ -201,6 +201,31 @@ class ProbeTests(unittest.TestCase):
         self.assertFalse(language.training)
         self.assertFalse(hasattr(model.backbone.model.visual, "lora_A"))
 
+    def test_all_ordinary_scope_injects_visual_linear_and_keeps_category_out(self):
+        import lora_qad
+        class CategorySpecificLinear(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.weight = nn.Parameter(torch.ones(2, 16, 16))
+            def forward(self, x):
+                return x
+        model = nn.Module()
+        model.action_head = nn.Sequential(nn.Linear(16, 16))
+        model.backbone = nn.Module()
+        model.backbone.model = nn.Module()
+        model.backbone.model.visual = nn.Linear(16, 16)
+        model.backbone.model.category = CategorySpecificLinear()
+        model.requires_grad_(False)
+        base = Path(self.tmp.name) / "base_all"
+        base.mkdir()
+        (base / "ptq_recipe.json").write_text("{}")
+        with patch.dict(os.environ, {"GR00T_BASE_CKPT": str(base)}), patch.object(
+                lora_qad, "SCOPE", "all_ordinary_linear"):
+            lora_qad.install_lora(model)
+        self.assertTrue(hasattr(model.backbone.model.visual, "lora_A"))
+        self.assertTrue(hasattr(model.action_head[0], "lora_A"))
+        self.assertFalse(hasattr(model.backbone.model.category, "lora_A"))
+
 
 if __name__ == "__main__":
     unittest.main()

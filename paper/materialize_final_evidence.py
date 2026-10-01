@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -30,6 +31,25 @@ import extract_final_evidence
 def require(ok: bool, message: str) -> None:
     if not ok:
         raise ValueError(message)
+
+
+def category_memory_kind(memory: dict[str, Any], protocol: dict[str, Any]) -> str:
+    """Validate actual format counts, including the frozen mixed contract."""
+    counts = [memory.get(name + "_params") for name in ("nvfp4", "fp8", "bf16")]
+    total = memory.get("linear_params")
+    require(type(total) is int and total > 0 and
+            all(type(n) is int and n >= 0 for n in counts) and sum(counts) == total,
+            "selected category format counts do not sum to eligible elements")
+    fractions = memory.get("fraction_of_eligible_params", {})
+    for name, count in zip(("nvfp4", "fp8", "bf16"), counts):
+        fraction = fractions.get(name)
+        require(type(fraction) in (float, int) and math.isfinite(fraction) and
+                math.isclose(fraction, count / total, rel_tol=0, abs_tol=1e-12),
+                f"selected category {name} fraction disagrees with element count")
+    mixed = counts[0] > 0 and counts[1] > 0
+    if protocol.get("quantization_scope", {}).get("recipe") == "mixed":
+        require(mixed, "mixed protocol requires both NVFP4 and FP8 eligible elements")
+    return "mixed_nvfp4_fp8" if mixed else "nvfp4_only" if counts[0] == total else "other"
 
 
 def digest(path: Path) -> str:
@@ -178,24 +198,27 @@ def materialize(final_manifest: str | Path, out: str | Path,
             category_recipe = json.loads(selected_recipe_file.read_text(encoding="utf-8"))
             category_memory = category_recipe.get("memory")
             require(isinstance(category_memory, dict), "selected category recipe lacks memory accounting")
-            # Keep the extreme candidate explicit: a category recipe with no
-            # FP8 tensors must never be rendered as a mixed FP4/FP8 result.
-            require(category_memory.get("fp8_params") == 0 and
-                    category_memory.get("fraction_of_eligible_params", {}).get("fp8") == 0.0,
-                    "selected category memory does not declare FP8=0")
+            kind = category_memory_kind(
+                category_memory, json.loads(protocol_path.read_text(encoding="utf-8")))
             summary = {
-                "format": "selected_category_recipe_memory_v1",
+                "format": "selected_category_recipe_memory_v2",
                 "checkpoint": str(selected_checkpoint),
                 "recipe": category_recipe.get("recipe"),
                 "memory": category_memory,
-                "source_category_recipe_sha256": digest(selected_recipe_file),
-                "note": "Selected candidate accounting. FP8=0 is explicit; this is an extreme NVFP4 endpoint, not a mixed FP4/FP8 claim.",
+                "source_recipe": "category_ptq_recipe.json",
+                "source_recipe_sha256": digest(selected_recipe_file),
+                "weight_allocation": kind,
+                "note": "Format fractions use the recorded eligible-element denominator; runtime storage and LoRA residuals are separate.",
             }
             (stage / "evidence" / "selected_recipe" / "category_memory.json").write_text(
                 json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
         round_dir = Path(final["heldout_round"]).resolve(strict=True)
-        pair_dir = stage / "evidence" / "heldout"
+        # Keep the published layout compatible with the paper validator and
+        # compare_recovery: paired_comparison.json and heldout_<arm>/ live
+        # directly under evidence/.  The source run remains nested below its
+        # heldout_round directory; only the verified JSON mirrors are copied.
+        pair_dir = stage / "evidence"
         collect_pairing_evidence.collect(round_dir, pair_dir, str(protocol_path))
         for file in sorted(pair_dir.rglob("*")):
             if file.is_file():
