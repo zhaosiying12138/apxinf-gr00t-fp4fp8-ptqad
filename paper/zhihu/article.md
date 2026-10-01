@@ -810,12 +810,12 @@ export RECOVERY_ROOT="$PTQAD_RUN_DIR/recovery"
 v11 固定 QAD 学习率候选 5e-5 和 1e-4，各 2,000 个优化器更新；`rank=32`、`alpha=64`、有效 batch=16、训练 seed 20261003，恢复范围为 `all_ordinary_linear`。选择只使用 development。QAD 只更新 A/B，训练 manifest 记录 W4A4 format、scope、rank、alpha、batch、梯度检查和更新数。正式部署保留冻结 base 与 A/B adapter 分离；dense `Wq+BA` 导出只作诊断。
 
 ```bash
-"$PTQAD_PYTHON" exp/run_high_fp4_v3.py \
+"$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
   --run-dir "$RECOVERY_ROOT" --protocol-file "$PTQAD_PROTOCOL_FILE" \
   --ptq-selection "$PTQAD_RUN_DIR/development/selection.json" \
   --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --until qad_selection
+  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" --until qad_selection
 ```
 
 ## B.5 采集学生状态，训练 continued-QAD 与 OPD
@@ -823,12 +823,12 @@ v11 固定 QAD 学习率候选 5e-5 和 1e-4，各 2,000 个优化器更新；`r
 从同一个 QAD A/B checkpoint 分出 continued-QAD、OPD 权重 0.25 和 1.0。三者重置 optimizer，使用相同的 2,000 步追加预算和演示 batch；OPD 每 4 步加入一次教师项。学生 collection 使用 index 20–23、seed 960000、每任务 4 回合；teacher supervision 使用同一初态索引、seed 950000，收集成功 BF16 轨迹。collection manifest 的 `source_kind` 必须是 `student_rollout`。BF16 teacher 在相同观测、noise、timestep 和 action mask 上生成速度标签，cache 固定输入和身份。只有 OPD 同时高于 QAD 与 continued-QAD，才报告独立增益。
 
 ```bash
-"$PTQAD_PYTHON" exp/run_high_fp4_v3.py \
+"$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
   --run-dir "$RECOVERY_ROOT" --protocol-file "$PTQAD_PROTOCOL_FILE" \
   --ptq-selection "$PTQAD_RUN_DIR/development/selection.json" \
   --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --until opd_selection
+  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" --until opd_selection
 ```
 
 ## B.6 在 held-out 上完成五臂评测
@@ -836,12 +836,12 @@ v11 固定 QAD 学习率候选 5e-5 和 1e-4，各 2,000 个优化器更新；`r
 held-out 使用 index 9–19 与 24–28、seed 970000、每任务 16 回合；五臂为 BF16、选中的 W4A4 PTQ、QAD、continued-QAD 和 QAD+OPD，共 **160 回合/臂**。每个 episode 记录任务、seed、bank index、恢复状态、稳定后状态和摘要散列。每臂必须有 `eval_manifest.json`、十个 task log、`task_results.json` 和 `summary.json`。主表使用 `successes/160` 与任务宏平均；缺失回合不计作成功。结果未完成前统一写 `XX/160（待回填）`。
 
 ```bash
-"$PTQAD_PYTHON" exp/run_high_fp4_v3.py \
+"$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
   --run-dir "$RECOVERY_ROOT" --protocol-file "$PTQAD_PROTOCOL_FILE" \
   --ptq-selection "$PTQAD_RUN_DIR/development/selection.json" \
   --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --until all
+  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" --until all
 ```
 
 ## B.7 归档和发布验证

@@ -1051,30 +1051,30 @@ export RECOVERY_ROOT=&quot;$PTQAD_RUN_DIR/recovery&quot;
 <p>校准器在完整 GR00T 上采集输入二阶统计，输出 <code>calib.pt</code>、<code>calib_meta.json</code> 和来源散列。v11 冻结的压力候选是 <code>all_nvfp4_gptq_category</code>：479 个 eligible 权重张量全部采用 NVFP4，并由 469 个普通 Linear 与 7 个 CategorySpecificLinear 执行 W4A4 激活 QDQ。development 只按协议筛选：成功率相对 BF16 至少下降 5 个百分点、绝对成功率至少 30%，再核验激活安装报告和配对身份。当前开发集实际下降 10 个百分点（46/50→41/50）。development 使用 index 4–8、seed 940000、每任务 5 回合。</p>
 <h3 id="section-55">B.4 在冻结 W4A4 基座上训练 QAD</h3>
 <p>v11 固定 QAD 学习率候选 5e-5 和 1e-4，各 2,000 个优化器更新；<code>rank=32</code>、<code>alpha=64</code>、有效 batch=16、训练 seed 20261003，恢复范围为 <code>all_ordinary_linear</code>。选择只使用 development。QAD 只更新 A/B，训练 manifest 记录 W4A4 format、scope、rank、alpha、batch、梯度检查和更新数。正式部署保留冻结 base 与 A/B adapter 分离；dense <code>Wq+BA</code> 导出只作诊断。</p>
-<pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_high_fp4_v3.py \
+<pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_w4a4_recovery.py \
   --run-dir &quot;$RECOVERY_ROOT&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
   --ptq-selection &quot;$PTQAD_RUN_DIR/development/selection.json&quot; \
   --base &quot;$PTQAD_BASE&quot; --gr00t-repo &quot;$GR00T_REPO&quot; \
   --python &quot;$PTQAD_PYTHON&quot; --rollout-python &quot;$LIBERO_PYTHON&quot; \
-  --dataset &quot;$QAD_DATASET&quot; --until qad_selection
+  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; --until qad_selection
 </code></pre>
 <h3 id="section-56">B.5 采集学生状态，训练 continued-QAD 与 OPD</h3>
 <p>从同一个 QAD A/B checkpoint 分出 continued-QAD、OPD 权重 0.25 和 1.0。三者重置 optimizer，使用相同的 2,000 步追加预算和演示 batch；OPD 每 4 步加入一次教师项。学生 collection 使用 index 20–23、seed 960000、每任务 4 回合；teacher supervision 使用同一初态索引、seed 950000，收集成功 BF16 轨迹。collection manifest 的 <code>source_kind</code> 必须是 <code>student_rollout</code>。BF16 teacher 在相同观测、noise、timestep 和 action mask 上生成速度标签，cache 固定输入和身份。只有 OPD 同时高于 QAD 与 continued-QAD，才报告独立增益。</p>
-<pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_high_fp4_v3.py \
+<pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_w4a4_recovery.py \
   --run-dir &quot;$RECOVERY_ROOT&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
   --ptq-selection &quot;$PTQAD_RUN_DIR/development/selection.json&quot; \
   --base &quot;$PTQAD_BASE&quot; --gr00t-repo &quot;$GR00T_REPO&quot; \
   --python &quot;$PTQAD_PYTHON&quot; --rollout-python &quot;$LIBERO_PYTHON&quot; \
-  --dataset &quot;$QAD_DATASET&quot; --until opd_selection
+  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; --until opd_selection
 </code></pre>
 <h3 id="section-57">B.6 在 held-out 上完成五臂评测</h3>
 <p>held-out 使用 index 9–19 与 24–28、seed 970000、每任务 16 回合；五臂为 BF16、选中的 W4A4 PTQ、QAD、continued-QAD 和 QAD+OPD，共 <strong>160 回合/臂</strong>。每个 episode 记录任务、seed、bank index、恢复状态、稳定后状态和摘要散列。每臂必须有 <code>eval_manifest.json</code>、十个 task log、<code>task_results.json</code> 和 <code>summary.json</code>。主表使用 <code>successes/160</code> 与任务宏平均；缺失回合不计作成功。结果未完成前统一写 <code>XX/160（待回填）</code>。</p>
-<pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_high_fp4_v3.py \
+<pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_w4a4_recovery.py \
   --run-dir &quot;$RECOVERY_ROOT&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
   --ptq-selection &quot;$PTQAD_RUN_DIR/development/selection.json&quot; \
   --base &quot;$PTQAD_BASE&quot; --gr00t-repo &quot;$GR00T_REPO&quot; \
   --python &quot;$PTQAD_PYTHON&quot; --rollout-python &quot;$LIBERO_PYTHON&quot; \
-  --dataset &quot;$QAD_DATASET&quot; --until all
+  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; --until all
 </code></pre>
 <h3 id="section-58">B.7 归档和发布验证</h3>
 <p><code>final_manifest.json</code> 必须绑定 v11 protocol SHA、development selection、五臂 checkpoint identity、QAD/OPD manifest、continued-QAD 同预算记录、recipe inventory、teacher cache 和 held-out pairing。归档只复制日志、JSON、图表、源码散列和截图清单，大模型权重、观察张量和教师缓存留在本地。发布校验检查五臂分母、W4A4 contract、17 张截图哈希、图表输入和离线资源。任何 <code>XX/160</code>、缺失 held-out 原始日志或截图身份不匹配都会阻止正式发布；结构审阅稿可以暂留占位，但不能称为最终结果。</p>
