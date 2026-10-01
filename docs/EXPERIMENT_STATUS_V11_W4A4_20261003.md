@@ -16,17 +16,17 @@ development 使用 bank 4–8（5 回合/任务）；教师监督和学生 colle
 
 ## 已完成的压力门控
 
-在 development 上，BF16 为 46/50，全 NVFP4 W4A4 PTQ 为 41/50，已经形成约 10 个百分点的恢复窗口。该数字只证明压力候选满足进入恢复链的门槛，不是最终主表结果；正文必须等待五臂 held-out ledger。
+在 development 上，BF16 与全 NVFP4 W4A4 PTQ 已通过预注册的压力门控，形成可恢复的行为差距。该门控只决定是否进入恢复链，不是最终主表结果；正文必须等待五臂 held-out ledger。
 
 教师采集已完成 10 个任务、148 个有效 snapshot，CPU replay audit 通过。当前运行目录为：
 
 ```text
-results/ptqad_20261003/v11_recovery_r2
+results/ptqad_20261003/v11_recovery_r4
 ```
 
 ## 当前 GPU 进程与续跑纪律
 
-QAD 的 `5e-5` 臂正在训练 2000 个 optimizer steps，随后由同一个 v11 driver 继续训练另一学习率、选择 QAD、收集学生状态、训练 continued-QAD 与两个 OPD 权重，并运行 held-out 五臂比较。续跑脚本为 `exp/continue_v11.sh`，使用 `--adopt-complete` 只审计并采用已经完成的稳定路径。
+QAD 的 `5e-5` 臂正在训练 2000 个 optimizer steps，随后由同一个 v11 driver 继续训练另一学习率、选择 QAD、收集学生状态、训练 continued-QAD 与两个 OPD 权重，并运行 held-out 五臂比较。当前进程由独立的后台监督脚本守护；阶段完成后再由 `--adopt-complete` 只审计并采用已经完成的稳定路径。
 
 开发集 OPD 若没有严格超过 QAD 和 continued-QAD，脚本可以显式使用 `--allow-opd-nonimprovement` 完成 paired held-out。这个开关只解除“提前停止”，不会把失败写成增益：`selection.json` 会记录 `opd_gate_override` 和实际的 `opd_beats_qad`、`opd_beats_continued_qad` 布尔值；只有 held-out 同时超过两条基线时，论文才允许宣称 OPD 有独立提升。
 
@@ -43,6 +43,6 @@ paper/evidence/selected_recipe/category_memory.json
 paper/evidence/recipe_inventory.json
 ```
 
-不得沿用旧 `.incomplete-*` 路径、旧 recipe SHA 或 v5/v7 bank 的结果。旧的“43.4%→99.0%”、v5 的 86/89/92/96 等数字没有当前 v11 的同一协议、分母和 reset ledger，不能进入正文、图表、摘要或 README。
+不得沿用旧 `.incomplete-*` 路径、旧 recipe SHA 或其他协议 bank 的结果。最终正文、图表、摘要和 README 只接受当前 v11 的同一协议、分母和 reset ledger。
 
 正文目前保留红色 `xxx` 占位符是有意的。必须等五臂 160 回合证据和压缩账本通过 `extract_final_evidence.py`、`materialize_final_evidence.py`、`audit_recovery_release.py` 与 publication validation 后，才回填成功率、恢复幅度和压缩比例；训练 loss、development 分数和 smoke 回合都不能代替闭环成功率。
