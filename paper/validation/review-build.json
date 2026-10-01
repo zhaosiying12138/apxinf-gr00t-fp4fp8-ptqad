@@ -77,13 +77,13 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "9a8eb0a7a755fd2363c3438dd071f37adb50de6f9d009a04902ebc9fd0540b60",
-      "bytes": 8350131
+      "sha256": "bfa2aa8c4c6f254dbe837b54bd055db65d02a5b72adbc4f911ebbe3f23503cdd",
+      "bytes": 8350301
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "6eab16a2493c31d8e6d12f52009062e57a1a9e369a3e4e9447879555850b610b",
-      "bytes": 121088
+      "sha256": "e97fd50840d6915bc4941a3516a7f9a718982284bf7a77b5af8ae9d8e07bf2c6",
+      "bytes": 121280
     },
     {
       "path": "meta.json",
@@ -122,13 +122,13 @@
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
-      "sha256": "703450528f83c59d9acb4cb5bdc52ce081677a4560fe592768d52beb2aa94f65",
-      "bytes": 43115
+      "sha256": "48b8cfa2114e9976d5da200fa6e25e8ee7781af7745a29356afefd3eb2970ea0",
+      "bytes": 43265
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "sha256": "9ea86fc8104e562111a7322d811dda8d3083f763381bd3fe5e67ec95f5a1e0ba",
-      "bytes": 17600
+      "sha256": "0f3a925ef762f681ee06b22d095cca34f45f2ed1fcd576997515f1157ef7ea20",
+      "bytes": 17646
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",

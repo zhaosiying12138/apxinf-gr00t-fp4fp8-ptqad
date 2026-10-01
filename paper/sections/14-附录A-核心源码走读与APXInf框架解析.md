@@ -154,12 +154,13 @@ $$
 `rl/lora_qad.py::install_lora` 在完整模型加载后，对指定范围的 Linear 安装 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$。该阶段沿用工程名 QAD，实际目标是演示流匹配，不调用独立教师。
 
 ```python
-y = F.linear(x, m.weight, m.bias)
-z = F.linear(F.linear(x, m.lora_A), m.lora_B)
-return y + (z * (alpha / rank)).to(y.dtype)
+x_q = nvfp4_activation_qdq(x)                 # W4A4 base path
+base = F.linear(x_q, m.weight, m.bias)
+residual = F.linear(F.linear(x, m.lora_A), m.lora_B)  # raw-BF16 input
+return base + (residual * (alpha / rank)).to(base.dtype)
 ```
 
-$m.weight$ 是冻结的 PTQ 反量化权重，不在每次前向重新量化。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
+$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
 
 v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
 
@@ -397,3 +398,4 @@ Python 的 `AutoPolicy.from_pretrained` 对 π0.5 使用 `model_variant=`，对 
 `lora_rwr.py` 的构造器取同一环境槽位连续 8 次调用各自执行的前 8 步，形成 64 步窗口，再经 `apply_action` 变换到相对坐标和归一化动作空间，仅为 LIBERO 控制槽设置 mask。接入主模型前，需把这个 64 步窗口与 40 步容器、16 步有效监督做显式长度对齐。
 
 RWR 按任务成功率 $w_i$ 加权，目标为 $\sum_iw_i\mathcal L_i/\sum_iw_i$；它筛选的是任务，不是具有逐 episode 成功标记的轨迹。若纳入正式对照，还需要可靠的 episode 边界与同协议采样，避免窗口跨重置。其算法是加权自模仿，未实现 PPO 的价值网络、GAE 或概率比裁剪。
+

@@ -512,12 +512,13 @@ $$
 `rl/lora_qad.py::install_lora` 在完整模型加载后，对指定范围的 Linear 安装 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$。该阶段沿用工程名 QAD，实际目标是演示流匹配，不调用独立教师。
 
 ```python
-y = F.linear(x, m.weight, m.bias)
-z = F.linear(F.linear(x, m.lora_A), m.lora_B)
-return y + (z * (alpha / rank)).to(y.dtype)
+x_q = nvfp4_activation_qdq(x)                 # W4A4 base path
+base = F.linear(x_q, m.weight, m.bias)
+residual = F.linear(F.linear(x, m.lora_A), m.lora_B)  # raw-BF16 input
+return base + (residual * (alpha / rank)).to(base.dtype)
 ```
 
-$m.weight$ 是冻结的 PTQ 反量化权重，不在每次前向重新量化。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
+$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
 
 v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
 
@@ -796,7 +797,7 @@ export RECOVERY_ROOT="$PTQAD_RUN_DIR/recovery"
 
 ## B.3 校准、生成候选并完成 development 压力筛选
 
-校准器在完整 GR00T 上采集输入二阶统计，输出 `calib.pt`、`calib_meta.json` 和来源散列。校准窗口数、实际 Linear 覆盖和 CategorySpecificLinear 清单以本轮 manifest 为准，不复用旧协议的固定数字。候选为 `all_nvfp4_gptq`、`all_nvfp4_rtn` 和 `mixed_fp8_to_fp4`。development 只按协议压力规则筛选：相对 BF16 至少下降 10 个百分点、绝对成功率至少 30%，再从合格候选中选择 FP4 覆盖最高者。development 使用 index 4–8、seed 940000、每任务 5 回合。
+校准器在完整 GR00T 上采集输入二阶统计，输出 `calib.pt`、`calib_meta.json` 和来源散列。v11 冻结的压力候选是 `all_nvfp4_gptq_category`：479 个 eligible 权重张量全部采用 NVFP4，并由 469 个普通 Linear 与 7 个 CategorySpecificLinear 执行 W4A4 激活 QDQ。development 只按协议筛选：成功率相对 BF16 至少下降 5 个百分点、绝对成功率至少 30%，再核验激活安装报告和配对身份。当前开发集实际下降 10 个百分点（46/50→41/50）。development 使用 index 4–8、seed 940000、每任务 5 回合。
 
 ## B.4 在冻结 W4A4 基座上训练 QAD
 
