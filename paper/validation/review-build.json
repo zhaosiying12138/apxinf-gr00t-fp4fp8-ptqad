@@ -77,13 +77,13 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "df0f31e745b0ae1846a873480d46fdab533497c9a97fac741f5e6b4b0c9d89d3",
-      "bytes": 8358028
+      "sha256": "950d179f359f5efc9151712feb826bd0eeceb5ec381801888bb4d5ffdc5057c6",
+      "bytes": 8352932
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "a37564d75a88fc75a279d82c8365dcd33b0ffc49d04e2d710b97a839bd13e11e",
-      "bytes": 121782
+      "sha256": "ef6c257a13829bea24c4f6df1075d55534d7ef402d3f5b711a8dc8a7e8fb02fc",
+      "bytes": 123888
     },
     {
       "path": "meta.json",
@@ -97,8 +97,8 @@
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "sha256": "45936daf16a23d7387f8c3458a388b0d6aa34cf983c5b5dfdacdb7fd17828d49",
-      "bytes": 4403
+      "sha256": "4da619ff587d19683133264e519dba1319b50e513945daa5567fab3ea4ff1a64",
+      "bytes": 6509
     },
     {
       "path": "sections/02-背景与相关工作.md",

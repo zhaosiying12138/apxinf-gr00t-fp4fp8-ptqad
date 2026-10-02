@@ -27,7 +27,7 @@
     "shot_verify",
     "swizzle_layout"
   ],
-  "html_sha256": "df0f31e745b0ae1846a873480d46fdab533497c9a97fac741f5e6b4b0c9d89d3",
+  "html_sha256": "950d179f359f5efc9151712feb826bd0eeceb5ec381801888bb4d5ffdc5057c6",
   "qa_script_sha256": "4a4a97832d688cf87760702f15f7d733c1c1c3984bf35b7ea5b27e81965715c5",
   "figures_manifest_sha256": "4a6ba3e2d7669932fa2e78242b8f6d5b6c28834c5575edae7a4c7d5ddc0eac3b",
   "svg_sha256": {
@@ -95,7 +95,7 @@
       "shot_verify",
       "swizzle_layout"
     ],
-    "mathCount": 218,
+    "mathCount": 214,
     "mathErrors": 0,
     "svgOverflow": [],
     "decoded": [

@@ -27,11 +27,11 @@ APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
 |---|---:|---:|---:|---|
 | BF16 基线 | 1.0000× | 0% | <span style="color:#c00">待回填</span> | 同一 v11 bank、同一 episode 协议 |
 | 全 NVFP4 PTQ + W4A4 | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | 469 个普通 Linear 与 7 个 CategorySpecificLinear 进入 W4A4 QDQ；3 个 embedding/位置参数仅有 NVFP4 权重 |
-| PTQ + QAD（W4A4） | 同 PTQ | 同 PTQ | <span style="color:#c00">待回填</span> | `base(QA(x)) + BF16 LoRA(x)` |
-| PTQ + QAD + OPD（W4A4） | 同 PTQ | 同 PTQ | <span style="color:#c00">待回填</span> | 学生访问状态上的教师速度蒸馏 |
-| continued-QAD 对照 | 同 PTQ | 同 PTQ | <span style="color:#c00">待回填</span> | 与 OPD 使用相同追加更新预算 |
+| PTQ + QAD（W4A4 基座） | <span style="color:#c00">待回填（含 BF16 adapter）</span> | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | `base(QA(x)) + BF16 LoRA(x)` |
+| PTQ + QAD + OPD（W4A4 基座） | <span style="color:#c00">待回填（含 BF16 adapter）</span> | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | 学生访问状态上的教师速度蒸馏 |
+| continued-QAD 对照 | <span style="color:#c00">待回填（含 BF16 adapter）</span> | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | 与 OPD 使用相同追加更新预算 |
 
-压缩比统一按去别名后的可量化物理权重计算，并把 E4M3 block scale、FP32 secondary scale、未量化张量和 BF16 adapter 旁路分别计账。最终数值只从 v11 的 `final_manifest.json` 读取；快速 smoke 分数不会写入这张表。正式结果另附十任务逐任务分子/分母、160 回合总数和训练预算。
+压缩比以去别名后的 BF16 模型权重字节数为分子，以目标编码中的 NVFP4 权重、E4M3 block scale、FP32 secondary scale、未量化张量及 BF16 adapter 的总字节数为分母。恢复臂多了 adapter，净压缩比不能照抄 PTQ 基座。成功率从 v11 的 `final_manifest.json` 所绑定的配对评测读取，压缩预算从同一模型的量化清单和 adapter 清单计算；快速 smoke 分数不会写入这张表。正式结果另附十任务逐任务分子/分母、160 回合总数和训练预算。
 
 本文 GR00T 路径是 **数值 W4A4 仿真**：普通 NVFP4 base 的输入激活使用固定 scale 的 QDQ，QAD/OPD 残差以 BF16 保留。当前 GR00T 原生 executor 尚未提供与 APXInf π0.5 相同的 packed W4A4 loader，因此本文不把这条 Torch QDQ 路径称为原生 APXInf GR00T kernel；原生加速只在独立算子和 π0.5 图执行基准中报告。
 
