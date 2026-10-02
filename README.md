@@ -84,29 +84,22 @@ source setup/recovery-env.sh
 
 ## 复现流程
 
-以下路径对应安装脚本的默认新机器布局；每次打开 shell 先加载生成的环境文件。自定义安装位置时，沿用其中的路径，不覆盖为默认值。所有正式运行都应使用新的 `PTQAD_RUN_DIR`，避免覆盖既有日志。
+每次打开 shell 先在仓库根目录加载生成的环境文件。`GR00T_REPO`、两个 Python 解释器、媒体库和 backbone 路径均沿用安装结果。以下变量与完整教程采用同一结果布局；首次运行选择尚不存在的 `V11_ROOT`，继续已有运行时使用原来的路径。
 
 ```bash
 export PROJECT="$(pwd)"
 source setup/recovery-env.sh
-export GR00T_REPO="$PROJECT/third_party/Isaac-GR00T"
-export PTQAD_PYTHON="$GR00T_REPO/.venv/bin/python"
-export LIBERO_PYTHON="$GR00T_REPO/.venv-libero/bin/python"
 export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
-export PTQAD_MEDIA_LIB="$PROJECT/third_party/media7/lib"
-export PTQAD_RUN_DIR="$PROJECT/results/mixed_pressure"
-export PTQAD_PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v11_w4a4_category.json"
-export PTQAD_SELECTION="$PROJECT/results/ptqad_20261003/v11_selection/selection.json"
-export PTQAD_CAPTURE="$PROJECT/results/ptqad_20261003/w4a4_teacher_supervision"
+export V11_ROOT="$PROJECT/results/ptqad_v11"
+export PTQAD_RUN_DIR="$V11_ROOT/recovery"
+export PTQAD_PROTOCOL_FILE="$V11_ROOT/recovery_protocol_v11_w4a4_category.local.json"
+export PTQAD_SELECTION="$V11_ROOT/selection/selection.json"
+export PTQAD_CAPTURE="$V11_ROOT/training/teacher_supervision"
 export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
 ```
 
-运行来源：本次实验机的仿真解释器为 `/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python`。这是已有环境的记录；新机器使用安装脚本生成的 `.venv-libero`，并按锁文件核对依赖。
-
-v11 的压力臂 checkpoint 是大文件，不随 Git 发布。协议中的
-`selection.pressure_candidate_checkpoints` 当前保存的是实验机路径；在另一台机器上，必须先取得同一份已完成的 NVFP4 PTQ checkpoint，
-再在新的协议副本中把这两个字段一起改为本地绝对路径，并将 `PTQAD_PROTOCOL_FILE`、`PROTOCOL_FILE` 指向该副本。修改协议会改变其 SHA-256，必须使用全新的 `PTQAD_RUN_DIR`；脚本会在开始评测前校验 `category_ptq_recipe.json`、`category_bake_manifest.json` 和全 NVFP4 recipe 账本。
+这段命令只定义路径。首次运行须先完成[完整教程第2–6节](docs/reproduce-ptqad.md)：创建协议副本，采集128窗口校准，生成普通层与category的NVFP4基座，完成配对development评测并生成selection，最后采集并核验BF16教师成功轨迹。这些大文件和本轮评测产物不随Git发布。教程会将协议的 `selection.pressure_candidate_checkpoints` 改为本机基座目录；此后保持协议及其SHA-256不变。
 
 ### 1. CPU/加载冒烟
 
@@ -114,12 +107,12 @@ v11 的压力臂 checkpoint 是大文件，不随 Git 发布。协议中的
 "$PTQAD_PYTHON" -m unittest discover -s tests -v
 "$PTQAD_PYTHON" -m py_compile \
   quant/fake_quant.py quant/ptq/bake.py \
-  exp/run_w4a4_recovery.py exp/run_mixed_pressure_recovery.py
+  exp/run_w4a4_recovery.py exp/make_w4a4_selection.py
 ```
 
 ### 2. 全覆盖 W4A4 PTQ、QAD、OPD 与闭环
 
-v11 入口不会隐式生成大体积 checkpoint。新机器首次运行时，先按 [完整构建步骤](docs/reproduce-ptqad.md) 生成 W4A4 兼容的 NVFP4 PTQ base，再把 v11 协议的 candidate checkpoint 路径改为本机目录。协议副本和结果目录必须全新；入口会校验 recipe、adapter 身份和 W4A4 activation contract。
+下面的入口从已完成的selection和教师数据开始。确认完整教程第2–6节已产生上述 `PTQAD_PROTOCOL_FILE`、`PTQAD_SELECTION` 和 `PTQAD_CAPTURE` 后，再运行恢复链；入口会核对recipe、配对评测、教师样本和W4A4激活契约。
 
 ```bash
 "$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
@@ -134,7 +127,7 @@ v11 入口不会隐式生成大体积 checkpoint。新机器首次运行时，�
   --port-base 5890
 ```
 
-该入口消费已经通过开发集审计的 `selection.json` 和已经完成的 BF16 教师采集目录，随后按协议顺序完成 QAD 学习率选择、学生状态采集、OPD 对照和 heldout 评测。首次运行前必须先按 [完整构建步骤](docs/reproduce-ptqad.md) 生成 W4A4 PTQ base、开发集 selection 和教师采集；已写入完成标记的阶段可以从同一 `--run-dir` 继续。运行中断留下的阶段必须先按日志和校验器审计，不能直接覆盖。最终结果以运行目录下的 `final_manifest.json` 为准。
+该入口按协议顺序完成QAD学习率选择、学生状态采集、OPD对照和heldout评测。已有完成标记且身份复核通过的阶段可复用；中断留下的未完成阶段会被拒绝。`--adopt-complete` 只接纳实际已完成、但尚未登记的产物。当前checkpoint只保存模型，没有优化器和调度器状态，不能据此无损恢复中断训练；处理步骤见[完整教程第9节](docs/reproduce-ptqad.md)。最终结果以运行目录下的 `final_manifest.json` 为准。
 
 如果开发集上的 OPD 没有超过两个对照，但仍需完成固定的 paired held-out 对比，可在续跑时显式追加 `--allow-opd-nonimprovement`。该开关只允许实验继续，不改变选择分数；selection 证据保留实际比较。最终报告 OPD 相对 QAD 和 continued-QAD 的两项差值、配对区间与条件检验，小幅点估计上升不直接写成独立增益。分析规则见 [统计分析说明](paper/analysis_plan_w4a4.json)。
 

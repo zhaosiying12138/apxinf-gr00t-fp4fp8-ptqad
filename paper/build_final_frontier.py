@@ -139,7 +139,7 @@ def load_inventory(path: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str
     # v11 freezes full-coverage W4A4: every eligible element is NVFP4.
     # FP8 is a supported fallback format in the allocator, but it is
     # intentionally absent from the selected main recipe.
-    require(counts[0] > 0 and counts[1] == 0 and counts[2] == 0,
+    require(mixed.get("eligible_tensor_count") == 479 and counts[0] > 0 and counts[1] == 0 and counts[2] == 0,
             "selected recipe is not full NVFP4")
     require(type(mixed.get("source_tensor_bytes")) is int and mixed["source_tensor_bytes"] > 0 and
             type(mixed.get("target_full_checkpoint_bytes")) is int and mixed["target_full_checkpoint_bytes"] > 0 and
@@ -148,14 +148,22 @@ def load_inventory(path: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str
                          rel_tol=1e-12),
             "selected physical encoding budget is inconsistent")
     alias = mixed.get("known_tied_alias_deduplicated", {})
+    eligible = alias.get("eligible_tensor_elements")
+    require(type(eligible) is int and eligible > 0 and
+            alias.get("elements_by_format") == {"nvfp4": eligible, "fp8": 0, "bf16": 0} and
+            alias.get("fraction_of_eligible") == {"nvfp4": 1.0, "fp8": 0.0, "bf16": 0.0},
+            "selected deduplicated budget is not full NVFP4")
     require(type(alias.get("source_tensor_bytes")) is int and alias["source_tensor_bytes"] > 0 and
             type(alias.get("target_full_bytes")) is int and alias["target_full_bytes"] > 0 and
             math.isclose(alias["full_compression_x"], alias["source_tensor_bytes"] / alias["target_full_bytes"],
                          rel_tol=1e-12),
             "selected deduplicated encoding budget is inconsistent")
     residual = inventory.get("recovery_residual")
-    require(isinstance(residual, dict) and residual.get("dtype") == "bfloat16" and
+    require(isinstance(residual, dict) and residual.get("scope") == "all_ordinary_linear" and
+            residual.get("rank") == 32 and residual.get("alpha") == 64 and
+            residual.get("linear_modules") == 468 and residual.get("dtype") == "bfloat16" and
             residual.get("bytes_per_element") == 2 and type(residual.get("target_bytes")) is int and
+            type(residual.get("tensor_elements")) is int and residual["tensor_elements"] > 0 and
             residual["target_bytes"] == residual["tensor_elements"] * 2,
             "recipe inventory has an invalid BF16 recovery residual")
     memory_path = ROOT / "paper/evidence/selected_recipe/category_memory.json"
@@ -207,7 +215,8 @@ def budget(memory: dict[str, Any], residual: dict[str, Any] | None) -> dict[str,
 
 def make_point(name: str, row: dict[str, Any], costs: dict[str, dict[str, Any]],
                role: str, residual: dict[str, Any] | None) -> dict[str, Any]:
-    return {"name": name, "role": role, "recipe": "all_nvfp4_gptq_category", "count": row["count"],
+    return {"name": name, "role": role,
+            "recipe": "bf16" if name == "bf16" else "all_nvfp4_gptq_category", "count": row["count"],
             "successes": row["successes"], "macro_success_rate": row["macro_success_rate"],
             "per_task": row["per_task"],
             "encoding_budget": budget_from_base(costs, residual)}

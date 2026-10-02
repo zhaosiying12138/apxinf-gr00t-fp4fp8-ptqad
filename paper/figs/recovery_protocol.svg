@@ -10,7 +10,7 @@
 <text x="411" y="132" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">② QAD：演示监督</tspan></text>
 <text x="411" y="161" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">只更新低秩 A、B</tspan></text>
 <text x="411" y="184" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Δy = (α/r) · (xA</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14">)B</tspan><tspan dy="-4.48" font-size="10.08">T</tspan></text>
-<text x="411" y="209" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">y = x(Wq)</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14"> + b + Δy</tspan></text>
+<text x="411" y="209" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">y = Q</tspan><tspan dy="3.22" font-size="10.08">A</tspan><tspan dy="-3.22" font-size="14">(x)(Wq)</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14"> + b + Δy</tspan></text>
 <rect x="790" y="102" width="300" height="132" fill="#f0f6f8" stroke="#2368a0" rx="5"/>
 <text x="806" y="132" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">③ 学生闭环轨迹</tspan></text>
 <text x="806" y="161" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">运行 QAD 策略并采集观测</tspan></text>
@@ -43,8 +43,9 @@
 <text x="31" y="303" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">共享起点与演示优化预算</tspan></text>
 <text x="31" y="334" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">OPD 另用教师标注和学生探针计算。</tspan></text>
 <text x="31" y="361" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">因此单独报告标注、训练耗时及峰值显存。</tspan></text>
-<text x="31" y="399" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">矩阵形状：x:[M,K]；A:[r,K]；B:[N,r]</tspan></text>
-<text x="31" y="425" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Wq:[N,K]；b:[N]；y、Δy:[M,N]（偏置按行广播）</tspan></text>
+<text x="31" y="388" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Q</tspan><tspan dy="3.22" font-size="10.08">A</tspan><tspan dy="-3.22" font-size="14">：NVFP4 激活量化；低秩旁路仍读取原始 x。</tspan></text>
+<text x="31" y="414" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">矩阵形状：x:[M,K]；A:[r,K]；B:[N,r]</tspan></text>
+<text x="31" y="440" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Wq:[N,K]；b:[N]；y、Δy:[M,N]（偏置按行广播）</tspan></text>
 <rect x="30" y="637" width="1060" height="88" fill="#e8f2ee" stroke="none" rx="5"/>
 <text x="52" y="668" fill="#258577" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">统一最终评测：BF16 · PTQ · QAD · 继续 QAD · QAD+OPD</tspan></text>
 <text x="52" y="698" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">配对任务和稳定后初态；同一执行预算。报告宏平均、实际分子分母及逐任务结果。</tspan></text>

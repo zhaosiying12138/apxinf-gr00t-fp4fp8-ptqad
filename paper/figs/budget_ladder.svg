@@ -43,5 +43,5 @@
 <rect x="30" y="510" width="1360" height="83" fill="#fff6e9" stroke="none" rx="5"/>
 <text x="48" y="537" fill="#b97824" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">旁路：all_ordinary_linear，rank = 32，468 个 Linear；两种口径均完整计入旁路。</tspan></text>
 <text x="48" y="561" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">同一旁路成本叠加到唯一 all-NVFP4 基座；该图不包含激活、优化器、对齐和运行时工作区。</tspan></text>
-<text x="48" y="583" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">当前闭环采用稠密 BF16 合并 checkpoint；此处是保留 packed 基座与独立旁路时的编码预算，不是已测文件或显存压缩。</tspan></text>
+<text x="48" y="583" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">闭环加载稠密反量化基座与独立 BF16 旁路；图示为目标编码预算，不是实测文件或显存压缩。</tspan></text>
 </svg>

@@ -482,7 +482,7 @@ d_b=\begin{cases}s_b,&amp;s_b&gt;0,\\1,&amp;s_b=0,\end{cases}</annotation></sema
 <text x="411" y="132" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">② QAD：演示监督</tspan></text>
 <text x="411" y="161" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">只更新低秩 A、B</tspan></text>
 <text x="411" y="184" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Δy = (α/r) · (xA</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14">)B</tspan><tspan dy="-4.48" font-size="10.08">T</tspan></text>
-<text x="411" y="209" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">y = x(Wq)</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14"> + b + Δy</tspan></text>
+<text x="411" y="209" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">y = Q</tspan><tspan dy="3.22" font-size="10.08">A</tspan><tspan dy="-3.22" font-size="14">(x)(Wq)</tspan><tspan dy="-4.48" font-size="10.08">T</tspan><tspan dy="4.48" font-size="14"> + b + Δy</tspan></text>
 <rect x="790" y="102" width="300" height="132" fill="#f0f6f8" stroke="#2368a0" rx="5"/>
 <text x="806" y="132" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">③ 学生闭环轨迹</tspan></text>
 <text x="806" y="161" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">运行 QAD 策略并采集观测</tspan></text>
@@ -515,8 +515,9 @@ d_b=\begin{cases}s_b,&amp;s_b&gt;0,\\1,&amp;s_b=0,\end{cases}</annotation></sema
 <text x="31" y="303" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">共享起点与演示优化预算</tspan></text>
 <text x="31" y="334" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">OPD 另用教师标注和学生探针计算。</tspan></text>
 <text x="31" y="361" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">因此单独报告标注、训练耗时及峰值显存。</tspan></text>
-<text x="31" y="399" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">矩阵形状：x:[M,K]；A:[r,K]；B:[N,r]</tspan></text>
-<text x="31" y="425" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Wq:[N,K]；b:[N]；y、Δy:[M,N]（偏置按行广播）</tspan></text>
+<text x="31" y="388" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Q</tspan><tspan dy="3.22" font-size="10.08">A</tspan><tspan dy="-3.22" font-size="14">：NVFP4 激活量化；低秩旁路仍读取原始 x。</tspan></text>
+<text x="31" y="414" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">矩阵形状：x:[M,K]；A:[r,K]；B:[N,r]</tspan></text>
+<text x="31" y="440" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">Wq:[N,K]；b:[N]；y、Δy:[M,N]（偏置按行广播）</tspan></text>
 <rect x="30" y="637" width="1060" height="88" fill="#e8f2ee" stroke="none" rx="5"/>
 <text x="52" y="668" fill="#258577" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">统一最终评测：BF16 · PTQ · QAD · 继续 QAD · QAD+OPD</tspan></text>
 <text x="52" y="698" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">配对任务和稳定后初态；同一执行预算。报告宏平均、实际分子分母及逐任务结果。</tspan></text>
@@ -683,7 +684,7 @@ d_b=\begin{cases}s_b,&amp;s_b&gt;0,\\1,&amp;s_b=0,\end{cases}</annotation></sema
 <rect x="30" y="510" width="1360" height="83" fill="#fff6e9" stroke="none" rx="5"/>
 <text x="48" y="537" fill="#b97824" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">旁路：all_ordinary_linear，rank = 32，468 个 Linear；两种口径均完整计入旁路。</tspan></text>
 <text x="48" y="561" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">同一旁路成本叠加到唯一 all-NVFP4 基座；该图不包含激活、优化器、对齐和运行时工作区。</tspan></text>
-<text x="48" y="583" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">当前闭环采用稠密 BF16 合并 checkpoint；此处是保留 packed 基座与独立旁路时的编码预算，不是已测文件或显存压缩。</tspan></text>
+<text x="48" y="583" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">闭环加载稠密反量化基座与独立 BF16 旁路；图示为目标编码预算，不是实测文件或显存压缩。</tspan></text>
 </svg><figcaption>图 4　W4A4 基座的编码预算与低秩旁路成本 · 唯一冻结的 v11 W4A4 category 配方按物理张量和已知共享别名去重两种口径核算，计入未量化权重、格式缩放及完整 BF16 低秩旁路。目标编码预算不等于稠密文件或实测显存。</figcaption></figure>
 <figure class="diagram" id="fig-ptq_frontier" data-figure="ptq_frontier"><svg xmlns="http://www.w3.org/2000/svg" width="1100" height="580" viewBox="0 0 1100 580" role="img" aria-label="同一 W4A4 基座：编码预算与闭环恢复" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
 <rect width="100%" height="100%" fill="white"/>
@@ -1179,57 +1180,99 @@ offset(r,b) = PS × floor(r/128) + 512 × floor(b/4)
 <p>v11 的量化契约是：eligible Linear 使用 NVFP4 权重和 NVFP4 activation QDQ；激活先转 F16，再按 16 个元素分块量化，二级 scale 固定为 <code>1.0</code>。QAD/OPD 的 LoRA 残差读取原始 BF16 输入，部署保持冻结 base 与 A/B adapter 分离。GR00T 这条路径是 Torch 数值 W4A4 仿真，不能写成 APXInf 原生 GR00T executor。</p>
 <p>正式 held-out 每臂为 10 个任务 × 16 回合 = <strong>160 回合</strong>。开发、教师监督、学生 collection 和 held-out 使用协议声明的官方初态分区；smoke 只验证接口，不进入结果表。成功率和压缩比例在证据完整前保持 <code>XX/160</code> 或“待回填”，不从 smoke 分数推断结论。</p>
 <h3 id="section-55">B.1 安装环境，准备源码、权重与数据</h3>
-<p>在 WSL2 Ubuntu 中准备 Git LFS、CUDA/NVFP4 工具链和两个 Python 环境。恢复环境承载 GR00T、W4A4 QDQ、QAD/OPD 和服务端；LIBERO 仿真环境单独承载模拟器依赖。</p>
-<pre><code class="language-bash">  sudo apt-get update
-  sudo apt-get install -y git-lfs
-  bash setup/01_install_dev_tools.sh
-  bash setup/03_download_weights.sh --core-only
-  CONDA_EXE=&quot;$HOME/miniforge3/bin/conda&quot; bash setup/06_install_recovery.sh
-  source setup/recovery-env.sh
-  export PROJECT=$(pwd)
-  export GR00T_REPO=&quot;$PROJECT/../groot-fsdp2/Isaac-GR00T&quot;
-  export PTQAD_PYTHON=&quot;$GR00T_REPO/.venv/bin/python&quot;
-  export LIBERO_PYTHON=&quot;$GR00T_REPO/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python&quot;
-  export PTQAD_BASE=&quot;$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10&quot;
-  export QAD_DATASET=&quot;$GR00T_REPO/demo_data/libero_demo&quot;
-  export PTQAD_MEDIA_LIB=&quot;$PROJECT/third_party/media7/lib&quot;
-  export PTQAD_PROTOCOL_FILE=&quot;$PROJECT/exp/recovery_protocol_v11_w4a4_category.json&quot;
-  export PROTOCOL_FILE=&quot;$PTQAD_PROTOCOL_FILE&quot;
-  export PTQAD_RUN_DIR=&quot;$PROJECT/results/ptqad_v11_w4a4_category&quot;
-export RECOVERY_ROOT=&quot;$PTQAD_RUN_DIR/recovery&quot;
+<p>以下命令在仓库根目录执行。恢复环境承载GR00T、W4A4 QDQ、QAD/OPD和服务端，LIBERO仿真环境单独承载模拟器依赖。安装脚本生成 <code>setup/recovery-env.sh</code>，后续沿用其中的路径；CUDA编译工具链与Rust仅在B.8原生实验中需要。</p>
+<pre><code class="language-bash">sudo apt-get update
+sudo apt-get install -y git-lfs
+git lfs install
+bash setup/01_install_dev_tools.sh
+bash setup/03_download_weights.sh --core-only
+CONDA_EXE=&quot;$HOME/miniforge3/bin/conda&quot; bash setup/06_install_recovery.sh
+
+export PROJECT=&quot;$(pwd)&quot;
+source setup/recovery-env.sh
+export PTQAD_BASE=&quot;$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10&quot;
+export QAD_DATASET=&quot;$GR00T_REPO/demo_data/libero_demo&quot;
+export V11_ROOT=&quot;$PROJECT/results/ptqad_v11&quot;
+export DEV_DIR=&quot;$V11_ROOT/development&quot;
+export TRAIN_DIR=&quot;$V11_ROOT/training&quot;
+export SELECTION_DIR=&quot;$V11_ROOT/selection&quot;
+export RECOVERY_DIR=&quot;$V11_ROOT/recovery&quot;
+export PTQAD_RUN_DIR=&quot;$RECOVERY_DIR&quot;
+export PTQAD_PROTOCOL_FILE=&quot;$V11_ROOT/recovery_protocol_v11_w4a4_category.local.json&quot;
+export PTQAD_SELECTION=&quot;$SELECTION_DIR/selection.json&quot;
+export PTQAD_CAPTURE=&quot;$TRAIN_DIR/teacher_supervision&quot;
+export PROTOCOL_FILE=&quot;$PTQAD_PROTOCOL_FILE&quot;
 </code></pre>
+<p><code>CONDA_EXE</code> 须指向已安装的conda。默认安装位置为 <code>third_party/Isaac-GR00T</code>，训练和仿真解释器分别在 <code>.venv</code> 与 <code>.venv-libero</code>；自定义位置以生成的环境文件为准。上面只定义实验路径，首次运行还需按<a href="../docs/reproduce-ptqad.md">完整复现教程</a>第2节创建新实验根与协议副本，再完成B.3所列前置步骤；继续原有运行时不重新复制协议模板。</p>
 <p>恢复环境需要 Python 3.12、PyTorch 2.9.0+cu128、transformers 4.57.3、torchcodec 0.8.0；仿真环境需要 robosuite 1.4.0、MuJoCo 3.3.1 和 gym 0.25.2。实际版本、上游 commit、补丁和权重散列以 <code>setup/locks/manifest.json</code> 与 <code>docs/weight-provenance.md</code> 为准。演示数据由 Git LFS 提供，文件、processor、statistics 和 embodiment ID 必须来自同一来源。</p>
 <h3 id="section-56">B.2 先做 CPU 检查，再验收 W4A4 数值契约</h3>
 <p>测试覆盖 E2M1/E4M3 格式、16 元素边界、zero/saturation、STE、<code>base(QA(x)) + raw-BF16 residual(x)</code>、adapter 独立加载和 CategorySpecificLinear 门控。真实服务 smoke 设置 <code>FP4VLA_W4A4=1</code>；adapter 服务同时设置 <code>FP4VLA_W4A4_ADAPTER=1</code>。<code>FP4VLA_QUANT=0</code> 只关闭一次性 weight replacement，不能代替激活 QDQ 开关。</p>
 <h3 id="section-57">B.3 校准、生成候选并完成 development 压力筛选</h3>
-<p>校准器在完整 GR00T 上采集输入二阶统计，输出 <code>calib.pt</code>、<code>calib_meta.json</code> 和来源散列。v11 冻结的压力候选是 <code>all_nvfp4_gptq_category</code>：479 个 eligible 权重张量全部采用 NVFP4，并由 469 个普通 Linear 与 7 个 CategorySpecificLinear 执行 W4A4 激活 QDQ。development 只按协议筛选：成功率相对 BF16 至少下降 5 个百分点、绝对成功率至少 30%，再核验激活安装报告和配对身份。当前开发集实际下降 10 个百分点（46/50→41/50）。development 使用 index 4–8、seed 940000、每任务 5 回合。</p>
+<p>校准器在完整GR00T上采集输入二阶统计，输出 <code>calib.pt</code>、<code>calib_meta.json</code> 和来源散列。v11冻结的压力候选是 <code>all_nvfp4_gptq_category</code>：479个eligible权重张量全部采用NVFP4，并由469个普通Linear与7个CategorySpecificLinear执行W4A4激活QDQ。development使用index 4–8、seed 940000、每任务5回合，要求PTQ相对BF16下降5–60个百分点且绝对成功率至少30%，随后核验激活安装报告和配对身份。</p>
+<p>新机器先执行完整教程第4–6节，不能直接从QAD命令开始。各步的实际产物路径如下；本附录与README共用同一布局。</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>操作</th>
+<th>必需产物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>128窗口普通层校准，再按 <code>calib</code> 配方写盘</td>
+<td><code>$V11_ROOT/ptq_parent/calibration/</code>、<code>$V11_ROOT/ptq_parent/calib/</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>类别层校准与写盘，更新协议副本的候选路径</td>
+<td><code>$V11_ROOT/category_calibration/</code>、<code>$V11_ROOT/w4a4_full_category/</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>同协议BF16/PTQ development评测，再运行 <code>make_w4a4_selection.py</code></td>
+<td><code>$DEV_DIR/bf16/</code>、<code>$DEV_DIR/all_nvfp4_gptq_category/</code>、<code>$PTQAD_SELECTION</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>BF16 teacher_supervision采集，再运行 <code>verify_teacher_replay.py</code></td>
+<td><code>$PTQAD_CAPTURE/</code>，包含完整评测记录与成功样本</td>
+</tr>
+</tbody>
+</table></div>
+<p>协议副本须在development与教师采集之前确定，此后保持SHA-256不变。教师数据必须覆盖十个任务，每任务至少有2个带样本的成功episode；selection和教师缓存都通过核验后才进入恢复链。</p>
 <h3 id="section-58">B.4 在冻结 W4A4 基座上训练 QAD</h3>
-<p>v11 固定 QAD 学习率候选 5e-5 和 1e-4，各 2,000 个优化器更新；<code>rank=32</code>、<code>alpha=64</code>、有效 batch=16、训练 seed 20261003，恢复范围为 <code>all_ordinary_linear</code>。选择只使用 development。QAD 只更新 A/B，训练 manifest 记录 W4A4 format、scope、rank、alpha、batch、梯度检查和更新数。正式部署保留冻结 base 与 A/B adapter 分离；dense <code>Wq+BA</code> 导出只作诊断。</p>
+<p>v11固定QAD学习率候选5e-5和1e-4，各2,000个优化器更新；<code>rank=32</code>、<code>alpha=64</code>、micro batch=1、配置累积数16、训练seed 20261003，恢复范围为 <code>all_ordinary_linear</code>。本轮148窗口数据的尾批为4，实际读取预算见A.4.2。选择只使用development。QAD只更新A/B，训练manifest记录W4A4格式、scope、rank、alpha、批量和更新数。正式部署保留冻结base与A/B adapter分离；dense <code>Wq+BA</code> 导出只作诊断。</p>
 <pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_w4a4_recovery.py \
-  --run-dir &quot;$RECOVERY_ROOT&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
-  --ptq-selection &quot;$PTQAD_RUN_DIR/development/selection.json&quot; \
+  --run-dir &quot;$RECOVERY_DIR&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
+  --ptq-selection &quot;$PTQAD_SELECTION&quot; \
   --base &quot;$PTQAD_BASE&quot; --gr00t-repo &quot;$GR00T_REPO&quot; \
   --python &quot;$PTQAD_PYTHON&quot; --rollout-python &quot;$LIBERO_PYTHON&quot; \
-  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; --until qad_selection
+  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; \
+  --port-base 5890 --until qad_selection
 </code></pre>
 <h3 id="section-59">B.5 采集学生状态，训练 continued-QAD 与 OPD</h3>
 <p>从同一个 QAD A/B checkpoint 分出 continued-QAD、OPD 权重 0.25 和 1.0。三者重置 optimizer，使用相同的 2,000 步追加预算和演示 batch；OPD 每 4 步加入一次教师项。学生 collection 使用 index 20–23、seed 960000、每任务 4 回合；teacher supervision 使用同一初态索引、seed 950000，收集成功 BF16 轨迹。collection manifest 的 <code>source_kind</code> 必须是 <code>student_rollout</code>。BF16 teacher 在相同观测、noise、timestep 和 action mask 上生成速度标签，cache 固定输入和身份。最终同时报告 OPD 相对 QAD 和 continued-QAD 的差值与不确定性，分析规则见 §4.4。</p>
 <pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_w4a4_recovery.py \
-  --run-dir &quot;$RECOVERY_ROOT&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
-  --ptq-selection &quot;$PTQAD_RUN_DIR/development/selection.json&quot; \
+  --run-dir &quot;$RECOVERY_DIR&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
+  --ptq-selection &quot;$PTQAD_SELECTION&quot; \
   --base &quot;$PTQAD_BASE&quot; --gr00t-repo &quot;$GR00T_REPO&quot; \
   --python &quot;$PTQAD_PYTHON&quot; --rollout-python &quot;$LIBERO_PYTHON&quot; \
-  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; --until opd_selection
+  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; \
+  --port-base 5890 --until opd_selection
 </code></pre>
 <h3 id="section-60">B.6 在 held-out 上完成五臂评测</h3>
 <p>held-out 使用 index 9–19 与 24–28、seed 970000、每任务 16 回合；五臂为 BF16、选中的 W4A4 PTQ、QAD、continued-QAD 和 QAD+OPD，共 <strong>160 回合/臂</strong>。每个 episode 记录任务、seed、bank index、恢复状态、稳定后状态和摘要散列。每臂必须有 <code>eval_manifest.json</code>、十个 task log、<code>task_results.json</code> 和 <code>summary.json</code>。主表使用 <code>successes/160</code> 与任务宏平均；缺失回合不计作成功。结果未完成前统一写 <code>XX/160（待回填）</code>。</p>
 <pre><code class="language-bash">&quot;$PTQAD_PYTHON&quot; exp/run_w4a4_recovery.py \
-  --run-dir &quot;$RECOVERY_ROOT&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
-  --ptq-selection &quot;$PTQAD_RUN_DIR/development/selection.json&quot; \
+  --run-dir &quot;$RECOVERY_DIR&quot; --protocol-file &quot;$PTQAD_PROTOCOL_FILE&quot; \
+  --ptq-selection &quot;$PTQAD_SELECTION&quot; \
   --base &quot;$PTQAD_BASE&quot; --gr00t-repo &quot;$GR00T_REPO&quot; \
   --python &quot;$PTQAD_PYTHON&quot; --rollout-python &quot;$LIBERO_PYTHON&quot; \
-  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; --until all
+  --dataset &quot;$QAD_DATASET&quot; --capture-dataset &quot;$PTQAD_CAPTURE&quot; \
+  --port-base 5890 --until all
 </code></pre>
+<p>只有已有完成收据且身份校验通过的阶段才会自动复用。中断留下的不完整目录会被拒绝；<code>--adopt-complete</code> 只用于验收完整但尚未登记的阶段。当前 <code>checkpoint-*</code> 只保存模型，不含优化器和调度器状态，不能无损接续中断训练；保留失败记录后，应在新的恢复目录重跑该恢复链，具体步骤见完整教程第9节。正式服务还依赖冻结base与原训练checkpoint中的A/B，两者都须保留。</p>
 <h3 id="section-61">B.7 归档和发布验证</h3>
 <p><code>final_manifest.json</code> 必须绑定 v11 protocol SHA、development selection、五臂 checkpoint identity、QAD/OPD manifest、continued-QAD 同预算记录、recipe inventory、teacher cache 和 held-out pairing。归档只复制日志、JSON、图表、源码散列和截图清单，大模型权重、观察张量和教师缓存留在本地。发布校验检查五臂分母、W4A4 contract、17 张截图哈希、图表输入和离线资源。任何 <code>XX/160</code>、缺失 held-out 原始日志或截图身份不匹配都会阻止正式发布；结构审阅稿可以暂留占位，但不能称为最终结果。</p>
 <h3 id="section-62">B.8 编译并测量 APXInf 原生路径</h3>
@@ -1334,7 +1377,7 @@ PTQAD_GPU_EXCLUSIVE=1 bash exp/run_native_graph_gates.sh \
 <tbody>
 <tr>
 <td>环境与源码可定位</td>
-<td><code>setup/locks/manifest.json</code>、<code>&lt;RUN&gt;/run_parameters.json</code>、<code>&lt;RECOVERY_ROOT&gt;/run_manifest.json</code>、实际命令日志</td>
+<td><code>setup/locks/manifest.json</code>、<code>&lt;V11_ROOT&gt;/ptq_parent/run_parameters.json</code>、<code>&lt;RECOVERY_DIR&gt;/run_manifest.json</code>、实际命令日志</td>
 <td>固定上游/补丁、解释器与库版本、源码散列及工作树身份</td>
 </tr>
 <tr>

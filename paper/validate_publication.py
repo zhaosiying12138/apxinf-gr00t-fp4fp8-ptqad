@@ -178,8 +178,9 @@ def check_pairing(data,protocol_file=None):
     from compare_ptq_frontier import protocol_contract
     expected=protocol_contract(protocol_file or P.parent/'exp/recovery_protocol_v11_w4a4_category.json')['heldout']
     indices=expected['init_state_indices']
+    task_count=expected['tasks']
     episodes_per_task=expected['episodes_per_task']
-    expected_total=expected['tasks'] * episodes_per_task
+    expected_total=task_count * episodes_per_task
     require(data.get('environment_pairing_verified') is True,'Environment pairing has not passed')
     order={'bf16','ptq','qad','continued_qad','qad_opd'}
     require(set(data['arms'])==order,'Exactly five completed heldout arms are required')
@@ -189,12 +190,12 @@ def check_pairing(data,protocol_file=None):
     for name,arm in data['arms'].items():
         episodes=arm['episodes'];require(arm['count']==expected_total and len(episodes)==expected_total,
                                          f'Incomplete heldout arm: {name}')
-        require(len(arm['per_task'])==expected['tasks'] and
+        require(len(arm['per_task'])==task_count and
                 all(x['episodes']==episodes_per_task for x in arm['per_task'].values()),
                 f'Expected {episodes_per_task} episodes per task')
-        for actual,expected in zip(episodes,baseline):
+        for actual,baseline_episode in zip(episodes,baseline):
             require(type(actual['success']) is bool,'Episode outcome must be Boolean')
-            require({k:v for k,v in actual.items() if k!='success'}=={k:v for k,v in expected.items() if k!='success'},
+            require({k:v for k,v in actual.items() if k!='success'}=={k:v for k,v in baseline_episode.items() if k!='success'},
                     f'Unpaired environment initial state: {name}')
             require(actual['init_state_index'] in indices,'Heldout initial-state index outside declared partition')
             for field in ('initial_state_sha256','restored_state_sha256','init_state_bank_sha256'):
@@ -287,6 +288,7 @@ def check_v11_frontier(package_inputs, paired):
             source.get('sha256') == sha(local_pair),
             'v11 local heldout paired comparison identity differs from final_results')
     require(load(local_pair) == paired, 'v11 frontier source differs from the paper heldout comparison')
+    check_uncertainty(final, paired, package_inputs)
     import tempfile
     with tempfile.TemporaryDirectory(prefix='validate-v11-frontier-') as tmp:
         expected_path = Path(tmp) / 'frontier_comparison.json'
@@ -317,6 +319,17 @@ def check_v11_frontier(package_inputs, paired):
             if path.resolve().is_relative_to(P.parent.resolve()):
                 package_inputs.add(path.resolve())
     return recorded
+
+
+def check_uncertainty(final, paired, package_inputs):
+    """Recompute every specified contrast; never accept edited CI/p fields."""
+    import paired_uncertainty
+    plan = P / 'analysis_plan_w4a4.json'
+    require(plan.is_file() and paired_uncertainty.PLAN.resolve() == plan.resolve(),
+            'Paired analysis plan is missing or comes from another publication tree')
+    require(final.get('uncertainty') == paired_uncertainty.analyze(paired),
+            'Published uncertainty differs from paired outcomes and the fixed analysis plan')
+    package_inputs.update((plan, P / 'paired_uncertainty.py'))
 
 
 def validate(write_report=True,protocol_file=None):

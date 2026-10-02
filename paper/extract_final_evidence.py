@@ -123,7 +123,8 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
              f"unsupported or incomplete final manifest format: {final.get('format')!r}")
     _require(final.get("selection_uses_heldout") is False,
              "final selection must be independent of heldout results")
-    _require(final.get("selected_pressure_recipe"), "final manifest has no selected pressure recipe")
+    _require(final.get("selected_pressure_recipe") == "all_nvfp4_gptq_category",
+             "v11 publication requires the unique all_nvfp4_gptq_category recipe")
     _require(set(final.get("required_arms", [])) == set(ARMS),
              "final manifest does not declare the complete five-arm comparison")
 

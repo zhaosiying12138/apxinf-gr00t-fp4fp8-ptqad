@@ -60,8 +60,8 @@
     },
     {
       "path": "paper/evidence/recipe_inventory.json",
-      "sha256": "311660713b93906390248ac808769d91cfc29a896944c9363b793561f15abd04",
-      "bytes": 6072
+      "sha256": "e9eab9ef95790c1d20ef48b9ded08eef96a8b1d1e5be9d92722952c7864e91d6",
+      "bytes": 6148
     },
     {
       "path": "paper/evidence/selected_recipe/category_memory.json",
@@ -72,18 +72,23 @@
       "path": "paper/evidence/selected_recipe/category_ptq_recipe.json",
       "sha256": "2ad0a80552c0f6d89c7977f71567173ff0fb63f34eff48ae192501c9d56c49db",
       "bytes": 337250
+    },
+    {
+      "path": "paper/evidence/selected_recipe/category_bake_manifest.json",
+      "sha256": "0e211841d23ab634c8ebc4a3db81b901967181b476969960330f73ff89be5fea",
+      "bytes": 13027
     }
   ],
   "files": [
     {
       "path": "paper.html",
-      "sha256": "5b713ad7731e6446010cc38fd2b8bac70263a996b6fb761b963941d7af014caf",
-      "bytes": 8496063
+      "sha256": "b0716de62f4891b6614179bfda79477662f86fd1ec63716eb1f89e8f7183d5bf",
+      "bytes": 8498825
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "9209473ef1087a71da4a3b9f10e86a0ef7f37b619d742850dfd3296bfeeb648d",
-      "bytes": 138719
+      "sha256": "375aebd3209a61e06e62e79e9de94661323da97f9e39219404e90327fad68532",
+      "bytes": 140653
     },
     {
       "path": "meta.json",
@@ -137,8 +142,8 @@
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "sha256": "d04ffb6434fd7f35bce3f24d4d56782aab0f87e023adfc88821f4b8737c221ca",
-      "bytes": 19146
+      "sha256": "27f471cf8b23438bc6bcbbaeedd9c74345155042dfb33ce33f9c8fc128ecbda7",
+      "bytes": 21080
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
@@ -157,8 +162,8 @@
     },
     {
       "path": "zhihu/images/recovery_protocol.png",
-      "sha256": "4f29f1aed9cb7da454d96d5abe8e03df4d3248f658089a3cfab3e2a09c8c6e59",
-      "bytes": 364280
+      "sha256": "950909be8dea50bd7d42c0f0834b55d79d4fc62f71c1e2b43516e330059acc1b",
+      "bytes": 382819
     },
     {
       "path": "zhihu/images/ladder.png",
@@ -167,8 +172,8 @@
     },
     {
       "path": "zhihu/images/budget_ladder.png",
-      "sha256": "1e56a1f4968c1c9d784a4ded9a9cfba1b079d856fd78a56867b5d6bd764efd93",
-      "bytes": 244537
+      "sha256": "bf30af18ac293e5c60737c5a7432019565f81777e635e840f91eebf10906608e",
+      "bytes": 240673
     },
     {
       "path": "zhihu/images/ptq_frontier.png",

@@ -14,15 +14,17 @@ ROOT = Path(__file__).resolve().parents[1]
 # Public, maintained implementation only. Do not glob internal experiments into
 # the publication manifest: every entry must be shipped by the public export.
 DEFAULT_SOURCE_FILES = (
-    'quant/fp4_quant.py', 'quant/torch_fp4.py',
+    'quant/fp4_quant.py', 'quant/torch_fp4.py', 'quant/native_activation.py',
     'quant/nvfp4_convert.py', 'quant/nvfp4_convert_packed.py',
     'quant/ptq/awq.py', 'quant/ptq/bake.py', 'quant/ptq/collector.py',
+    'quant/ptq/bake_category.py', 'quant/ptq/category_fp4.py',
+    'quant/ptq/collector_category.py',
     'quant/ptq/folds.py', 'quant/ptq/quantizers.py', 'quant/ptq/verify_calibration.py',
     'rl/activation_checkpoint.py', 'rl/capture_onpolicy.py', 'rl/gr00t_runtime.py',
     'rl/lora_inventory.py', 'rl/lora_merge_bake.py', 'rl/lora_qad.py',
     'rl/lora_scope.py', 'rl/opd_probe_cache.py', 'rl/probe_distill.py',
     'rl/recovery_batch.py', 'rl/runtime_metrics.py', 'rl/scoped_quant.py',
-    'rl/run_onpolicy_round.sh',
+    'rl/run_onpolicy_round.sh', 'rl/w4a4_lora.py', 'rl/w4a4_deploy.py',
     'eval/compare_development.py', 'eval/compare_recovery.py',
     'eval/compare_ptq_frontier.py',
     'eval/rollout_seeded.py', 'eval/run_gr00t_server_fp4vla.py',
@@ -34,7 +36,9 @@ DEFAULT_SOURCE_FILES = (
     # driver remains named v3 for import compatibility; keep both files in the
     # source receipt so a reader can reproduce the exact delegation path.
     'exp/recovery_protocol_v11_w4a4_category.json', 'exp/run_w4a4_recovery.py',
-    'exp/continue_v11.sh',
+    'exp/continue_v11.sh', 'exp/continue_w4a4_run.py',
+    'exp/make_w4a4_selection.py', 'exp/rebuild_w4a4_category.sh',
+    'exp/verify_teacher_replay.py',
     # Compatibility source used by the facade's historical import path. It is
     # an implementation input, not an additional published result arm.
     'exp/run_mixed_pressure_recovery.py',
@@ -51,6 +55,11 @@ DEFAULT_SOURCE_FILES = (
     'setup/05_restore_all.sh', 'setup/06_install_recovery.sh',
     'setup/verify_weights.py', 'setup/locks/model-sources.json',
     'setup/locks/manifest.json', 'paper/capture_runtime.py',
+    'paper/analysis_plan_w4a4.json', 'paper/paired_uncertainty.py',
+    'paper/extract_final_evidence.py', 'paper/render_recovery_results.py',
+    'paper/build_final_frontier.py', 'paper/build_recipe_inventory_v11.py',
+    'paper/materialize_final_evidence.py', 'paper/collect_pairing_evidence.py',
+    'paper/collect_training_costs.py', 'exp/audit_recovery_release.py',
 )
 
 

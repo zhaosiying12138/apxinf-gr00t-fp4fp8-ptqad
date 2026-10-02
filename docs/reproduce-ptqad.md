@@ -37,18 +37,14 @@ source setup/recovery-env.sh
 
 ## 2. 统一路径和协议
 
-每次打开新 shell 都先加载环境文件，然后为本轮实验创建新的结果目录。不要复用含有其他协议或失败阶段的目录。
+在仓库根目录加载环境文件，沿用安装脚本生成的源码、解释器、媒体库和backbone路径。下面以 `results/ptqad_v11` 为新实验根；已有同名运行时，为新实验另取名称。继续原有运行则保留原路径和协议，不重复复制协议模板。
 
 ```bash
 export PROJECT="$(pwd)"
 source setup/recovery-env.sh
 
-export GR00T_REPO="$PROJECT/third_party/Isaac-GR00T"
-export PTQAD_PYTHON="$GR00T_REPO/.venv/bin/python"
-export LIBERO_PYTHON="$GR00T_REPO/.venv-libero/bin/python"
 export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
-export PTQAD_MEDIA_LIB="$PROJECT/third_party/media7/lib"
 
 export V11_ROOT="$PROJECT/results/ptqad_v11"
 export PTQAD_PROTOCOL_FILE="$V11_ROOT/recovery_protocol_v11_w4a4_category.local.json"
@@ -56,9 +52,17 @@ export DEV_DIR="$V11_ROOT/development"
 export TRAIN_DIR="$V11_ROOT/training"
 export RECOVERY_DIR="$V11_ROOT/recovery"
 export SELECTION_DIR="$V11_ROOT/selection"
-mkdir -p "$V11_ROOT"
-cp "$PROJECT/exp/recovery_protocol_v11_w4a4_category.json" "$PTQAD_PROTOCOL_FILE"
+export PTQAD_RUN_DIR="$RECOVERY_DIR"
+export PTQAD_SELECTION="$SELECTION_DIR/selection.json"
+export PTQAD_CAPTURE="$TRAIN_DIR/teacher_supervision"
+export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
+
+# 仅首次创建本轮协议；继续已有运行时跳过这两行。
+mkdir -p "$(dirname "$V11_ROOT")"
+mkdir "$V11_ROOT" && cp "$PROJECT/exp/recovery_protocol_v11_w4a4_category.json" "$PTQAD_PROTOCOL_FILE"
 ```
+
+安装脚本默认把GR00T放在 `third_party/Isaac-GR00T`，分别创建 `.venv` 与 `.venv-libero`；自定义安装位置时，`setup/recovery-env.sh` 会保存实际路径。README中的 `PTQAD_RUN_DIR`、`PTQAD_SELECTION`、`PTQAD_CAPTURE` 分别与本节的恢复目录、selection文件和教师采集目录对应。
 
 | 分区 | 初态索引 | 每任务回合 | 用途 |
 |---|---|---:|---|
@@ -94,10 +98,10 @@ smoke 只能使用协议的 index=0 分区。它证明服务能启动、W4A4 环
   --base "$PTQAD_BASE" --out "$V11_ROOT/calibration_smoke" \
   --dataset "$QAD_DATASET" --recipe calib --windows 2 --batch 1)
 
-export PTQAD_RUN_DIR="$V11_ROOT/ptq_parent"
 export PTQAD_CAL_SCOPE=calib
 export PTQ_CAL_WINDOWS=128
 export PTQ_CAL_BATCH=1
+PTQAD_RUN_DIR="$V11_ROOT/ptq_parent" \
 PTQAD_PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE" \
   bash exp/reproduce_ptqad.sh calibrate
 
@@ -130,7 +134,6 @@ protocol = pathlib.Path(sys.argv[1])
 candidate = str(pathlib.Path(sys.argv[2]).resolve())
 d = json.loads(protocol.read_text())
 d["selection"]["pressure_candidate_checkpoints"]["all_nvfp4_gptq_category"] = candidate
-d["quantization_scope"]["candidate_checkpoint"] = candidate
 protocol.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\n")
 PY
 ```
@@ -170,7 +173,7 @@ FP4VLA_QUANT=0 FP4VLA_W4A4=1 FP4VLA_W4A4_ADAPTER=0 \
 
 ## 6. BF16 教师成功轨迹
 
-QAD 使用成功的 BF16 轨迹；这部分数据独立于 development、collection 和 heldout。每个任务使用 teacher_supervision 分区的 4 个初态：
+QAD使用成功的BF16轨迹，其初态与development和heldout不重叠。teacher_supervision与学生collection共享20–23号初态，但使用不同策略和种子，均属于训练数据。每个任务使用teacher_supervision分区的4个初态：
 
 ```bash
 mkdir -p "$TRAIN_DIR"
@@ -189,7 +192,7 @@ FP4VLA_QUANT=0 FP4VLA_W4A4=0 FP4VLA_W4A4_ADAPTER=0 \
   --teacher "$PTQAD_BASE"
 ```
 
-验证器只接受成功 episode 的样本，并要求十个任务都至少有 2 个成功 episode。失败或未完成的样本会被拒绝；如果该分区不足，必须换用新的 `TRAIN_DIR` 重新运行，不能手工改写 capture manifest。恢复驱动的 `--capture-dataset` 参数应指向整个 `teacher_supervision` 目录，因为它同时包含评测 manifest、成功样本和 replay 审计元数据。
+验证器只接受成功episode的样本，并要求十个任务都至少有2个成功episode。失败或未完成的样本会被拒绝；未满足该条件时停止恢复链并检查日志。若因执行故障需要重采集，先保留原始记录，再使用新的输出目录，不能手工改写capture manifest。`--capture-dataset` 指向整个 `teacher_supervision` 目录，因为它同时包含评测manifest、成功样本和replay审计元数据；不要改为任意一组 `.pt` 文件。
 
 ## 7. QAD、continued-QAD 和 OPD
 
@@ -208,7 +211,7 @@ FP4VLA_QUANT=0 FP4VLA_W4A4=0 FP4VLA_W4A4_ADAPTER=0 \
   --port-base 5890 --validate-only
 ```
 
-正式阶段按顺序执行；中断后从同一命令继续即可：
+正式阶段按顺序执行。正常完成前一条命令后，下一条会复核并复用已登记阶段；断电或进程中断按第9节处理，不能把重新执行命令等同于恢复优化器状态。
 
 ```bash
 # QAD 学习率选择
@@ -251,13 +254,74 @@ FP4VLA_QUANT=0 FP4VLA_W4A4=0 FP4VLA_W4A4_ADAPTER=0 \
 
 ## 8. 证据归档和论文构建
 
-五臂评测完成后，先按 final manifest 复制证据，再构建文章；不要手工把分数写入 HTML 或 Markdown。
+本节只在 `RECOVERY_DIR/final_manifest.json` 完成且第7节审计通过后执行。数字、编码预算、训练成本和截图来自同一组已选定模型。结果提取与排版是两个步骤；只运行 `build_html.py` 不会自动回填实验结果。
+
+首先在全新的暂存目录归档证据。下面从最终清单读取真正入选的QAD checkpoint，不固定某个学习率候选：
 
 ```bash
-"$PTQAD_PYTHON" paper/extract_final_evidence.py \
-  --run-dir "$RECOVERY_DIR" \
-  --out "$PROJECT/paper/evidence/final_results.json"
+export PUBLICATION_STAGE="$V11_ROOT/publication-stage"
+mkdir "$PUBLICATION_STAGE"
+"$PTQAD_PYTHON" - "$RECOVERY_DIR" "$PUBLICATION_STAGE" <<'PY'
+import json, pathlib, subprocess, sys
+run, stage = map(pathlib.Path, sys.argv[1:])
+final = json.loads((run / "final_manifest.json").read_text())
+qad = pathlib.Path(final["selected_qad_checkpoint_identity"]["path"])
+subprocess.run([
+    sys.executable, "paper/build_recipe_inventory_v11.py",
+    "--checkpoint", final["selected_ptq_checkpoint"],
+    "--recovery-manifest", str(qad / "recovery_manifest.json"),
+    "--out", str(stage / "recipe_inventory.json"),
+], check=True)
+PY
 
+"$PTQAD_PYTHON" paper/materialize_final_evidence.py \
+  --final-manifest "$RECOVERY_DIR/final_manifest.json" \
+  --orchestrator-run "$RECOVERY_DIR" \
+  --recipe-inventory "$PUBLICATION_STAGE/recipe_inventory.json" \
+  --out "$PUBLICATION_STAGE/bundle"
+
+"$PTQAD_PYTHON" paper/render_recovery_results.py \
+  --final-results "$PUBLICATION_STAGE/bundle/final_results.json" \
+  --out "$PUBLICATION_STAGE/result-inserts"
+```
+
+归档器重新核对逐回合配对，复制选中配方与训练成本记录；插入稿包含固定五臂主表、逐任务计数和四项配对差值，保留实际正负方向。审阅 `result-inserts/` 后，将内容合入 `paper/sections/`，同步摘要和结论。成功率恢复、OPD相对continued-QAD的增量、目标编码预算和延迟各自解释，不能用一种指标代替另一种。
+
+正式构建前，将现有的闭环发布证据移到本地归档，然后按原字节安装 `bundle/final_results.json` 到 `paper/evidence/final_results.json`，以及 `bundle/evidence/` 中的同名文件和目录到 `paper/evidence/`。保留独立原生基准和截图证据；归档中含有旧结果的文件不进入正式包。完成后生成唯一配方的最终结果图输入：
+
+```bash
+"$PTQAD_PYTHON" paper/build_final_frontier.py \
+  --final-results paper/evidence/final_results.json \
+  --paired-comparison paper/evidence/paired_comparison.json \
+  --inventory paper/evidence/recipe_inventory.json \
+  --out paper/evidence/frontier_comparison.json
+```
+
+接着重拍受本轮实现影响的Ubuntu截图，保留全部17个环节，核对画面、执行日志与选中模型，并更新截图清单。运行来源也须重新采集；以下命令从五个真实评测manifest读取模型路径，输出目录必须全新：
+
+```bash
+"$PTQAD_PYTHON" - "$RECOVERY_DIR" "$PUBLICATION_STAGE" <<'PY'
+import json, os, pathlib, subprocess, sys
+run, stage = map(pathlib.Path, sys.argv[1:])
+final = json.loads((run / "final_manifest.json").read_text())
+round_dir = pathlib.Path(final["heldout_round"])
+command = [sys.executable, "paper/capture_runtime.py",
+           "--run-dir", str(run), "--out", str(stage / "runtime"),
+           "--gr00t", os.environ["GR00T_REPO"],
+           "--server-python", os.environ["PTQAD_PYTHON"],
+           "--rollout-python", os.environ["LIBERO_PYTHON"]]
+for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd"):
+    record = json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
+    command += ["--checkpoint", f"{arm}={record['checkpoint']}"]
+subprocess.run(command, check=True)
+PY
+```
+
+审阅并安装新的 `runtime/manifest.json` 到 `paper/evidence/runtime/manifest.json`。删除正文中已完成项目的红色占位并将元信息改为正式稿后，依次生成图、两种正文、浏览器检查及发布包：
+
+```bash
+"$PTQAD_PYTHON" paper/make_figs.py
+bash paper/figs/render_pngs.sh
 uv run --with-requirements paper/requirements-build.txt python paper/build_html.py
 uv run --with-requirements paper/requirements-build.txt python paper/export_zhihu.py
 PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/qa_browser.cjs
@@ -265,10 +329,18 @@ uv run --with-requirements paper/requirements-build.txt python paper/validate_pu
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
-结果未完成时，使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py`；审阅构建会保留 17 张 Ubuntu 截图，并用红色 `xxx` 占位。`validate_publication.py` 按设计拒绝该审阅稿。正式稿必须通过截图 SHA-256、逐回合配对、训练成本、图位和离线资源校验。
+结果未完成时，只使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成审阅包。它保留17张截图并用红色 `xxx` 占位，正式发布校验会拒绝它。最终ZIP必须通过截图身份、逐回合配对、统计分析、训练成本、图位及离线资源检查；不能复用改稿前的浏览器验收报告。
 
 APXInf 原生算子和 π0.5 图执行是独立基准，可按 [docs/native-pi05.md](native-pi05.md) 复现。它们验证 NVFP4 编码、scale 布局、GEMM 和 graph replay，不等于 GR00T 恢复模型已经使用原生 APXInf packed executor；两类结果不能合并成一个延迟或成功率结论。
 
 ## 9. 失败处理
 
-所有正式输出目录必须先不存在；脚本遇到已存在的阶段日志或身份不一致会停止。断电后先读取 `run_parameters.json`、`stages/*.json` 和最近日志，再用同一个 `--run-dir` 继续。协议、基座、教师缓存或 selection 改动后必须新建结果根目录。临时 H、失败 checkpoint 和重复副本可以在确认没有被 manifest 引用后删除，并保留删除收据；不要删除仍被 final manifest、selection 或论文证据清单引用的文件。
+新阶段的输出目录必须尚不存在。断电后先检查 `RECOVERY_DIR/run_manifest.json`、`stages/*.json` 和 `logs/`，按产物状态处理：
+
+- 阶段有完成收据且校验通过：使用原来的命令和 `--run-dir`，驱动会复用该阶段并继续后续工作。
+- 产物实际完整但缺少完成收据：审计后可追加 `--adopt-complete`；所有阶段校验通过才会补登记，它不会继续训练半成品。
+- 阶段确实中断：保留日志和checkpoint，换一个全新的 `RECOVERY_DIR`，从冻结的selection、基座和教师数据重新执行恢复链。驱动拒绝覆盖不完整目录和已有日志。
+
+训练入口使用 `save_only_model=True`，`checkpoint-*` 不含可用于恢复的优化器、调度器状态。`QAD_INIT_ADAPTER` 只是把A/B作为新训练的起点，并重建优化器；正式continued-QAD与OPD都采用这一约定。它不能把中断前后的步数拼成一次等价的连续训练。重新开始一条恢复链时同时更新 `PTQAD_RUN_DIR="$RECOVERY_DIR"`；改变协议、基座、教师数据或selection则必须使用新的实验根并重新生成相关身份记录。
+
+临时H、失败checkpoint和重复副本只有在确认未被后续manifest引用后才能清理，并保留删除收据。正式W4A4服务从 `merge_manifest.json` 定位冻结base和原训练checkpoint中的A/B，因此这两份源工件必须保留；只留下dense merge目录不足以部署恢复模型。

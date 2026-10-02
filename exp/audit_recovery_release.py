@@ -302,6 +302,93 @@ def cache_checks(audit, folder, teacher, student, protocol):
         audit.add("cache.payload", "failed", "CPU teacher payload validation failed", error=str(exc))
 
 
+def legacy_category_protocol(protocol):
+    """Only these producer schemas gave selected_ptq_recipe_sha256 a category meaning."""
+    return (protocol.get('version'), protocol.get('id')) in {
+        (4, 'category-fp4-stress-v4'), (5, 'category-fp4-exploratory-v5')}
+
+
+def selection_evidence_checks(audit, selection_path, selection, protocol, run):
+    """Resolve declared source keys; never search a second directory on a mismatch."""
+    source_map = selection.get('source_sha256')
+    names = ('eval_manifest.json', 'task_results.json', 'summary.json')
+    arms = selection.get('arms', {})
+    if not isinstance(arms, dict):
+        audit.add('selection.sources', 'failed', 'Selection arms are not an object'); return
+    if source_map is not None and not isinstance(source_map, dict):
+        audit.add('selection.sources', 'failed', 'Selection source identities are not an object'); return
+    for arm, record in arms.items():
+        if not isinstance(arm, str) or not arm or Path(arm).name != arm or arm in ('.', '..'):
+            audit.add('selection.sources', 'failed', 'Invalid development arm name'); continue
+        if not isinstance(record, dict):
+            audit.add('selection.sources.' + arm, 'failed', 'Selection arm is not an object'); continue
+        if source_map is not None:
+            # Both spellings are supported only when explicitly declared. The
+            # v11 producer uses <arm>/... beside selection.json, often symlinks.
+            layouts = [prefix for prefix in ('', 'development/')
+                       if all(prefix + arm + '/' + name in source_map for name in names)]
+            present = [key for key in source_map if isinstance(key, str) and
+                       any(key == prefix + arm + '/' + name
+                           for prefix in ('', 'development/') for name in names)]
+            if len(layouts) != 1 or len(present) != len(names):
+                audit.add('selection.sources.' + arm, 'failed',
+                          'Development source identities are incomplete or ambiguous', declared=present); continue
+            prefix = layouts[0]
+            folder = Path(selection_path).parent / prefix / arm
+            for name in names:
+                key = prefix + arm + '/' + name
+                audit.file(folder/name, source_map[key], 'selection.source.' + key)
+        elif legacy_category_protocol(protocol):
+            # The frozen v4/v5 category producer defines this location but did
+            # not record raw-file hashes. Keep that historical gap explicit.
+            folder = Path(selection_path).parent / 'development' / arm
+            audit.missing('selection.sources.' + arm,
+                          'Legacy category selection did not record raw development file hashes')
+        else:
+            audit.missing('selection.sources.' + arm,
+                          'Selection has no declared development source identities; no path guessed'); continue
+        raw = audit.read(folder/'eval_manifest.json', 'selection.raw.' + arm)
+        if raw:
+            expected = protocol.get('selection', {}).get('source_development_protocol_sha256',
+                                                        run.get('protocol_sha256'))
+            audit.equal('selection.raw_protocol.' + arm, raw.get('protocol_sha256'), expected,
+                        'Raw development uses declared source protocol')
+            audit.equal('selection.raw_purpose.' + arm, raw.get('purpose'), 'development',
+                        'Selected source is a development evaluation')
+            audit.equal('selection.raw_checkpoint.' + arm, raw.get('checkpoint'), record.get('checkpoint'),
+                        'Raw development checkpoint equals the selected arm')
+
+
+def selected_recipe_checks(audit, base, run, selection, protocol):
+    """Bind ordinary and category recipes to their own producer-recorded identities."""
+    selected = (selection or {}).get('arms', {}).get((selection or {}).get('selected_recipe'), {})
+    model = selected.get('model_identity', {}) if isinstance(selected, dict) else {}
+    if not isinstance(model, dict):
+        audit.add('selection.recipe_metadata', 'failed', 'Selected model identity is not an object'); model = {}
+    metadata = model.get('metadata', {})
+    if not isinstance(metadata, dict):
+        audit.add('selection.recipe_metadata', 'failed', 'Selected model metadata is not an object'); metadata = {}
+    if model:
+        audit.equal('selection.recipe_checkpoint', model.get('path'), str(base),
+                    'Recipe metadata belongs to the selected model')
+    category = base/'category_ptq_recipe.json'
+    if legacy_category_protocol(protocol):
+        audit.file(category, run.get('selected_ptq_recipe_sha256'), 'selection.category_recipe_binding')
+        recipe = audit.read(category, 'selection.category_recipe_document')
+        audit.file(base/'ptq_recipe.json', (recipe or {}).get('parent_recipe_sha256'),
+                   'selection.ptq_recipe_binding')
+        if run.get('selected_parent_recipe_sha256') is not None:
+            audit.file(base/'ptq_recipe.json', run['selected_parent_recipe_sha256'],
+                       'selection.run_parent_recipe_binding')
+    else:
+        audit.file(base/'ptq_recipe.json', run.get('selected_ptq_recipe_sha256'), 'selection.ptq_recipe_binding')
+        if category.is_file() or protocol.get('quantization_scope', {}).get('category_w4a4_required'):
+            audit.file(category, metadata.get('category_ptq_recipe.json'), 'selection.category_recipe_binding')
+    for name in ('ptq_recipe.json', 'category_ptq_recipe.json'):
+        if name in metadata:
+            audit.file(base/name, metadata[name], 'selection.model_recipe.' + name)
+
+
 def audit_run(run_dir, repo=ROOT, payload=True):
     run_dir = Path(run_dir).resolve()
     a = Audit(Path(repo), payload)
@@ -327,17 +414,10 @@ def audit_run(run_dir, repo=ROOT, payload=True):
         a.equal("selection.recipe", selection.get("selected_recipe"), run.get("selected_recipe"), "Selected recipe equals run input")
         a.equal("selection.heldout", selection.get("selection_uses_heldout"), False, "Selection declares development-only evidence")
         a.file(protocol_path, selection.get("protocol_sha256"), "selection.protocol_binding")
-        for arm, rec in selection.get("arms", {}).items():
-            eval_path = selection_path.parent / "development" / arm / "eval_manifest.json"
-            raw = a.read(eval_path, "selection.raw." + arm)
-            if raw and protocol:
-                expected = protocol.get("selection", {}).get("source_development_protocol_sha256", run.get("protocol_sha256"))
-                a.equal("selection.raw_protocol." + arm, raw.get("protocol_sha256"), expected, "Raw development uses declared source protocol")
+        selection_evidence_checks(a, selection_path, selection, protocol or {}, run)
+    selected_recipe_checks(a, base, run, selection, protocol or {})
     if (base / "category_ptq_recipe.json").is_file():
-        a.file(base / "category_ptq_recipe.json", run.get("selected_ptq_recipe_sha256"), "selection.category_recipe_binding")
         parent_checks(a, base)
-    else:
-        a.file(base / "ptq_recipe.json", run.get("selected_ptq_recipe_sha256"), "selection.ptq_recipe_binding")
     stages = run.get("stages", {})
     for name, record in stages.items():
         disk = a.read(run_dir / "stages" / (name + ".json"), "stage.receipt." + name)

@@ -27,8 +27,9 @@ _W4A4_PTQ = (_os.environ.get("FP4VLA_W4A4", "0") == "1" and
               not _W4A4_ADAPTER and _os.environ.get("FP4VLA_QUANT", "0") != "1")
 if _os.environ.get("FP4VLA_QUANT") == "1" or _W4A4_ADAPTER or _W4A4_PTQ:
     import sys as _sys
-    _sys.path.insert(0, "/home/zhaosiying/codebase/fp4vla/rl")
-    _sys.path.insert(0, "/home/zhaosiying/codebase/fp4vla/quant")
+    _PROJECT = Path(__file__).resolve().parents[1]
+    _sys.path.insert(0, str(_PROJECT / "rl"))
+    _sys.path.insert(0, str(_PROJECT / "quant"))
     if _W4A4_ADAPTER:
         from scoped_quant import configure_quant_recipe, install_scoped_activation, mark_activation_scope
         install_scoped_activation(_FP4_SCOPE)

@@ -67,7 +67,7 @@ def build(checkpoint: Path, recovery_manifest: Path, out: Path) -> dict:
         "source_recipe_sha256": sha(recipe_path),
         "source_bake_manifest_sha256": sha(bake_path),
         "tied_aliases": aliases,
-        "eligible_predicate": "479 rank-2 weight tensors; 476 executable Linear operators use W4A4 and three embedding/position tensors are weight-only",
+        "eligible_predicate": "479 eligible weight tensors: 472 rank-2 tensors and seven rank-3 category tensors; 469 ordinary and seven category Linear operators use W4A4, while three embedding/position tensors are weight-only",
         "recipes": {"all_nvfp4_gptq_category": entry},
         "ladder": ["all_nvfp4_gptq_category"],
         "recovery_residual": {

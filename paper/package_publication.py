@@ -11,6 +11,29 @@ from validate_publication import validate
 
 P = Path(__file__).resolve().parent
 DESTINATION = 'apxinf-gr00t-fp4fp8-ptqad-publication.zip'
+# Keep review/debug outputs on disk without publishing them.  The first five
+# receipts are consumed or produced by the final publication gates; the rest
+# are explicitly cited by the source and reproduction appendices.
+VALIDATION_REPORTS = frozenset({
+    'figure-inputs.json',
+    'figure-renders.json',
+    'html-build.json',
+    'browser-validation.json',
+    'publication-validation.json',
+    'source_refs.json',
+    'source_refs_check.log',
+    'cpu-tests.json',
+    'cpu-tests.log',
+    'native-toolchain-observation.json',
+    'native-graph-preparation/README.md',
+    'native-graph-preparation/build_manifest.json',
+    'native-graph-preparation/evidence_manifest.json',
+    'native-graph-preparation/native_patch_check.json',
+    'native-graph-preparation/native_fp4_cpu_build.log',
+    'native-graph-preparation/native_fp4_model_gate_build.log',
+    'native-graph-preparation/native_fp4_opbench_build.log',
+    'native-graph-preparation/native_fp4_wheel_build.log',
+})
 
 
 def publication_files():
@@ -21,10 +44,17 @@ def publication_files():
             'Unexpected or missing Zhihu image; remove stale exports before packaging')
     require({p.name for p in (P/'figs').iterdir() if p.is_file()} == expected_figs,
             'Unexpected or missing figure asset; no unregistered figures may enter publication')
-    files = [P/name for name in ('paper.html','README.md','meta.json','figures.json','requirements-build.txt')]
+    files = [P/name for name in ('paper.html','README.md','meta.json','figures.json','requirements-build.txt',
+                                'analysis_plan_w4a4.json')]
     files.extend((P/'sections').glob('*.md'))
-    for folder in ('zhihu','figs','evidence','validation','assets'):
+    for folder in ('zhihu','figs','evidence','assets'):
         files.extend(path for path in (P/folder).rglob('*') if path.is_file() and '__pycache__' not in path.parts)
+    validation = P/'validation'
+    files.extend(validation/name for name in VALIDATION_REPORTS if (validation/name).is_file())
+    # The checks remain reproducible, but arbitrary JSON/log/review files do
+    # not become public simply because a check once wrote them here.
+    files.extend(path for path in validation.rglob('*')
+                 if path.is_file() and path.suffix in {'.py','.cjs'} and '__pycache__' not in path.parts)
     files.extend(path for path in P.glob('*.py') if path.name != 'snapshot_original.py')
     files.extend(P.glob('*.cjs'))
     for path in files:
@@ -56,6 +86,9 @@ def main():
             require(target not in entries,'Duplicate bundled project input')
             entries[target]=source
             links[record['path']]=target
+        else:
+            require(str(source.resolve().relative_to(P)) in entries,
+                    f'Validated internal input is absent from the publication allowlist: {source}')
     # Store the current report even if the standalone validation file was absent/stale.
     generated={'validation/publication-validation.json':(json.dumps(report,ensure_ascii=False,indent=2)+'\n').encode(),
                'PROJECT-INPUTS.json':(json.dumps({'scope':'Original repository-relative paths mapped to bundled evidence; model weights are represented only by their recorded hashes.',

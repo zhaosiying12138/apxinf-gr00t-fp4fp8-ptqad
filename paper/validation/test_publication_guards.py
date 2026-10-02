@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 from unittest import mock
+import zipfile
 
 P=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(P))
@@ -19,11 +20,14 @@ import make_figs
 
 
 def paired_fixture():
-    episodes=[{'task':f'task-{t}','episode_index':i,'init_state_index':i+10,
-               'initial_state_sha256':f'{t*10+i:064x}','restored_state_sha256':f'{t*10+i+100:064x}',
-               'init_state_bank_sha256':f'{t:064x}','success':i%2==0} for t in range(10) for i in range(10)]
-    arm={'episodes':episodes,'count':100,'successes':50,
-         'per_task':{f'task-{t}':{'episodes':10,'successes':5} for t in range(10)}}
+    protocol=json.loads((P.parent/'exp/recovery_protocol_v11_w4a4_category.json').read_text())
+    indices=protocol['partitions']['heldout']['init_state_indices']
+    episodes=[{'task':f'task-{t}','episode_index':i,'init_state_index':bank,
+               'initial_state_sha256':f'{t*100+i:064x}','restored_state_sha256':f'{t*100+i+3000:064x}',
+               'init_state_bank_sha256':f'{t:064x}','success':i%2==0}
+              for t in range(10) for i,bank in enumerate(indices)]
+    arm={'episodes':episodes,'count':160,'successes':80,
+         'per_task':{f'task-{t}':{'episodes':16,'successes':8} for t in range(10)}}
     return {'environment_pairing_verified':True,'arms':{name:copy.deepcopy(arm) for name in ('bf16','ptq','qad','continued_qad','qad_opd')}}
 
 
@@ -65,7 +69,11 @@ class Gates(unittest.TestCase):
         page.feed('<a href="https://example.com/paper">citation</a><svg><image href="https://example.com/tracker.png"/></svg>')
         self.assertEqual(page.resources,['https://example.com/tracker.png'])
 
-    def test_correct_pairing(self):validation.check_pairing(paired_fixture())
+    def test_correct_v11_pairing_checks_all_five_160_episode_arms(self):
+        data=paired_fixture()
+        validation.check_pairing(data)
+        self.assertEqual(len(data['arms']),5)
+        self.assertTrue(all(row['count']==160 for row in data['arms'].values()))
 
     def test_pairing_mismatch_rejected(self):
         data=paired_fixture();data['arms']['qad_opd']['episodes'][0]['initial_state_sha256']='f'*64
@@ -81,6 +89,88 @@ class Gates(unittest.TestCase):
         with self.assertRaises(RuntimeError):validation.check_pairing(data)
         data=paired_fixture();data['arms']['qad']['episodes'][0]['success']=1
         with self.assertRaisesRegex(RuntimeError,'Boolean'):validation.check_pairing(data)
+
+    def test_uncertainty_is_recomputed_and_modified_ci_or_plan_rejected(self):
+        import paired_uncertainty
+        data=paired_fixture()
+        data.update(protocol_consistency_verified=True,source_accounting_verified=True)
+        with tempfile.TemporaryDirectory() as raw:
+            folder=Path(raw);plan=folder/'analysis_plan_w4a4.json'
+            specification=json.loads((P/'analysis_plan_w4a4.json').read_text())
+            specification['confidence_interval']['replicates']=100
+            plan.write_text(json.dumps(specification))
+            with mock.patch.object(validation,'P',folder),mock.patch.object(paired_uncertainty,'PLAN',plan):
+                final={'uncertainty':paired_uncertainty.analyze(data)};inputs=set()
+                validation.check_uncertainty(final,data,inputs)
+                self.assertIn(plan,inputs);self.assertIn(folder/'paired_uncertainty.py',inputs)
+                bad=copy.deepcopy(final)
+                bad['uncertainty']['contrasts']['opd_vs_qad']['pointwise_ci_pp']=[10,20]
+                with self.assertRaisesRegex(RuntimeError,'uncertainty differs'):
+                    validation.check_uncertainty(bad,data,set())
+                specification['confidence_interval']['seed']+=1;plan.write_text(json.dumps(specification))
+                with self.assertRaisesRegex(RuntimeError,'uncertainty differs'):
+                    validation.check_uncertainty(final,data,set())
+
+    def test_package_contains_analysis_plan_required_by_bundled_analyzer(self):
+        with tempfile.TemporaryDirectory() as raw:
+            folder=Path(raw)
+            for name in ('paper.html','README.md','meta.json','requirements-build.txt','analysis_plan_w4a4.json'):
+                (folder/name).write_text('{}')
+            (folder/'figures.json').write_text('{"shot_fixture": {}}')
+            for name in ('figs/shot_fixture.png','figs/render_pngs.sh','zhihu/images/shot_fixture.png'):
+                path=folder/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+            with mock.patch.object(package,'P',folder):
+                self.assertIn(folder/'analysis_plan_w4a4.json',package.publication_files())
+
+    def test_package_excludes_old_reports_and_keeps_cited_evidence_and_sources(self):
+        with tempfile.TemporaryDirectory() as raw:
+            folder=Path(raw)
+            for name in ('paper.html','README.md','meta.json','requirements-build.txt','analysis_plan_w4a4.json'):
+                (folder/name).write_text('{}')
+            (folder/'figures.json').write_text('{"shot_fixture": {}}')
+            old_reports=('bank_split_audit.json','review-build.json','publication-gate-review.md',
+                         'nested/unregistered-check.json')
+            sources=('check_source_refs.py','test_publication_guards.py','nested/check.cjs')
+            for name in ('figs/shot_fixture.png','figs/render_pngs.sh','zhihu/images/shot_fixture.png',
+                         *('validation/'+name for name in package.VALIDATION_REPORTS),
+                         *('validation/'+name for name in old_reports+sources)):
+                path=folder/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+            saved_report=folder/'validation/publication-validation.json'
+            saved_report.write_text('{"passed":false,"status":"old"}')
+            fresh={'passed':True,'status':'fresh','package_inputs':[
+                guard.file_record(folder/'analysis_plan_w4a4.json',folder.parent)]}
+            with mock.patch.object(package,'P',folder),mock.patch.object(package,'validate',return_value=fresh),\
+                 mock.patch.object(sys,'argv',['package_publication.py']):
+                files=package.publication_files()
+                self.assertTrue(all(folder/'validation'/name in files for name in package.VALIDATION_REPORTS))
+                self.assertTrue(all(folder/'validation'/name in files for name in sources))
+                self.assertTrue(all(folder/'validation'/name not in files for name in old_reports))
+                package.main()
+            with zipfile.ZipFile(folder/package.DESTINATION) as archive:
+                names=set(archive.namelist())
+                self.assertTrue(all('validation/'+name not in names for name in old_reports))
+                self.assertTrue(all('validation/'+name in names for name in sources))
+                self.assertIn('analysis_plan_w4a4.json',names)
+                self.assertEqual(json.loads(archive.read('validation/publication-validation.json')),fresh)
+                manifest=json.loads(archive.read('PACKAGE-MANIFEST.json'))
+                for name,row in manifest.items():
+                    payload=archive.read(name)
+                    self.assertEqual(row,{'bytes':len(payload),'sha256':hashlib.sha256(payload).hexdigest()})
+            # Packaging changes neither the working evidence nor the old reports.
+            self.assertEqual(json.loads(saved_report.read_text()),{'passed':False,'status':'old'})
+            self.assertTrue(all((folder/'validation'/name).read_bytes()==b'fixture' for name in old_reports))
+
+    def test_package_rejects_internal_dependency_excluded_by_allowlist(self):
+        with tempfile.TemporaryDirectory() as raw:
+            folder=Path(raw);dependency=folder/'validation/unregistered.json'
+            dependency.parent.mkdir();dependency.write_text('{}')
+            fresh={'passed':True,'package_inputs':[guard.file_record(dependency,folder.parent)]}
+            with mock.patch.object(package,'P',folder),mock.patch.object(package,'publication_files',return_value=[]),\
+                 mock.patch.object(package,'validate',return_value=fresh),\
+                 mock.patch.object(sys,'argv',['package_publication.py']):
+                with self.assertRaisesRegex(RuntimeError,'absent from the publication allowlist'):
+                    package.main()
+            self.assertFalse((folder/package.DESTINATION).exists())
 
     def test_black_png_rejected_and_text_image_accepted(self):
         from PIL import Image,ImageDraw

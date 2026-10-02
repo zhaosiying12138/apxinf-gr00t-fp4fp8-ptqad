@@ -14,9 +14,12 @@ P = ROOT/'paper'
 FIGS = P/'figs'
 _DATA_INPUTS = {}
 _GENERATED_SVGS = set()
+V11_ARMS = ('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd')
+V11_RECIPE = 'all_nvfp4_gptq_category'
 INK, BLUE, TEAL, AMBER = '#183c4d', '#2368a0', '#258577', '#b97824'
 SUPER = dict(zip('⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺⁽⁾ᵀ', '0123456789-+()T'))
 SUB = dict(zip('₀₁₂₃₄₅₆₇₈₉ᵢⱼₖ', '0123456789ijk'))
+SUB['ₐ'] = 'A'  # Render Q_A with an explicit ordinary-glyph subscript.
 
 
 def script_markup(value, size):
@@ -180,21 +183,22 @@ def e1_chart():
 def paired_rows():
     path='paper/evidence/paired_comparison.json'
     data=read(path)
-    if data.get('environment_pairing_verified') is not True:
-        raise ValueError(f'{path}: environment pairing was not verified')
-    order=('bf16','ptq','qad','continued_qad','qad_opd')
+    if any(data.get(key) is not True for key in (
+            'environment_pairing_verified', 'protocol_consistency_verified', 'source_accounting_verified')):
+        raise ValueError(f'{path}: all three v11 integrity gates must pass')
+    order=V11_ARMS
     arms=data['arms']
     if set(arms)!=set(order):raise ValueError(f'{path}: expected exactly five completed arms')
     reference=None;rows=[]
     for key in order:
         arm=arms[key];count=arm['count'];successes=arm['successes'];tasks=arm['per_task']
-        if type(count) is not int or type(successes) is not int or not 0<=successes<=count or count<=0:
+        if type(count) is not int or count!=160 or type(successes) is not int or not 0<=successes<=count:
             raise ValueError(f'{key}: invalid successes/count')
         if len(tasks)!=10:raise ValueError(f'{key}: expected ten completed tasks')
         task_counts={}
         for task,result in tasks.items():
             n=result['episodes'];k=result['successes']
-            if type(n) is not int or type(k) is not int or not 0<=k<=n or n<=0:
+            if type(n) is not int or n!=16 or type(k) is not int or not 0<=k<=n:
                 raise ValueError(f'{key}/{task}: invalid successes/episodes')
             if not math.isclose(result['success_rate'],k/n,abs_tol=1e-12):
                 raise ValueError(f'{key}/{task}: inconsistent success rate')
@@ -254,8 +258,9 @@ def budget_rows():
     category_recipe_path='paper/evidence/selected_recipe/category_ptq_recipe.json'
     category_memory_record=read(category_memory_path)
     category_recipe_record=read(category_recipe_path)
-    order=('all_nvfp4_gptq_category',)
-    if data.get('schema_version') != 'v11-selected-all-nvfp4-category' or tuple(data.get('ladder',())) != order:
+    order=(V11_RECIPE,)
+    if (data.get('schema_version') != 'v11-selected-all-nvfp4-category' or
+            tuple(data.get('ladder',())) != order or set(data.get('recipes',{})) != set(order)):
         raise ValueError(f'{path}: v11 inventory must contain only the selected all-NVFP4 recipe')
     if category_memory_record.get('format') != 'selected_category_recipe_memory_v2':
         raise ValueError(f'{category_memory_path}: unsupported selected memory format')
@@ -271,11 +276,30 @@ def budget_rows():
         raise ValueError('Selected category memory differs between recipe and memory artifacts')
     if data.get('recipes',{}).get(order[0]) != selected_memory:
         raise ValueError(f'{path}: inventory selected memory is not the category memory')
+    category_bake=read('paper/evidence/selected_recipe/category_bake_manifest.json')
+    if (category_bake.get('status')!='complete' or
+            category_bake.get('version')!=category_recipe_record.get('version') or
+            category_bake.get('memory')!=selected_memory):
+        raise ValueError('Selected category bake manifest differs from the recipe budget')
+    physical_count=selected_memory.get('linear_params')
+    unique=selected_memory.get('known_tied_alias_deduplicated',{})
+    unique_count=unique.get('eligible_tensor_elements')
+    if (selected_memory.get('eligible_tensor_count')!=479 or
+            type(physical_count) is not int or physical_count<=0 or
+            type(unique_count) is not int or unique_count<=0 or
+            selected_memory.get('nvfp4_params')!=physical_count or
+            any(selected_memory.get(name+'_params')!=0 for name in ('fp8','bf16')) or
+            selected_memory.get('fraction_of_eligible_params')!={'nvfp4':1.0,'fp8':0.0,'bf16':0.0} or
+            unique.get('elements_by_format')!={'nvfp4':unique_count,'fp8':0,'bf16':0} or
+            unique.get('fraction_of_eligible')!={'nvfp4':1.0,'fp8':0.0,'bf16':0.0}):
+        raise ValueError('v11 selected recipe requires 100% NVFP4 in both eligible-element budgets')
     residual=data['recovery_residual']
-    if residual['scope']!='all_ordinary_linear' or residual['dtype']!='bfloat16' or residual['rank']!=32:
+    if (residual['scope']!='all_ordinary_linear' or residual['dtype']!='bfloat16' or
+            residual['rank']!=32 or residual.get('alpha')!=64 or residual.get('linear_modules')!=468):
         raise ValueError(f'{path}: unsupported recovery budget scope/dtype/rank')
     extra=positive_number(residual['target_bytes'],'residual target_bytes')
-    if extra!=residual['tensor_elements']*residual['bytes_per_element'] or residual['bytes_per_element']!=2:
+    if (type(extra) is not int or type(residual['tensor_elements']) is not int or
+            extra!=residual['tensor_elements']*residual['bytes_per_element'] or residual['bytes_per_element']!=2):
         raise ValueError(f'{path}: inconsistent residual byte budget')
     rows=[];sources=None
     for key in order:
@@ -320,7 +344,7 @@ def budget_ladder():
     s.rect(30,510,1360,83,'#fff6e9')
     s.text(48,537,f'旁路：all_ordinary_linear，rank = 32，{data["recovery_residual"]["linear_modules"]} 个 Linear；两种口径均完整计入旁路。',15,AMBER)
     s.text(48,561,'同一旁路成本叠加到唯一 all-NVFP4 基座；该图不包含激活、优化器、对齐和运行时工作区。',14,AMBER)
-    s.text(48,583,'当前闭环采用稠密 BF16 合并 checkpoint；此处是保留 packed 基座与独立旁路时的编码预算，不是已测文件或显存压缩。',14,AMBER)
+    s.text(48,583,'闭环加载稠密反量化基座与独立 BF16 旁路；图示为目标编码预算，不是实测文件或显存压缩。',14,AMBER)
     s.save('budget_ladder')
 def swizzle_layout():
     # 128 rows × 8 scale blocks: verify a bijection over two 512-byte tiles.
@@ -395,7 +419,7 @@ def recovery_protocol():
     s.text(411,184,'Δy = (α/r) · (xAᵀ)Bᵀ',14)
     # Use an ordinary q to denote Wq, avoiding an ambiguous adjacent subscript
     # and superscript at different baselines in the same short expression.
-    s.text(411,209,'y = x(Wq)ᵀ + b + Δy',14)
+    s.text(411,209,'y = Qₐ(x)(Wq)ᵀ + b + Δy',14)
     box(790,102,300,132,'③ 学生闭环轨迹',['运行 QAD 策略并采集观测','保存完整动作端点及有效 mask'])
     arrow([(300,168),(395,168)]);arrow([(695,168),(790,168)])
     box(790,285,300,128,'④ 未量化教师标注',['师生共享噪声与时间步','缓存速度场、mask 和重放种子','教师无梯度；学生探针可求导'],TEAL)
@@ -408,8 +432,9 @@ def recovery_protocol():
     s.text(31,303,'共享起点与演示优化预算',18,BLUE,600)
     s.text(31,334,'OPD 另用教师标注和学生探针计算。',15)
     s.text(31,361,'因此单独报告标注、训练耗时及峰值显存。',15)
-    s.text(31,399,'矩阵形状：x:[M,K]；A:[r,K]；B:[N,r]',14)
-    s.text(31,425,'Wq:[N,K]；b:[N]；y、Δy:[M,N]（偏置按行广播）',14)
+    s.text(31,388,'Qₐ：NVFP4 激活量化；低秩旁路仍读取原始 x。',14)
+    s.text(31,414,'矩阵形状：x:[M,K]；A:[r,K]；B:[N,r]',14)
+    s.text(31,440,'Wq:[N,K]；b:[N]；y、Δy:[M,N]（偏置按行广播）',14)
     s.rect(30,637,1060,88,'#e8f2ee')
     s.text(52,668,'统一最终评测：BF16 · PTQ · QAD · 继续 QAD · QAD+OPD',19,TEAL,600)
     s.text(52,698,'配对任务和稳定后初态；同一执行预算。报告宏平均、实际分子分母及逐任务结果。',14)
@@ -418,26 +443,39 @@ def recovery_protocol():
 
 def frontier_rows():
     data=read('paper/evidence/frontier_comparison.json')
-    if data.get('version')!=1 or data.get('status')!='complete' or data.get('environment_pairing_verified') is not True:
+    if (data.get('version')!=1 or data.get('status')!='complete' or
+            any(data.get(key) is not True for key in (
+                'environment_pairing_verified','protocol_consistency_verified','source_accounting_verified'))):
         raise ValueError('Frontier requires a completed, paired current comparison')
     points=data['points'];names=[row['name'] for row in points]
-    # v11 has no auxiliary PTQ references: the paper freezes the selected
-    # selected W4A4 recipe and compares it directly with BF16 and the recovery arms.
-    # Keep the order supplied by the evidence rather than embedding an old
-    # candidate ladder in the renderer.
-    references=data.get('reference_order', list((data.get('references') or {}).keys()))
-    selected=data.get('selected_recipe','all_nvfp4_gptq_category')
-    if (not isinstance(references,list) or
-        any(not isinstance(name,str) or not name for name in references) or
-        len(references)!=len(set(references)) or not isinstance(selected,str) or
-        not selected or selected in references):
-        raise ValueError('Frontier has invalid frozen recipe identities')
-    expected=['bf16',*references,'ptq','qad','continued_qad','qad_opd']
-    if names!=expected or set(data.get('references',{}))!=set(references):
-        raise ValueError('Frontier requires every frozen reference and recovery arm in order')
+    if (data.get('selected_recipe')!=V11_RECIPE or data.get('reference_order')!=[] or
+            data.get('references')!={} or names!=list(V11_ARMS)):
+        raise ValueError('v11 frontier requires only the selected all-NVFP4 recipe and five arms')
+    paired,_=paired_rows()
+    _,budgets,extra=budget_rows()
+    selected_budget=budgets[0]
+    # The ladder and frontier must use the same byte-identical heldout report
+    # and selected budget, even when each file is internally self-consistent.
+    for key,path in {
+            'paired_comparison':'paper/evidence/paired_comparison.json',
+            'recipe_inventory':'paper/evidence/recipe_inventory.json',
+            'selected_category_memory':'paper/evidence/selected_recipe/category_memory.json',
+            'selected_category_recipe':'paper/evidence/selected_recipe/category_ptq_recipe.json',
+            'selected_category_bake_manifest':'paper/evidence/selected_recipe/category_bake_manifest.json'}.items():
+        actual=file_record(ROOT/path)
+        declared=data.get('source',{}).get(key,{})
+        if any(declared.get(field)!=actual[field] for field in ('bytes','sha256')):
+            raise ValueError(f'Frontier source identity differs: {key}')
     ptq=next(row for row in points if row['name']=='ptq')
     denominators={};residual=None
     for row in points:
+        expected_recipe='bf16' if row['name']=='bf16' else V11_RECIPE
+        expected_role='recovery' if row['name'] in ('qad','continued_qad','qad_opd') else row['name']
+        if row.get('recipe')!=expected_recipe or row.get('role')!=expected_role:
+            raise ValueError('Frontier point recipe/role differs from the frozen v11 arm')
+        if any(row.get(field)!=paired['arms'][row['name']].get(field)
+               for field in ('successes','count','macro_success_rate','per_task')):
+            raise ValueError('Frontier arm differs from the paired heldout comparison')
         if row['count']!=160 or type(row['successes']) is not int or not 0<=row['successes']<=160:
             raise ValueError('Frontier counts must describe 160 completed heldout episodes')
         tasks=row['per_task']
@@ -449,6 +487,12 @@ def frontier_rows():
         if set(row['encoding_budget'])!={'physical','known_alias_deduplicated'}:
             raise ValueError('Frontier requires both encoding denominators')
         for scope,cost in row['encoding_budget'].items():
+            panel=0 if scope=='physical' else 1
+            expected_source=selected_budget['sources'][panel]
+            expected_base=expected_source if row['name']=='bf16' else selected_budget['targets'][panel]
+            if (cost['source_bytes']!=expected_source or cost['base_bytes']!=expected_base or
+                    cost['residual_bytes']!=(extra if recovery else 0)):
+                raise ValueError('Frontier bytes differ from the selected v11 encoding budget')
             if any(type(cost[k]) is not int or cost[k]<0 for k in ('source_bytes','base_bytes','residual_bytes','total_bytes')) or cost['source_bytes']<=0 or cost['base_bytes']<=0 or cost['total_bytes']!=cost['base_bytes']+cost['residual_bytes']:
                 raise ValueError('Invalid frontier net encoding bytes')
             if not math.isclose(cost['compression_x'],cost['source_bytes']/cost['total_bytes'],rel_tol=1e-12):
@@ -579,13 +623,8 @@ def ptq_frontier():
     s.line(left,top,left,bottom,INK);s.line(left,bottom,right,bottom,INK)
     s.text(left,103,'十任务宏平均成功率',15,BLUE,600)
     s.text(570,558,'已知共享副本去重后的净编码预算 / GB（1 GB = 10 亿字节）',15,anchor='middle')
-    labels={'bf16':'BF16','ptq':data.get('selected_recipe','all_nvfp4_gptq_category')+' 纯 PTQ',
+    labels={'bf16':'BF16','ptq':'W4A4 PTQ',
             'qad':'QAD','continued_qad':'继续 QAD','qad_opd':'QAD + OPD'}
-    reference_order=data.get('reference_order', list((data.get('references') or {}).keys()))
-    if not reference_order:
-        reference_order=[row['name'] for row in points
-                         if row['name'] not in labels and row['name'] != 'ptq']
-    labels.update({name:name+' 纯 PTQ' for name in reference_order})
     groups={}
     for i,row in enumerate(points):
         key=(row['encoding_budget'][scope]['total_bytes'],row['successes'])
@@ -593,7 +632,8 @@ def ptq_frontier():
     markers=[]
     for (size,score),group in groups.items():
         role=group[0][1]['role']
-        markers.append({'x':x(size/1e9),'y':y(score),'role':role,
+        rate=100*score/group[0][1]['count']
+        markers.append({'x':x(size/1e9),'y':y(rate),'role':role,
                         'label':','.join(code for code,_ in group),
                         'color':INK if role=='bf16' else TEAL if role=='recovery' else BLUE})
     annotations=frontier_label_layout(markers,(left,top,right,bottom))
@@ -622,7 +662,7 @@ def ptq_frontier():
         values=[chr(65+i),labels[row['name']],f'{row["successes"]}/{row["count"]}',f'{100*row["macro_success_rate"]:.1f}%',
                 f'{known["total_bytes"]/1e9:.6f}',f'{cost["physical"]["total_bytes"]/1e9:.6f}',f'{known["compression_x"]:.4f}×']
         for at,value in zip(columns,values):s.text(at,yy,value,14,anchor='start' if at<300 else 'end')
-    s.text(30,footer,'预算含格式尺度、未量化张量及恢复残差；不等于 BF16 合并文件大小、实测显存或完整原生部署。',14,AMBER)
+    s.text(30,footer,'预算含格式尺度、未量化张量及恢复残差；不等于当前稠密权重文件大小、实测显存或完整原生部署。',14,AMBER)
     s.save('ptq_frontier')
 
 
@@ -633,6 +673,7 @@ def write_figure_manifest(source):
         'paper/evidence/recipe_inventory.json',
         'paper/evidence/selected_recipe/category_memory.json',
         'paper/evidence/selected_recipe/category_ptq_recipe.json',
+        'paper/evidence/selected_recipe/category_bake_manifest.json',
         'paper/evidence/frontier_comparison.json',
         'results/engine/pi05_nvfp4_ptqad_20260929.json',
         'results/baselines/pi05_pt_bf16_ptqad_20260929.json',

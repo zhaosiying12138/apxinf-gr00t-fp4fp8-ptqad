@@ -222,10 +222,10 @@ def materialize(final_manifest: str | Path, out: str | Path,
         # heldout_round directory; only the verified JSON mirrors are copied.
         pair_dir = stage / "evidence"
         collect_pairing_evidence.collect(round_dir, pair_dir, str(protocol_path))
-        for file in sorted(pair_dir.rglob("*")):
-            if file.is_file():
-                mapping.append({"source": identity(file), "published_path": str(file),
-                                "role": "verified_heldout_pairing_copy"})
+        for name in collect_pairing_evidence.NAMES:
+            mapping.append({"source": identity(round_dir / name),
+                            "published_path": str(pair_dir / name),
+                            "role": "verified_heldout_pairing_copy"})
 
         costs = _materialize_training(stage, final_path, protocol_path, orchestrator_run,
                                       training_evidence, mapping)

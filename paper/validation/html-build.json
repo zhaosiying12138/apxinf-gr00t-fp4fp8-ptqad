@@ -124,8 +124,8 @@
     },
     {
       "path": "figs/budget_ladder.svg",
-      "bytes": 6627,
-      "sha256": "22de5402090d6a1b9d907377d30b8bbe6d2479373f05729e11015fd562933960"
+      "bytes": 6599,
+      "sha256": "0e92fa7dac3489346c64589ff56ce630d06562d6668ca4b1bf0225b6743a006b"
     },
     {
       "path": "figs/e1_latency.svg",
@@ -149,8 +149,8 @@
     },
     {
       "path": "figs/recovery_protocol.svg",
-      "bytes": 7472,
-      "sha256": "c18c9f0c06738149eb78861b7dcaa6dd32ba587b2e1bf1beec560adca18533a4"
+      "bytes": 7836,
+      "sha256": "1d0a1e46bd762745951d8321ad943f2399a16ff0f3acae7344060ee80c0b8f90"
     },
     {
       "path": "figs/shot_bake.png",
@@ -294,8 +294,8 @@
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "bytes": 19146,
-      "sha256": "d04ffb6434fd7f35bce3f24d4d56782aab0f87e023adfc88821f4b8737c221ca"
+      "bytes": 21080,
+      "sha256": "27f471cf8b23438bc6bcbbaeedd9c74345155042dfb33ce33f9c8fc128ecbda7"
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
@@ -310,8 +310,8 @@
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 8496063,
-    "sha256": "5b713ad7731e6446010cc38fd2b8bac70263a996b6fb761b963941d7af014caf"
+    "bytes": 8498825,
+    "sha256": "b0716de62f4891b6614179bfda79477662f86fd1ec63716eb1f89e8f7183d5bf"
   },
   "math_expressions": 276,
   "figures": 24

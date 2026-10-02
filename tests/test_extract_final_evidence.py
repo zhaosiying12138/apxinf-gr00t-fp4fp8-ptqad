@@ -48,7 +48,7 @@ class FinalEvidenceAdapterTests(unittest.TestCase):
             "protocol_file": str(protocol),
             "protocol_sha256": hashlib.sha256(protocol.read_bytes()).hexdigest(),
             "selection_uses_heldout": False,
-            "selected_pressure_recipe": "calib_category",
+            "selected_pressure_recipe": "all_nvfp4_gptq_category",
             "selected_ptq_checkpoint": str(root / "selected_checkpoint"),
             "heldout_round": str(round_dir),
             "heldout_comparison": {"path": str(comparison_path), "bytes": comparison_path.stat().st_size,
@@ -80,6 +80,18 @@ class FinalEvidenceAdapterTests(unittest.TestCase):
         path.write_text(json.dumps(data))
         with self.assertRaisesRegex(ValueError, "independent"):
             extract(root)
+
+    def test_rejects_other_recipes_even_with_v11_protocol(self):
+        tmp, root = self._fixture()
+        self.addCleanup(tmp.cleanup)
+        path = root / "final_manifest.json"
+        final = json.loads(path.read_text())
+        for recipe in (None, "mixed", "calib_category", "all_linear_nvfp4_gptq"):
+            with self.subTest(recipe=recipe):
+                final["selected_pressure_recipe"] = recipe
+                path.write_text(json.dumps(final))
+                with self.assertRaisesRegex(ValueError, "unique all_nvfp4_gptq_category"):
+                    extract(root)
 
     def test_rejects_incomplete_comparison(self):
         tmp, root = self._fixture()

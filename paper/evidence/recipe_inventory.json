@@ -13,7 +13,7 @@
   "tied_aliases": {
     "backbone.model.lm_head.weight": "backbone.model.model.language_model.embed_tokens.weight"
   },
-  "eligible_predicate": "479 rank-2 weight tensors; 476 executable Linear operators use W4A4 and three embedding/position tensors are weight-only",
+  "eligible_predicate": "479 eligible weight tensors: 472 rank-2 tensors and seven rank-3 category tensors; 469 ordinary and seven category Linear operators use W4A4, while three embedding/position tensors are weight-only",
   "recipes": {
     "all_nvfp4_gptq_category": {
       "all_checkpoint_params": 3455180928,
@@ -104,8 +104,8 @@
     "target_bytes": 145997824,
     "source_index_sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59",
     "source_config_sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
-    "linear_coverage_source": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r2/artifacts/train_qad_lr_5e-05/recovery_manifest.json",
-    "linear_coverage_sha256": "a99c7d9bef2abe62abeebedb958b05a05e6ebd067ce6c02d1f938b16d0dfbf02",
+    "linear_coverage_source": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_5e-05/recovery_manifest.json",
+    "linear_coverage_sha256": "5f81fb84266047f3d00ca7d4b7d92641aeb6ebec7e7526c5d0aea6309c02fe41",
     "note": "独立保存的 BF16 LoRA A/B 旁路预算；不把它误写成 packed W4A4 checkpoint 文件大小。"
   },
   "source_identities": {
@@ -130,9 +130,9 @@
       "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
     },
     "recovery_manifest": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r2/artifacts/train_qad_lr_5e-05/recovery_manifest.json",
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_5e-05/recovery_manifest.json",
       "bytes": 3170,
-      "sha256": "a99c7d9bef2abe62abeebedb958b05a05e6ebd067ce6c02d1f938b16d0dfbf02"
+      "sha256": "5f81fb84266047f3d00ca7d4b7d92641aeb6ebec7e7526c5d0aea6309c02fe41"
     }
   },
   "publication_note": "v11 只公开全 NVFP4 W4A4 PTQ 基座及其 QAD/OPD BF16 residual 旁路；FP8 是同一分配器支持的回退格式，本次选择中为 0 元素。"

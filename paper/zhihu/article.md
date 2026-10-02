@@ -828,27 +828,33 @@ v11 的量化契约是：eligible Linear 使用 NVFP4 权重和 NVFP4 activation
 
 ## B.1 安装环境，准备源码、权重与数据
 
-在 WSL2 Ubuntu 中准备 Git LFS、CUDA/NVFP4 工具链和两个 Python 环境。恢复环境承载 GR00T、W4A4 QDQ、QAD/OPD 和服务端；LIBERO 仿真环境单独承载模拟器依赖。
+以下命令在仓库根目录执行。恢复环境承载GR00T、W4A4 QDQ、QAD/OPD和服务端，LIBERO仿真环境单独承载模拟器依赖。安装脚本生成 `setup/recovery-env.sh`，后续沿用其中的路径；CUDA编译工具链与Rust仅在B.8原生实验中需要。
 
 ```bash
-  sudo apt-get update
-  sudo apt-get install -y git-lfs
-  bash setup/01_install_dev_tools.sh
-  bash setup/03_download_weights.sh --core-only
-  CONDA_EXE="$HOME/miniforge3/bin/conda" bash setup/06_install_recovery.sh
-  source setup/recovery-env.sh
-  export PROJECT=$(pwd)
-  export GR00T_REPO="$PROJECT/../groot-fsdp2/Isaac-GR00T"
-  export PTQAD_PYTHON="$GR00T_REPO/.venv/bin/python"
-  export LIBERO_PYTHON="$GR00T_REPO/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python"
-  export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
-  export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
-  export PTQAD_MEDIA_LIB="$PROJECT/third_party/media7/lib"
-  export PTQAD_PROTOCOL_FILE="$PROJECT/exp/recovery_protocol_v11_w4a4_category.json"
-  export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
-  export PTQAD_RUN_DIR="$PROJECT/results/ptqad_v11_w4a4_category"
-export RECOVERY_ROOT="$PTQAD_RUN_DIR/recovery"
+sudo apt-get update
+sudo apt-get install -y git-lfs
+git lfs install
+bash setup/01_install_dev_tools.sh
+bash setup/03_download_weights.sh --core-only
+CONDA_EXE="$HOME/miniforge3/bin/conda" bash setup/06_install_recovery.sh
+
+export PROJECT="$(pwd)"
+source setup/recovery-env.sh
+export PTQAD_BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
+export QAD_DATASET="$GR00T_REPO/demo_data/libero_demo"
+export V11_ROOT="$PROJECT/results/ptqad_v11"
+export DEV_DIR="$V11_ROOT/development"
+export TRAIN_DIR="$V11_ROOT/training"
+export SELECTION_DIR="$V11_ROOT/selection"
+export RECOVERY_DIR="$V11_ROOT/recovery"
+export PTQAD_RUN_DIR="$RECOVERY_DIR"
+export PTQAD_PROTOCOL_FILE="$V11_ROOT/recovery_protocol_v11_w4a4_category.local.json"
+export PTQAD_SELECTION="$SELECTION_DIR/selection.json"
+export PTQAD_CAPTURE="$TRAIN_DIR/teacher_supervision"
+export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
 ```
+
+`CONDA_EXE` 须指向已安装的conda。默认安装位置为 `third_party/Isaac-GR00T`，训练和仿真解释器分别在 `.venv` 与 `.venv-libero`；自定义位置以生成的环境文件为准。上面只定义实验路径，首次运行还需按[完整复现教程](../docs/reproduce-ptqad.md)第2节创建新实验根与协议副本，再完成B.3所列前置步骤；继续原有运行时不重新复制协议模板。
 
 恢复环境需要 Python 3.12、PyTorch 2.9.0+cu128、transformers 4.57.3、torchcodec 0.8.0；仿真环境需要 robosuite 1.4.0、MuJoCo 3.3.1 和 gym 0.25.2。实际版本、上游 commit、补丁和权重散列以 `setup/locks/manifest.json` 与 `docs/weight-provenance.md` 为准。演示数据由 Git LFS 提供，文件、processor、statistics 和 embodiment ID 必须来自同一来源。
 
@@ -858,19 +864,31 @@ export RECOVERY_ROOT="$PTQAD_RUN_DIR/recovery"
 
 ## B.3 校准、生成候选并完成 development 压力筛选
 
-校准器在完整 GR00T 上采集输入二阶统计，输出 `calib.pt`、`calib_meta.json` 和来源散列。v11 冻结的压力候选是 `all_nvfp4_gptq_category`：479 个 eligible 权重张量全部采用 NVFP4，并由 469 个普通 Linear 与 7 个 CategorySpecificLinear 执行 W4A4 激活 QDQ。development 只按协议筛选：成功率相对 BF16 至少下降 5 个百分点、绝对成功率至少 30%，再核验激活安装报告和配对身份。当前开发集实际下降 10 个百分点（46/50→41/50）。development 使用 index 4–8、seed 940000、每任务 5 回合。
+校准器在完整GR00T上采集输入二阶统计，输出 `calib.pt`、`calib_meta.json` 和来源散列。v11冻结的压力候选是 `all_nvfp4_gptq_category`：479个eligible权重张量全部采用NVFP4，并由469个普通Linear与7个CategorySpecificLinear执行W4A4激活QDQ。development使用index 4–8、seed 940000、每任务5回合，要求PTQ相对BF16下降5–60个百分点且绝对成功率至少30%，随后核验激活安装报告和配对身份。
+
+新机器先执行完整教程第4–6节，不能直接从QAD命令开始。各步的实际产物路径如下；本附录与README共用同一布局。
+
+| 顺序 | 操作 | 必需产物 |
+|---|---|---|
+| 1 | 128窗口普通层校准，再按 `calib` 配方写盘 | `$V11_ROOT/ptq_parent/calibration/`、`$V11_ROOT/ptq_parent/calib/` |
+| 2 | 类别层校准与写盘，更新协议副本的候选路径 | `$V11_ROOT/category_calibration/`、`$V11_ROOT/w4a4_full_category/` |
+| 3 | 同协议BF16/PTQ development评测，再运行 `make_w4a4_selection.py` | `$DEV_DIR/bf16/`、`$DEV_DIR/all_nvfp4_gptq_category/`、`$PTQAD_SELECTION` |
+| 4 | BF16 teacher_supervision采集，再运行 `verify_teacher_replay.py` | `$PTQAD_CAPTURE/`，包含完整评测记录与成功样本 |
+
+协议副本须在development与教师采集之前确定，此后保持SHA-256不变。教师数据必须覆盖十个任务，每任务至少有2个带样本的成功episode；selection和教师缓存都通过核验后才进入恢复链。
 
 ## B.4 在冻结 W4A4 基座上训练 QAD
 
-v11 固定 QAD 学习率候选 5e-5 和 1e-4，各 2,000 个优化器更新；`rank=32`、`alpha=64`、有效 batch=16、训练 seed 20261003，恢复范围为 `all_ordinary_linear`。选择只使用 development。QAD 只更新 A/B，训练 manifest 记录 W4A4 format、scope、rank、alpha、batch、梯度检查和更新数。正式部署保留冻结 base 与 A/B adapter 分离；dense `Wq+BA` 导出只作诊断。
+v11固定QAD学习率候选5e-5和1e-4，各2,000个优化器更新；`rank=32`、`alpha=64`、micro batch=1、配置累积数16、训练seed 20261003，恢复范围为 `all_ordinary_linear`。本轮148窗口数据的尾批为4，实际读取预算见A.4.2。选择只使用development。QAD只更新A/B，训练manifest记录W4A4格式、scope、rank、alpha、批量和更新数。正式部署保留冻结base与A/B adapter分离；dense `Wq+BA` 导出只作诊断。
 
 ```bash
 "$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
-  --run-dir "$RECOVERY_ROOT" --protocol-file "$PTQAD_PROTOCOL_FILE" \
-  --ptq-selection "$PTQAD_RUN_DIR/development/selection.json" \
+  --run-dir "$RECOVERY_DIR" --protocol-file "$PTQAD_PROTOCOL_FILE" \
+  --ptq-selection "$PTQAD_SELECTION" \
   --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" --until qad_selection
+  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" \
+  --port-base 5890 --until qad_selection
 ```
 
 ## B.5 采集学生状态，训练 continued-QAD 与 OPD
@@ -879,11 +897,12 @@ v11 固定 QAD 学习率候选 5e-5 和 1e-4，各 2,000 个优化器更新；`r
 
 ```bash
 "$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
-  --run-dir "$RECOVERY_ROOT" --protocol-file "$PTQAD_PROTOCOL_FILE" \
-  --ptq-selection "$PTQAD_RUN_DIR/development/selection.json" \
+  --run-dir "$RECOVERY_DIR" --protocol-file "$PTQAD_PROTOCOL_FILE" \
+  --ptq-selection "$PTQAD_SELECTION" \
   --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" --until opd_selection
+  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" \
+  --port-base 5890 --until opd_selection
 ```
 
 ## B.6 在 held-out 上完成五臂评测
@@ -892,12 +911,15 @@ held-out 使用 index 9–19 与 24–28、seed 970000、每任务 16 回合；�
 
 ```bash
 "$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
-  --run-dir "$RECOVERY_ROOT" --protocol-file "$PTQAD_PROTOCOL_FILE" \
-  --ptq-selection "$PTQAD_RUN_DIR/development/selection.json" \
+  --run-dir "$RECOVERY_DIR" --protocol-file "$PTQAD_PROTOCOL_FILE" \
+  --ptq-selection "$PTQAD_SELECTION" \
   --base "$PTQAD_BASE" --gr00t-repo "$GR00T_REPO" \
   --python "$PTQAD_PYTHON" --rollout-python "$LIBERO_PYTHON" \
-  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" --until all
+  --dataset "$QAD_DATASET" --capture-dataset "$PTQAD_CAPTURE" \
+  --port-base 5890 --until all
 ```
+
+只有已有完成收据且身份校验通过的阶段才会自动复用。中断留下的不完整目录会被拒绝；`--adopt-complete` 只用于验收完整但尚未登记的阶段。当前 `checkpoint-*` 只保存模型，不含优化器和调度器状态，不能无损接续中断训练；保留失败记录后，应在新的恢复目录重跑该恢复链，具体步骤见完整教程第9节。正式服务还依赖冻结base与原训练checkpoint中的A/B，两者都须保留。
 
 ## B.7 归档和发布验证
 
@@ -968,7 +990,7 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 
 | 要核对的事项 | 首要证据 | 核对内容 |
 |---|---|---|
-| 环境与源码可定位 | `setup/locks/manifest.json`、`<RUN>/run_parameters.json`、`<RECOVERY_ROOT>/run_manifest.json`、实际命令日志 | 固定上游/补丁、解释器与库版本、源码散列及工作树身份 |
+| 环境与源码可定位 | `setup/locks/manifest.json`、`<V11_ROOT>/ptq_parent/run_parameters.json`、`<RECOVERY_DIR>/run_manifest.json`、实际命令日志 | 固定上游/补丁、解释器与库版本、源码散列及工作树身份 |
 | 基座和校准是否一致 | `<RUN>/calibration/calib_meta.json` | 16/32/4 结构、权重/配置/统计散列、实际窗口和每层行数 |
 | 某层究竟如何量化 | `<RUN>/<recipe>/ptq_recipe.json` | requested/actual 方法、裁剪、H 覆盖、RTN 回退、tied alias 和未量化张量 |
 | 编码比例与分母 | `<DEV_ROOT>/recipe_inventory.json` 及实际配方账目；本轮发布快照为 `paper/evidence/recipe_inventory.json` | 物理 checkpoint 与去已知 alias 两个口径；是否计入 scale 和 LoRA |
