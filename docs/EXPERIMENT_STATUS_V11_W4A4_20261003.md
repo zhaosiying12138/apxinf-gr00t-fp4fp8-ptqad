@@ -16,7 +16,7 @@ development 使用 bank 4–8（5 回合/任务）；教师监督和学生 colle
 
 ## 已完成的压力门控
 
-在 development 上，BF16 与全 NVFP4 W4A4 PTQ 已通过预注册的压力门控，形成可恢复的行为差距。该门控只决定是否进入恢复链，不是最终主表结果；正文必须等待五臂 held-out ledger。
+在 development 上，BF16 与全 NVFP4 W4A4 PTQ 的差距已满足协议的压力门槛。该门控只决定是否进入恢复链，不证明差距已经可以恢复；正文必须等待五臂 held-out ledger。
 
 教师采集已完成 10 个任务、148 个有效 snapshot，CPU replay audit 通过。当前运行目录为：
 
@@ -26,11 +26,22 @@ results/ptqad_20261003/v11_recovery_r4
 
 ## 当前 GPU 进程与续跑纪律
 
-QAD 的 `5e-5` 臂正在训练 2000 个 optimizer steps，随后由同一个 v11 driver 继续训练另一学习率、选择 QAD、收集学生状态、训练 continued-QAD 与两个 OPD 权重，并运行 held-out 五臂比较。当前进程由独立的后台监督脚本守护；阶段完成后再由 `--adopt-complete` 只审计并采用已经完成的稳定路径。
+截至 2026-10-02 11:00（Asia/Shanghai），QAD 的 `5e-5` 臂约为 978/2000 optimizer steps，driver PID 为 4118527，训练 PID 为 4118579；这些是当时的快照，接手时必须重新检查。随后按冻结顺序完成另一学习率、QAD 选择、学生状态采集、continued-QAD、两个 OPD 权重及 held-out 五臂比较。
+
+续跑由 systemd 用户服务 `fp4vla-v11-r4-continuation.service` 托管，入口为 `exp/continue_w4a4_run.py`。服务先等待绑定的 driver 退出，然后校验并复用已完成阶段。当前 driver 没有 `PTQAD_MEDIA_LIB`，第一条 development 评测预计会在 FFmpeg 预检时退出；续跑器仅在日志精确匹配该错误、评测目录完全为空、没有评测 manifest 或完成标记且 GPU 空闲时，归档原日志并记录 SHA，再使用已验证的 media7 路径续跑。它不删除已有结果，不重跑部分训练，不修改冻结的训练或评测实现。
+
+```bash
+systemctl --user status fp4vla-v11-r4-continuation.service
+journalctl --user -u fp4vla-v11-r4-continuation.service -n 20 --no-pager
+```
+
+续跑调用和后续 driver 日志位于运行目录的 `operations/continuation-*/`。`exp/continue_v11.sh` 现在是通用入口，调用时必须显式提供 `--run-dir`、活着的原 driver 的 `--wait-pid` 和 `--media-lib`，没有硬编码旧 PID。不要重复启动已有服务。此服务不保证跨 Windows/WSL 重启恢复；重启后先检查日志和完整阶段证据。
 
 开发集 OPD 若没有严格超过 QAD 和 continued-QAD，脚本可以显式使用 `--allow-opd-nonimprovement` 完成 paired held-out。这个开关只解除“提前停止”，不会把失败写成增益：`selection.json` 会记录 `opd_gate_override` 和实际的 `opd_beats_qad`、`opd_beats_continued_qad` 布尔值；只有 held-out 同时超过两条基线时，论文才允许宣称 OPD 有独立提升。
 
 训练阶段的日志、manifest 和 checkpoint 不得手工移动。若 driver 在阶段标记前退出，先运行对应的 `train_verify`/`merge_verify`，确认 `runtime_metrics.json`、`recovery_manifest.json`、recipe SHA、category manifest SHA 和协议 SHA 全部一致，再用 `--adopt-complete` 续跑；不能删除唯一 checkpoint 后重训。
+
+当前保存的是 **model-only checkpoint**，不含 Adam、scheduler 和 RNG 状态。它可以用于模型诊断或显式设计的新训练阶段，不能完整恢复被中断的 optimizer 轨迹，也不能根据它手工补写 `runtime_metrics.json`。训练中仅保留最近两份模型 checkpoint；完成后的重复根目录权重可由 driver 的 `--cleanup-duplicates` 校验后删除并留存 receipt。
 
 ## 发布门槛
 
