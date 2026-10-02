@@ -25,18 +25,18 @@ TRAIN_SOURCES = tuple("rl/" + name for name in (
 ARCH = {"language_layers": 16, "dit_layers": 32, "vl_layers": 4}
 TRAIN_SCOPE = "script import through training and checkpoint serialization"
 TEACHER_SCOPE = "checkpoint loading and teacher labeling, before cache serialization"
-# The v7 run is the current formal publication boundary.  The category form
-# remains readable so the CPU verifier can audit older archived packages, but
-# no caller may infer a winner from a filename alone: protocol SHA and the
-# completed run receipts are checked below.
-FINAL_FORMAT_RE = re.compile(r"(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7)_final_manifest\Z")
+# Exact v11 support does not admit arbitrary future W4A4 schemas. Archived
+# formats remain readable; the frozen protocol and completed receipts decide scope.
+FINAL_FORMAT_RE = re.compile(r"(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7|w4a4_recovery_v11)_final_manifest\Z")
 DTYPE_BYTES = {"bfloat16":2,"float16":2,"float32":4,"float64":8,"int8":1,"uint8":1,"bool":1,"int16":2,"int32":4,"int64":8}
 SHARED_KEYS = ("base", "rank", "alpha", "scope", "base_config_sha256", "base_statistics_sha256", "base_recipe_sha256",
     "parameter_dtype", "compute_dtype", "seed", "micro_batch", "effective_global_batch", "gradient_accumulation_steps",
-    "recovery_source_sha256", "protocol_sha256", "activation_checkpointing", "trainable_parameters", "lora_linear_modules")
+    "protocol_sha256", "activation_checkpointing", "trainable_parameters", "lora_linear_modules")
+OPTIONAL_SHARED_KEYS = ("capture_dataset", "capture_dataset_sha256", "capture_dataset_samples",
+    "w4a4_enabled", "execution_mode", "base_category_recipe_sha256", "base_category_manifest_sha256")
 EXCLUDED = ["initial QAD smoke", "OPD smoke", "calibration", "baking", "heldout evaluation", "collector audit"]
 
-ACCOUNTING_NOTES = ['Training, collection and labeling retain their producer timing scopes; do not sum them as a measured end-to-end wall clock.', 'Teacher labeling elapsed includes checkpoint/input hashing, configuration and observation reading, model loading and labeling, but ends before cache serialization. Export elapsed is a producer field, not process end-to-end timing.', 'Training timing includes checkpoint saving; the three arms can have different save counts. This is measured stage cost, not a pure per-update compute benchmark.', 'Allocator peaks are process-local PyTorch measurements; collection peaks were not recorded and are null.', 'Both continuation manifests name the same adapter; current adapter bytes match the completed QAD export. Training did not record a separate initial-adapter weight digest at start.', 'Training and teacher source hashes are producer-attested and verified. Collection records protocol SHA but not its own source SHA; archived wrapper source is a collector-time snapshot.', 'Weights, observation tensors and teacher cache are hashed/checked but are not copied into this lightweight evidence package.', 'Demonstration window draws are derived from completed optimizer steps times configured effective batch, not an independent microbatch counter or a count of distinct samples.', 'Teacher backward fields count student backward passes against cached teacher velocity targets; the BF16 teacher labels under no_grad and is never updated.', 'Public verification checks copied metadata/logs and recorded identities without opening private model, observation or cache tensor files; the collector-time tensor hash checks cannot be independently repeated from this lightweight package.']
+ACCOUNTING_NOTES = ['Training, collection and labeling retain their producer timing scopes; do not sum them as a measured end-to-end wall clock.', 'Teacher labeling elapsed includes checkpoint/input hashing, configuration and observation reading, model loading and labeling, but ends before cache serialization. Export elapsed is a producer field, not process end-to-end timing.', 'Training timing includes checkpoint saving; the three arms can have different save counts. This is measured stage cost, not a pure per-update compute benchmark.', 'Allocator peaks are process-local PyTorch measurements; collection peaks were not recorded and are null.', 'Both continuation manifests name the same adapter; current adapter bytes match the completed QAD export. Training did not record a separate initial-adapter weight digest at start.', 'Training and teacher producer-attested hashes are matched to per-stage archived bytes; matching a later content-addressed snapshot does not prove launch-time import identity. Collection records protocol SHA but not its own source SHA; archived wrapper source is a collector-time snapshot.', 'Weights, observation tensors and teacher cache are hashed/checked but are not copied into this lightweight evidence package.', 'For bound capture replay, demonstration draws are source-derived from sample count, epoch tail batches and completed updates and checked against Trainer epoch; otherwise only the configured full-batch budget is available. Neither is an independent draw counter or a count of distinct samples.', 'Teacher backward fields count student backward passes against cached teacher velocity targets; the BF16 teacher labels under no_grad and is never updated.', 'Public verification checks copied metadata/logs and recorded identities without opening private model, observation or cache tensor files; the collector-time tensor hash checks cannot be independently repeated from this lightweight package.']
 
 
 def need(ok, message):
@@ -83,7 +83,7 @@ def orchestrator_source(protocol, state=None, source_root=None):
         # orchestrator has evolved.
         candidates = ['exp/run_mixed_pressure_recovery.py', 'exp/run_category_recovery.py',
                       'exp/run_high_fp4_v3_producer.py',
-                      'exp/run_high_fp4_v3_run_snapshot.py']
+                      'exp/run_high_fp4_v3_run_snapshot.py', 'exp/run_high_fp4_v3.py']
         match = re.search(r'v(\d+)', str(protocol.get('id', '')))
         candidates.append('exp/run_high_fp4_v%s.py' % (match.group(1) if match else '3'))
         expected = state.get('implementation_sha256')
@@ -121,6 +121,74 @@ def normalized_protocol(protocol, final=None):
             'effective_demo_batch':selection['effective_demo_batch'],'opd_weight':weight,
             'probe_every_optimizer_steps':selection['opd_every']},
         'selected_learning_rate':lr,'train_seed':selection['train_seed']}
+
+
+def partition_budget(protocol, purpose):
+    """Read counts from the frozen protocol, including its evaluation contract."""
+    part = protocol.get('partitions', protocol)[purpose]
+    runtime = protocol.get('evaluation_contract') or protocol.get('fixed_runtime', {})
+    tasks = part.get('tasks', runtime.get('task_count', runtime.get('tasks', 10)))
+    episodes = part['episodes_per_task']
+    need(type(tasks) is int and tasks == 10 and type(episodes) is int and episodes > 0,
+         'Unsupported frozen task/episode contract')
+    indices = part['init_state_indices']
+    need(isinstance(indices, list) and len(indices) == episodes and len(set(indices)) == episodes and
+         all(type(i) is int and 0 <= i < 50 for i in indices), 'Invalid frozen bank indices')
+    if purpose == 'heldout' and 'final_episode_count_per_arm' in runtime:
+        need(runtime['final_episode_count_per_arm'] == tasks * episodes,
+             'Frozen final episode total contradicts task/episode budget')
+    return tasks, episodes
+
+
+def final_format_matches(final, protocol):
+    value = final.get('format')
+    if not isinstance(value, str) or not FINAL_FORMAT_RE.fullmatch(value):
+        return False
+    if value == 'w4a4_recovery_v11_final_manifest':
+        return (protocol.get('id') == 'w4a4-recovery-v11-category' and
+                protocol.get('version') == 11 and protocol.get('w4a4') is True)
+    return True
+
+
+def audit_final_comparison(comparison, final, protocol):
+    tasks, episodes = partition_budget(protocol, 'heldout')
+    arms = ['bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd']
+    need(final.get('required_arms') == arms and
+         comparison.get('environment_pairing_verified') is True and
+         set(comparison.get('arms', {})) == set(arms) and
+         all(type(row.get('count')) is int and row['count'] == tasks * episodes
+             for row in comparison['arms'].values()), 'Orchestrator final evaluation is incomplete')
+
+
+def source_file(relative, digest, source_root, snapshot_root=None):
+    """Resolve exact producer bytes, never reinterpret a later checkout as an earlier launch.
+
+    The only historical fallback is the current run's explicit content-addressed
+    operations snapshot. Its match proves bytes, not when Python imported them.
+    """
+    path = Path(relative)
+    need(not path.is_absolute() and '..' not in path.parts and
+         re.fullmatch(r'[0-9a-f]{64}', digest), 'Invalid producer source identity')
+    candidates = [Path(source_root) / path]
+    if snapshot_root is not None:
+        candidates.append(Path(snapshot_root) / digest / path)
+    for candidate in candidates:
+        if candidate.is_file() and identity(candidate)['sha256'] == digest:
+            return candidate
+    raise ValueError('producer source SHA has no matching source bytes: ' + relative)
+
+
+def microbatches_per_update(manifest, steps):
+    """Derive capture replay counts under the audited single-device Trainer loop."""
+    accumulation = manifest['gradient_accumulation_steps']
+    samples = manifest.get('capture_dataset_samples')
+    if samples is None:
+        return [accumulation] * steps
+    need(type(samples) is int and samples > 0 and manifest['micro_batch'] == 1,
+         'Capture replay accounting requires positive samples and microbatch one')
+    full, tail = divmod(samples, accumulation)
+    epoch = [accumulation] * full + ([tail] if tail else [])
+    return [epoch[i % len(epoch)] for i in range(steps)]
 
 
 def audit_recovery_selection(record,kind,protocol,protocol_sha,resolve,evaluation):
@@ -262,7 +330,7 @@ def validate_storage(storage):
 
 
 def audit_stage(folder, name, steps, protocol, protocol_sha, evidence, expected_initial=None,
-                source_root=ROOT, checkpoint_subdir=None, logical_checkpoint=None):
+                source_root=ROOT, checkpoint_subdir=None, logical_checkpoint=None, source_snapshots=None):
     folder = Path(folder).resolve(strict=True)
     need("smoke" not in folder.name.lower(), "Smoke cannot be a formal training arm")
     prefix = "stages/" + name
@@ -309,16 +377,43 @@ def audit_stage(folder, name, steps, protocol, protocol_sha, evidence, expected_
         need(request.get('protocol_sha256')==protocol_sha and all(env.get(k)==v for k,v in expected_env.items()),
              name+': training request differs from selected protocol settings')
         need(manifest.get('train_seed')==manifest.get('seed')==protocol['train_seed'],name+': training seed differs')
-    need(set(manifest.get("recovery_source_sha256", {})) == set(TRAIN_SOURCES), name + ": incomplete source SHA coverage")
+        if manifest.get('capture_dataset') is not None:
+            capture = request.get('capture_dataset_identity')
+            need(isinstance(capture, dict) and capture.get('root') == manifest['capture_dataset'] and
+                 capture.get('sample_count') == manifest.get('capture_dataset_samples') and
+                 hashlib.sha256(json.dumps(capture, sort_keys=True).encode()).hexdigest() ==
+                 manifest.get('capture_dataset_sha256'), name + ': capture dataset identity differs')
+    sources = set(manifest.get('recovery_source_sha256', {}))
+    expected_sources = set(TRAIN_SOURCES)
+    if protocol.get('w4a4'):
+        need(manifest.get('w4a4_enabled') is True and
+             manifest.get('execution_mode') == 'W4A4 numerical QDQ + BF16 LoRA residual',
+             name + ': W4A4 recovery contract differs')
+        expected_sources.update(('rl/w4a4_lora.py', 'quant/native_activation.py'))
+        need(sources == expected_sources, name + ': incomplete W4A4 source SHA coverage')
+    else:
+        need(sources in (expected_sources, expected_sources | {'rl/w4a4_lora.py'}),
+             name + ': incomplete source SHA coverage')
     for relative, digest in manifest["recovery_source_sha256"].items():
-        data = evidence.add(Path(source_root) / relative, "source/" + relative, "verified_training_producer")
+        source = source_file(relative, digest, source_root, source_snapshots)
+        data = evidence.add(source, prefix + '/source/' + relative, "verified_training_producer_bytes")
         need(hashlib.sha256(data).hexdigest() == digest, name + ": producer source SHA differs: " + relative)
+    microbatches = microbatches_per_update(manifest, steps)
+    if manifest.get('capture_dataset_samples') is not None:
+        epoch = sum(microbatches) / manifest['capture_dataset_samples']
+        need(type(state.get('epoch')) in (int, float) and
+             math.isclose(state['epoch'], epoch, rel_tol=0, abs_tol=1e-8),
+             name + ': Trainer epoch disagrees with capture replay schedule')
     storage = validate_storage(metrics.get("parameter_storage_by_dtype"))
     need(metrics.get("timing_scope") == TRAIN_SCOPE, name + ": unsupported training timing scope")
     need(sum(row["trainable_parameters"] for row in storage.values()) == manifest["trainable_parameters"] > 0,
          name + ": trainable parameter count differs")
     result = {"status": "completed", "optimizer_steps": steps,
-              "demonstration_window_draws": steps * manifest["effective_global_batch"],
+              "demonstration_window_draws": sum(microbatches) * manifest['micro_batch'],
+              "demonstration_window_draws_scope": (
+                  'source-derived from bound capture sample count, epoch tail batches and completed updates; not an independent draw counter'
+                  if manifest.get('capture_dataset_samples') is not None else
+                  'configured full-batch budget; no independently recorded draw counter or dataset-tail identity'),
               "wall_seconds": positive(metrics["wall_seconds"], "training wall time"),
               "timing_scope": metrics["timing_scope"], "cuda_peak_memory": validate_peaks(metrics["cuda_peak_memory"]),
               "cuda_peak_scope": metrics["cuda_peak_scope"], "parameter_storage_by_dtype": storage,
@@ -403,8 +498,9 @@ INVOCATION_SCOPE = (
     "before the first recorded launch have no launch-source snapshot; later snapshots "
     "do not retroactively prove their orchestration source identity.")
 TRAINING_SOURCE_SCOPE = (
-    "The selected final three training arms separately verify the seven producer-attested "
-    "recovery_source_sha256 entries. This verification does not supply a missing orchestration launch snapshot.")
+    "Each selected training arm separately verifies and archives all producer-attested "
+    "recovery_source_sha256 bytes, including W4A4 dependencies when enabled. Different "
+    "stages may have different source hashes. Matching bytes do not supply a missing launch snapshot.")
 
 
 def _invocation_file(path, recorded, label):
@@ -576,21 +672,22 @@ def validate_teacher_source(metadata, cache, observations_root, student, capture
 
 def probe_cost_fields(text, name, steps, opd):
     every, accumulation = opd["probe_every"], opd["gradient_accumulation_steps"]
+    counts = microbatches_per_update(opd, steps)
     records = re.findall(r"\[opd\] step=(\d+) probe=(\d+) mse=(\S+) weight=(\S+) microbatch=1", text)
-    expected = Counter({step:accumulation for step in range(1, steps+1)
+    expected = Counter({step:counts[step-1] for step in range(1, steps+1)
         if step % every == 0 and (step-1) % max(every, 20) == every-1}) if name == "qad_opd" else Counter()
     need(Counter(int(row[0]) for row in records) == expected, "Formal teacher log schedule differs: " + name)
     need(all(math.isfinite(float(row[2])) and float(row[2]) >= 0 and float(row[3]) == opd["probe_weight"] for row in records), "Nonfinite or wrong teacher loss log")
     return {"logged_teacher_backward_passes": len(records),
-            "scheduled_teacher_backward_passes": (steps//every)*accumulation if name == "qad_opd" else 0,
-            "teacher_schedule_note": "Scheduled count derives from completed updates and verified source; logger records only selected updates, not all probe calls."}
+            "scheduled_teacher_backward_passes": sum(counts[every-1::every]) if name == "qad_opd" else 0,
+            "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls."}
 
 
 def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     run=Path(run_dir).resolve(strict=True)
     final=evidence.json(run/'final_manifest.json','orchestration/final_manifest.json','completed_orchestrator')
     state=evidence.json(run/'run_manifest.json','orchestration/run_manifest.json','completed_orchestrator')
-    need(isinstance(final.get('format'), str) and FINAL_FORMAT_RE.fullmatch(final['format']) and
+    need(final_format_matches(final, protocol) and
          state.get('status')=='complete' and
          state.get('output_layout')=='stable_paths_v2' and
          final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and
@@ -613,8 +710,7 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     weight=audit_recovery_selection(final['opd_selection'],'opd',protocol,protocol_sha,resolve,evaluation)
     need(lr==final['selected_qad_learning_rate'] and weight==final['selected_opd_weight'],'Final settings differ from selected recovery')
     comparison=json.loads(resolve(final['heldout_comparison']).read_text())
-    need(comparison.get('environment_pairing_verified') is True and set(comparison['arms'])==set(final['required_arms']) and
-         all(row['count']==100 for row in comparison['arms'].values()),'Orchestrator final evaluation is incomplete')
+    audit_final_comparison(comparison, final, protocol)
     merged={name:Path(final[key]['path']).resolve(strict=True) for name,key in (
         ('qad','selected_qad_model_identity'),('continued_qad','selected_continued_model_identity'),('qad_opd','selected_opd_model_identity'))}
     training={};logs={};round_dir=Path(final['heldout_round']).resolve(strict=True)
@@ -649,7 +745,8 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     if verifier.is_file():
         evidence.add(verifier,'source/exp/verify_teacher_cache_cpu.py','collector_time_orchestrator_dependency')
     return {'final':final,'training':training,'merged':merged,'logs':logs,'collection':collection,'teacher':cache.parent,
-            'invocations': invocations, 'invocation_summary': invocation_summary}
+            'invocations': invocations, 'invocation_summary': invocation_summary,
+            'source_snapshots': run/'operations/opd-tail-fix/source_snapshots'}
 
 
 def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None,orchestrator_run=None):
@@ -674,13 +771,18 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None,orc
         collection_dir=round_dir/'collection';teacher_dir=round_dir
     initial_steps = protocol["recovery"]["initial_qad_optimizer_steps"]
     continuation_steps = protocol["continuation"]["optimizer_steps"]
-    qad, initial, adapter = audit_stage(qad_dir, "qad", initial_steps, protocol, protocol_sha, evidence)
+    source_snapshots = layout['source_snapshots'] if layout else None
+    qad, initial, adapter = audit_stage(qad_dir, "qad", initial_steps, protocol, protocol_sha, evidence,
+                                      source_snapshots=source_snapshots)
     stages, manifests, exports = {"qad": qad}, {"qad": initial}, {}
     exports["qad"] = audit_merge(qad_merged, adapter, initial, evidence, "qad")
     for name in ("continued_qad", "qad_opd"):
-        row, manifest, checkpoint = audit_stage(train_dirs[name], name, continuation_steps, protocol, protocol_sha, evidence, adapter)
+        row, manifest, checkpoint = audit_stage(train_dirs[name], name, continuation_steps, protocol, protocol_sha, evidence, adapter,
+                                               source_snapshots=source_snapshots)
         for key in SHARED_KEYS:
             need(manifest[key] == initial[key], "Continuation origin/budget differs: " + name + "/" + key)
+        for key in OPTIONAL_SHARED_KEYS:
+            need(manifest.get(key) == initial.get(key), "Continuation data/quantization differs: " + name + "/" + key)
         stages[name], manifests[name] = row, manifest
         exports[name] = audit_merge(merged_dirs[name], checkpoint, manifest, evidence, name)
         evidence.add(log_paths[name], "stages/"+name+"/train.log", "raw_training_log")
@@ -719,7 +821,8 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None,orc
          metadata["autocast_dtype"] == opd["compute_dtype"] and metadata["eval_mode"] is True,
          "Teacher/student precision or mode differs")
     for key, relative in (("labeling_implementation_sha256", "rl/opd_probe_cache.py"), ("replay_implementation_sha256", "rl/probe_distill.py")):
-        data = evidence.add(ROOT/relative, "source/"+relative, "verified_teacher_producer")
+        source = source_file(relative, metadata[key], ROOT, source_snapshots)
+        data = evidence.add(source, "teacher/source/"+relative, "verified_teacher_producer_bytes")
         need(hashlib.sha256(data).hexdigest() == metadata[key], "Teacher producer source SHA differs")
     teacher = Path(metadata["teacher"]).resolve(strict=True)
     recipe = json.loads((base/"ptq_recipe.json").read_text())
@@ -813,7 +916,7 @@ def verify_published(directory):
     final=None
     if is_orchestrated_protocol(raw_protocol):
         final=read('orchestration/final_manifest.json');state=read('orchestration/run_manifest.json')
-        need(isinstance(final.get('format'), str) and FINAL_FORMAT_RE.fullmatch(final['format']) and
+        need(final_format_matches(final, raw_protocol) and
              state.get('status')=='complete' and
              state.get('output_layout')=='stable_paths_v2' and
              final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and
@@ -827,6 +930,7 @@ def verify_published(directory):
         evaluation=evaluation_helpers(root/'source/eval/run_recovery_eval.py')
         lr=audit_recovery_selection(final['qad_selection'],'qad',raw_protocol,protocol_sha,resolve,evaluation)
         weight=audit_recovery_selection(final['opd_selection'],'opd',raw_protocol,protocol_sha,resolve,evaluation)
+        audit_final_comparison(json.loads(resolve(final['heldout_comparison']).read_text()), final, raw_protocol)
         need(lr==final['selected_qad_learning_rate'] and weight==final['selected_opd_weight'],
              'Published final settings differ from development selection')
         # In a portable package the live repository is absent; resolve the
@@ -854,7 +958,7 @@ def verify_published(directory):
         steps = protocol["recovery"]["initial_qad_optimizer_steps"] if name=="qad" else protocol["continuation"]["optimizer_steps"]
         logical = Path(exports[name]["training_checkpoint"]).resolve()
         row, manifest, checkpoint = audit_stage(root/"stages"/name,name,steps,protocol,protocol_sha,evidence,
-            expected_initial=None if name=="qad" else adapter, source_root=root/"source",
+            expected_initial=None if name=="qad" else adapter, source_root=root/"stages"/name/"source",
             checkpoint_subdir="checkpoint",logical_checkpoint=logical)
         audit_merge(root/"exports"/name,checkpoint,manifest,evidence,name,logical_checkpoint=logical)
         computed[name], manifests[name] = row, manifest
@@ -870,6 +974,8 @@ def verify_published(directory):
                  'Published selected model identity differs: '+arm)
     for name in ("continued_qad","qad_opd"):
         need(all(manifests[name][k] == initial[k] for k in SHARED_KEYS), "Published continuation origin/budget differs")
+        need(all(manifests[name].get(k) == initial.get(k) for k in OPTIONAL_SHARED_KEYS),
+             "Published continuation data/quantization differs")
         computed[name].update(probe_cost_fields((root/"stages"/name/"train.log").read_text(errors="replace"),name,
                              protocol["continuation"]["optimizer_steps"],opd))
     need(computed == costs["training"], "Published training costs disagree with raw metadata/logs")
@@ -902,7 +1008,7 @@ def verify_published(directory):
          metadata["model_dtype"] == opd["parameter_dtype"].removeprefix("torch.") and
          metadata["autocast_dtype"] == opd["compute_dtype"] and metadata["eval_mode"] is True, "Published teacher/student semantics differ")
     for key,relative in (("labeling_implementation_sha256","rl/opd_probe_cache.py"),("replay_implementation_sha256","rl/probe_distill.py")):
-        need(metadata[key] == identity(root/"source"/relative)["sha256"], "Published teacher source SHA differs")
+        need(metadata[key] == identity(root/"teacher/source"/relative)["sha256"], "Published teacher source SHA differs")
     for field,filename in (("teacher_config_sha256","config.json"),("teacher_statistics_sha256","statistics.json")):
         need(metadata[field] == identity(root/"teacher"/("base_"+filename))["sha256"], "Published teacher metadata identity differs")
     need(metadata["teacher_statistics_sha256"] == initial["base_statistics_sha256"] and

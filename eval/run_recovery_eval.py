@@ -34,6 +34,34 @@ INIT_INDICES = {"development": [0, 1], "collection": [2, 3],
                 "heldout": list(range(10, 20)), "smoke": [0]}
 
 
+def validate_recovery_checkpoint(checkpoint):
+    """Reject raw Trainer outputs before a plain loader can discard LoRA.
+
+    Recovery deployment uses the completed merge manifest to load the frozen
+    PTQ base and adapter separately. A training checkpoint's recovery manifest
+    alone does not arm that path, even if a PTQ recipe was copied beside it.
+    """
+    checkpoint = Path(checkpoint)
+    merge_path = checkpoint / "merge_manifest.json"
+    if not merge_path.is_file():
+        if (checkpoint / "recovery_manifest.json").is_file():
+            raise ValueError(
+                f"Raw recovery checkpoint cannot be evaluated: {checkpoint}. "
+                "Run rl/lora_merge_bake.py and pass its completed deployment "
+                "directory; loading checkpoint-* directly discards LoRA and W4A4.")
+        return
+    try:
+        manifest = json.loads(merge_path.read_text())
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"Invalid recovery deployment manifest: {merge_path}") from exc
+    if (not isinstance(manifest, dict) or manifest.get("status") != "complete" or
+            not all(isinstance(manifest.get(key), str) and manifest[key].strip()
+                    for key in ("base", "training_checkpoint"))):
+        raise ValueError(
+            f"Recovery deployment requires a complete merge_manifest.json "
+            f"with base/training_checkpoint: {merge_path}")
+
+
 def protocol_entry(path, purpose):
     """Read a versioned bank partition from a protocol file.
 
@@ -264,6 +292,7 @@ def main():
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--task-count", type=int, default=10, help="Only reduce for smoke, never a ten-task score")
     args = ap.parse_args()
+    validate_recovery_checkpoint(args.checkpoint)
     project = Path(__file__).resolve().parents[1]
     protocol_path = Path(args.protocol_file).resolve() if args.protocol_file else project / "exp/recovery_protocol.json"
     if not protocol_path.is_file():

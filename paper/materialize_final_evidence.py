@@ -186,6 +186,8 @@ def materialize(final_manifest: str | Path, out: str | Path,
                                                     encoding="utf-8")
         _copy_file(final_path, stage / "final_manifest.json", mapping, "verified_final_manifest")
         _copy_file(protocol_path, stage / "protocol" / protocol_path.name, mapping, "verified_protocol")
+        _copy_file(PAPER / "analysis_plan_w4a4.json", stage / "protocol" / "analysis_plan_w4a4.json",
+                   mapping, "paired_analysis_specification")
         _copy_file(recipe_inventory, stage / "evidence" / "recipe_inventory.json", mapping,
                    "frozen_recipe_inventory")
         for source, role in _selected_recipe_sources(final):

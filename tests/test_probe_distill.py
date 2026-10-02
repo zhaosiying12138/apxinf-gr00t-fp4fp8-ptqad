@@ -145,6 +145,132 @@ class ProbeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Legacy"):
             ProbeAnchor(self.path)
 
+    def test_real_accelerator_full_and_tail_gradients_match_update_mean(self):
+        from accelerate import Accelerator
+
+        for accelerator_count in (1, 16):
+            for actual_count in (1, 4, 16):
+                with self.subTest(accelerator=accelerator_count, actual=actual_count):
+                    class Trainer:
+                        def __init__(self):
+                            self.args = SimpleNamespace(gradient_accumulation_steps=16)
+                            self.current_gradient_accumulation_steps = actual_count
+                            self.state = SimpleNamespace(global_step=19)
+                            self.accelerator = Accelerator(
+                                cpu=True, gradient_accumulation_steps=accelerator_count)
+
+                        def training_step(self, model, inputs):
+                            model.train()
+                            normalized = model(inputs)["loss"] / actual_count
+                            # Both supported ownership contracts produce the
+                            # same demo mean after Accelerator's own division.
+                            self.accelerator.backward(normalized * accelerator_count)
+                            model.events.append("main_backward_complete")
+                            return normalized.detach()
+
+                    trainer = Trainer()
+                    model = copy.deepcopy(self.model)
+                    reference = copy.deepcopy(self.model)
+                    anchor = ProbeAnchor(self.path)
+                    batches = [{**self.inputs, "action": self.inputs["action"] * (i + 1)}
+                               for i in range(actual_count)]
+                    initial_rng = torch.random.get_rng_state()
+                    objective = torch.zeros(())
+                    for inputs in batches:
+                        objective = objective + reference(inputs)["loss"] / actual_count
+                        with replay_context(reference, 17, "none"):
+                            objective = objective + 0.7 * anchor.loss(reference, 0) / actual_count
+                    objective.backward()
+                    torch.random.set_rng_state(initial_rng)
+                    install_sequential_probe(Trainer, self.path, weight=0.7, every=4)
+                    model.events.clear()
+                    reported = sum(trainer.training_step(model, inputs) for inputs in batches)
+                    torch.testing.assert_close(reported, objective.detach())
+                    for name in ("lora_A", "lora_B"):
+                        torch.testing.assert_close(getattr(model, name).grad,
+                                                   getattr(reference, name).grad)
+                    self.assertEqual(trainer._probe_micro_step, actual_count)
+                    self.assertEqual(model.events,
+                                     ["forward_train", "main_backward_complete", "forward_probe"]
+                                     * actual_count)
+
+    def test_invalid_accumulation_fails_before_main_backward(self):
+        for field, values in (
+            ("current", (0, -1, 17, 1.5, None, True)),
+            ("configured", (0, -1, 1.5, None, True)),
+            ("accelerator", (0, -1, 4, 1.5, None, True)),
+        ):
+            for invalid in values:
+                for global_step in (0, 19):  # unscheduled and scheduled updates
+                    with self.subTest(field=field, invalid=invalid, step=global_step):
+                        class Trainer:
+                            def __init__(self):
+                                self.args = SimpleNamespace(gradient_accumulation_steps=16)
+                                self.current_gradient_accumulation_steps = 4
+                                self.state = SimpleNamespace(global_step=global_step)
+                                self.accelerator = SimpleNamespace(
+                                    gradient_accumulation_steps=1, num_processes=1)
+                                self.main_called = False
+
+                            def training_step(self, model, inputs):
+                                self.main_called = True
+                                model(inputs)["loss"].backward()
+
+                        trainer = Trainer()
+                        if field == "current":
+                            trainer.current_gradient_accumulation_steps = invalid
+                        elif field == "configured":
+                            trainer.args.gradient_accumulation_steps = invalid
+                        else:
+                            trainer.accelerator.gradient_accumulation_steps = invalid
+                        install_sequential_probe(Trainer, self.path, weight=0.7, every=4)
+                        self.model.zero_grad(set_to_none=True)
+                        with self.assertRaises(ValueError):
+                            trainer.training_step(self.model, self.inputs)
+                        self.assertFalse(trainer.main_called)
+                        self.assertTrue(all(p.grad is None for p in self.model.parameters()))
+
+    def test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20(self):
+        from transformers import Trainer, TrainingArguments
+
+        inputs = self.inputs
+
+        class FiniteTrainer(Trainer):
+            def get_train_dataloader(self):
+                # Match the upstream GR00T map-style, sequential loader. Its
+                # 148 samples yield nine full 16-microbatch updates and a tail4.
+                return torch.utils.data.DataLoader([inputs] * 148, batch_size=1,
+                                                    collate_fn=lambda batch: batch[0])
+
+            def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+                out = model(inputs)
+                return (out["loss"], out) if return_outputs else out["loss"]
+
+            def training_step(self, model, inputs, *args, **kwargs):
+                self.actual_counts.append((self.state.global_step + 1,
+                                           self.current_gradient_accumulation_steps))
+                return super().training_step(model, inputs, *args, **kwargs)
+
+        args = TrainingArguments(
+            output_dir=str(Path(self.tmp.name) / "trainer"), use_cpu=True,
+            per_device_train_batch_size=1, gradient_accumulation_steps=16,
+            max_steps=20, learning_rate=0.0, max_grad_norm=0.0, optim="sgd",
+            report_to=[], disable_tqdm=True, save_strategy="no", logging_strategy="no",
+            dataloader_pin_memory=False)
+        trainer = FiniteTrainer(model=self.model, args=args)
+        trainer.actual_counts = []
+        # In the installed HF version Trainer owns the actual tail divisor.
+        self.assertEqual(trainer.accelerator.gradient_accumulation_steps, 1)
+        install_sequential_probe(FiniteTrainer, self.path, weight=0.7, every=4)
+        trainer.train()
+        self.assertEqual(trainer.state.global_step, 20)
+        self.assertEqual(len(trainer.actual_counts), 296)
+        for step in range(1, 21):
+            expected = 4 if step % 10 == 0 else 16
+            self.assertEqual([n for update, n in trainer.actual_counts if update == step],
+                             [expected] * expected)
+        self.assertEqual(trainer._probe_micro_step, 68)  # 4 full updates + tail4
+
     def test_explicit_batch_contract(self):
         self.assertEqual(resolve_batch({"QAD_MICRO_BATCH": "2", "QAD_GLOBAL_BATCH": "16"}), (2, 8, 16))
         self.assertEqual(resolve_batch({"QAD_MICRO_BATCH": "1", "QAD_GLOBAL_BATCH": "16"}), (1, 16, 16))

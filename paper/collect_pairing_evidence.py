@@ -46,10 +46,12 @@ def audit(round_dir,recorded,protocol_file=None):
     actual=compare_round(round_dir,protocol_paths)
     require(actual==recorded,'Five-arm comparison does not reproduce')
     require(actual.get('environment_pairing_verified') is True,'Pairing not verified')
+    task_count=expected['tasks'];episodes_per_task=expected['episodes_per_task']
+    episode_count=task_count*episodes_per_task
     for arm,row in actual['arms'].items():
-        require(row['count']==100 and len(row['episodes'])==100,'Incomplete heldout arm: '+arm)
-        require(len(row['per_task'])==10 and all(v['episodes']==10 for v in row['per_task'].values()),
-                'Not ten tasks with ten episodes: '+arm)
+        require(row['count']==episode_count and len(row['episodes'])==episode_count,'Incomplete heldout arm: '+arm)
+        require(len(row['per_task'])==task_count and all(v['episodes']==episodes_per_task for v in row['per_task'].values()),
+                'Heldout task/episode counts differ from protocol: '+arm)
         require(all(type(e['success']) is bool and e['init_state_index'] in expected['init_state_indices']
                     for e in row['episodes']),'Invalid outcome/bank index: '+arm)
         for task in row['per_task']:

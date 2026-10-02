@@ -18,9 +18,14 @@ from pathlib import Path
 import re
 from typing import Any
 
+try:
+    from .paired_uncertainty import analyze
+except ImportError:  # direct CLI invocation
+    from paired_uncertainty import analyze
+
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 PUBLIC_ARMS = ("bf16", "ptq", "qad", "qad_opd")
-FINAL_FORMAT_RE = re.compile(r"(?:high_fp4_[a-z0-9_]+|w4a4_recovery_v11)_final_manifest\Z")
+FINAL_FORMAT_RE = re.compile(r"w4a4_recovery_v11_final_manifest\Z")
 
 
 def _read(path: Path) -> Any:
@@ -77,6 +82,15 @@ def _validate_arm(name: str, row: dict[str, Any]) -> dict[str, Any]:
              f"{name} episode outcomes are incomplete")
     _require(sum(bool(e["success"]) for e in episodes) == successes,
              f"{name} episode outcomes disagree with totals")
+    _require(all(e.get("task") in per_task for e in episodes), f"{name} episode task is undeclared")
+    for task, task_row in per_task.items():
+        rows = [e for e in episodes if e["task"] == task]
+        _require(len(rows) == 16 and
+                 all(type(e.get("episode_index")) is int for e in rows) and
+                 [e["episode_index"] for e in rows] == list(range(16)),
+                 f"{name}/{task} requires sixteen distinct ordered episodes")
+        _require(sum(e["success"] for e in rows) == task_row["successes"],
+                 f"{name}/{task} episode outcomes disagree with per_task totals")
     return {
         "successes": successes,
         "episodes": count,
@@ -118,6 +132,9 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
     protocol_sha = final.get("protocol_sha256")
     _require(isinstance(protocol_sha, str) and protocol_sha == _sha256(protocol_file),
              "final protocol SHA-256 disagrees with final manifest")
+    protocol = _read(protocol_file)
+    _require(protocol.get("version") == 11 and protocol.get("w4a4") is True,
+             "the W4A4 analysis plan applies only to the v11 W4A4 protocol")
 
     round_dir = Path(final.get("heldout_round", ""))
     comparison_path = round_dir / "paired_comparison.json"
@@ -164,6 +181,7 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
             "qad_opd_minus_qad_pp": (opd_rate - qad_rate) * 100,
             "qad_opd_minus_continued_qad_pp": (opd_rate - control_rate) * 100,
         },
+        "uncertainty": analyze(comparison),
         "selection": {
             "selection_uses_heldout": False,
             "selected_qad_learning_rate": final.get("selected_qad_learning_rate"),

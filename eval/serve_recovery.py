@@ -1,11 +1,24 @@
 """Seeded checkpoint server, optionally recording student-visited observations."""
+import argparse
 import os
 from pathlib import Path
 import runpy
 import sys
 
+if __package__:
+    from .run_recovery_eval import validate_recovery_checkpoint
+else:
+    from run_recovery_eval import validate_recovery_checkpoint
+
 
 def main():
+    # Validate before importing GR00T or initializing any device. This also
+    # protects direct server invocations which bypass run_recovery_eval.
+    parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+    parser.add_argument("--model-path")
+    checkpoint_args, _ = parser.parse_known_args()
+    if checkpoint_args.model_path:
+        validate_recovery_checkpoint(checkpoint_args.model_path)
     sys.path.insert(0, os.getcwd())
     project = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(project / "rl"))
