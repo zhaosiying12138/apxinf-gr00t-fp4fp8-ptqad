@@ -575,6 +575,12 @@ class Driver:
            "OPD_EVERY":str(self.every),"TRAIN_SEED":str(self.seed),"PROTOCOL_FILE":str(self.protocol_path),
            "QAD_ACTIVATION_CHECKPOINTING":"1",
            "QAD_W4A4":"1" if self.w4a4 else "0"}
+        # Continuing from a trained QAD adapter can amplify the low-rank
+        # residual even when the upstream Trainer's default clip (1.0) is
+        # active.  Keep the frozen W4A4 activation contract fail-closed and
+        # use a stricter, recorded clip for continuation and OPD arms.
+        if initial:
+            e["QAD_MAX_GRAD_NORM"] = "0.25"
         if self.capture_dataset:
             e["QAD_CAPTURE_DATASET"] = str(self.capture_dataset)
             e["QAD_CAPTURE_DATASET_SHA256"] = hashlib.sha256(
@@ -601,6 +607,8 @@ class Driver:
                   "train_seed":self.seed,"protocol_sha256":self.protocol["sha256"],
                   "optimizer_resumed":False,"probe_weight":weight,"probe_every":self.every,
                   "micro_batch":1,"effective_global_batch":self.batch,"gradient_accumulation_steps":self.batch}
+        if initial is not None:
+            expected["max_grad_norm"] = 0.25
         if any(rec.get(k)!=v for k,v in expected.items()) or rec.get("optimizer_resumed") is not False:
             raise OrchestrationError("training manifest differs from frozen recovery settings")
         if self.w4a4 and (rec.get("w4a4_enabled") is not True or
