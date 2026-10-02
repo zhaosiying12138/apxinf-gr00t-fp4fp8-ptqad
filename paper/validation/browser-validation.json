@@ -27,9 +27,9 @@
     "shot_verify",
     "swizzle_layout"
   ],
-  "html_sha256": "950d179f359f5efc9151712feb826bd0eeceb5ec381801888bb4d5ffdc5057c6",
+  "html_sha256": "5b713ad7731e6446010cc38fd2b8bac70263a996b6fb761b963941d7af014caf",
   "qa_script_sha256": "4a4a97832d688cf87760702f15f7d733c1c1c3984bf35b7ea5b27e81965715c5",
-  "figures_manifest_sha256": "4a6ba3e2d7669932fa2e78242b8f6d5b6c28834c5575edae7a4c7d5ddc0eac3b",
+  "figures_manifest_sha256": "2bb798aa3a581438680a9a941894972be83d7e0792ee8c4accfad2acdd7e9d9e",
   "svg_sha256": {
     "budget_ladder": "22de5402090d6a1b9d907377d30b8bbe6d2479373f05729e11015fd562933960",
     "e1_latency": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
@@ -95,57 +95,17 @@
       "shot_verify",
       "swizzle_layout"
     ],
-    "mathCount": 214,
+    "mathCount": 276,
     "mathErrors": 0,
     "svgOverflow": [],
     "decoded": [
-      {
-        "figure": "shot_bake",
-        "width": 3840,
-        "height": 2280
-      },
       {
         "figure": "shot_collect",
         "width": 3840,
         "height": 2280
       },
       {
-        "figure": "shot_evalserver",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_fp8probe",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_gemm",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_gr00t",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_nvfp4",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_opbench",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_opd",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_opdcache",
+        "figure": "shot_bake",
         "width": 3840,
         "height": 2280
       },
@@ -155,7 +115,7 @@
         "height": 2280
       },
       {
-        "figure": "shot_pi05",
+        "figure": "shot_verify",
         "width": 3840,
         "height": 2280
       },
@@ -170,7 +130,22 @@
         "height": 2280
       },
       {
+        "figure": "shot_opdcache",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_opd",
+        "width": 3840,
+        "height": 2280
+      },
+      {
         "figure": "shot_qat",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_evalserver",
         "width": 3840,
         "height": 2280
       },
@@ -180,7 +155,32 @@
         "height": 2280
       },
       {
-        "figure": "shot_verify",
+        "figure": "shot_fp8probe",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_gemm",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_opbench",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_gr00t",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_pi05",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_nvfp4",
         "width": 3840,
         "height": 2280
       }

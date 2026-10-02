@@ -136,7 +136,9 @@ v11 入口不会隐式生成大体积 checkpoint。新机器首次运行时，�
 
 该入口消费已经通过开发集审计的 `selection.json` 和已经完成的 BF16 教师采集目录，随后按协议顺序完成 QAD 学习率选择、学生状态采集、OPD 对照和 heldout 评测。首次运行前必须先按 [完整构建步骤](docs/reproduce-ptqad.md) 生成 W4A4 PTQ base、开发集 selection 和教师采集；已写入完成标记的阶段可以从同一 `--run-dir` 继续。运行中断留下的阶段必须先按日志和校验器审计，不能直接覆盖。最终结果以运行目录下的 `final_manifest.json` 为准。
 
-如果开发集上的 OPD 没有超过两个对照，但仍需完成预注册的 paired held-out 对比，可在续跑时显式追加 `--allow-opd-nonimprovement`。该开关只允许实验继续，不改变选择分数；selection 证据会记录实际比较，正文只有在 held-out 同时超过 QAD 与 continued-QAD 时才宣称 OPD 有独立增益。
+如果开发集上的 OPD 没有超过两个对照，但仍需完成固定的 paired held-out 对比，可在续跑时显式追加 `--allow-opd-nonimprovement`。该开关只允许实验继续，不改变选择分数；selection 证据保留实际比较。最终报告 OPD 相对 QAD 和 continued-QAD 的两项差值、配对区间与条件检验，小幅点估计上升不直接写成独立增益。分析规则见 [统计分析说明](paper/analysis_plan_w4a4.json)。
+
+当前 148 个演示窗口顺序读取，micro batch 为 1，每个完整更新累积 16 个样本，每轮尾批为 4。每 2,000 次更新实际读取 29,600 次演示样本；OPD 每四次更新加入探针，共增加 6,800 次探针前向/反传。continued-QAD 与 OPD 对齐演示和更新预算，额外教师计算单列。训练器保存的 `checkpoint-*` 必须经部署打包后评测；直接加载原始训练 checkpoint 会被入口拒绝，以防丢失低秩分支。
 
 ### 3. 原生 APXInf 验收（可选）
 

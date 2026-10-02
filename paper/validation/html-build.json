@@ -245,7 +245,7 @@
     {
       "path": "figures.json",
       "bytes": 8140,
-      "sha256": "4a6ba3e2d7669932fa2e78242b8f6d5b6c28834c5575edae7a4c7d5ddc0eac3b"
+      "sha256": "2bb798aa3a581438680a9a941894972be83d7e0792ee8c4accfad2acdd7e9d9e"
     },
     {
       "path": "meta.json",
@@ -274,33 +274,33 @@
     },
     {
       "path": "sections/03-方法.md",
-      "bytes": 3885,
-      "sha256": "35b7613c5b868f2be60e8cc6419f57f44b807b5c3c97961d218d949b6cba060b"
+      "bytes": 9892,
+      "sha256": "2ca1a69f7c43f8bf85940d8a8033e29e733031595334a24c1284fe812e14c897"
     },
     {
       "path": "sections/04-实验.md",
-      "bytes": 2737,
-      "sha256": "0cc8adce67ef37768c09caf48f878218d938d859594a4977feeeb7e21c849894"
+      "bytes": 6750,
+      "sha256": "b3522bdb5573464a4b6d5ddb371816b412eeb3135a931947459e731da42ec86a"
     },
     {
       "path": "sections/05-讨论与结论.md",
-      "bytes": 1231,
-      "sha256": "3655da4bb933549c442440408c0dd8ccd52922fb8549040696037d523e260d6f"
+      "bytes": 1802,
+      "sha256": "a5ef3bf8a98519db3cf1838bfec8798bcd6660af1b6e711c29362edb8b5a67c3"
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
-      "bytes": 43265,
-      "sha256": "48b8cfa2114e9976d5da200fa6e25e8ee7781af7745a29356afefd3eb2970ea0"
+      "bytes": 46080,
+      "sha256": "f896f5674796b537e64ca3ff0f6a3314b3622924c732eae626f90578fc3b7b45"
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "bytes": 17755,
-      "sha256": "07e7592b3f00b26e19f3ca0f2921fc7c85dbc44ccfb14bb98417369a4210f3d9"
+      "bytes": 19146,
+      "sha256": "d04ffb6434fd7f35bce3f24d4d56782aab0f87e023adfc88821f4b8737c221ca"
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
-      "bytes": 12468,
-      "sha256": "c3af30695e82f9c62c5f48e5d0da7ae6d2d5277820e5780ecd25a90ff01a29e5"
+      "bytes": 12502,
+      "sha256": "684bfb0fc6ef9a2dab0a67cc5859f7fd1d34577f4f5b744aadb7c0261b923002"
     },
     {
       "path": "sections/16-参考文献.md",
@@ -310,9 +310,9 @@
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 8352932,
-    "sha256": "950d179f359f5efc9151712feb826bd0eeceb5ec381801888bb4d5ffdc5057c6"
+    "bytes": 8496063,
+    "sha256": "5b713ad7731e6446010cc38fd2b8bac70263a996b6fb761b963941d7af014caf"
   },
-  "math_expressions": 214,
+  "math_expressions": 276,
   "figures": 24
 }

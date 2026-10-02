@@ -12,7 +12,8 @@
 |---|---|---|---|
 | 低位宽打包权重 | E2M1 数据、E4M3 块缩放、FP32 张量缩放 | 原生量化激活和低精度 GEMM | APXInf 算子与引擎实验 |
 | PTQ 反量化权重 | $Q(W)$ 转回源 dtype 后的普通张量 | PyTorch 浮点线性层 | 单独研究权重扰动与闭环行为 |
-| 恢复后的稠密权重 | $W_{\mathrm{baked}}+(\alpha/r)BA$ 再转回源 dtype | PyTorch 浮点线性层 | 与既有 GR00T 策略服务器兼容的恢复评测 |
+| W4A4 基座与独立适配器 | 冻结的 $W_{\mathrm{baked}}$ 与单独保存的 A/B | 基座接收 activation QDQ，低秩分支接收原始输入 | 正式 GR00T 恢复评测 |
+| 恢复后的稠密权重 | $W_{\mathrm{baked}}+(\alpha/r)BA$ 再转回源 dtype | PyTorch 浮点线性层 | 残差合并诊断与完整 checkpoint 序列化验收 |
 
 接下来先走完 GR00T 的 PyTorch 数值路径：源 checkpoint → 校准统计 → 全 NVFP4 PTQ 基座 → W4A4 activation QDQ → QAD/OPD adapter → LIBERO 评测。A.8 再展开 APXInf 的 packed 权重路径，其中原生算子也会在线量化激活。dense merge 仅用于诊断，不进入主结果。两条路径的测量范围统一列在 A.10。
 
@@ -170,7 +171,11 @@ v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 �
 
 源模型的 `action_horizon=40`、`max_action_dim=132`。动作张量 $a$、同形噪声 $z$ 和速度预测均为 $[B,40,132]$；LIBERO 的有效时间位置和控制维度由处理器提供 mask。模型采样 Beta 时间，构造 $a_t=(1-t)z+ta$，学习目标速度 $a-z$，以有效动作掩码归一化流匹配损失。
 
-参数存储使用 FP32，前向在 BF16 autocast 下计算。`recovery_batch.py::resolve_batch` 显式区分微批量 $B_\mu$ 与累积数 $G$，单设备有效演示批量为 $B_{\mathrm{eff}}=B_\mu G$。上游 CLI 的 `global-batch-size` 实际传递累积前的批量，因此入口将其设为 $B_\mu$，并在 Trainer 初始化后验证实际值。例如 $B_\mu=1,G=16$ 与 $B_\mu=2,G=8$ 都对应 16 个演示样本。
+参数存储使用 FP32，前向在 BF16 autocast 下计算。`recovery_batch.py::resolve_batch` 区分微批量 $B_\mu$ 与配置累积数 $G$；$B_\mu G$ 是完整更新的名义批量，数据遍历末尾可能不足此数。上游 CLI 的 `global-batch-size` 实际传递累积前的批量，因此入口将其设为 $B_\mu$，再核对 Trainer 的批量设置。
+
+本轮教师监督缓存包含 148 个演示窗口，采用有限长度、按文件名排序的数据集；上游 DataLoader 顺序读取，不打乱、不丢弃尾批。配置 $B_\mu=1,G=16$ 时，每轮产生 9 次完整更新和 1 次仅含 4 个微批的更新，即 $148=9\times16+4$。Trainer 按该次更新实际含有的微批数 $n$ 平均损失：完整更新除以 16，尾批除以 4。因此，完整完成 2,000 次优化器更新对应 200 轮、29,600 次演示窗口读取，平均每次更新 14.8 个窗口；不能按 $2{,}000\times16=32{,}000$ 报告。29,600 是重复读取次数，唯一缓存窗口数仍为 148。
+
+顺序读取也意味着同一组 4 个窗口每轮都处于尾批，在该次平均损失中的单样本系数为 $1/4$，其余更新为 $1/16$。这是实际采样与归一化方式；continued-QAD 和 OPD 必须沿用同一数据顺序与尾批规则，才能比较相同演示预算下的附加教师监督。
 
 `recovery_manifest.json` 记录基座、配方、rank、alpha、范围、批量、累积数、随机种子、训练参数量和归一化来源。`QAD_INIT_ADAPTER` 从同一冻结基座加载已有 A/B，检查形状与元数据；续训对照两支都重建优化器，使用同样的演示预算和优化器更新数。梯度检查与 manifest 共同确认实际训练的是哪一组参数。
 
@@ -206,24 +211,33 @@ $$
 
 它是连续速度场的 MSE，没有离散概率分布或 KL 散度。计算后须保留到 LoRA 参数的图；`requires_grad` 检查防止只记录一个数值却没有辅助梯度。
 
-`install_sequential_probe` 包装 `training_step`，先调用原训练步骤完成演示损失的反向传播，释放主计算图；随后在指定优化器更新的每个微批上，执行单个缓存样本的学生前向，将 $\lambda\mathcal L_{\mathrm{probe}}/G$ 反向累加到同一批参数梯度。两次反向之间没有优化器更新，因此该次更新对应
+`install_sequential_probe` 包装 `training_step`，先校验本次实际累积数 $1\le n\le G$，再调用原训练步骤完成演示损失的反向传播，释放主计算图；随后在指定优化器更新的每个微批上，执行单个缓存样本的学生前向，将 $\lambda\mathcal L_{\mathrm{probe}}/n$ 对应的梯度累加到同一批参数。两次反向之间没有优化器更新，因此该次更新对应
 
 $$
-\frac1G\sum_{j=1}^G\mathcal L_{\mathrm{demo},j}
-+\lambda\frac1G\sum_{j=1}^G\mathcal L_{\mathrm{probe},j}.
+\frac1n\sum_{j=1}^n\mathcal L_{\mathrm{demo},j}
++\lambda\frac1n\sum_{j=1}^n\mathcal L_{\mathrm{probe},j}.
 $$
 
-以每 4 次优化器更新添加一次为例，其余 3 次只有演示损失。更新数上的平均权重为 $\lambda/4$，但具有状态的优化器对两种调度会产生不同更新，因此运行记录同时保存权重与频率。缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。
+尾批的 $n=4$，不能使用配置上限 $G=16$ 代替。若 `Accelerator.backward` 自身还会除以累积数 $a_{\mathrm{acc}}$，钩子传入 $\lambda a_{\mathrm{acc}}\mathcal L_{\mathrm{probe}}/n$，抵消这一步自动缩放；返回给日志的仍是 $\lambda\mathcal L_{\mathrm{probe}}/n$。当前 Transformers 4.57.3 与 Accelerate 1.13.0 由 Trainer 管理累积，$a_{\mathrm{acc}}=1$。CPU 回归同时检查 $a_{\mathrm{acc}}=1,16$、$n=1,4,16$ 的实际 A/B 梯度，并用真实 Trainer 验证 148 个样本在第 20 次更新遇到探针尾批时可继续执行。
+
+以每 4 次优化器更新添加一次为例，其余 3 次只有演示损失。更新数上的平均权重为 $\lambda/4$，但具有状态的优化器对不同调度会产生不同更新，因此运行记录同时保存权重与频率。按本轮 148 窗口的读取方式，完整完成 2,000 次更新时共有 500 次探针更新，其中 400 次含 16 个微批、100 次含 4 个微批，合计 6,800 次探针反向。缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。
 
 `QAD_ACTIVATION_CHECKPOINTING=1` 可进一步启用逐语言、DiT 和 VL 块的非重入激活重算。实现只包装含可训练参数的块，保留随机状态，在学生 `eval` 模式但梯度开启时仍然有效；冻结教师的 `no_grad` 前向直接绕过重算。训练不使用生成缓存，故该模式关闭 KV cache，并在恢复 manifest 中记录设置；参数 dtype、损失和演示批量均不改变。
 
 顺序反向降低两张计算图同时存活的需求，并没有消除额外计算。QAD 续训与 QAD+OPD 使用相同初始 A/B、演示批量、优化器更新数和新优化器；教师标注与学生探针的额外前向/反向成本另外报告。固定缓存只实现一轮学生分布蒸馏，训练中不会自动重新采集。
 
-## A.6 将基座与适配器合并为评测 checkpoint
+## A.6 保持 W4A4 双分支并核验导出产物
 
-策略服务端读取完整模型，而训练器保存的是包含 A/B 的训练状态。导出器以冻结基座恢复完整键集合，再合并低秩残差，使输出能够直接进入已有的 GR00T 推理接口。
+正式 W4A4 服务分别加载冻结 PTQ 基座和训练后的 A/B。`eval/run_gr00t_server_fp4vla.py` 在 `FP4VLA_W4A4_ADAPTER=1` 时读取输出目录中的 `merge_manifest.json`，从其 `base` 路径恢复完整模型，再从 `training_checkpoint` 提取适配器。`rl/w4a4_deploy.py::install_saved_w4a4_adapter` 核对 rank、alpha、A/B 形状和成对关系，复制到模型的设备与 dtype，随后调用训练和服务共用的 `install_w4a4_lora`。执行的始终是
 
-`rl/lora_merge_bake.py` 把原量化基座作为最终模型键集合的权威来源，仅从训练 checkpoint 提取 A/B。原因有二：训练框架可能省略运行时共享的物理别名；A、B 和基座权重也可能分散在不同 shard。导出不能以恰好出现在某个训练 shard 的键集合替代完整模型。
+$$
+y=Q_A(x)W_{\mathrm{baked}}^\top+b
++\frac{\alpha}{r}(xA^\top)B^\top.
+$$
+
+基座接收量化激活，残差接收原始输入。若先合并权重再对输入做 QDQ，残差会变成 $(\alpha/r)Q_A(x)A^\top B^\top$，即使在实数代数中也与上式不同。因此，输出目录的名称和 `merge_manifest.json` 只是定位与核验依据，服务不使用其中合并后的稠密权重进行正式 W4A4 推理；基座目录与包含 A/B 的训练 checkpoint 必须一并保留。
+
+流程仍运行 `rl/lora_merge_bake.py`，用于残差合并诊断和完整 checkpoint 的序列化验收。它把原量化基座作为完整键集合的权威来源，仅从训练 checkpoint 提取 A/B。原因有二：训练框架可能省略运行时共享的物理别名；A、B 和基座权重也可能分散在不同 shard。导出不能以恰好出现在某个训练 shard 的键集合替代完整模型。
 
 导出先核对恢复 manifest 的基座身份、rank、alpha、配置和归一化摘要；再根据索引查找成对 A/B，验证 $A=[r,K]$、$B=[N,r]$。对于训练 checkpoint 中保留的每个非 LoRA 张量，逐项确认其等于冻结基座。未出现的基座键仅允许显式列出的共享或未使用项，并原值保留；意外缺键、额外键、未配对残差或非有限残差都会使导出失败。
 
@@ -234,7 +248,7 @@ delta = (B.float() @ A.float()) * (alpha / rank)
 W_export = (W_base.float() + delta).to(W_base.dtype)
 ```
 
-合并过程保持残差原值，不再次量化。实数代数中，合并线性层与双分支等价；BF16 会改变乘加顺序和舍入位置，评测因而直接加载实际导出文件。若采用打包基座与独立 BF16 旁路部署，则将旁路载荷计入编码预算。
+合并保持残差原值，不再次量化。只有两分支接收相同输入时，合并线性层才在实数代数中等价；有限精度还会改变乘加顺序和舍入位置。这个稠密产物用于检查合并与文件完整性，不能替代上面的 W4A4 双分支。独立低秩旁路的参数载荷单独计入编码预算。
 
 输出先写入独立临时目录，按基座 shard 保留全部键和 dtype，再重建 `model.safetensors.index.json`，删除所有 LoRA 专用键。处理器和统计默认来自冻结基座；另存 `merge_manifest.json`，记录源与产物摘要、残差统计和逐张量验证数量。只有重新读取并通过键集合与字节数检查后，才将目录转为正式输出。
 
@@ -289,6 +303,8 @@ PS = 512 × ceil(KB / 4)
 offset(r,b) = PS × floor(r/128) + 512 × floor(b/4)
             + 16 × (r mod 32) + 4 × (floor(r/32) mod 4) + (b mod 4)
 ```
+
+{{fig:swizzle_layout}}
 
 完整缩放缓冲需要 `512 × ceil(KB/4) × ceil(N/128)` 字节；不满一个 tile 的尾部也要分配，超出逻辑尺寸的缩放字节必须为零。逻辑相邻与物理相邻不能混用；例如 $(r,b)=(0,0),(0,3),(32,0),(1,0)$ 的字节偏移分别为 0、3、4、16。`fp4_quant.py::swizzle_scales` 与设备端采用相同映射。
 

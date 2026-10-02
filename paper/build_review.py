@@ -112,7 +112,8 @@ def main():
                              for name in screenshot_hashes}:
         raise RuntimeError('Screenshot bytes changed during the review build')
 
-    files = [P/'paper.html',P/'zhihu/article.md',P/'meta.json',P/'figures.json']
+    files = [P/'paper.html',P/'zhihu/article.md',P/'meta.json',P/'figures.json',
+             P/'analysis_plan_w4a4.json', P/'paired_uncertainty.py']
     files += sorted((P/'sections').glob('*.md'))
     files += [P/'zhihu/images'/f'{name}.png' for name in names]
     # Include each file once in the ZIP.  The exact-once figure check above
