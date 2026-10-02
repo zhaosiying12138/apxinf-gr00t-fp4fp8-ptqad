@@ -2,9 +2,9 @@
 
 主稿：**PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与 QAD/OPD 闭环恢复**。
 
-- `paper.html`：单文件离线阅读版，包含公式、字体、图表和 17 个截图环节；已完成截图可点击放大，待实拍环节以文字占位。
+- `paper.html`：单文件离线阅读版，包含公式、字体、图表和 17 个截图环节；已完成截图可点击放大，当前未完成的环节会在正式发布前由同一协议的实拍证据替换。
 - `zhihu/article.md`：与 HTML 共用正文的 Markdown 发表稿，代码块和 LaTeX 公式完整保留。
-- `zhihu/images/`：正文技术图、数据图与已完成的运行截图；清单及待实拍标记见 `figures.json`。
+- `zhihu/images/`：正文技术图、数据图与运行截图；截图来源、哈希和待更新状态见 `figures.json` 与 `evidence/captures.json`。
 - `sections/`：唯一正文源；修改正文后重建两种格式，避免手动修改生成文件。
 - `evidence/`：本文实验的结果数组、配置、运行日志、来源散列与截图清单。
 - `validation/`：发布完整性与浏览器排版校验报告。
