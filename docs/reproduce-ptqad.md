@@ -297,7 +297,7 @@ PY
   --out paper/evidence/frontier_comparison.json
 ```
 
-接着重拍受本轮实现影响的Ubuntu截图，保留全部17个环节，核对画面、执行日志与选中模型，并更新截图清单。运行来源也须重新采集；以下命令从五个真实评测manifest读取模型路径，输出目录必须全新：
+接着重拍受本轮实现影响的Ubuntu截图，保留全部17个环节，核对画面、执行日志与选中模型，并用 `paper/record_capture.py` 更新截图清单。每张截图完成实拍和人工核对后，再解除 `paper/figures.json` 中对应的 `refresh_pending` 标记；不能只解除标记而沿用未更新的图片。运行来源也须重新采集；以下命令从五个真实评测manifest读取模型路径，输出目录必须全新：
 
 ```bash
 "$PTQAD_PYTHON" - "$RECOVERY_DIR" "$PUBLICATION_STAGE" <<'PY'
@@ -329,7 +329,7 @@ uv run --with-requirements paper/requirements-build.txt python paper/validate_pu
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
-结果未完成时，只使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成审阅包。它保留17张截图并用红色 `xxx` 占位，正式发布校验会拒绝它。最终ZIP必须通过截图身份、逐回合配对、统计分析、训练成本、图位及离线资源检查；不能复用改稿前的浏览器验收报告。
+结果未完成时，只使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成审阅包。它保留17个截图环节：已完成截图正常显示，待重拍环节使用文字占位，其未更新图片不进入 HTML、知乎稿或审阅 ZIP。未完成结果保留红色 `xxx`，正式发布校验会拒绝它。最终ZIP必须补齐17张实拍，并通过截图身份、逐回合配对、统计分析、训练成本、图位及离线资源检查；不能复用改稿前的浏览器验收报告。
 
 APXInf 原生算子和 π0.5 图执行是独立基准，可按 [docs/native-pi05.md](native-pi05.md) 复现。它们验证 NVFP4 编码、scale 布局、GEMM 和 graph replay，不等于 GR00T 恢复模型已经使用原生 APXInf packed executor；两类结果不能合并成一个延迟或成功率结论。
 

@@ -118,7 +118,7 @@ def status(development, recovery):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    base = ROOT / "results/ptqad_20261003/v11_recovery_r2"
+    base = ROOT / "results/ptqad_20261003/v11_recovery_r4"
     default_development = ROOT / "results/ptqad_20261003/v11_selection"
     parser.add_argument("--development-root", type=Path,
                         default=default_development)

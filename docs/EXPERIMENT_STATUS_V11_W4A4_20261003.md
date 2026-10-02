@@ -31,9 +31,12 @@ results/ptqad_20261003/v11_recovery_r4
 续跑由 systemd 用户服务 `fp4vla-v11-r4-continuation.service` 托管，入口为 `exp/continue_w4a4_run.py`。服务先等待绑定的 driver 退出，然后校验并复用已完成阶段。当前 driver 没有 `PTQAD_MEDIA_LIB`，第一条 development 评测预计会在 FFmpeg 预检时退出；续跑器仅在日志精确匹配该错误、评测目录完全为空、没有评测 manifest 或完成标记且 GPU 空闲时，归档原日志并记录 SHA，再使用已验证的 media7 路径续跑。它不删除已有结果，不重跑部分训练，不修改冻结的训练或评测实现。
 
 ```bash
+python3 exp/high_fp4_status.py --recovery-root results/ptqad_20261003/v11_recovery_r4
 systemctl --user status fp4vla-v11-r4-continuation.service
 journalctl --user -u fp4vla-v11-r4-continuation.service -n 20 --no-pager
 ```
+
+`paper/_build/formal_status.py` 是同一只读状态入口的兼容调用；默认目录现为 r4。状态输出中的 `incomplete` 仅描述文件尚未完成，不能据此认定进程已停止；是否仍在训练须结合现场 PID 和服务状态判断。
 
 续跑调用和后续 driver 日志位于运行目录的 `operations/continuation-*/`。`exp/continue_v11.sh` 现在是通用入口，调用时必须显式提供 `--run-dir`、活着的原 driver 的 `--wait-pid` 和 `--media-lib`，没有硬编码旧 PID。不要重复启动已有服务。此服务不保证跨 Windows/WSL 重启恢复；重启后先检查日志和完整阶段证据。
 
