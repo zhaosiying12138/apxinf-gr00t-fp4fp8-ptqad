@@ -22,7 +22,9 @@ def main():
     # remain byte-identical and available for the replacement audit.
     for name in pending:
         (out/'images'/(name+'.png')).unlink(missing_ok=True)
-    md = '# '+info['title']+'\n\n'+info['meta']+'\n\n'
+    # The title already states the scope; repeating the meta description as a
+    # second subtitle made the Zhihu draft read like a duplicated heading.
+    md = '# '+info['title']+'\n\n'
     for src in sorted((P/'sections').glob('*.md')):
         md += src.read_text(encoding='utf-8').rstrip()+'\n\n'
     def replace(m):

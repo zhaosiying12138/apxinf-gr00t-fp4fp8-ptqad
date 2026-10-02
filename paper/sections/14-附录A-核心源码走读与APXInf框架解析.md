@@ -134,7 +134,7 @@ $$
 
 `quant/ptq/bake.py::inventory` 根据 safetensors 文件头建立物理键清单，并核对索引与实际 shard。二维路径的量化谓词为键以 `.weight` 结尾、形状为二维且 $K\bmod16=0$，共得到 472 个候选。动作头的 7 个 `CategorySpecificLinear` 权重由 `quant/ptq/category_fp4.py` 单独识别，源形状为 $[32,K,N]$，因此最终账本是 472+7=479 个候选张量。清单外张量按源 dtype 保持原值。
 
-`bake.py::alloc` 是显式模块规则，而不是根据 held-out 成功率事后调参。v11 的最终 parent 统一采用 `all_nvfp4_gptq_category`：479 个 eligible 权重张量全部写入 NVFP4，普通 Linear 使用校准后的 GPTQ 块补偿，7 个 CategorySpecificLinear 使用独立 category 配方。每个层的请求方法、校准覆盖和实际编码都写入 `ptq_recipe.json` 与 `category_ptq_recipe.json`，不再把旧的 FP8/NVFP4 混合分配带入主结果。
+`bake.py::alloc` 是显式模块规则，而不是根据 held-out 成功率事后调参。v11 的最终 parent 统一采用 `all_nvfp4_gptq_category`：479 个 eligible 权重张量全部写入 NVFP4，普通 Linear 使用校准后的 GPTQ 块补偿，7 个 CategorySpecificLinear 使用独立 category 配方。每个层的请求方法、校准覆盖和实际编码都写入 `ptq_recipe.json` 与 `category_ptq_recipe.json`；主结果统一采用这一全 NVFP4 配方。
 
 `category_fp4.py` 再沿真实输入轴处理 7 个类别权重。对每个 bank，代码把 `[K,N]` 转成量化器使用的 `[N,K]`，将 $K$ 补齐到 $16\lceil K/16\rceil$，并为该 bank 单独保存 tensor scale 和每 16 个输入值的 block scale。v11 的 category manifest 记录每个活动 bank 的实际格式、padding 和来源；运行时只安装模型真正调用的 7 个 CategorySpecificLinear，其他未执行 bank 不参与 LIBERO 前向，也不被误计为额外的激活算子。
 

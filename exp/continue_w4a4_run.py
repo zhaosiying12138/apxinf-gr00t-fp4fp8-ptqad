@@ -212,8 +212,12 @@ def recover_ffmpeg_preflight(run: Path, manifest: dict) -> Path | None:
         raise ContinuationError("refusing nonempty development directory")
     text = log.read_text(encoding="utf-8")
     lines = text.splitlines()
+    # ``run_recovery_eval.py`` writes its UTC/CWD/COMMAND receipt after the
+    # traceback, so the known preflight error is not necessarily the final
+    # traceback line.  Keep the identity check strict while allowing that
+    # deterministic receipt trailer.
     if (lines.count(FFMPEG_ERROR) != 1 or lines.count("Traceback (most recent call last):") != 1
-            or lines[-2:] != [FFMPEG_ERROR, "RETURN_CODE 1"]):
+            or not lines or lines[-1] != "RETURN_CODE 1"):
         raise ContinuationError("development log does not prove the exact ffmpeg preflight failure")
     errors = [line for line in lines if re.match(r"^[A-Za-z_][\w.]*(?:Error|Exception):", line)]
     if errors != [FFMPEG_ERROR] or any(line.startswith("COMPLETED_UTC") for line in lines):
