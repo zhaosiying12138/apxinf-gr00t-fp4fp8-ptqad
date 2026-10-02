@@ -379,7 +379,7 @@ NVFP4 比例以去除已知共享别名后的可量化元素为分母；模型�
 
 *图 5　全 NVFP4 W4A4 基座的预算与闭环成功率。编码预算从唯一冻结的 v11 W4A4 category 配方账本生成，按已知共享别名去重；恢复臂另计完整 BF16 低秩残差。成功率仍待最终评测。*
 
-当前 GR00T 闭环采用数值 QDQ，稠密 checkpoint 体积和实际显存不等于目标编码预算。APXInf 原生 GEMM、包含激活编码的单层管线及 $\pi_{0.5}$ 图执行另行测量，完整表格见附录 C。它们用于说明低精度执行的工程可行性，不作为 GR00T 恢复模型已实现同等加速的证据。全部 17 张 Ubuntu 执行截图按流程列在附录 B。
+当前 GR00T 闭环采用数值 QDQ，稠密 checkpoint 体积和实际显存不等于目标编码预算。APXInf 原生 GEMM、包含激活编码的单层管线及 $\pi_{0.5}$ 图执行另行测量，完整表格见附录 C。它们用于说明低精度执行的工程可行性，不作为 GR00T 恢复模型已实现同等加速的证据。全部 17 个 Ubuntu 执行截图环节按流程列在附录 B；审阅稿中待实拍环节明确占位。
 
 # 5. 讨论与结论
 
@@ -553,16 +553,16 @@ $$
 
 ### A.4.1 注入位置、梯度和初始化
 
-`rl/lora_qad.py::install_lora` 在完整模型加载后，对指定范围的 Linear 安装 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$。该阶段沿用工程名 QAD，实际目标是演示流匹配，不调用独立教师。
+`rl/lora_qad.py::install_lora` 在完整模型加载后，对指定范围的 Linear 安装 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$，再由 `rl/w4a4_lora.py::install_w4a4_lora` 安装以下双分支前向。该阶段沿用工程名 QAD，实际目标是演示流匹配，不调用独立教师。
 
 ```python
-x_q = nvfp4_activation_qdq(x)                 # W4A4 base path
+x_q = native_activation_qdq_torch(x, ste=True)  # W4A4 base path
 base = F.linear(x_q, m.weight, m.bias)
 residual = F.linear(F.linear(x, m.lora_A), m.lora_B)  # raw-BF16 input
 return base + (residual * (alpha / rank)).to(base.dtype)
 ```
 
-$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
+激活量化入口是 `quant/native_activation.py::native_activation_qdq_torch`：训练时使用 `ste=True` 传递直通梯度，服务时使用 `ste=False`，两者的前向量化值相同。$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
 
 v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
 
@@ -1019,12 +1019,12 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 | 环境配对 | 校验官方 bank、恢复状态和稳定后状态摘要；推理噪声按任务固定，探索性配对检验保留任务结构。 |
 | 运行计量 | wall time、Trainer 计时、PyTorch allocated/reserved 峰值和整卡占用采用各自采样范围。 |
 | 数值与速度 | CPU 格点、GPU 算子、原生模型调用、完整策略调用、LIBERO 成功率各自报告；MXFP4 不可用项记为无可用算法。 |
-| 截图 | 15 张执行短测与 2 张 BF16 执行展示共 17 张，真实任务、样本量、日志与裁剪链保存在 capture 清单中。 |
+| 截图 | 保留 17 个执行环节；审阅稿展示 11 张真实截图，另有 6 个待补图位。任务、样本量、日志与裁剪链保存在 capture 清单中。 |
 | 安装验证 | 固定源码补丁与锁文件已验证；跨空白机器全套安装仍需按本附录逐阶段验收。 |
 
 ## B.10 Ubuntu 执行图集
 
-以下保留全部 17 个截图环节，按复现顺序排列。每张图的命令、日志与图像摘要见 `paper/evidence/captures/`。审阅稿中尚未重拍的恢复截图保留其待更新说明；最终量化比例和成功率仍以同一协议的完整记录为准。
+以下保留全部 17 个截图环节，按复现顺序排列。审阅稿展示 11 张真实截图；量化写盘、QAD、教师标注、OPD、策略服务与学生采集这 6 个环节暂用文字占位，完成本轮实拍与来源核验后补入。截图的命令、日志与图像摘要见 `paper/evidence/captures/`；最终量化比例和成功率以同一协议的完整记录为准。
 
 ### 校准、量化与数值核对
 
@@ -1034,9 +1034,9 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 
 *运行截图 02　完整 GR00T 的 2 个窗口校准 smoke。完整 GR00T（语言 16 层、DiT 32 层、VL 4 层）以 batch=1 采集 2 个演示窗口，得到 468 层二阶统计；H 在 GPU 上按 FP32 逐层计算并累加至 CPU。该目录与正式 128 窗口校准独立，抽样不保证两个窗口互不重复。*
 
-![运行截图 01　W4A4 量化写盘 smoke](images/shot_bake.png)
+**运行截图 01　W4A4 量化写盘（待重拍）**
 
-*运行截图 01　W4A4 量化写盘 smoke。保留原始终端画面用于复现流程审阅；该短测只检查 H 统计、格式编码和写盘入口，不承载 v11 的张量计数、压缩比或闭环结论；正式发布时绑定冻结 W4A4 配方与运行清单。*
+待补本轮真实运行截图。此图位待补冻结 W4A4 配方的真实执行截图，展示权重量化、激活量化配置与写盘清单。
 
 ![运行截图 11　π0.5 第 0 个语言层的真实 NVFP4 打包（CPU smoke）](images/shot_packed.png)
 
@@ -1050,21 +1050,21 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 
 掩码和梯度检查确认损失只约束有效动作；QAD 训练之后，学生观测经过教师标注进入 OPD。激活重算用于控制训练显存。
 
-![运行截图 13　有效动作掩码、共享随机性与梯度检查（CPU smoke）](images/shot_probe.png)
+![运行截图 13　教师探针、有效动作掩码与尾批梯度检查（CPU）](images/shot_probe.png)
 
-*运行截图 13　有效动作掩码、共享随机性与梯度检查（CPU smoke）。CPU 微型模型验证有效掩码、随机状态恢复与串行探针反向；合成 processor/statistics 配置夹具验证 40×132 容器中的 16×7 有效区域（112 个元素）。本图没有加载完整 GR00T checkpoint，不能作为恢复效果证据。*
+*运行截图 13　教师探针、有效动作掩码与尾批梯度检查（CPU）。13 项 CPU 检查通过。微型模型验证教师与学生共享随机性、串行反向及完整批次和尾批的梯度归一化；真实 Trainer 用 148 个样本运行 20 次更新，覆盖 4 个微批次的尾批。配置夹具另验证 40×132 容器内的 16×7 有效动作区域。本图检查训练机制，不代表完整 GR00T 的恢复效果。*
 
-![运行截图 14　完整模型 QAD 2 步 smoke](images/shot_qad.png)
+**运行截图 14　完整模型 W4A4 QAD（待重拍）**
 
-*运行截图 14　完整模型 QAD 2 步 smoke。完整 GR00T 的 2 步 QAD 短测使用 v11 的 all_ordinary_linear scope、r=32、alpha=64，开启激活重算；microbatch=1、累积 2 次、有效 batch=2，共 4 次演示窗口抽样。梯度审计与 checkpoint 对应这两次更新，不代表正式恢复结果。*
+待补本轮真实运行截图。此图位待补本轮完整 GR00T 的真实 QAD 截图，核对 all_ordinary_linear 恢复范围、r=32、alpha=64、W4A4 基座与激活重算。
 
-![运行截图 10　学生访问状态的教师标注](images/shot_opdcache.png)
+**运行截图 10　学生访问状态的教师标注（待重拍）**
 
-*运行截图 10　学生访问状态的教师标注。终端显示从 collection 阶段的真实学生观测生成教师速度标签，记录共享随机性、有效动作掩码和缓存校验；正式探针数量以训练证据为准。*
+待补本轮真实运行截图。此图位待补本轮学生观测的教师速度标注截图，展示共享随机性、有效动作掩码和缓存校验。
 
-![运行截图 09　QAD→OPD 续训与教师监督](images/shot_opd.png)
+**运行截图 09　QAD→OPD 续训与教师监督（待重拍）**
 
-*运行截图 09　QAD→OPD 续训与教师监督。终端显示从同一 QAD 检查点加载学生、读取学生访问状态的教师缓存、按冻结协议触发教师项并写出 OPD 检查点；本图记录执行链，不替代 heldout 成功率。*
+待补本轮真实运行截图。此图位待补从入选 QAD 检查点启动 OPD、加载教师缓存并执行教师损失的真实截图。
 
 ![运行截图 15　恢复训练的激活重算与 LoRA 梯度检查（CPU 小模型）](images/shot_qat.png)
 
@@ -1074,13 +1074,13 @@ PyTorch 参考入口分别由 `baselines/bench_gr00t_pt.py` 和 `baselines/bench
 
 服务加载和环境 rollout 分别验证模型可调用、动作可执行以及观测可采集。
 
-![运行截图 03　新 QAD 导出的策略服务端及健康 RPC](images/shot_evalserver.png)
+**运行截图 03　W4A4 策略服务与健康 RPC（待重拍）**
 
-*运行截图 03　新 QAD 导出的策略服务端及健康 RPC。将冻结协议选中的 QAD 恢复检查点导出为服务可读的反量化权重，启动真实 LIBERO 策略服务并执行健康 RPC；本图证明导出和服务就绪，不替代闭环结果。*
+待补本轮真实运行截图。此图位待补冻结 W4A4 base 与独立 A/B adapter 的真实加载及健康 RPC 截图，核对主分支激活量化和 BF16 旁路。
 
-![运行截图 16　学生闭环与观测采集](images/shot_rollout.png)
+**运行截图 16　学生闭环与观测采集（待重拍）**
 
-*运行截图 16　学生闭环与观测采集。终端显示冻结协议下的学生 rollout、官方初态恢复、稳定步、观测缓存和逐回合日志；collection 观测用于 OPD，成功率只从 heldout 五臂证据读取。*
+待补本轮真实运行截图。此图位待补本轮学生 rollout 的真实截图，展示官方初态恢复、稳定步和观测缓存。
 
 ### 原生算子与模型执行
 

@@ -6,7 +6,7 @@ APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
 
 论文和可视化发布包是本仓库的主要入口：
 
-- [中文论文 HTML](paper/paper.html)：离线单文件，含公式、图表和全部 Ubuntu 执行截图。
+- [中文论文 HTML](paper/paper.html)：离线单文件，含公式、图表和 Ubuntu 执行图集；当前为结果待回填的审阅稿。
 - [知乎 Markdown 发布稿](paper/zhihu/article.md)：与 HTML 共用正文和图片资源。
 - [论文发布包说明](paper/README.md)：构建、验证、打包和证据索引。
 - [复现说明](docs/reproduce-ptqad.md)：从环境安装到独立闭环评测的完整步骤。
@@ -17,7 +17,7 @@ APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
 2. **量化域恢复。** 在固定 PTQ 基座上训练低秩 QAD，再用学生访问的观测和 BF16 教师速度训练 OPD；正式部署保留冻结 base 与 A/B adapter，避免 `Wq+BA` 合并后破坏 W4A4 语义。
 3. **闭环评测。** 所有正式臂使用同一组 LIBERO-10 任务、官方初态和 episode 预算，报告逐回合结果、任务宏平均和配对身份。
 4. **APXInf 验证。** APXInf 的 NVFP4 算子、布局和图重放单独验收；它们的延迟结果不替代 GR00T 的闭环成功率。
-5. **可复现发布。** 协议、配置、权重来源、日志、图表和 17 张 Ubuntu 截图共同组成发布包。
+5. **可复现发布。** 协议、配置、权重来源、日志、图表及 17 个 Ubuntu 截图环节共同组成复现记录。
 
 ## 结果状态
 
@@ -149,30 +149,30 @@ PTQAD_GPU_EXCLUSIVE=1 \
 
 ## Ubuntu 运行截图
 
-论文 HTML 保留全部 17 张紫色 Ubuntu 终端截图。每张截图对应一个真实命令，原始日志和 SHA-256 清单见 [截图清单](paper/evidence/captures.json)；README 展示四张代表性画面，完整图集见 [paper/paper.html](paper/paper.html)。
+论文保留全部 17 个紫色 Ubuntu 终端截图环节。当前审阅稿展示 11 张已核对的截图，另外 6 个环节等待本轮 W4A4 实拍，以文字占位；正式稿将补齐 17 张。每张实拍对应真实命令，原始日志和 SHA-256 保存在 [截图清单](paper/evidence/captures.json)；未更新的内部资产不作为本轮实验依据。
 
 | 阶段 | 运行证据 |
 |---|---|
 | 校准与 H 统计 | ![校准短测](paper/figs/shot_collect.png) |
-| NVFP4 写盘 | ![量化写盘短测](paper/figs/shot_bake.png) |
-| QAD 训练 | ![QAD 短测](paper/figs/shot_qad.png) |
-| OPD 教师辅助更新 | ![OPD 短测](paper/figs/shot_opd.png) |
+| 教师探针与尾批梯度检查（CPU） | ![13项教师探针与梯度检查](paper/figs/shot_probe.png) |
+| 激活重算与 LoRA 梯度（CPU） | ![小模型激活重算检查](paper/figs/shot_qat.png) |
+| π0.5 单层 NVFP4 打包（CPU） | ![单层打包短测](paper/figs/shot_packed.png) |
 
 <details>
-<summary>17 张截图完整索引</summary>
+<summary>17 个截图环节及更新状态</summary>
 
 | 编号 | 阶段 | 文件 |
 |---:|---|---|
 | 01 | 完整模型 2 窗口校准 | [shot_collect.png](paper/figs/shot_collect.png) |
-| 02 | H 驱动的 NVFP4/FP8 写盘 | [shot_bake.png](paper/figs/shot_bake.png) |
+| 02 | 全 NVFP4 权重写盘 | 待本轮实拍 |
 | 03 | π0.5 单层 NVFP4 打包 | [shot_packed.png](paper/figs/shot_packed.png) |
-| 04 | 有效动作掩码与探针梯度 | [shot_probe.png](paper/figs/shot_probe.png) |
-| 05 | QAD 训练短测 | [shot_qad.png](paper/figs/shot_qad.png) |
-| 06 | 学生访问观测的教师标注 | [shot_opdcache.png](paper/figs/shot_opdcache.png) |
-| 07 | QAD→OPD 续训短测 | [shot_opd.png](paper/figs/shot_opd.png) |
+| 04 | 有效动作掩码、探针与尾批梯度 | [shot_probe.png](paper/figs/shot_probe.png) |
+| 05 | W4A4 QAD 训练 | 待本轮实拍 |
+| 06 | 学生访问观测的教师标注 | 待本轮实拍 |
+| 07 | QAD→OPD 续训 | 待本轮实拍 |
 | 08 | 激活重算与 LoRA 梯度 | [shot_qat.png](paper/figs/shot_qat.png) |
-| 09 | 导出模型服务与健康 RPC | [shot_evalserver.png](paper/figs/shot_evalserver.png) |
-| 10 | LIBERO 学生闭环与观测采集 | [shot_rollout.png](paper/figs/shot_rollout.png) |
+| 09 | 独立基座与适配器服务、健康 RPC | 待本轮实拍 |
+| 10 | LIBERO 学生闭环与观测采集 | 待本轮实拍 |
 | 11 | 量化格点与 checkpoint 校验 | [shot_verify.png](paper/figs/shot_verify.png) |
 | 12 | FP8 描述符探针 | [shot_fp8probe.png](paper/figs/shot_fp8probe.png) |
 | 13 | 9 种形状 GEMM 短测 | [shot_gemm.png](paper/figs/shot_gemm.png) |
@@ -195,7 +195,7 @@ exp/         冻结协议、开发/恢复调度器、配方账本和原生基准
 spike/       cuBLASLt/NVFP4 布局与算子探针
 setup/       环境安装、权重下载、版本锁和引擎构建
 tests/       CPU 数值、梯度、缓存及 checkpoint 契约测试
-paper/       中文 HTML、知乎 Markdown、图表、17 张截图和证据索引
+paper/       中文 HTML、知乎 Markdown、图表、17 个截图环节和证据索引
 docs/        复现、权重溯源、原生引擎和恢复训练说明
 results/     可解析实验日志；大模型和训练工件不入库
 weights/     本地权重/训练工件目录，不入库

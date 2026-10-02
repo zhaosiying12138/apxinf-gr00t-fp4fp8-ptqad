@@ -5,9 +5,16 @@ from pathlib import Path
 import tempfile
 import random
 import re
+import sys
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
+
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from test_frontier_publication import (
+    V11_ARMS, V11_BASE_BYTES, V11_RESIDUAL_BYTES, V11_SOURCE_BYTES,
+    write_v11_chart_fixture,
+)
 
 MODULE = Path(__file__).resolve().parents[1]/'make_figs.py'
 spec = importlib.util.spec_from_file_location('frontier_figure_layout', MODULE)
@@ -15,34 +22,23 @@ figs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(figs)
 BOUNDS = (100, 124, 1040, 505)
 # Synthetic byte budgets approximate the difficult close spacing, not evidence.
-BUDGETS = (6288000000, 2909000000, 2732000000, 2673000000, 2790000000, 2790000000, 2790000000)
-NAMES = ('bf16', 'fp8', 'head_ffn', 'ptq', 'qad', 'continued_qad', 'qad_opd')
+BUDGETS = (V11_SOURCE_BYTES[1], V11_BASE_BYTES[1],
+           *((V11_BASE_BYTES[1]+V11_RESIDUAL_BYTES,)*3))
+NAMES = V11_ARMS
 CASES = {
-    'all_zero': [0]*7,
-    'all_full': [100]*7,
-    'equal_middle': [50]*7,
-    'nearby': [93, 91, 90, 89, 92, 91, 88],
-    'opd_decline': [93, 90, 85, 83, 96, 94, 0],
+    'all_zero': [0]*5,
+    'all_full': [160]*5,
+    'equal_middle': [80]*5,
+    'nearby': [149, 145, 147, 146, 141],
+    'opd_decline': [149, 133, 154, 150, 0],
 }
-
-
-def synthetic_points(scores):
-    points=[]
-    for i,(name,size,score) in enumerate(zip(NAMES,BUDGETS,scores)):
-        residual=117000000 if i>=4 else 0
-        cost={'source_bytes':BUDGETS[0], 'base_bytes':size-residual,
-              'residual_bytes':residual, 'total_bytes':size, 'compression_x':BUDGETS[0]/size}
-        points.append({'name':name, 'role':'bf16' if i==0 else 'recovery' if i>=4 else 'pure_ptq_reference',
-                       'count':100, 'successes':score, 'macro_success_rate':score/100,
-                       'encoding_budget':{'physical':dict(cost),'known_alias_deduplicated':dict(cost)}})
-    return points
 
 
 def markers_for(scores):
     groups={}
     for i,(size,score) in enumerate(zip(BUDGETS,scores)):
         groups.setdefault((size,score),[]).append(chr(65+i))
-    return [{'x':100+940*size/(max(BUDGETS)*1.06), 'y':505-381*score/100,
+    return [{'x':100+940*size/(max(BUDGETS)*1.06), 'y':505-381*score/160,
              'label':','.join(letters)} for (size,score),letters in groups.items()]
 
 
@@ -90,7 +86,7 @@ class FrontierLayoutTests(unittest.TestCase):
         rng=random.Random(20260929)
         for case in range(50):
             with self.subTest(case=case):
-                self.check_layout(markers_for([rng.randrange(85,101) for _ in range(7)]))
+                self.check_layout(markers_for([rng.randrange(136,161) for _ in NAMES]))
 
     def test_axes_corners_and_long_merged_label(self):
         self.check_layout([{'x':100,'y':124,'label':'A,B,C'},
@@ -102,21 +98,24 @@ class FrontierLayoutTests(unittest.TestCase):
         namespace={'s':'http://www.w3.org/2000/svg'}
         for name,scores in CASES.items():
             with self.subTest(case=name), tempfile.TemporaryDirectory(prefix='synthetic-frontier-layout-') as tmp:
-                with patch.object(figs,'FIGS',Path(tmp)), patch.object(figs,'frontier_rows',return_value=({},synthetic_points(scores))), patch.object(figs,'_GENERATED_SVGS',set()):
+                root=Path(tmp)
+                write_v11_chart_fixture(root,scores)
+                with patch.object(figs,'ROOT',root), patch.object(figs,'FIGS',root), \
+                     patch.object(figs,'_DATA_INPUTS',{}), patch.object(figs,'_GENERATED_SVGS',set()):
                     figs.ptq_frontier()
                 root=ET.fromstring((Path(tmp)/'ptq_frontier.svg').read_text())
                 labels=[node for node in root.findall('s:text',namespace) if 'textLength' in node.attrib]
                 markers=markers_for(scores)
                 self.assertEqual([node.text for node in labels],[m['label'] for m in markers])
                 circles=root.findall('s:circle',namespace)
-                self.assertEqual(len(circles),4)
+                self.assertEqual(len(circles),2)
                 for i,node in enumerate(circles):
                     self.assertAlmostEqual(float(node.attrib['cx']),100+940*BUDGETS[i]/(max(BUDGETS)*1.06))
-                    self.assertAlmostEqual(float(node.attrib['cy']),505-381*scores[i]/100)
-                if len(set(scores[4:]))==1:
-                    self.assertIn('E,F,G',[node.text for node in labels])
+                    self.assertAlmostEqual(float(node.attrib['cy']),505-381*scores[i]/160)
+                if len(set(scores[2:]))==1:
+                    self.assertIn('C,D,E',[node.text for node in labels])
                 diamonds=[node for node in root.findall('s:path',namespace) if node.attrib.get('fill')==figs.TEAL]
-                recovery_coordinates=set((100+940*BUDGETS[i]/(max(BUDGETS)*1.06),505-381*scores[i]/100) for i in range(4,7))
+                recovery_coordinates=set((100+940*BUDGETS[i]/(max(BUDGETS)*1.06),505-381*scores[i]/160) for i in range(2,5))
                 actual_centers=[]
                 for node in diamonds:
                     coords=[float(v) for v in re.findall(r'[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?',node.attrib['d'])]

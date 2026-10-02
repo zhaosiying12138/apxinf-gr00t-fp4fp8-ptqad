@@ -15,13 +15,21 @@ ROOT = Path(__file__).resolve().parents[2]
 PYTHON = {
     "quant/torch_fp4.py": ["_round_grid", "_quant_e2m1", "_quant_e4m3", "_nvfp4_tensor_scale", "_nvfp4_dequant", "fake_quant_nvfp4_torch"],
     "quant/fp4_quant.py": ["encode_e2m1", "decode_e2m1", "encode_e4m3", "decode_e4m3", "nvfp4_quantize", "nvfp4_dequantize", "swizzle_scales"],
+    # A.4/A.6: the executable activation QDQ behind the two-branch formula.
+    "quant/native_activation.py": ["_torch_native_activation_qdq", "native_activation_qdq_torch", "encode_native_activation"],
     "quant/ptq/quantizers.py": ["nvfp4_dequant", "fp8_e4m3_dequant", "layer_mse_tr", "rtnc_best_clip", "gptq_nvfp4"],
     "quant/ptq/collector.py": ["accumulate", "main"],
     "quant/ptq/verify_calibration.py": ["verify", "check_matrix", "check_architecture"],
     "quant/ptq/bake.py": ["inventory", "alloc", "tied_aliases", "make_plan", "main"],
+    # A.3.4: category-bank identification, K-axis padding, calibration and bake.
+    "quant/ptq/category_fp4.py": ["category_inventory", "prepare_bank", "quantize_bank", "memory_budget", "load_calibration"],
+    "quant/ptq/collector_category.py": ["accumulate", "main"],
+    "quant/ptq/bake_category.py": ["main"],
     "quant/ptq/awq.py": ["search_site"],
     "quant/ptq/folds.py": ["build_sites", "consumer_col_to_producer_col"],
     "rl/lora_qad.py": ["install_lora", "load_initial_adapter", "install_gradient_audit", "install_trainer_hooks"],
+    "rl/w4a4_lora.py": ["_dense_base", "install_w4a4_lora"],
+    "rl/w4a4_deploy.py": ["install_saved_w4a4_adapter"],
     "rl/recovery_batch.py": ["resolve_batch"],
     "rl/activation_checkpoint.py": ["checkpoint_block", "install_activation_checkpointing"],
     "rl/gr00t_runtime.py": ["restore_checkpoint_model_config", "configure_libero_data", "verify_libero_statistics", "libero_action_spec", "action_mask"],
@@ -29,8 +37,10 @@ PYTHON = {
     "rl/opd_probe_cache.py": ["main"],
     "rl/probe_distill.py": ["masked_velocity_mse", "replay_context", "ProbeAnchor.validate_model", "ProbeAnchor.loss", "install_sequential_probe"],
     "rl/lora_merge_bake.py": ["main"],
-    "rl/scoped_quant.py": ["mark_scope"],
+    # A.3.4/A.7: recipe-gated ordinary/category activation-only installation.
+    "rl/scoped_quant.py": ["mark_scope", "configure_quant_recipe", "_pad_qdq_slice", "install_activation_only", "install_scoped_activation", "mark_activation_scope"],
     "eval/serve_recovery.py": ["main"],
+    "eval/run_gr00t_server_fp4vla.py": ["main"],
     "eval/rollout_seeded.py": ["install_bank_resets", "main"],
     "eval/run_recovery_eval.py": ["validate_resets", "parse_log", "main"],
     "eval/compare_recovery.py": ["compare_round", "paired_summary", "exact_mcnemar_p"],

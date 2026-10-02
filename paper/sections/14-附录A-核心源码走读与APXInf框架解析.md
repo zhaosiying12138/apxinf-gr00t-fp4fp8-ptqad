@@ -152,16 +152,16 @@ $$
 
 ### A.4.1 注入位置、梯度和初始化
 
-`rl/lora_qad.py::install_lora` 在完整模型加载后，对指定范围的 Linear 安装 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$。该阶段沿用工程名 QAD，实际目标是演示流匹配，不调用独立教师。
+`rl/lora_qad.py::install_lora` 在完整模型加载后，对指定范围的 Linear 安装 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$，再由 `rl/w4a4_lora.py::install_w4a4_lora` 安装以下双分支前向。该阶段沿用工程名 QAD，实际目标是演示流匹配，不调用独立教师。
 
 ```python
-x_q = nvfp4_activation_qdq(x)                 # W4A4 base path
+x_q = native_activation_qdq_torch(x, ste=True)  # W4A4 base path
 base = F.linear(x_q, m.weight, m.bias)
 residual = F.linear(F.linear(x, m.lora_A), m.lora_B)  # raw-BF16 input
 return base + (residual * (alpha / rank)).to(base.dtype)
 ```
 
-$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
+激活量化入口是 `quant/native_activation.py::native_activation_qdq_torch`：训练时使用 `ste=True` 传递直通梯度，服务时使用 `ste=False`，两者的前向量化值相同。$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
 
 v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
 

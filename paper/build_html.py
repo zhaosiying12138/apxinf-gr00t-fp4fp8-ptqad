@@ -33,6 +33,7 @@ nav .sub{font-size:13px;color:var(--muted)}
 figure{margin:32px 0}figure svg,figure img{display:block;width:100%;height:auto;max-width:100%;border:1px solid var(--line);border-radius:4px}
 figcaption{font:13px/1.75 system-ui,"Microsoft YaHei",sans-serif;color:var(--muted);margin-top:10px}
 .shot img{cursor:zoom-in}.table-wrap{overflow-x:auto;margin:24px 0;border:1px solid var(--line);border-radius:5px}
+.pending-shot{border:1px dashed #b42318;border-radius:5px;background:#fff8f6;padding:28px;font:15px/1.8 system-ui,"Microsoft YaHei",sans-serif}.pending-shot strong{color:#b42318}.pending-shot p{margin:8px 0 0}
 table{border-collapse:collapse;width:100%;font:13.5px/1.8 system-ui,"Microsoft YaHei",sans-serif}
 th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;min-width:65px}
 th{background:#eaf2f5;color:#183c4d;font-weight:650}tbody tr:nth-child(even){background:#f8fafb}
@@ -72,9 +73,13 @@ def math_and_code(md):
     return md, json.loads(rendered.stdout), maths
 
 def main():
-    inputs = html_build_inputs(PAPER)
     meta = json.loads((PAPER/'meta.json').read_text(encoding='utf-8'))
     figures = json.loads((PAPER/'figures.json').read_text(encoding='utf-8'))
+    pending = {name for name, info in figures.items() if info.get('refresh_pending') is True}
+    require(all(name.startswith('shot_') for name in pending), 'Only execution screenshots may await refresh')
+    require(not pending or '审阅稿' in meta.get('status', ''),
+            'Pending screenshots forbid a final publication; explicitly mark meta.status as a review draft')
+    inputs = html_build_inputs(PAPER)
     md = '\n\n'.join(p.read_text(encoding='utf-8') for p in sorted((PAPER/'sections').glob('*.md')))
     # Control markers are editorial metadata, never reader-visible prose.
     md = re.sub(r'<!-- (?:BEGIN|END) [A-Z0-9 ]+ -->', '', md)
@@ -90,6 +95,11 @@ def main():
     def fig(m):
         name = m[1]
         info = figures[name]
+        if name in pending:
+            return (f'<figure class="shot refresh-pending" id="fig-{name}" data-figure="{name}" data-refresh-pending="true">'
+                    '<div class="pending-shot" role="note"><strong>待补本轮真实运行截图</strong>'
+                    '<p>保留此复现环节，完成实拍与来源核验后补入。</p></div>'
+                    f'<figcaption>{html.escape(info["title"])} · {html.escape(info["note"])}</figcaption></figure>')
         path = PAPER/'figs'/(name+'.svg')
         if path.exists():
             content = path.read_text(encoding='utf-8')
@@ -133,7 +143,10 @@ def main():
     (PAPER/'validation').mkdir(exist_ok=True)
     manifest = {'version': 1, 'status': 'passed', 'inputs': inputs,
                 'output': file_record(PAPER/'paper.html', PAPER),
-                'math_expressions': len(maths), 'figures': len(figures)}
+                'math_expressions': len(maths), 'figures': len(figures),
+                'screenshot_slots': sum(name.startswith('shot_') for name in figures),
+                'screenshots': sum(name.startswith('shot_') and name not in pending for name in figures),
+                'screenshot_refresh_pending': sorted(pending)}
     temporary = PAPER/'validation/html-build.json.tmp'
     temporary.write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n')
     temporary.replace(PAPER/'validation/html-build.json')

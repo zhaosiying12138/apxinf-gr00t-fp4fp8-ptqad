@@ -26,7 +26,7 @@ results/ptqad_20261003/v11_recovery_r4
 
 ## 当前 GPU 进程与续跑纪律
 
-截至 2026-10-02 上午（Asia/Shanghai），QAD 的 `5e-5` 臂已超过 1,000/2,000 optimizer steps，driver PID 为 4118527，训练 PID 为 4118579；这些是当时的快照，接手时必须重新检查。随后按冻结顺序完成另一学习率、QAD 选择、学生状态采集、continued-QAD、两个 OPD 权重及 held-out 五臂比较。
+截至 2026-10-02 12:30 左右（Asia/Shanghai），QAD 的 `5e-5` 臂已超过 1,260/2,000 optimizer steps，driver PID 为 4118527，训练 PID 为 4118579；这些是当时的快照，接手时必须重新检查。续跑服务仍为 active，尚无 `final_manifest.json`；WSL 可用约 266 GiB，宿主 C 盘可用约 79 GB。随后按冻结顺序完成另一学习率、QAD 选择、学生状态采集、continued-QAD、两个 OPD 权重及 held-out 五臂比较。
 
 续跑由 systemd 用户服务 `fp4vla-v11-r4-continuation.service` 托管，入口为 `exp/continue_w4a4_run.py`。服务先等待绑定的 driver 退出，然后校验并复用已完成阶段。当前 driver 没有 `PTQAD_MEDIA_LIB`，第一条 development 评测预计会在 FFmpeg 预检时退出；续跑器仅在日志精确匹配该错误、评测目录完全为空、没有评测 manifest 或完成标记且 GPU 空闲时，归档原日志并记录 SHA，再使用已验证的 media7 路径续跑。它不删除已有结果，不重跑部分训练，不修改冻结的训练或评测实现。
 
@@ -73,3 +73,7 @@ paper/evidence/recipe_inventory.json
 不得沿用旧 `.incomplete-*` 路径、旧 recipe SHA 或其他协议 bank 的结果。最终正文、图表、摘要和 README 只接受当前 v11 的同一协议、分母和 reset ledger。
 
 正文目前保留红色 `xxx` 占位符是有意的。必须等五臂 160 回合证据和压缩账本通过 `extract_final_evidence.py`、`materialize_final_evidence.py`、`audit_recovery_release.py` 与 publication validation 后，才回填成功率、恢复幅度和压缩比例；训练 loss、development 分数和 smoke 回合都不能代替闭环成功率。
+
+审阅稿的 17 个截图环节中，11 张已核对，6 个以文字占位：`shot_bake`、`shot_qad`、`shot_opdcache`、`shot_opd`、`shot_evalserver`、`shot_rollout`。内部保留原始资产，但这些旧画面不再出现在 HTML、知乎稿或审阅 ZIP。新 `shot_probe` 已实际重拍并核对，13 项 CPU 检查覆盖教师探针、有效掩码及真实 Trainer 的尾批。最终须实拍替换六图、记录 capture 来源、解除 `figures.json` 中对应的 `refresh_pending`，再重新构建和验收。不能只解除标记而沿用旧图片。
+
+源码导航已更新为 37 文件、105 符号。完整 CPU 检查包含 tests/ discovery 与四套论文检查，报告保存在 `paper/validation/cpu-tests.json`；测试夹具的合成数值只用于校验程序，不进入真实结果。初次迁移时的失败报告原样保存在 `paper/_build/final_cpu_20261002_failed_initial/`。

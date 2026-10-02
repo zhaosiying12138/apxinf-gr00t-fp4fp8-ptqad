@@ -407,12 +407,12 @@
         "verified": true,
         "scope": "Terminal content, command identity, theme and overlays manually inspected"
       },
-      "sha256": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
+      "sha256": "4b322fc12e795ff9e28cb78dcc047745b1cd52c24d534c70d8bb585167b54bea",
       "dimensions": [
         3840,
         2280
       ],
-      "captured_at": "2026-09-29T08:02:59.1745647Z",
+      "captured_at": "2026-10-02T04:21:46.2321515Z",
       "exit_status": 0,
       "capture_status": "accepted_not_black",
       "image_quality": {
@@ -423,21 +423,21 @@
         "sampled_pixels": 76650,
         "near_black_rgb_max": 12,
         "rejection_fraction_threshold": 0.98,
-        "near_black_fraction": 0.0003392041748206132,
-        "mean_luminance": 44.54976478533872,
+        "near_black_fraction": 0.0003522504892367906,
+        "mean_luminance": 41.80891931373682,
         "maximum_luminance": 254.99999999999997,
         "accepted_not_black": true,
         "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
       },
       "image_processing": "taskbar crop only",
       "raw_log": "evidence/captures/shot_probe.log",
-      "raw_log_sha256": "8804331c84544614b7772c981207a7e4b068d34faa9fa453f146174db6c40e02",
+      "raw_log_sha256": "0b004259740c9fea6728c34c7fdace3155e448ed7ba64109876b00163e85e348",
       "script": "evidence/captures/shot_probe.sh",
-      "script_sha256": "e434b4ea4fda584e875835133826d19e4c80341e6ad85cf634d7a3f2a61e429f",
+      "script_sha256": "a4514ca2bdeab55c7c097abea8514572358e8779a74705ba151902ae99d742f3",
       "capture_sidecar": "evidence/captures/shot_probe.capture.json",
-      "capture_sidecar_sha256": "f3833a8b8595d481ad3feae0fb4bfa2c610df9fbc45822a9b13a0260d049029a",
+      "capture_sidecar_sha256": "67a3e9d0f9f2bec3bd257e98deee4e1fa8e2a0d077b867b087894c0e5b954b1f",
       "crop_manifest": "evidence/captures/shot_probe.crop.json",
-      "crop_manifest_sha256": "843b15811749745fdb55b4e2faf4be3560ed0797b99a16b707e5c99acfc7cbd3"
+      "crop_manifest_sha256": "6442847aa1503be8e5d06034574e7a4e30b3fa3e01abd9f21fe5ab13116f2df8"
     },
     {
       "figure": "shot_qad",

@@ -3,19 +3,14 @@
   "not_final_publication": true,
   "experiment_protocol": "v11_w4a4_category",
   "selected_recipe": "pending_v11_selection",
-  "screenshots": 17,
+  "screenshot_slots": 17,
+  "screenshots": 11,
   "screenshot_sha256": {
     "shot_collect": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
-    "shot_bake": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
     "shot_packed": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
     "shot_verify": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db",
-    "shot_probe": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
-    "shot_qad": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
-    "shot_opdcache": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
-    "shot_opd": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
+    "shot_probe": "4b322fc12e795ff9e28cb78dcc047745b1cd52c24d534c70d8bb585167b54bea",
     "shot_qat": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
-    "shot_evalserver": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf",
-    "shot_rollout": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170",
     "shot_fp8probe": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
     "shot_gemm": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08",
     "shot_opbench": "c7db35ef39dd99022c6595b5f32a0730c84aea266f888f9084c9c96816be2f4d",
@@ -25,12 +20,20 @@
   },
   "screenshot_refresh_pending": [
     "shot_bake",
-    "shot_qad",
-    "shot_opdcache",
-    "shot_opd",
     "shot_evalserver",
+    "shot_opd",
+    "shot_opdcache",
+    "shot_qad",
     "shot_rollout"
   ],
+  "internal_retained_screenshot_sha256": {
+    "shot_bake": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
+    "shot_evalserver": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf",
+    "shot_opd": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
+    "shot_opdcache": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
+    "shot_qad": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
+    "shot_rollout": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170"
+  },
   "figures": 24,
   "input_evidence": [
     {
@@ -82,13 +85,13 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "b0716de62f4891b6614179bfda79477662f86fd1ec63716eb1f89e8f7183d5bf",
-      "bytes": 8498825
+      "sha256": "0c8e67bfb13d6a28110e66456c82ff0528577feb6a3d9a79abde2ca69a169856",
+      "bytes": 5414463
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "375aebd3209a61e06e62e79e9de94661323da97f9e39219404e90327fad68532",
-      "bytes": 140653
+      "sha256": "d95a7931ce681584f47aa34085b4d687ed4a3ec33e2d96eaae44b3de7edf867f",
+      "bytes": 140462
     },
     {
       "path": "meta.json",
@@ -97,8 +100,8 @@
     },
     {
       "path": "figures.json",
-      "sha256": "2bb798aa3a581438680a9a941894972be83d7e0792ee8c4accfad2acdd7e9d9e",
-      "bytes": 8140
+      "sha256": "3058a5fea4a70ac73025187480c759d9d770dc5ca70526b8a602c8bcafabaf48",
+      "bytes": 7930
     },
     {
       "path": "analysis_plan_w4a4.json",
@@ -127,8 +130,8 @@
     },
     {
       "path": "sections/04-实验.md",
-      "sha256": "b3522bdb5573464a4b6d5ddb371816b412eeb3135a931947459e731da42ec86a",
-      "bytes": 6750
+      "sha256": "d29d42e5f3c52753c29c7db4d527b594a9555abe5108a44a30810be7cc477a4f",
+      "bytes": 6798
     },
     {
       "path": "sections/05-讨论与结论.md",
@@ -137,13 +140,13 @@
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
-      "sha256": "f896f5674796b537e64ca3ff0f6a3314b3622924c732eae626f90578fc3b7b45",
-      "bytes": 46080
+      "sha256": "5209347ca215bb3140acb6450b2e1343e3b78461b4461fd9aefd7f709b873b7d",
+      "bytes": 46349
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "sha256": "27f471cf8b23438bc6bcbbaeedd9c74345155042dfb33ce33f9c8fc128ecbda7",
-      "bytes": 21080
+      "sha256": "5cec8a8af3f54d6b93291cd0e210534d451db65787cee1b72282bcdb0387203f",
+      "bytes": 21223
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
@@ -191,11 +194,6 @@
       "bytes": 349151
     },
     {
-      "path": "zhihu/images/shot_bake.png",
-      "sha256": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
-      "bytes": 460385
-    },
-    {
       "path": "zhihu/images/shot_packed.png",
       "sha256": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
       "bytes": 279477
@@ -207,38 +205,13 @@
     },
     {
       "path": "zhihu/images/shot_probe.png",
-      "sha256": "5d46dade9cb7443e41fee21de12c44ac446736baa701e5b5d8651de15f4b796c",
-      "bytes": 259228
-    },
-    {
-      "path": "zhihu/images/shot_qad.png",
-      "sha256": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346",
-      "bytes": 423906
-    },
-    {
-      "path": "zhihu/images/shot_opdcache.png",
-      "sha256": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0",
-      "bytes": 309583
-    },
-    {
-      "path": "zhihu/images/shot_opd.png",
-      "sha256": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194",
-      "bytes": 382536
+      "sha256": "4b322fc12e795ff9e28cb78dcc047745b1cd52c24d534c70d8bb585167b54bea",
+      "bytes": 245868
     },
     {
       "path": "zhihu/images/shot_qat.png",
       "sha256": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
       "bytes": 278520
-    },
-    {
-      "path": "zhihu/images/shot_evalserver.png",
-      "sha256": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf",
-      "bytes": 278598
-    },
-    {
-      "path": "zhihu/images/shot_rollout.png",
-      "sha256": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170",
-      "bytes": 445539
     },
     {
       "path": "zhihu/images/shot_fp8probe.png",

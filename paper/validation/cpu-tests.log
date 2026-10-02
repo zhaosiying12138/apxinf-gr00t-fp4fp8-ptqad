@@ -1,3 +1,9 @@
+Complete CPU unittest collection and four paper suites
+No GPU/model/closed-loop evaluation; test fixtures are synthetic.
+ENVIRONMENT {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}
+
+SUITE unittest-discovery
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -v
 test_eval_and_training_outputs_gradients_rng_and_keys_match (test_activation_checkpoint.ActivationCheckpointTests.test_eval_and_training_outputs_gradients_rng_and_keys_match) ... ok
 test_real_qwen_dit_vl_with_project_lora_when_gr00t_is_available (test_activation_checkpoint.ActivationCheckpointTests.test_real_qwen_dit_vl_with_project_lora_when_gr00t_is_available) ... /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'DiT' object attribute is deprecated. Please access 'compute_dtype' over 'DiT's config object instead, e.g. 'unet.config.compute_dtype'.
   embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
@@ -13,7 +19,51 @@ test_gr00t_tuple_and_finite_checks (test_baseline_timing.BaselineTimingTests.tes
 test_pi05_finite_check (test_baseline_timing.BaselineTimingTests.test_pi05_finite_check) ... ok
 test_pi05_loader_overrides_config_and_propagates_loading_error (test_baseline_timing.BaselineTimingTests.test_pi05_loader_overrides_config_and_propagates_loading_error) ... ok
 test_accepts_full_fixture_and_rejects_corruption_without_changing_inputs (test_calibration_verifier.CalibrationVerifierTests.test_accepts_full_fixture_and_rejects_corruption_without_changing_inputs) ... ok
+test_complete_final_manifest_is_accepted (test_capture_runtime_provenance.CaptureRuntimeProvenanceTests.test_complete_final_manifest_is_accepted) ... ok
+test_v3_or_incomplete_boundary_is_rejected (test_capture_runtime_provenance.CaptureRuntimeProvenanceTests.test_v3_or_incomplete_boundary_is_rejected) ... ok
+test_v7_mixed_final_manifest_is_accepted (test_capture_runtime_provenance.CaptureRuntimeProvenanceTests.test_v7_mixed_final_manifest_is_accepted)
+The current mixed-pressure run is a first-class provenance boundary. ... ok
+test_capture_consumes_reset_identity_event (test_capture_success_metadata.CaptureMetadataTests.test_capture_consumes_reset_identity_event) ... [onpolicy-capture] saved=1 task=5a92f6f089f6 task_count=1 slot=0 call=1
+ok
+test_episode_quota_reserves_capacity_for_later_episodes (test_capture_success_metadata.CaptureMetadataTests.test_episode_quota_reserves_capacity_for_later_episodes) ... [onpolicy-capture] saved=1 task=5a92f6f089f6 task_count=1 slot=0 call=1
+[onpolicy-capture] saved=2 task=5a92f6f089f6 task_count=2 slot=0 call=2
+[onpolicy-capture] saved=3 task=5a92f6f089f6 task_count=3 slot=0 call=6
+[onpolicy-capture] saved=4 task=5a92f6f089f6 task_count=4 slot=0 call=7
+[onpolicy-capture] saved=5 task=5a92f6f089f6 task_count=5 slot=0 call=11
+[onpolicy-capture] saved=6 task=5a92f6f089f6 task_count=6 slot=0 call=12
+ok
+test_finalize_marks_success_and_removes_failed_from_training_glob (test_capture_success_metadata.CaptureMetadataTests.test_finalize_marks_success_and_removes_failed_from_training_glob) ... ok
+test_pressure_rejects_below_absolute_floor (test_category_development.CategoryDevelopmentProtocolTest.test_pressure_rejects_below_absolute_floor) ... ok
+test_pressure_selection_requires_drop_and_floor (test_category_development.CategoryDevelopmentProtocolTest.test_pressure_selection_requires_drop_and_floor) ... ok
+test_protocol_declares_v4_split_and_category_ladder (test_category_development.CategoryDevelopmentProtocolTest.test_protocol_declares_v4_split_and_category_ladder) ... ok
+test_allowlist_and_architecture_are_frozen (test_category_fp4.CategoryFp4Test.test_allowlist_and_architecture_are_frozen) ... ok
+test_budget_reports_category_padding_and_ties (test_category_fp4.CategoryFp4Test.test_budget_reports_category_padding_and_ties) ... ok
+test_k_padding_is_internal_and_roundtrips (test_category_fp4.CategoryFp4Test.test_k_padding_is_internal_and_roundtrips) ... ok
+test_unobserved_bank_uses_rtn_and_active_bank_can_compare_gptq (test_category_fp4.CategoryFp4Test.test_unobserved_bank_uses_rtn_and_active_bank_can_compare_gptq) ... ok
+test_frozen_v4_protocol_normalizes_v3_runner_contract (test_category_recovery.CategoryRecoveryTest.test_frozen_v4_protocol_normalizes_v3_runner_contract) ... ok
+test_v3_protocol_is_rejected_at_category_boundary (test_category_recovery.CategoryRecoveryTest.test_v3_protocol_is_rejected_at_category_boundary) ... ok
 test_bake_and_cross_shard_adapter_export_preserve_base_dtype_and_keys (test_checkpoint_roundtrip.CheckpointRoundtrip.test_bake_and_cross_shard_adapter_export_preserve_base_dtype_and_keys) ... ok
+test_legacy_input_is_readable_but_not_certified_as_versioned (test_compare_recovery_gate.ComparisonEvidenceGateTests.test_legacy_input_is_readable_but_not_certified_as_versioned) ... ok
+test_rejects_any_paired_state_hash_mismatch (test_compare_recovery_gate.ComparisonEvidenceGateTests.test_rejects_any_paired_state_hash_mismatch) ... ok
+test_rejects_non_boolean_outcome_and_protocol_divergence (test_compare_recovery_gate.ComparisonEvidenceGateTests.test_rejects_non_boolean_outcome_and_protocol_divergence) ... ok
+test_rejects_summary_and_raw_result_accounting_mismatches (test_compare_recovery_gate.ComparisonEvidenceGateTests.test_rejects_summary_and_raw_result_accounting_mismatches) ... ok
+test_reports_full_recovery_ladder_without_inferential_claim (test_compare_recovery_gate.ComparisonEvidenceGateTests.test_reports_full_recovery_ladder_without_inferential_claim) ... ok
+test_active_gpu_refuses_before_mutating_failure (test_continue_w4a4_run.ContinuationOperationsTest.test_active_gpu_refuses_before_mutating_failure) ... ok
+test_bind_process_checks_starttime_script_and_run (test_continue_w4a4_run.ContinuationOperationsTest.test_bind_process_checks_starttime_script_and_run) ... ok
+test_command_uses_all_manifest_paths_and_preserves_venv_launcher (test_continue_w4a4_run.ContinuationOperationsTest.test_command_uses_all_manifest_paths_and_preserves_venv_launcher) ... ok
+test_completed_stage_is_left_to_driver_and_partial_training_is_untouched (test_continue_w4a4_run.ContinuationOperationsTest.test_completed_stage_is_left_to_driver_and_partial_training_is_untouched) ... ok
+test_empty_wsl_gpu_query_still_refuses_other_recovery_process (test_continue_w4a4_run.ContinuationOperationsTest.test_empty_wsl_gpu_query_still_refuses_other_recovery_process) ... ok
+test_environment_cleans_recovery_inheritance_and_forces_offline_media (test_continue_w4a4_run.ContinuationOperationsTest.test_environment_cleans_recovery_inheritance_and_forces_offline_media) ... ok
+test_exact_empty_preflight_is_archived_with_hash_receipt (test_continue_w4a4_run.ContinuationOperationsTest.test_exact_empty_preflight_is_archived_with_hash_receipt) ... ok
+test_gpu_query_fails_closed (test_continue_w4a4_run.ContinuationOperationsTest.test_gpu_query_fails_closed) ... ok
+test_lock_excludes_second_wrapper (test_continue_w4a4_run.ContinuationOperationsTest.test_lock_excludes_second_wrapper) ... ok
+test_manifest_rejects_changed_selection_and_absent_run (test_continue_w4a4_run.ContinuationOperationsTest.test_manifest_rejects_changed_selection_and_absent_run) ... ok
+test_manifest_rejects_invalid_state (test_continue_w4a4_run.ContinuationOperationsTest.test_manifest_rejects_invalid_state) ... ok
+test_manifest_reloads_stage_changes_but_verifies_source_hashes (test_continue_w4a4_run.ContinuationOperationsTest.test_manifest_reloads_stage_changes_but_verifies_source_hashes) ... ok
+test_matching_substring_and_wrong_command_are_refused (test_continue_w4a4_run.ContinuationOperationsTest.test_matching_substring_and_wrong_command_are_refused) ... ok
+test_nonempty_directory_and_eval_manifest_are_never_removed (test_continue_w4a4_run.ContinuationOperationsTest.test_nonempty_directory_and_eval_manifest_are_never_removed) ... ok
+test_other_failure_is_refused_unchanged (test_continue_w4a4_run.ContinuationOperationsTest.test_other_failure_is_refused_unchanged) ... ok
+test_pid_reuse_is_refused (test_continue_w4a4_run.ContinuationOperationsTest.test_pid_reuse_is_refused) ... ok
 test_completed_bake_rejects_changed_weights_and_metadata (test_development_runner.DevelopmentRunnerTest.test_completed_bake_rejects_changed_weights_and_metadata) ... ok
 test_dry_run_never_creates_output_or_hashes_resources (test_development_runner.DevelopmentRunnerTest.test_dry_run_never_creates_output_or_hashes_resources) ... ok
 test_first_selected_stops_before_any_higher_bake_or_eval (test_development_runner.DevelopmentRunnerTest.test_first_selected_stops_before_any_higher_bake_or_eval) ... ok
@@ -22,13 +72,50 @@ test_new_output_and_pretraining_order_are_required (test_development_runner.Deve
 test_promoted_bake_requires_calibration_base_identity (test_development_runner.DevelopmentRunnerTest.test_promoted_bake_requires_calibration_base_identity) ... ok
 test_reused_smoke_calibration_cannot_be_formal (test_development_runner.DevelopmentRunnerTest.test_reused_smoke_calibration_cannot_be_formal) ... ok
 test_exact_boundary_and_second_reset (test_development_selection.DevelopmentSelectionTests.test_exact_boundary_and_second_reset) ... ok
+test_v3_uses_declared_partition_and_highest_qualifying_pressure (test_development_selection.DevelopmentSelectionTests.test_v3_uses_declared_partition_and_highest_qualifying_pressure) ... ok
 test_execution_mode_does_not_guess_missing_runtime_state (test_engine_timing.EngineTimingTests.test_execution_mode_does_not_guess_missing_runtime_state) ... ok
 test_failed_run_closes_policy_without_publishing (test_engine_timing.EngineTimingTests.test_failed_run_closes_policy_without_publishing) ... ok
 test_output_is_atomic_and_never_replaced (test_engine_timing.EngineTimingTests.test_output_is_atomic_and_never_replaced) ... ok
 test_percentiles_preserve_sample_order_and_missing_power (test_engine_timing.EngineTimingTests.test_percentiles_preserve_sample_order_and_missing_power) ... ok
 test_rejects_invalid_actions_or_timing (test_engine_timing.EngineTimingTests.test_rejects_invalid_actions_or_timing) ... ok
 test_variant_truth_and_family_specific_dispatch (test_engine_timing.EngineTimingTests.test_variant_truth_and_family_specific_dispatch) ... ok
+test_does_not_attach_current_analysis_plan_to_historical_experiment (test_extract_final_evidence.FinalEvidenceAdapterTests.test_does_not_attach_current_analysis_plan_to_historical_experiment) ... ok
+test_extracts_only_heldout_public_arms (test_extract_final_evidence.FinalEvidenceAdapterTests.test_extracts_only_heldout_public_arms) ... ok
+test_rejects_episode_task_totals_that_disagree_with_declared_totals (test_extract_final_evidence.FinalEvidenceAdapterTests.test_rejects_episode_task_totals_that_disagree_with_declared_totals) ... ok
+test_rejects_heldout_dependent_selection (test_extract_final_evidence.FinalEvidenceAdapterTests.test_rejects_heldout_dependent_selection) ... ok
+test_rejects_incomplete_comparison (test_extract_final_evidence.FinalEvidenceAdapterTests.test_rejects_incomplete_comparison) ... ok
+test_rejects_other_recipes_even_with_v11_protocol (test_extract_final_evidence.FinalEvidenceAdapterTests.test_rejects_other_recipes_even_with_v11_protocol) ... ok
+test_all_budget_artifacts_cannot_consistently_switch_back_to_fp8 (test_frontier_figures.FrontierFigureTests.test_all_budget_artifacts_cannot_consistently_switch_back_to_fp8) ... ok
+test_arithmetic_consistent_but_different_outcomes_are_rejected (test_frontier_figures.FrontierFigureTests.test_arithmetic_consistent_but_different_outcomes_are_rejected) ... ok
+test_both_readers_require_all_integrity_gates (test_frontier_figures.FrontierFigureTests.test_both_readers_require_all_integrity_gates) ... ok
+test_consistently_changed_adapter_bytes_are_rejected (test_frontier_figures.FrontierFigureTests.test_consistently_changed_adapter_bytes_are_rejected) ... ok
+test_current_five_arm_builder_output_and_negative_recovery_are_accepted (test_frontier_figures.FrontierFigureTests.test_current_five_arm_builder_output_and_negative_recovery_are_accepted) ... ok
+test_frontier_requires_the_exact_paired_file_and_budget_files (test_frontier_figures.FrontierFigureTests.test_frontier_requires_the_exact_paired_file_and_budget_files) ... ok
+test_legacy_100_episode_pair_and_frontier_are_rejected (test_frontier_figures.FrontierFigureTests.test_legacy_100_episode_pair_and_frontier_are_rejected) ... ok
+test_legacy_reference_or_selected_recipe_is_rejected (test_frontier_figures.FrontierFigureTests.test_legacy_reference_or_selected_recipe_is_rejected) ... ok
+test_missing_arm_or_bf16_recipe_mislabel_is_rejected (test_frontier_figures.FrontierFigureTests.test_missing_arm_or_bf16_recipe_mislabel_is_rejected) ... ok
+test_plot_uses_success_percentage_instead_of_160_episode_success_count (test_frontier_figures.FrontierFigureTests.test_plot_uses_success_percentage_instead_of_160_episode_success_count) ... ok
 test_scope_keeps_checkpoint_horizon_statistics_mapping_and_valid_actions (test_gr00t_runtime.RuntimeTests.test_scope_keeps_checkpoint_horizon_statistics_mapping_and_valid_actions) ... ok
+test_v11_exposes_teacher_supervision_partition (test_high_fp4_protocol.HighFp4ProtocolTest.test_v11_exposes_teacher_supervision_partition) ... ok
+test_mixed_protocol_requires_nonzero_fp4_and_fp8 (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_mixed_protocol_requires_nonzero_fp4_and_fp8) ... ok
+test_pairing_mapping_is_unique_and_names_original_round_sources (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_pairing_mapping_is_unique_and_names_original_round_sources) ... ok
+test_rejects_inconsistent_category_accounting (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_rejects_inconsistent_category_accounting) ... ok
+test_rejects_missing_final_manifest_before_touching_output (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_rejects_missing_final_manifest_before_touching_output) ... ok
+test_requires_final_manifest_name_and_complete_run (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_requires_final_manifest_name_and_complete_run) ... ok
+test_selected_recipe_requires_complete_category_provenance (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_selected_recipe_requires_complete_category_provenance) ... ok
+test_e2m1_half_neighbors_choose_opposite_sides (test_native_activation.NativeActivationTests.test_e2m1_half_neighbors_choose_opposite_sides) ... ok
+test_e2m1_midpoints_signs_and_literal_packed_bytes (test_native_activation.NativeActivationTests.test_e2m1_midpoints_signs_and_literal_packed_bytes) ... ok
+test_fixed_scale_saturation_and_tiny_values (test_native_activation.NativeActivationTests.test_fixed_scale_saturation_and_tiny_values) ... ok
+test_input_is_cast_to_f16_before_code_selection (test_native_activation.NativeActivationTests.test_input_is_cast_to_f16_before_code_selection) ... ok
+test_padding_zero_and_noncontiguous_leading_shape (test_native_activation.NativeActivationTests.test_padding_zero_and_noncontiguous_leading_shape) ... ok
+test_qdq_dtype_ste_and_original_residual_input (test_native_activation.NativeActivationTests.test_qdq_dtype_ste_and_original_residual_input) ... ok
+test_rejects_nonfinite_input_f16_overflow_and_invalid_shapes (test_native_activation.NativeActivationTests.test_rejects_nonfinite_input_f16_overflow_and_invalid_shapes) ... ok
+test_scalar_oracle_for_data_division_and_nearest_even (test_native_activation.NativeActivationTests.test_scalar_oracle_for_data_division_and_nearest_even) ... ok
+test_scale_midpoints_and_subnormal_zero (test_native_activation.NativeActivationTests.test_scale_midpoints_and_subnormal_zero) ... ok
+test_scale_oracle_for_every_positive_finite_half (test_native_activation.NativeActivationTests.test_scale_oracle_for_every_positive_finite_half) ... ok
+test_scale_swizzle_crosses_row_and_k_tile_boundaries (test_native_activation.NativeActivationTests.test_scale_swizzle_crosses_row_and_k_tile_boundaries) ... ok
+test_torch_device_path_matches_cpu_oracle (test_native_activation.NativeActivationTests.test_torch_device_path_matches_cpu_oracle) ... ok
+test_torch_ste_keeps_identity_gradient (test_native_activation.NativeActivationTests.test_torch_ste_keeps_identity_gradient) ... ok
 test_chunking_preserves_bytes_and_existing_output_is_rejected (test_native_pi05_prepare.NativePackingTest.test_chunking_preserves_bytes_and_existing_output_is_rejected) ... ok
 test_actual_denominators_and_missing_results (test_onpolicy_capture.CaptureTests.test_actual_denominators_and_missing_results) ... ok
 test_bank_restore_uses_raw_zero_settling_and_declared_partition (test_onpolicy_capture.CaptureTests.test_bank_restore_uses_raw_zero_settling_and_declared_partition) ... ok
@@ -38,21 +125,51 @@ ok
 test_exact_mcnemar_and_directional_table (test_onpolicy_capture.CaptureTests.test_exact_mcnemar_and_directional_table) ... ok
 test_heldout_overlap_is_rejected_before_process_launch (test_onpolicy_capture.CaptureTests.test_heldout_overlap_is_rejected_before_process_launch) ... ok
 test_reset_records_are_required_and_verified (test_onpolicy_capture.CaptureTests.test_reset_records_are_required_and_verified) ... ok
+test_terminal_auto_resets_are_excluded_from_scored_resets (test_onpolicy_capture.CaptureTests.test_terminal_auto_resets_are_excluded_from_scored_resets) ... ok
+test_bad_pairing_and_non_boolean_outcomes_rejected (test_paired_uncertainty.PairedUncertaintyTests.test_bad_pairing_and_non_boolean_outcomes_rejected) ... ok
+test_discordance_sign_exact_test_and_reproducibility (test_paired_uncertainty.PairedUncertaintyTests.test_discordance_sign_exact_test_and_reproducibility) ... ok
+test_holm_is_monotone_in_sorted_raw_p (test_paired_uncertainty.PairedUncertaintyTests.test_holm_is_monotone_in_sorted_raw_p) ... ok
+test_identical_arms_preserve_pairing_and_warn_about_degenerate_interval (test_paired_uncertainty.PairedUncertaintyTests.test_identical_arms_preserve_pairing_and_warn_about_degenerate_interval) ... ok
+test_tasks_are_fixed_strata (test_paired_uncertainty.PairedUncertaintyTests.test_tasks_are_fixed_strata) ... ok
 test_all_sixteen_original_bytes_and_idempotent_retry (test_pairing_evidence.PairingCopyTests.test_all_sixteen_original_bytes_and_idempotent_retry) ... ok
 test_conflict_refused_before_any_public_file_installed (test_pairing_evidence.PairingCopyTests.test_conflict_refused_before_any_public_file_installed) ... ok
 test_forged_comparison_rejected (test_pairing_evidence.PairingCopyTests.test_forged_comparison_rejected) ... ok
 test_incomplete_source_creates_no_output (test_pairing_evidence.PairingCopyTests.test_incomplete_source_creates_no_output) ... ok
 test_source_changes_during_copy_rejected (test_pairing_evidence.PairingCopyTests.test_source_changes_during_copy_rejected) ... ok
 test_symbolic_output_cannot_escape (test_pairing_evidence.PairingCopyTests.test_symbolic_output_cannot_escape) ... ok
+test_v11_sixteen_episodes_per_task_are_copied_and_missing_tail_rejected (test_pairing_evidence.PairingCopyTests.test_v11_sixteen_episodes_per_task_are_copied_and_missing_tail_rejected) ... ok
+test_all_ordinary_scope_injects_visual_linear_and_keeps_category_out (test_probe_distill.ProbeTests.test_all_ordinary_scope_injects_visual_linear_and_keeps_category_out) ... [lora-qad] LoRA on 78 Linears (r=32, scope=all_ordinary_linear); trainable=0.0M frozen=0M
+ok
 test_explicit_batch_contract (test_probe_distill.ProbeTests.test_explicit_batch_contract) ... ok
 test_gradient_and_rng_and_mode_restoration (test_probe_distill.ProbeTests.test_gradient_and_rng_and_mode_restoration) ... ok
 test_identical_seed_matches_noise_time_without_global_rng_effect (test_probe_distill.ProbeTests.test_identical_seed_matches_noise_time_without_global_rng_effect) ... ok
+test_invalid_accumulation_fails_before_main_backward (test_probe_distill.ProbeTests.test_invalid_accumulation_fails_before_main_backward) ... ok
 test_padding_differences_have_no_loss_or_gradient (test_probe_distill.ProbeTests.test_padding_differences_have_no_loss_or_gradient) ... ok
 test_prediction_contracts (test_probe_distill.ProbeTests.test_prediction_contracts) ... ok
-test_real_lora_injection_keeps_language_eval_differentiable (test_probe_distill.ProbeTests.test_real_lora_injection_keeps_language_eval_differentiable) ... [lora-qad] LoRA on 79 Linears (r=32, scope=head+lang_all); trainable=0.0M frozen=0M
+test_real_accelerator_full_and_tail_gradients_match_update_mean (test_probe_distill.ProbeTests.test_real_accelerator_full_and_tail_gradients_match_update_mean) ... ok
+test_real_lora_injection_keeps_language_eval_differentiable (test_probe_distill.ProbeTests.test_real_lora_injection_keeps_language_eval_differentiable) ... [lora-qad] LoRA on 81 Linears (r=32, scope=head+lang_all); trainable=0.0M frozen=0M
+ok
+test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20 (test_probe_distill.ProbeTests.test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20) ... [2026-10-02 12:38:57,401] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
+[opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
 ok
 test_reject_legacy_and_mismatched_dtype (test_probe_distill.ProbeTests.test_reject_legacy_and_mismatched_dtype) ... ok
-test_sequential_backward_accumulation_and_return_outputs (test_probe_distill.ProbeTests.test_sequential_backward_accumulation_and_return_outputs) ... [opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1
+test_sequential_backward_accumulation_and_return_outputs (test_probe_distill.ProbeTests.test_sequential_backward_accumulation_and_return_outputs) ... {'train_runtime': 0.1222, 'train_samples_per_second': 2617.616, 'train_steps_per_second': 163.601, 'train_loss': 1.3666049003601075, 'epoch': 2.0}
+[opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1
 [opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1
 ok
 test_dry_run_does_not_launch_or_create_output (test_ptq_frontier.FrontierTests.test_dry_run_does_not_launch_or_create_output) ... ok
@@ -84,13 +201,64 @@ test_portable_source_path_and_real_linear_residual (test_recipe_inventory.Recipe
 test_refuses_overwrite_before_reading_inputs (test_recipe_inventory.RecipeInventoryTest.test_refuses_overwrite_before_reading_inputs) ... ok
 test_same_length_tampered_weight_bytes_are_rejected (test_recipe_inventory.RecipeInventoryTest.test_same_length_tampered_weight_bytes_are_rejected) ... ok
 test_smoke_calibration_refuses_formal_budget (test_recipe_inventory.RecipeInventoryTest.test_smoke_calibration_refuses_formal_budget) ... ok
+test_batch_entry_rejects_before_output_or_server_launch (test_recovery_checkpoint_guard.RecoveryCheckpointGuardTests.test_batch_entry_rejects_before_output_or_server_launch) ... ok
+test_clean_bf16_and_ptq_remain_accepted (test_recovery_checkpoint_guard.RecoveryCheckpointGuardTests.test_clean_bf16_and_ptq_remain_accepted) ... ok
+test_completed_formal_deployment_remains_accepted (test_recovery_checkpoint_guard.RecoveryCheckpointGuardTests.test_completed_formal_deployment_remains_accepted) ... ok
+test_direct_server_rejects_before_gr00t_import_under_both_env_modes (test_recovery_checkpoint_guard.RecoveryCheckpointGuardTests.test_direct_server_rejects_before_gr00t_import_under_both_env_modes) ... ok
+test_incomplete_or_invalid_deployment_cannot_bypass_guard (test_recovery_checkpoint_guard.RecoveryCheckpointGuardTests.test_incomplete_or_invalid_deployment_cannot_bypass_guard) ... ok
+test_raw_recovery_is_rejected_even_with_copied_ptq_recipe (test_recovery_checkpoint_guard.RecoveryCheckpointGuardTests.test_raw_recovery_is_rejected_even_with_copied_ptq_recipe) ... ok
+test_existing_event_file_is_replaced_and_capture_remains_enabled (test_recovery_eval_capture_env.RecoveryEvalCaptureEnvironmentTests.test_existing_event_file_is_replaced_and_capture_remains_enabled) ... ok
+test_fresh_event_file_path_is_exported_for_teacher_and_collection (test_recovery_eval_capture_env.RecoveryEvalCaptureEnvironmentTests.test_fresh_event_file_path_is_exported_for_teacher_and_collection) ... ok
+test_non_capture_purpose_removes_inherited_capture_directory (test_recovery_eval_capture_env.RecoveryEvalCaptureEnvironmentTests.test_non_capture_purpose_removes_inherited_capture_directory) ... ok
+test_provenance_summary_preserves_unrecorded_initial_stages (test_recovery_invocation.RecoveryInvocationTest.test_provenance_summary_preserves_unrecorded_initial_stages) ... ok
+test_snapshot_tampering_is_rejected (test_recovery_invocation.RecoveryInvocationTest.test_snapshot_tampering_is_rejected) ... ok
 test_corruption_rejected_even_at_same_size (test_recovery_setup.DemoLfsTests.test_corruption_rejected_even_at_same_size) ... ok
 test_hydrated_exact_payloads_pass (test_recovery_setup.DemoLfsTests.test_hydrated_exact_payloads_pass) ... ok
 test_missing_payload_rejected (test_recovery_setup.DemoLfsTests.test_missing_payload_rejected) ... ok
 test_pointer_is_not_data (test_recovery_setup.DemoLfsTests.test_pointer_is_not_data) ... ok
 test_setup_network_scope_is_only_the_demo (test_recovery_setup.DemoLfsTests.test_setup_network_scope_is_only_the_demo) ... ok
+test_all_nvfp4_recipe_passes_w4a4_format_check (test_release_audit.ReleaseAuditTest.test_all_nvfp4_recipe_passes_w4a4_format_check) ... ok
+test_audit_run_does_not_create_or_mutate_report (test_release_audit.ReleaseAuditTest.test_audit_run_does_not_create_or_mutate_report) ... ok
+test_equal_and_missing_have_distinct_states (test_release_audit.ReleaseAuditTest.test_equal_and_missing_have_distinct_states) ... ok
+test_explicit_nested_source_keys_remain_supported (test_release_audit.ReleaseAuditTest.test_explicit_nested_source_keys_remain_supported) ... ok
+test_hash_contradiction_is_failed (test_release_audit.ReleaseAuditTest.test_hash_contradiction_is_failed) ... ok
+test_legacy_category_protocol_preserves_explicit_old_hash_semantics (test_release_audit.ReleaseAuditTest.test_legacy_category_protocol_preserves_explicit_old_hash_semantics) ... ok
+test_missing_declared_direct_source_never_falls_back_to_nested_copy (test_release_audit.ReleaseAuditTest.test_missing_declared_direct_source_never_falls_back_to_nested_copy) ... ok
+test_missing_format_declaration_is_unverifiable (test_release_audit.ReleaseAuditTest.test_missing_format_declaration_is_unverifiable) ... ok
+test_protocol_prose_mismatch_is_failed (test_release_audit.ReleaseAuditTest.test_protocol_prose_mismatch_is_failed) ... ok
+test_tampered_manifest_and_incomplete_source_map_are_not_accepted (test_release_audit.ReleaseAuditTest.test_tampered_manifest_and_incomplete_source_map_are_not_accepted) ... ok
+test_v11_recipe_hashes_cannot_be_swapped_or_inferred_from_current_bytes (test_release_audit.ReleaseAuditTest.test_v11_recipe_hashes_cannot_be_swapped_or_inferred_from_current_bytes) ... ok
+test_v11_sources_beside_selection_are_bound_without_development_prefix (test_release_audit.ReleaseAuditTest.test_v11_sources_beside_selection_are_bound_without_development_prefix) ... ok
+test_complete_v11_extract_pairing_and_render_without_mock_validators (test_render_recovery_results.RenderResultsTests.test_complete_v11_extract_pairing_and_render_without_mock_validators) ... ok
+test_incomplete_control_or_contrasts_rejected (test_render_recovery_results.RenderResultsTests.test_incomplete_control_or_contrasts_rejected) ... ok
+test_renderer_rejects_nonselected_recipe_before_reading_run (test_render_recovery_results.RenderResultsTests.test_renderer_rejects_nonselected_recipe_before_reading_run) ... ok
+test_reports_negative_opd_effect_and_ptq_improvement_without_selecting (test_render_recovery_results.RenderResultsTests.test_reports_negative_opd_effect_and_ptq_improvement_without_selecting) ... ok
+test_source_change_during_real_pairing_verification_creates_no_output (test_render_recovery_results.RenderResultsTests.test_source_change_during_real_pairing_verification_creates_no_output) ... ok
+test_writes_separate_inserts_and_refuses_overwrite (test_render_recovery_results.RenderResultsTests.test_writes_separate_inserts_and_refuses_overwrite) ... ok
+test_zero_discordance_is_not_reported_as_equivalence (test_render_recovery_results.RenderResultsTests.test_zero_discordance_is_not_reported_as_equivalence) ... ok
 test_cpu_snapshot_does_not_initialize_cuda (test_runtime_metrics.RuntimeMetricTests.test_cpu_snapshot_does_not_initialize_cuda) ... ok
 test_peaks_report_direct_allocator_values (test_runtime_metrics.RuntimeMetricTests.test_peaks_report_direct_allocator_values) ... ok
+test_category_active_nvfp4_recipe_gets_padded_qdq (test_scoped_quant_activation.ScopedActivationTests.test_category_active_nvfp4_recipe_gets_padded_qdq) ... [fp4vla] recipe gate loaded: 0/0 ordinary layers use NVFP4; 0/0 active category banks use NVFP4
+[fp4vla] recipe gate loaded: 0/0 ordinary layers use NVFP4; 1/1 active category banks use NVFP4
+[fp4vla] activation-only {"mode": "all", "ste": false, "ordinary_total": 0, "ordinary_w4a4": 0, "ordinary_bf16": 0, "category_total": 1, "category_w4a4": 1, "category_bf16": 0, "padded_modules": 1, "records": [{"name": "0", "format": "W4A4", "padded_k": true}]}
+ok
+test_category_requires_explicit_active_bank_recipe (test_scoped_quant_activation.ScopedActivationTests.test_category_requires_explicit_active_bank_recipe) ... [fp4vla] recipe gate loaded: 0/0 ordinary layers use NVFP4; 0/0 active category banks use NVFP4
+[fp4vla] activation-only {"mode": "all", "ste": false, "ordinary_total": 0, "ordinary_w4a4": 0, "ordinary_bf16": 0, "category_total": 1, "category_w4a4": 0, "category_bf16": 1, "padded_modules": 0, "records": [{"name": "", "format": "BF16", "reason": "category_recipe_missing"}]}
+ok
+test_pad_qdq_slice_supports_non_multiple_k_and_restores (test_scoped_quant_activation.ScopedActivationTests.test_pad_qdq_slice_supports_non_multiple_k_and_restores) ... [fp4vla] recipe gate loaded: 0/0 ordinary layers use NVFP4; 0/0 active category banks use NVFP4
+[fp4vla] recipe gate loaded: 1/1 ordinary layers use NVFP4; 0/0 active category banks use NVFP4
+[fp4vla] activation-only {"mode": "all", "ste": false, "ordinary_total": 1, "ordinary_w4a4": 1, "ordinary_bf16": 0, "category_total": 0, "category_w4a4": 0, "category_bf16": 0, "padded_modules": 1, "records": [{"name": "0", "format": "W4A4", "padded_k": true}]}
+ok
+test_ste_forwards_gradient_through_default_native_qdq (test_scoped_quant_activation.ScopedActivationTests.test_ste_forwards_gradient_through_default_native_qdq) ... [fp4vla] recipe gate loaded: 0/0 ordinary layers use NVFP4; 0/0 active category banks use NVFP4
+[fp4vla] recipe gate loaded: 0/0 ordinary layers use NVFP4; 0/0 active category banks use NVFP4
+[fp4vla] activation-only {"mode": "all", "ste": true, "ordinary_total": 1, "ordinary_w4a4": 1, "ordinary_bf16": 0, "category_total": 0, "category_w4a4": 0, "category_bf16": 0, "padded_modules": 1, "records": [{"name": "", "format": "W4A4", "padded_k": true}]}
+ok
+test_changed_raw_results_rejected (test_teacher_replay_audit.TeacherReplayAuditTests.test_changed_raw_results_rejected) ... ok
+test_manifest_success_count_is_not_payload_coverage (test_teacher_replay_audit.TeacherReplayAuditTests.test_manifest_success_count_is_not_payload_coverage) ... ok
+test_reset_mismatch_rejected (test_teacher_replay_audit.TeacherReplayAuditTests.test_reset_mismatch_rejected) ... ok
+test_student_or_unfinalized_sample_rejected (test_teacher_replay_audit.TeacherReplayAuditTests.test_student_or_unfinalized_sample_rejected) ... ok
+test_unknown_training_sample_rejected (test_teacher_replay_audit.TeacherReplayAuditTests.test_unknown_training_sample_rejected) ... ok
+test_verified_ten_task_teacher (test_teacher_replay_audit.TeacherReplayAuditTests.test_verified_ten_task_teacher) ... ok
 test_byte_copy_keeps_original_and_combines_source_roles (test_training_costs.TrainingCostTest.test_byte_copy_keeps_original_and_combines_source_roles) ... ok
 test_completed_stage_uses_actual_time_and_budget (test_training_costs.TrainingCostTest.test_completed_stage_uses_actual_time_and_budget) ... ok
 test_empty_index_is_rejected (test_training_costs.TrainingCostTest.test_empty_index_is_rejected) ... ok
@@ -104,10 +272,110 @@ test_public_verifier_rejects_summary_and_collection_identity_tampering (test_tra
 test_public_verifier_runs_standalone_without_private_paths_or_torch (test_training_costs.TrainingCostTest.test_public_verifier_runs_standalone_without_private_paths_or_torch) ... ok
 test_teacher_cannot_use_another_students_observations (test_training_costs.TrainingCostTest.test_teacher_cannot_use_another_students_observations) ... ok
 test_weight_inventory_and_bytes_are_verified (test_training_costs.TrainingCostTest.test_weight_inventory_and_bytes_are_verified) ... ok
+test_pairing_collector_and_validator_follow_v3_partition (test_v3_publication_protocol.V3PublicationProtocolTests.test_pairing_collector_and_validator_follow_v3_partition) ... ok
+test_runtime_allowlist_carries_v3_protocol_and_orchestrator (test_v3_publication_protocol.V3PublicationProtocolTests.test_runtime_allowlist_carries_v3_protocol_and_orchestrator) ... ok
+test_v3_freezes_only_declared_candidates_and_requires_final_reference (test_v3_publication_protocol.V3PublicationProtocolTests.test_v3_freezes_only_declared_candidates_and_requires_final_reference) ... ok
+test_v3_public_copy_verifies_without_original_protocol_or_runs (test_v3_publication_protocol.V3PublicationProtocolTests.test_v3_public_copy_verifies_without_original_protocol_or_runs) ... ok
+test_actual_orchestrator_layout_and_portable_public_verification (test_v3_training_costs.V3TrainingCosts.test_actual_orchestrator_layout_and_portable_public_verification) ... ok
+test_current_v7_manifest_format_is_auditable (test_v3_training_costs.V3TrainingCosts.test_current_v7_manifest_format_is_auditable) ... ok
+test_orchestrator_schema_survives_protocol_label_bump (test_v3_training_costs.V3TrainingCosts.test_orchestrator_schema_survives_protocol_label_bump) ... ok
+test_unfinished_orchestrator_and_forged_winner_refuse_output (test_v3_training_costs.V3TrainingCosts.test_unfinished_orchestrator_and_forged_winner_refuse_output) ... ok
+test_v11_nested_evaluation_contract_normalizes_for_cost_audit (test_v3_training_costs.V3TrainingCosts.test_v11_nested_evaluation_contract_normalizes_for_cost_audit) ... ok
+test_loads_a_b_and_keeps_raw_residual (test_w4a4_deploy.W4A4DeployTests.test_loads_a_b_and_keeps_raw_residual) ... ok
+test_base_gets_qdq_but_residual_gets_original_input (test_w4a4_lora.W4A4LoRATests.test_base_gets_qdq_but_residual_gets_original_input) ... ok
+test_native_base_operator_receives_qdq_and_scope_is_explicit (test_w4a4_lora.W4A4LoRATests.test_native_base_operator_receives_qdq_and_scope_is_explicit) ... ok
+test_rejects_bad_contract_without_touching_modules (test_w4a4_lora.W4A4LoRATests.test_rejects_bad_contract_without_touching_modules) ... ok
+test_activation_scope_is_not_reimported_inside_main (test_w4a4_server_contract.W4A4ServerContractTest.test_activation_scope_is_not_reimported_inside_main) ... ok
+test_relocated_project_resolves_its_own_rl_and_quant_modules (test_w4a4_server_contract.W4A4ServerContractTest.test_relocated_project_resolves_its_own_rl_and_quant_modules) ... ok
+test_capture_identity_and_w4a4_source_omissions_fail_closed (test_w4a4_training_costs.W4A4TrainingCosts.test_capture_identity_and_w4a4_source_omissions_fail_closed) ... ok
+test_capture_tail_budget_and_epoch_are_bound (test_w4a4_training_costs.W4A4TrainingCosts.test_capture_tail_budget_and_epoch_are_bound) ... ok
+test_content_addressed_snapshot_must_match_manifest (test_w4a4_training_costs.W4A4TrainingCosts.test_content_addressed_snapshot_must_match_manifest) ... ok
+test_exact_v11_format_and_160_episode_contract (test_w4a4_training_costs.W4A4TrainingCosts.test_exact_v11_format_and_160_episode_contract) ... ok
+test_per_stage_source_snapshots_survive_portable_verification (test_w4a4_training_costs.W4A4TrainingCosts.test_per_stage_source_snapshots_survive_portable_verification) ... ok
+test_probe_passes_include_short_epoch_tails (test_w4a4_training_costs.W4A4TrainingCosts.test_probe_passes_include_short_epoch_tails) ... ok
+test_real_v11_orchestrator_path_is_resolved_by_hash (test_w4a4_training_costs.W4A4TrainingCosts.test_real_v11_orchestrator_path_is_resolved_by_hash) ... ok
 test_changed_bytes_rejected_even_when_size_matches (test_weight_identity.WeightIdentityTests.test_changed_bytes_rejected_even_when_size_matches) ... ok
 test_missing_is_not_certified_as_success (test_weight_identity.WeightIdentityTests.test_missing_is_not_certified_as_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 96 tests in 13.296s
+Ran 242 tests in 20.019s
 
 OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -v", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-m", "unittest", "discover", "-s", "tests", "-v"], "completed_utc": "2026-10-02T04:39:10.585912+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/unittest-discovery.log", "log_sha256": "a3811a9ba3a672fc684a4f3d5d33e45adda5196e55b0b4f78fc9d34f3dd92995", "process_wall_seconds": 21.966927222994855, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:38:48.618991+00:00", "status": "passed", "suite": "unittest-discovery", "test_files": ["tests/test_activation_checkpoint.py", "tests/test_baseline_timing.py", "tests/test_calibration_verifier.py", "tests/test_capture_runtime_provenance.py", "tests/test_capture_success_metadata.py", "tests/test_category_development.py", "tests/test_category_fp4.py", "tests/test_category_recovery.py", "tests/test_checkpoint_roundtrip.py", "tests/test_compare_recovery_gate.py", "tests/test_continue_w4a4_run.py", "tests/test_development_runner.py", "tests/test_development_selection.py", "tests/test_engine_timing.py", "tests/test_extract_final_evidence.py", "tests/test_frontier_figures.py", "tests/test_gr00t_runtime.py", "tests/test_high_fp4_protocol.py", "tests/test_materialize_final_evidence.py", "tests/test_native_activation.py", "tests/test_native_pi05_prepare.py", "tests/test_onpolicy_capture.py", "tests/test_paired_uncertainty.py", "tests/test_pairing_evidence.py", "tests/test_probe_distill.py", "tests/test_ptq_frontier.py", "tests/test_ptq_tied_weights.py", "tests/test_quantization_semantics.py", "tests/test_recipe_inventory.py", "tests/test_recovery_checkpoint_guard.py", "tests/test_recovery_eval_capture_env.py", "tests/test_recovery_invocation.py", "tests/test_recovery_setup.py", "tests/test_release_audit.py", "tests/test_render_recovery_results.py", "tests/test_runtime_metrics.py", "tests/test_scoped_quant_activation.py", "tests/test_teacher_replay_audit.py", "tests/test_training_costs.py", "tests/test_v3_publication_protocol.py", "tests/test_v3_training_costs.py", "tests/test_w4a4_deploy.py", "tests/test_w4a4_lora.py", "tests/test_w4a4_server_contract.py", "tests/test_w4a4_training_costs.py", "tests/test_weight_identity.py"], "tests": 242, "unexpected_successes": 0, "unittest_elapsed_seconds": 20.019}
+
+SUITE frontier-publication
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_publication.py
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 0.954s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_publication.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_frontier_publication.py"], "completed_utc": "2026-10-02T04:39:11.598994+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/frontier-publication.log", "log_sha256": "9caac39294336c3ec2397924e360098d96f27e7cbdfb71d1bcbfb6f53dadf4dd", "process_wall_seconds": 1.0107105159841012, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:10.588290+00:00", "status": "passed", "suite": "frontier-publication", "test_files": ["paper/validation/test_frontier_publication.py"], "tests": 15, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.954}
+
+SUITE publication-guards
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py
+test_all_pending_block_kinds_rejected (__main__.Gates.test_all_pending_block_kinds_rejected) ... ok
+test_black_png_rejected_and_text_image_accepted (__main__.Gates.test_black_png_rejected_and_text_image_accepted) ... ok
+test_browser_failure_invalidates_old_report_before_loading (__main__.Gates.test_browser_failure_invalidates_old_report_before_loading) ... ok
+test_capture_crop_contract_rejects_failed_or_unlinked_image (__main__.Gates.test_capture_crop_contract_rejects_failed_or_unlinked_image) ... ok
+test_capture_manifests_duplicate_rejected (__main__.Gates.test_capture_manifests_duplicate_rejected) ... ok
+test_capture_manifests_merge_and_bind_both_original_files (__main__.Gates.test_capture_manifests_merge_and_bind_both_original_files) ... ok
+test_capture_manifests_missing_record_or_file_rejected (__main__.Gates.test_capture_manifests_missing_record_or_file_rejected) ... ok
+test_capture_manifests_unauthorized_retention_rejected (__main__.Gates.test_capture_manifests_unauthorized_retention_rejected) ... ok
+test_correct_v11_pairing_checks_all_five_160_episode_arms (__main__.Gates.test_correct_v11_pairing_checks_all_five_160_episode_arms) ... ok
+test_current_result_missing_never_generates_old_chart (__main__.Gates.test_current_result_missing_never_generates_old_chart) ... ok
+test_duplicate_initial_state_rejected_even_when_all_arms_match (__main__.Gates.test_duplicate_initial_state_rejected_even_when_all_arms_match) ... ok
+test_evidence_hash_mutation_rejected (__main__.Gates.test_evidence_hash_mutation_rejected) ... ok
+test_incomplete_or_wrong_outcome_rejected (__main__.Gates.test_incomplete_or_wrong_outcome_rejected) ... ok
+test_markdown_includes_complete_prose_and_caption (__main__.Gates.test_markdown_includes_complete_prose_and_caption) ... ok
+test_package_contains_analysis_plan_required_by_bundled_analyzer (__main__.Gates.test_package_contains_analysis_plan_required_by_bundled_analyzer) ... ok
+test_package_excludes_old_reports_and_keeps_cited_evidence_and_sources (__main__.Gates.test_package_excludes_old_reports_and_keeps_cited_evidence_and_sources) ... ok
+test_package_never_trusts_old_pass (__main__.Gates.test_package_never_trusts_old_pass) ... ok
+test_package_rejects_internal_dependency_excluded_by_allowlist (__main__.Gates.test_package_rejects_internal_dependency_excluded_by_allowlist) ... ok
+test_pairing_mismatch_rejected (__main__.Gates.test_pairing_mismatch_rejected) ... ok
+test_path_escape_and_absolute_rejected (__main__.Gates.test_path_escape_and_absolute_rejected) ... ok
+test_previous_shot_verify_hash_cannot_bypass_current_capture_proof (__main__.Gates.test_previous_shot_verify_hash_cannot_bypass_current_capture_proof) ... ok
+test_raw_latency_median_and_count (__main__.Gates.test_raw_latency_median_and_count) ... ok
+test_require_survives_optimized_python (__main__.Gates.test_require_survives_optimized_python) ... ok
+test_svg_remote_resource_is_detected_but_citation_is_allowed (__main__.Gates.test_svg_remote_resource_is_detected_but_citation_is_allowed) ... ok
+test_uncertainty_is_recomputed_and_modified_ci_or_plan_rejected (__main__.Gates.test_uncertainty_is_recomputed_and_modified_ci_or_plan_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.149s
+
+OK
+Publication ZIP: /tmp/tmpiz8gcn4o/apxinf-gr00t-fp4fp8-ptqad-publication.zip files: 31 bytes: 5805
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_publication_guards.py"], "completed_utc": "2026-10-02T04:39:11.805718+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/publication-guards.log", "log_sha256": "c317bd726c4e5f7db1b24b45e5c83a8d70694fb9f8fd51db4395f9de5bb6d930", "process_wall_seconds": 0.20654342498164624, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:11.599188+00:00", "status": "passed", "suite": "publication-guards", "test_files": ["paper/validation/test_publication_guards.py"], "tests": 25, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.149}
+
+SUITE training-publication
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_training_publication.py
+test_any_recovery_output_mismatch_rejected (__main__.TrainingPublicationTests.test_any_recovery_output_mismatch_rejected) ... ok
+test_changed_archived_input_rejected_even_after_verifier_return (__main__.TrainingPublicationTests.test_changed_archived_input_rejected_even_after_verifier_return) ... ok
+test_evaluated_export_path_mismatch_rejected (__main__.TrainingPublicationTests.test_evaluated_export_path_mismatch_rejected) ... ok
+test_non_w4a4_protocol_rejected_even_with_matching_protocol_hash (__main__.TrainingPublicationTests.test_non_w4a4_protocol_rejected_even_with_matching_protocol_hash) ... ok
+test_other_collection_student_rejected_even_with_valid_metadata_hash (__main__.TrainingPublicationTests.test_other_collection_student_rejected_even_with_valid_metadata_hash) ... ok
+test_ptq_source_mismatch_rejected (__main__.TrainingPublicationTests.test_ptq_source_mismatch_rejected) ... ok
+test_public_verifier_failure_never_ignored (__main__.TrainingPublicationTests.test_public_verifier_failure_never_ignored) ... ok
+test_recovery_budget_mismatch_rejected_even_with_valid_metadata_hash (__main__.TrainingPublicationTests.test_recovery_budget_mismatch_rejected_even_with_valid_metadata_hash) ... ok
+test_teacher_mismatch_rejected (__main__.TrainingPublicationTests.test_teacher_mismatch_rejected) ... ok
+test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files (__main__.TrainingPublicationTests.test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.019s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_training_publication.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_training_publication.py"], "completed_utc": "2026-10-02T04:39:11.893707+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/training-publication.log", "log_sha256": "a89970bce19ab2de6f6f30fee78792717fc23119c59f06d8871e5b6f446b8535", "process_wall_seconds": 0.08778809901559725, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:11.805932+00:00", "status": "passed", "suite": "training-publication", "test_files": ["paper/validation/test_training_publication.py"], "tests": 10, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.019}
+
+SUITE frontier-layout
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_layout.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.780s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_layout.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_frontier_layout.py"], "completed_utc": "2026-10-02T04:39:12.733363+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/frontier-layout.log", "log_sha256": "55904572ba7f06f1b4a603114bccc1ffb91c2b20d6802e5daf7c15679190aaf1", "process_wall_seconds": 0.8394372519978788, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:11.893937+00:00", "status": "passed", "suite": "frontier-layout", "test_files": ["paper/validation/test_frontier_layout.py"], "tests": 7, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.78}

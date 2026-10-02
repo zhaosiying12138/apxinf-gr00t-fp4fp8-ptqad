@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-09-29T05:44:38.043060+00:00",
-  "git_head": "41a49857e4bbfc3285e353fba839112d607f3d57",
+  "generated_utc": "2026-10-02T04:26:49.356035+00:00",
+  "git_head": "3205c51e60a10a1c11655623c7d915b0d22982b4",
   "scope": "Working-tree file hashes; line numbers are generated navigation, not stable citations.",
   "status": "passed",
   "files": [
@@ -69,6 +69,24 @@
       ]
     },
     {
+      "path": "quant/native_activation.py",
+      "sha256": "8606b36e9ef2d4a4e194bcf2ab7ae6fc70d800cfc5cbb13f8552d1d4f842c8d3",
+      "symbols": [
+        {
+          "symbol": "_torch_native_activation_qdq",
+          "line": 40
+        },
+        {
+          "symbol": "native_activation_qdq_torch",
+          "line": 80
+        },
+        {
+          "symbol": "encode_native_activation",
+          "line": 111
+        }
+      ]
+    },
+    {
       "path": "quant/ptq/quantizers.py",
       "sha256": "e7310601f5cb0a80d13c7a7be79714bc8ea4a85b03866968ef493646df6acfd2",
       "symbols": [
@@ -128,27 +146,77 @@
     },
     {
       "path": "quant/ptq/bake.py",
-      "sha256": "984ec31ade6000cc4c8744a47757c25a51538f0e008c2d4bcad803f94d51d14e",
+      "sha256": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae",
       "symbols": [
         {
           "symbol": "inventory",
-          "line": 114
+          "line": 121
         },
         {
           "symbol": "alloc",
-          "line": 81
+          "line": 82
         },
         {
           "symbol": "tied_aliases",
-          "line": 35
+          "line": 36
         },
         {
           "symbol": "make_plan",
-          "line": 156
+          "line": 163
         },
         {
           "symbol": "main",
-          "line": 233
+          "line": 240
+        }
+      ]
+    },
+    {
+      "path": "quant/ptq/category_fp4.py",
+      "sha256": "3a06a8e6ef0a4c5f7edb4cbe72210477e5f2d4d0ad77a89bc38f9dcfd082953d",
+      "symbols": [
+        {
+          "symbol": "category_inventory",
+          "line": 81
+        },
+        {
+          "symbol": "prepare_bank",
+          "line": 135
+        },
+        {
+          "symbol": "quantize_bank",
+          "line": 193
+        },
+        {
+          "symbol": "memory_budget",
+          "line": 249
+        },
+        {
+          "symbol": "load_calibration",
+          "line": 324
+        }
+      ]
+    },
+    {
+      "path": "quant/ptq/collector_category.py",
+      "sha256": "90e8be1989a88d478655d4ab4bf94de182811789480e229f01f60e61f6faf47f",
+      "symbols": [
+        {
+          "symbol": "accumulate",
+          "line": 44
+        },
+        {
+          "symbol": "main",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "path": "quant/ptq/bake_category.py",
+      "sha256": "5a85c358616dc9d12255944a86845dc326774cbacb9e617fe2045bb0b497ec3a",
+      "symbols": [
+        {
+          "symbol": "main",
+          "line": 37
         }
       ]
     },
@@ -178,23 +246,47 @@
     },
     {
       "path": "rl/lora_qad.py",
-      "sha256": "e74b776e2fd0552597eea292afd0041450afba209aa20d6c08439d9e7cf0acce",
+      "sha256": "aa755bd3809b44abad97dd373417851addbd7ffdbbf7bbc69eb30c9cada2be2c",
       "symbols": [
         {
           "symbol": "install_lora",
-          "line": 66
+          "line": 162
         },
         {
           "symbol": "load_initial_adapter",
-          "line": 103
+          "line": 227
         },
         {
           "symbol": "install_gradient_audit",
-          "line": 140
+          "line": 268
         },
         {
           "symbol": "install_trainer_hooks",
-          "line": 168
+          "line": 314
+        }
+      ]
+    },
+    {
+      "path": "rl/w4a4_lora.py",
+      "sha256": "fea047ea9fe2a490e91cb6169774bca2ce3124275097b13b01bd8c9b6b53809a",
+      "symbols": [
+        {
+          "symbol": "_dense_base",
+          "line": 35
+        },
+        {
+          "symbol": "install_w4a4_lora",
+          "line": 55
+        }
+      ]
+    },
+    {
+      "path": "rl/w4a4_deploy.py",
+      "sha256": "62ddd5ce3342e35d7538cf7b0e4f902bc3a8e0e25a8e4fee4449e05f6d323b50",
+      "symbols": [
+        {
+          "symbol": "install_saved_w4a4_adapter",
+          "line": 35
         }
       ]
     },
@@ -250,7 +342,7 @@
     },
     {
       "path": "rl/capture_onpolicy.py",
-      "sha256": "478195fa8971b628f080339e51b89eb99986be19cebbcafab01fbd04d628a68c",
+      "sha256": "2af8f58d675567a18a83a7aeadd70fd103e42f33c1c880a2a2385fe07322023c",
       "symbols": [
         {
           "symbol": "policy_input_precision",
@@ -264,43 +356,43 @@
     },
     {
       "path": "rl/opd_probe_cache.py",
-      "sha256": "acc4d9f1981a452817bff8448a53b6ad2c41216c9b703c45e09aa15a1a1befc1",
+      "sha256": "e9072d8d16f3097b9b17a6ca8a575e6a8c230369354ede912697cd5d6644ec23",
       "symbols": [
         {
           "symbol": "main",
-          "line": 21
+          "line": 38
         }
       ]
     },
     {
       "path": "rl/probe_distill.py",
-      "sha256": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6",
+      "sha256": "b745beb9ca498637d0dadc54c4f162235b96a66fae187d86f269e8b488d4950d",
       "symbols": [
         {
           "symbol": "masked_velocity_mse",
-          "line": 15
+          "line": 16
         },
         {
           "symbol": "replay_context",
-          "line": 82
+          "line": 83
         },
         {
           "symbol": "ProbeAnchor.validate_model",
-          "line": 116
+          "line": 117
         },
         {
           "symbol": "ProbeAnchor.loss",
-          "line": 128
+          "line": 129
         },
         {
           "symbol": "install_sequential_probe",
-          "line": 148
+          "line": 149
         }
       ]
     },
     {
       "path": "rl/lora_merge_bake.py",
-      "sha256": "5666cb8c2f38a2095152bb30dbf313789aa7141ddc8e6d2d3bc1e0df4586ea49",
+      "sha256": "2c4d8de29e0ad30a2607b6e8f8109c29454deb96a986de05f99b478cd5dca372",
       "symbols": [
         {
           "symbol": "main",
@@ -310,27 +402,57 @@
     },
     {
       "path": "rl/scoped_quant.py",
-      "sha256": "6b61b0fb4dcb33ce72690405fbd522ddd01c3f7abcaca574a38742aa50b8eca1",
+      "sha256": "87a02b55da550ab85c7f84ae1ca7e4d3459e9d2f7bc18f03cdad154abfb9607e",
       "symbols": [
         {
           "symbol": "mark_scope",
-          "line": 25
+          "line": 182
+        },
+        {
+          "symbol": "configure_quant_recipe",
+          "line": 89
+        },
+        {
+          "symbol": "_pad_qdq_slice",
+          "line": 154
+        },
+        {
+          "symbol": "install_activation_only",
+          "line": 244
+        },
+        {
+          "symbol": "install_scoped_activation",
+          "line": 343
+        },
+        {
+          "symbol": "mark_activation_scope",
+          "line": 357
         }
       ]
     },
     {
       "path": "eval/serve_recovery.py",
-      "sha256": "1202847f769e025d7318b5f09df2c9643f0ec8c9db843862c3093a4d78e3e047",
+      "sha256": "7ea3a40eeb11d46f9b0b3498f688138adce7ce47a50940fd0c071c5cb1045621",
       "symbols": [
         {
           "symbol": "main",
-          "line": 8
+          "line": 14
+        }
+      ]
+    },
+    {
+      "path": "eval/run_gr00t_server_fp4vla.py",
+      "sha256": "f82107d31f4059919cff964cfde313c690a3041ef0abc218824425455d1a6fee",
+      "symbols": [
+        {
+          "symbol": "main",
+          "line": 111
         }
       ]
     },
     {
       "path": "eval/rollout_seeded.py",
-      "sha256": "37e08b98bb313978548f9a4b85f438a2f46e77e269a427d2b119c886daf138fa",
+      "sha256": "c365d760ef7cab00baf18a1087d5dce6006c93b4da2313071825f4bb2d677442",
       "symbols": [
         {
           "symbol": "install_bank_resets",
@@ -338,43 +460,43 @@
         },
         {
           "symbol": "main",
-          "line": 68
+          "line": 91
         }
       ]
     },
     {
       "path": "eval/run_recovery_eval.py",
-      "sha256": "ca13ac96ad31ea764c4d5e7426bff6533b3cb30146a8db6e5907744572d25620",
+      "sha256": "e7b3a3eeac3bf056bb868357a8f913bac847bb82644940da81a9944fca684def",
       "symbols": [
         {
           "symbol": "validate_resets",
-          "line": 37
+          "line": 94
         },
         {
           "symbol": "parse_log",
-          "line": 53
+          "line": 124
         },
         {
           "symbol": "main",
-          "line": 73
+          "line": 278
         }
       ]
     },
     {
       "path": "eval/compare_recovery.py",
-      "sha256": "49ad903a090d1ce5f8a6c848c6bbfd159965413da707167366373f3a71799949",
+      "sha256": "6864b57eecf280425cb875406981ca10ee2235ca78bbf92588641add83007b5e",
       "symbols": [
         {
           "symbol": "compare_round",
-          "line": 37
+          "line": 201
         },
         {
           "symbol": "paired_summary",
-          "line": 22
+          "line": 28
         },
         {
           "symbol": "exact_mcnemar_p",
-          "line": 13
+          "line": 19
         }
       ]
     },
@@ -525,5 +647,5 @@
       ]
     }
   ],
-  "symbol_count": 85
+  "symbol_count": 105
 }
