@@ -13,7 +13,7 @@ APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
 
 ## 研究贡献
 
-1. **W4A4 PTQ。** 权重使用 NVFP4 E2M1，激活先转 F16，再按 16 元素块用 E4M3 scale 和 E2M1 格点 QDQ；二级 activation scale 固定为 1.0，训练与服务使用同一算术契约。
+1. **W4A4 PTQ。** 权重使用 NVFP4 E2M1，激活先转 F16，再按 16 元素块用 E4M3 scale 和 E2M1 格点 QDQ；二级 activation scale 固定为 1.0，各阶段训练与对应评测使用同一算术开关；恢复阶段有限 FP16 饱和修订记录在 manifest，初始 QAD 保持严格路径。
 2. **量化域恢复。** 在固定 PTQ 基座上训练低秩 QAD，再用学生访问的观测和 BF16 教师速度训练 OPD；正式部署保留冻结 base 与 A/B adapter，避免 `Wq+BA` 合并后破坏 W4A4 语义。
 3. **闭环评测。** 所有正式臂使用同一组 LIBERO-10 任务、官方初态和 episode 预算，报告逐回合结果、任务宏平均和配对身份。
 4. **APXInf 验证。** APXInf 的 NVFP4 算子、布局和图重放单独验收；它们的延迟结果不替代 GR00T 的闭环成功率。
