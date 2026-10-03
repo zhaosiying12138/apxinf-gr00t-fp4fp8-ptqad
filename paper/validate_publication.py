@@ -61,7 +61,9 @@ def check_finished(source):
 
 
 def expected_markdown(sections,meta,figures):
-    text='# '+meta['title']+'\n\n'+meta['meta']+'\n\n'
+    # export_zhihu.py deliberately omits the optional meta subtitle to avoid
+    # repeating the title before the first section heading.
+    text='# '+meta['title']+'\n\n'
     text+=''.join(path.read_text().rstrip()+'\n\n' for path in sections)
     def figure(match):
         name=match[1]; info=figures[name]
