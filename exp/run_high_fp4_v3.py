@@ -581,6 +581,7 @@ class Driver:
         # use a stricter, recorded clip for continuation and OPD arms.
         if initial:
             e["QAD_MAX_GRAD_NORM"] = "0.25"
+            e["FP4VLA_SATURATE_F16_ACTIVATIONS"] = "1"
         if self.capture_dataset:
             e["QAD_CAPTURE_DATASET"] = str(self.capture_dataset)
             e["QAD_CAPTURE_DATASET_SHA256"] = hashlib.sha256(
@@ -609,6 +610,7 @@ class Driver:
                   "micro_batch":1,"effective_global_batch":self.batch,"gradient_accumulation_steps":self.batch}
         if initial is not None:
             expected["max_grad_norm"] = 0.25
+            expected["f16_activation_saturation"] = True
         if any(rec.get(k)!=v for k,v in expected.items()) or rec.get("optimizer_resumed") is not False:
             raise OrchestrationError("training manifest differs from frozen recovery settings")
         if self.w4a4 and (rec.get("w4a4_enabled") is not True or
@@ -689,7 +691,8 @@ class Driver:
         env={"PROTOCOL_FILE":str(self.protocol_path),"QAD_DATASET":str(self.dataset),
              "FP4VLA_QUANT":"0",
              "FP4VLA_W4A4":"1" if use_w4a4 else "0",
-             "FP4VLA_W4A4_ADAPTER":"1" if adapter_mode else "0"}
+             "FP4VLA_W4A4_ADAPTER":"1" if adapter_mode else "0",
+             "FP4VLA_SATURATE_F16_ACTIVATIONS":"1" if use_w4a4 else "0"}
         if purpose == "collection":
             # Four calls per capture provide 16 probes even when a task
             # succeeds before the nominal trajectory call budget.

@@ -400,6 +400,8 @@ def install_trainer_hooks():
                     "w4a4_enabled": W4A4,
                     "normalization": "frozen base statistics", "seed": self.args.seed,
                     "max_grad_norm": float(self.args.max_grad_norm),
+                    "f16_activation_saturation": os.environ.get(
+                        "FP4VLA_SATURATE_F16_ACTIVATIONS", "0") == "1",
                     "train_seed": TRAIN_SEED,
                     "protocol_file": str(PROTOCOL_FILE),
                     "protocol_sha256": file_sha256(PROTOCOL_FILE),
