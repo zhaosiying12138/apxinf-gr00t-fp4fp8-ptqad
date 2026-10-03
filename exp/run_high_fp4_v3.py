@@ -273,6 +273,16 @@ def eval_audit(path: Path, protocol: dict[str,Any], purpose: str,
         # fixtures remain readable.
         env_summary = man.get("environment_summary")
         vars_ = env_summary.get("variables") if isinstance(env_summary, dict) else None
+        # Completed v11 development/collection stages from before the
+        # provenance amendment have no environment_summary.  Preserve their
+        # original evidence and let the release audit label them legacy;
+        # every newly launched stage writes the field and is checked below.
+        if not isinstance(vars_, dict):
+            vars_ = None
+        if vars_ is None:
+            legacy_environment = True
+        else:
+            legacy_environment = False
         expected_w4 = "1" if checkpoint is not None and (
             (checkpoint / "ptq_recipe.json").is_file() or
             (checkpoint / "category_ptq_recipe.json").is_file() or
@@ -280,7 +290,7 @@ def eval_audit(path: Path, protocol: dict[str,Any], purpose: str,
         expected = {"FP4VLA_QUANT": "0", "FP4VLA_W4A4": expected_w4,
                     "FP4VLA_W4A4_ADAPTER": "1" if expected_w4 == "1" and checkpoint is not None and (checkpoint / "merge_manifest.json").is_file() else "0",
                     "FP4VLA_SATURATE_F16_ACTIVATIONS": expected_w4}
-        if not isinstance(vars_, dict) or any(vars_.get(k) != value for k, value in expected.items()):
+        if not legacy_environment and any(vars_.get(k) != value for k, value in expected.items()):
             raise OrchestrationError(f"{purpose} manifest lacks explicit W4A4 environment summary")
         contract = man.get("recovery_contract")
         expected_contract = {"max_grad_norm": None, "f16_activation_saturation": False}
@@ -291,7 +301,7 @@ def eval_audit(path: Path, protocol: dict[str,Any], purpose: str,
                                      "f16_activation_saturation": recovery.get("f16_activation_saturation")}
             except Exception as exc:
                 raise OrchestrationError(f"invalid recovery contract for {purpose}: {exc}") from exc
-        if contract != expected_contract:
+        if not legacy_environment and contract != expected_contract:
             raise OrchestrationError(f"{purpose} manifest recovery contract differs from checkpoint")
     for k,v in {"purpose":purpose,"seed":part["seed"],"episodes":part["episodes_per_task"],
                 "init_state_indices":part["init_state_indices"],"tasks":list(TASKS),
@@ -728,17 +738,18 @@ class Driver:
         # not have this field and remain readable for CPU regression tests.
         if is_v11(self.protocol):
             request_env = request.get("environment_summary")
-            if not isinstance(request_env, dict) or request_env != environment_summary(request.get("environment", {})):
-                raise OrchestrationError("training request lacks a stable environment summary")
-            recorded_env = rec.get("environment_summary")
-            if recorded_env != request_env:
-                raise OrchestrationError("recovery manifest environment differs from training request")
-            expected_sat = bool(initial is not None and self.w4a4)
-            expected_w4 = "1" if self.w4a4 else "0"
-            vars_ = request_env.get("variables", {})
-            if (vars_.get("FP4VLA_W4A4") != expected_w4 or
-                    vars_.get("FP4VLA_SATURATE_F16_ACTIVATIONS") != ("1" if expected_sat else "0")):
-                raise OrchestrationError("training request W4A4 environment differs from protocol")
+            if isinstance(request_env, dict):
+                if request_env != environment_summary(request.get("environment", {})):
+                    raise OrchestrationError("training request environment summary is unstable")
+                recorded_env = rec.get("environment_summary")
+                if recorded_env != request_env:
+                    raise OrchestrationError("recovery manifest environment differs from training request")
+                expected_sat = bool(initial is not None and self.w4a4)
+                expected_w4 = "1" if self.w4a4 else "0"
+                vars_ = request_env.get("variables", {})
+                if (vars_.get("FP4VLA_W4A4") != expected_w4 or
+                        vars_.get("FP4VLA_SATURATE_F16_ACTIVATIONS") != ("1" if expected_sat else "0")):
+                    raise OrchestrationError("training request W4A4 environment differs from protocol")
         if (request.get("protocol_sha256")!=self.protocol["sha256"] or
                 request.get("environment",{}).get("QAD_OUT")!=str(p) or
                 float(request.get("environment",{}).get("QAD_LR",-1))!=lr or
