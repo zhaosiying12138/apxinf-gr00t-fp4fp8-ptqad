@@ -29,6 +29,18 @@ TASKS = [
     "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
 ]
 
+ENV_SUMMARY_KEYS = (
+    "FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
+    "FP4VLA_SATURATE_F16_ACTIVATIONS", "QAD_W4A4", "QAD_MAX_GRAD_NORM",
+    "QAD_LORA_SCOPE", "QAD_LORA_R", "QAD_LORA_ALPHA", "QAD_LR",
+    "QAD_STEPS", "QAD_OPD_MSE_W", "OPD_EVERY", "TRAIN_SEED",
+)
+
+
+def environment_summary(env):
+    """Keep evaluation provenance explicit without copying the full environment."""
+    return {"variables": {key: env.get(key) for key in ENV_SUMMARY_KEYS}}
+
 
 INIT_INDICES = {"development": [0, 1], "collection": [2, 3],
                 "heldout": list(range(10, 20)), "smoke": [0]}
@@ -350,7 +362,28 @@ def main():
     ffmpeg = shutil.which("ffmpeg", path=video_path)
     if not ffmpeg:
         raise FileNotFoundError("ffmpeg executable missing: set PTQAD_MEDIA_LIB=<environment>/lib or PTQAD_MEDIA_BIN=<environment>/bin")
-    manifest = vars(args) | {"checkpoint": str(Path(args.checkpoint).resolve()),
+    checkpoint_path = Path(args.checkpoint).resolve()
+    checkpoint_is_quantized = any(
+        (checkpoint_path / name).is_file()
+        for name in ("ptq_recipe.json", "category_ptq_recipe.json", "merge_manifest.json")
+    )
+    checkpoint_w4a4 = checkpoint_is_quantized
+    checkpoint_adapter_w4a4 = checkpoint_is_quantized and (checkpoint_path / "merge_manifest.json").is_file()
+    # A merged recovery export carries the training contract beside its
+    # weights.  Copy just the two values relevant to numerical provenance into
+    # the eval receipt; do not infer them from a stale shell environment.
+    recovery_contract = {"max_grad_norm": None, "f16_activation_saturation": False}
+    recovery_manifest = checkpoint_path / "recovery_manifest.json"
+    if recovery_manifest.is_file():
+        try:
+            recovery = json.loads(recovery_manifest.read_text())
+            recovery_contract = {
+                "max_grad_norm": recovery.get("max_grad_norm"),
+                "f16_activation_saturation": recovery.get("f16_activation_saturation"),
+            }
+        except (OSError, ValueError):
+            raise ValueError(f"Invalid recovery_manifest.json: {recovery_manifest}")
+    manifest = vars(args) | {"checkpoint": str(checkpoint_path),
                               "gr00t": str(gr00t), "n_envs": 1,
                               "task_seed_stride": 1000, "episode_seed_stride": 1,
                               "server_seed_offset": 10000000, "tasks": TASKS[:args.task_count],
@@ -359,7 +392,14 @@ def main():
                      "init_state_indices": indices, "settle_steps": 10,
                      "ffmpeg_executable": ffmpeg, "media_library_dir": media,
                      "video_root": str(output / "videos"),
-                     "paired_scope": "environment initial states; policy noise is seeded per task"})
+                     "paired_scope": "environment initial states; policy noise is seeded per task",
+                     "environment_summary": {"variables": {
+                         "FP4VLA_QUANT": "0",
+                         "FP4VLA_W4A4": "1" if checkpoint_w4a4 else "0",
+                         "FP4VLA_W4A4_ADAPTER": "1" if checkpoint_adapter_w4a4 else "0",
+                         "FP4VLA_SATURATE_F16_ACTIVATIONS": "1" if checkpoint_w4a4 else "0",
+                     }},
+                     "recovery_contract": recovery_contract})
     manifest["protocol_file"] = str(protocol_path)
     manifest["protocol_sha256"] = hashlib.sha256(protocol_path.read_bytes()).hexdigest()
     (output / "eval_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
@@ -372,13 +412,8 @@ def main():
         # a stale shell export from turning a BF16 baseline or teacher replay
         # into an activation-quantized run.  Recovery merge checkpoints carry
         # the PTQ recipe/manifest and therefore remain on the W4A4 path.
-        checkpoint_path = Path(args.checkpoint).resolve()
-        checkpoint_is_quantized = any(
-            (checkpoint_path / name).is_file()
-            for name in ("ptq_recipe.json", "category_ptq_recipe.json", "merge_manifest.json")
-        )
-        w4a4 = checkpoint_is_quantized
-        adapter_w4a4 = checkpoint_is_quantized and (checkpoint_path / "merge_manifest.json").is_file()
+        w4a4 = checkpoint_w4a4
+        adapter_w4a4 = checkpoint_adapter_w4a4
         env.update({"HF_HUB_OFFLINE": "1",
                     # Both PTQ and adapter evaluation use the frozen
                     # checkpoint weights as-is.  W4A4 is an explicit
@@ -387,6 +422,7 @@ def main():
                     "FP4VLA_QUANT": "0",
                     "FP4VLA_W4A4": "1" if w4a4 else "0",
                     "FP4VLA_W4A4_ADAPTER": "1" if adapter_w4a4 else "0",
+                    "FP4VLA_SATURATE_F16_ACTIVATIONS": "1" if w4a4 else "0",
                     "PYTHONPATH": str(gr00t),
                     "GR00T_EVAL_SEED": str(seed + 10000000),
                     "MUJOCO_GL": "egl", "PYOPENGL_PLATFORM": "egl"})

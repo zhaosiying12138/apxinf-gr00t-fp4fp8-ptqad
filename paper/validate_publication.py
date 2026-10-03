@@ -251,6 +251,27 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
         # preserving the check formerly provided by the PTQ-ladder validator.
         residual=load(P/'evidence/recipe_inventory.json')['recovery_residual']
         recovery=merge['recovery_manifest']
+        initial_qad = arm == 'qad'
+        if initial_qad and recovery.get('max_grad_norm') is None:
+            # The original strict QAD stage predated the explicit clip field;
+            # its absence is a legacy receipt, not evidence that continuation
+            # used the same numerical setting.
+            require(recovery.get('f16_activation_saturation', False) is False,
+                    'Legacy QAD export unexpectedly enables F16 saturation')
+        else:
+            require(isinstance(recovery.get('max_grad_norm'), (int, float)) and
+                    not isinstance(recovery.get('max_grad_norm'), bool) and recovery['max_grad_norm'] > 0,
+                    f'Recovery export lacks finite max_grad_norm: {arm}')
+            require(type(recovery.get('f16_activation_saturation')) is bool,
+                    f'Recovery export lacks f16 activation saturation provenance: {arm}')
+        env_summary = recovery.get('environment_summary')
+        if initial_qad and env_summary is None:
+            # Same legacy allowance for the initial QAD receipt.  The heldout
+            # evaluation manifest still records the effective W4A4 switches.
+            pass
+        else:
+            require(isinstance(env_summary, dict) and isinstance(env_summary.get('variables'), dict),
+                    f'Recovery export lacks numerical environment summary: {arm}')
         require(merge['lora_pairs']==residual['linear_modules'] and
                 recovery['trainable_parameters']==residual['tensor_elements'] and
                 all(recovery[key]==residual[key] for key in ('rank','alpha','scope')),
@@ -262,6 +283,48 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
     require(Path(teacher['teacher']).resolve()==Path(runtime['checkpoints']['bf16']['path']).resolve() and
             teacher['teacher_weights']==weights('bf16'),'Teacher identity differs from evaluated BF16')
     return costs
+
+
+def check_evaluation_environment(package_inputs, runtime, protocol_file):
+    """Require explicit W4A4 and recovery-contract receipts in every eval arm."""
+    protocol = load(protocol_file)
+    if int(protocol.get('version', 0)) < 11:
+        return
+    for arm in ('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd'):
+        path = P / 'evidence' / ('heldout_' + arm) / 'eval_manifest.json'
+        manifest = load(path)
+        variables = (manifest.get('environment_summary') or {}).get('variables')
+        require(isinstance(variables, dict), f'Evaluation manifest lacks environment_summary: {arm}')
+        quant = arm != 'bf16'
+        expected = {'FP4VLA_QUANT': '0', 'FP4VLA_W4A4': '1' if quant else '0',
+                    'FP4VLA_W4A4_ADAPTER': '1' if arm in ('qad', 'continued_qad', 'qad_opd') else '0',
+                    'FP4VLA_SATURATE_F16_ACTIVATIONS': '1' if quant else '0'}
+        for key, value in expected.items():
+            require(variables.get(key) == value,
+                    f'Evaluation environment summary differs from W4A4 contract: {arm}/{key}')
+        contract = manifest.get('recovery_contract')
+        require(isinstance(contract, dict) and 'max_grad_norm' in contract,
+                f'Evaluation manifest lacks recovery contract: {arm}')
+        if arm == 'qad' and contract.get('f16_activation_saturation') is None:
+            # Legacy strict QAD manifests did not serialize this field.
+            contract['f16_activation_saturation'] = False
+        require(type(contract.get('f16_activation_saturation')) is bool,
+                f'Evaluation manifest lacks recovery saturation contract: {arm}')
+        if arm in ('bf16', 'ptq'):
+            require(contract['max_grad_norm'] is None and contract['f16_activation_saturation'] is False,
+                    f'Non-recovery arm carries a recovery training contract: {arm}')
+        else:
+            require(isinstance(contract['max_grad_norm'], (int, float)) and
+                    not isinstance(contract['max_grad_norm'], bool) and contract['max_grad_norm'] > 0,
+                    f'Recovery arm lacks finite max_grad_norm: {arm}')
+            runtime_path = Path(runtime['checkpoints'][arm]['path'])
+            source = runtime_path / 'recovery_manifest.json'
+            require(source.is_file(), f'Recovery manifest missing beside evaluated checkpoint: {arm}')
+            recorded = load(source)
+            require(contract['max_grad_norm'] == recorded.get('max_grad_norm') and
+                    contract['f16_activation_saturation'] == recorded.get('f16_activation_saturation'),
+                    f'Evaluation recovery contract differs from checkpoint: {arm}')
+        package_inputs.add(path)
 
 
 def check_v11_frontier(package_inputs, paired):
@@ -433,6 +496,7 @@ def validate(write_report=True,protocol_file=None):
     require(browser['desktop']['mathCount']==build['math_expressions'],'Browser did not render every equation')
     runtime=load(P/'evidence/runtime/manifest.json')
     require(set(runtime['checkpoints'])=={'bf16','ptq','qad','continued_qad','qad_opd'},'Runtime provenance must identify five final checkpoints')
+    check_evaluation_environment(package_inputs, runtime, protocol_file)
     from capture_runtime import DEFAULT_SOURCE_FILES
     require(set(DEFAULT_SOURCE_FILES)<=set(runtime['source_files']), 'Runtime source provenance omits maintained implementation files')
     for arm,checkpoint in runtime['checkpoints'].items():

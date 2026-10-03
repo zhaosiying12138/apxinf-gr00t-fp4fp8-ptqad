@@ -86,7 +86,11 @@ def orchestrator_source(protocol, state=None, source_root=None):
                       'exp/run_high_fp4_v3_run_snapshot.py', 'exp/run_high_fp4_v3.py']
         match = re.search(r'v(\d+)', str(protocol.get('id', '')))
         candidates.append('exp/run_high_fp4_v%s.py' % (match.group(1) if match else '3'))
-        expected = state.get('implementation_sha256')
+        # Provenance-amended runs bind future stages with the explicit
+        # orchestrator_source_sha256 field.  Older manifests fall back to
+        # implementation_sha256 and remain visibly legacy when no matching
+        # source bytes are available.
+        expected = state.get('orchestrator_source_sha256') or state.get('implementation_sha256')
         if expected:
             for candidate in candidates:
                 path = source_root / candidate

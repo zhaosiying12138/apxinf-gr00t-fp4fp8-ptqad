@@ -54,6 +54,31 @@ def cmdtext(c: list[str]) -> str:
     import shlex
     return shlex.join(c)
 
+# Only a small, explicit environment allow-list is copied into stage receipts.
+# Recording the complete process environment would capture secrets and host
+# paths while still leaving the numerical contract ambiguous.  These keys are
+# the switches that can change the W4A4/QAD/OPD computation or its reproducible
+# execution mode.
+ENV_SUMMARY_KEYS = (
+    "FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
+    "FP4VLA_SATURATE_F16_ACTIVATIONS", "QAD_W4A4", "QAD_MAX_GRAD_NORM",
+    "QAD_LORA_SCOPE", "QAD_LORA_R", "QAD_LORA_ALPHA", "QAD_LR",
+    "QAD_STEPS", "QAD_OPD_MSE_W", "OPD_EVERY", "TRAIN_SEED",
+    "QAD_ACTIVATION_CHECKPOINTING", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE",
+)
+
+
+def environment_summary(env: dict[str, str]) -> dict[str, Any]:
+    """Return a secret-free, JSON-stable summary of numerical env switches."""
+    return {"variables": {key: env.get(key) for key in ENV_SUMMARY_KEYS}}
+
+
+def is_v11(protocol: dict[str, Any]) -> bool:
+    # ``load_protocol`` returns a normalized wrapper with ``data`` while a
+    # caller may pass the raw protocol object (top-level version).  Accept
+    # both forms so the v11 provenance gate cannot be accidentally skipped.
+    return int(protocol.get("data", {}).get("version", protocol.get("version", 0))) >= 11
+
 def load_protocol(path: Path) -> dict[str,Any]:
     d=jread(path); parts=d.get("partitions",d)
     # Version 8 uses an explicit pressure-window contract.  Keep the older
@@ -242,6 +267,32 @@ def eval_audit(path: Path, protocol: dict[str,Any], purpose: str,
     rows=jread(path/"task_results.json"); summ=jread(path/"summary.json")
     if not all(isinstance(x, dict) for x in (man, rows, summ)):
         raise OrchestrationError(f"{purpose} evidence must contain JSON objects")
+    if is_v11(protocol):
+        # v11 evaluation receipts must prove the numerical switches used by
+        # the server.  Keep this check scoped to v11 so historical v3/v8 CPU
+        # fixtures remain readable.
+        env_summary = man.get("environment_summary")
+        vars_ = env_summary.get("variables") if isinstance(env_summary, dict) else None
+        expected_w4 = "1" if checkpoint is not None and (
+            (checkpoint / "ptq_recipe.json").is_file() or
+            (checkpoint / "category_ptq_recipe.json").is_file() or
+            (checkpoint / "merge_manifest.json").is_file()) else "0"
+        expected = {"FP4VLA_QUANT": "0", "FP4VLA_W4A4": expected_w4,
+                    "FP4VLA_W4A4_ADAPTER": "1" if expected_w4 == "1" and checkpoint is not None and (checkpoint / "merge_manifest.json").is_file() else "0",
+                    "FP4VLA_SATURATE_F16_ACTIVATIONS": expected_w4}
+        if not isinstance(vars_, dict) or any(vars_.get(k) != value for k, value in expected.items()):
+            raise OrchestrationError(f"{purpose} manifest lacks explicit W4A4 environment summary")
+        contract = man.get("recovery_contract")
+        expected_contract = {"max_grad_norm": None, "f16_activation_saturation": False}
+        if checkpoint is not None and (checkpoint / "recovery_manifest.json").is_file():
+            try:
+                recovery = jread(checkpoint / "recovery_manifest.json")
+                expected_contract = {"max_grad_norm": recovery.get("max_grad_norm"),
+                                     "f16_activation_saturation": recovery.get("f16_activation_saturation")}
+            except Exception as exc:
+                raise OrchestrationError(f"invalid recovery contract for {purpose}: {exc}") from exc
+        if contract != expected_contract:
+            raise OrchestrationError(f"{purpose} manifest recovery contract differs from checkpoint")
     for k,v in {"purpose":purpose,"seed":part["seed"],"episodes":part["episodes_per_task"],
                 "init_state_indices":part["init_state_indices"],"tasks":list(TASKS),
                 "task_count":10,"n_envs":1,"task_seed_stride":1000,
@@ -463,14 +514,26 @@ class Driver:
         self.run_dir.mkdir(parents=True,exist_ok=True)
         if man.exists():
             state=jread(man)
+            migrated_source = False
+            if "orchestrator_source_sha256" not in state:
+                # Existing r4 runs were created before stage-level provenance
+                # was added.  Preserve their launch hash as legacy history and
+                # bind only future stages to the current source bytes.
+                state["legacy_orchestrator_source_sha256"] = state.get("implementation_sha256")
+                state["orchestrator_source_sha256"] = sha(Path(__file__))
+                state["orchestrator_source_amendment"] = "provenance-v1; existing stages retain legacy source identity"
+                migrated_source = True
             fixed={"output_layout":"stable_paths_v2","protocol_sha256":self.protocol["sha256"],"selection_sha256":self.selection["selection_sha256"],
                    "base":str(self.base),"train_seed":self.seed,"qad_steps":self.qsteps,
                    "continuation_steps":self.csteps,"lora_scope":self.scope,"rank":self.rank,"alpha":self.alpha,
                    "capture_dataset_identity":self.capture_dataset_identity,
                    "teacher_capture_identity":self.teacher_capture_identity,
-                   "w4a4":self.w4a4}
+                   "w4a4":self.w4a4,
+                   "orchestrator_source_sha256":sha(Path(__file__))}
             for k,v in fixed.items():
                 if state.get(k)!=v: raise OrchestrationError(f"resume identity changed: {k}")
+            if migrated_source:
+                jwrite(man, state)
             for p in (self.art,self.work,self.logs,self.stages,self.receipts):
                 p.mkdir(parents=True,exist_ok=True)
             return state
@@ -491,7 +554,9 @@ class Driver:
                "qad_learning_rates":self.protocol["selection"]["qad_learning_rates"],
                "opd_weights":self.protocol["selection"]["opd_weights"],"lora_scope":self.scope,
                "rank":self.rank,"alpha":self.alpha,"effective_demo_batch":self.batch,"opd_every":self.every,
-               "stages":{},"selection_uses_heldout":False,"implementation_sha256":sha(Path(__file__))}
+               "stages":{},"selection_uses_heldout":False,
+               "implementation_sha256":sha(Path(__file__)),
+               "orchestrator_source_sha256":sha(Path(__file__))}
         jwrite(man,state)
         for p in (self.art,self.work,self.logs,self.stages,self.receipts): p.mkdir(parents=True,exist_ok=True)
         return state
@@ -504,7 +569,8 @@ class Driver:
     def mark(self,name:str,payload:dict[str,Any]):
         rec={"stage":name,"status":"complete","completed_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
              "protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
-             "selection_sha256":self.selection["selection_sha256"],**payload}
+             "selection_sha256":self.selection["selection_sha256"],
+             "orchestrator_source_sha256":sha(Path(__file__)),**payload}
         jwrite(self.stages/(sn(name)+".json"),rec); self.state["stages"][name]=rec
         self.state["last_completed_stage"]=name; self.save()
 
@@ -552,19 +618,29 @@ class Driver:
         env=os.environ.copy()
         # Do not inherit a prior experiment's adapter, cache or capture budget.
         for key in list(env):
-            if key.startswith(("QAD_", "OPD_")) or key in (
+            if key.startswith(("QAD_", "OPD_", "FP4VLA_")) or key in (
                     "GR00T_BASE_CKPT", "TRAIN_SEED", "PROTOCOL_FILE", "PTQAD_PROTOCOL_FILE"):
                 env.pop(key)
+        # Always reset numerical switches before applying the stage-specific
+        # contract.  This makes resumed stages independent of stale shell
+        # exports (and keeps the values auditable in the stage log).
+        env.update({"FP4VLA_QUANT": "0", "FP4VLA_W4A4": "0",
+                    "FP4VLA_W4A4_ADAPTER": "0",
+                    "FP4VLA_SATURATE_F16_ACTIVATIONS": "0"})
         env.update(extra); env.setdefault("HF_HUB_OFFLINE","1")
         env.setdefault("TRANSFORMERS_OFFLINE","1")
         env.setdefault("PTQAD_LOCAL_HF_METADATA","1")
         env.setdefault("NO_ALBUMENTATIONS_UPDATE","1")
+        summary = environment_summary(env)
+        self._last_run_environment = summary
         with log.open("x") as f:
             f.write(f"UTC {time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}\nCWD {cwd}\nCOMMAND {cmdtext(c)}\n")
+            f.write("ENV_SUMMARY " + json.dumps(summary, sort_keys=True) + "\n")
             r=subprocess.run(c,cwd=str(cwd),env=env,stdout=f,stderr=subprocess.STDOUT)
             f.write(f"RETURN_CODE {r.returncode}\n")
             if r.returncode==0: f.write(f"COMPLETED_UTC {time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}\n")
         if r.returncode: raise OrchestrationError(f"{name} failed ({r.returncode}); inspect {log}")
+        return summary
 
     def train(self,work,name,base,lr,steps,initial=None,weight=0.,cache=None):
         e={"GR00T_BASE_CKPT":str(base),"QAD_DATASET":str(self.dataset),"QAD_OUT":str(work),
@@ -574,7 +650,10 @@ class Driver:
            "QAD_LORA_SCOPE":self.scope,"QAD_LR":str(lr),"QAD_OPD_MSE_W":str(weight),
            "OPD_EVERY":str(self.every),"TRAIN_SEED":str(self.seed),"PROTOCOL_FILE":str(self.protocol_path),
            "QAD_ACTIVATION_CHECKPOINTING":"1",
-           "QAD_W4A4":"1" if self.w4a4 else "0"}
+           "QAD_W4A4":"1" if self.w4a4 else "0",
+           "FP4VLA_QUANT":"0", "FP4VLA_W4A4":"1" if self.w4a4 else "0",
+           "FP4VLA_W4A4_ADAPTER":"1" if initial and self.w4a4 else "0",
+           "FP4VLA_SATURATE_F16_ACTIVATIONS":"1" if initial and self.w4a4 else "0"}
         # Continuing from a trained QAD adapter can amplify the low-rank
         # residual even when the upstream Trainer's default clip (1.0) is
         # active.  Keep the frozen W4A4 activation contract fail-closed and
@@ -594,10 +673,16 @@ class Driver:
             "cache_identity":identity(cache) if cache else None,
             "capture_dataset_identity":self.capture_dataset_identity,
             "teacher_capture_identity":self.teacher_capture_identity,
-            "protocol_sha256":self.protocol["sha256"]})
+            "protocol_sha256":self.protocol["sha256"],
+            "environment_summary":environment_summary(e)})
         self.run_logged(name,[str(self.py),str(ROOT/"rl/lora_qad.py")],self.groot,e)
+        produced_manifest = work / "recovery_manifest.json"
+        recorded = jread(produced_manifest) if produced_manifest.is_file() else {}
         return {"base":str(base),"learning_rate":lr,"optimizer_steps":steps,"opd_weight":weight,
-                "initial_adapter":str(initial) if initial else None,"teacher_cache":str(cache) if cache else None}
+                "initial_adapter":str(initial) if initial else None,"teacher_cache":str(cache) if cache else None,
+                "environment_summary":environment_summary(e),
+                "max_grad_norm": recorded.get("max_grad_norm"),
+                "f16_activation_saturation": recorded.get("f16_activation_saturation")}
 
     def train_verify(self,p,steps,initial=None,lr=None,weight=0.,cache=None):
         m=jread(p/"runtime_metrics.json"); rec=jread(p/"recovery_manifest.json")
@@ -638,6 +723,22 @@ class Driver:
                 rec.get("capture_dataset_sha256") != expected_capture_sha):
             raise OrchestrationError("training did not use the frozen capture dataset")
         request=jread(p/"orchestrator_training_request.json")
+        # v11 requires the invocation receipt to carry the same numerical
+        # environment summary as the recovery manifest.  Older v3 fixtures do
+        # not have this field and remain readable for CPU regression tests.
+        if is_v11(self.protocol):
+            request_env = request.get("environment_summary")
+            if not isinstance(request_env, dict) or request_env != environment_summary(request.get("environment", {})):
+                raise OrchestrationError("training request lacks a stable environment summary")
+            recorded_env = rec.get("environment_summary")
+            if recorded_env != request_env:
+                raise OrchestrationError("recovery manifest environment differs from training request")
+            expected_sat = bool(initial is not None and self.w4a4)
+            expected_w4 = "1" if self.w4a4 else "0"
+            vars_ = request_env.get("variables", {})
+            if (vars_.get("FP4VLA_W4A4") != expected_w4 or
+                    vars_.get("FP4VLA_SATURATE_F16_ACTIVATIONS") != ("1" if expected_sat else "0")):
+                raise OrchestrationError("training request W4A4 environment differs from protocol")
         if (request.get("protocol_sha256")!=self.protocol["sha256"] or
                 request.get("environment",{}).get("QAD_OUT")!=str(p) or
                 float(request.get("environment",{}).get("QAD_LR",-1))!=lr or
@@ -698,7 +799,20 @@ class Driver:
             # succeeds before the nominal trajectory call budget.
             env.update(OPD_CAPTURE_EVERY="4",OPD_CAPTURE_PER_TASK="16",OPD_CAPTURE_LIMIT="160")
         self.run_logged(name,c,self.groot,env)
-        return {"checkpoint":str(ckpt),"purpose":purpose}
+        recovery_contract = {"max_grad_norm": None, "f16_activation_saturation": False}
+        recovery_manifest = Path(ckpt) / "recovery_manifest.json"
+        if recovery_manifest.is_file():
+            rec = jread(recovery_manifest)
+            recovery_contract = {"max_grad_norm": rec.get("max_grad_norm"),
+                                 "f16_activation_saturation": rec.get("f16_activation_saturation")}
+        return {"checkpoint":str(ckpt),"purpose":purpose,
+                "environment_summary": {"variables": {
+                    "FP4VLA_QUANT": "0",
+                    "FP4VLA_W4A4": "1" if use_w4a4 else "0",
+                    "FP4VLA_W4A4_ADAPTER": "1" if adapter_mode else "0",
+                    "FP4VLA_SATURATE_F16_ACTIVATIONS": "1" if use_w4a4 else "0",
+                }},
+                "recovery_contract": recovery_contract}
     def eval_verify(self,p,purpose,checkpoint=None): return eval_audit(p,self.protocol,purpose,checkpoint)
 
     def cache(self,work,collection):

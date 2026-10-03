@@ -389,6 +389,94 @@ def selected_recipe_checks(audit, base, run, selection, protocol):
             audit.file(base/name, metadata[name], 'selection.model_recipe.' + name)
 
 
+def recovery_environment_checks(audit, protocol, stage_name, record, output, base):
+    """Audit the numerical environment receipt for v11 stages.
+
+    Older v3/v8 runs predate the explicit environment summary and remain
+    inspectable.  The W4A4 v11 release, however, must make stale FP4VLA
+    exports and continuation-only saturation visible in both stage and child
+    manifests.
+    """
+    if int(protocol.get('version', 0)) < 11:
+        return
+    required = ('FP4VLA_QUANT', 'FP4VLA_W4A4', 'FP4VLA_W4A4_ADAPTER',
+                'FP4VLA_SATURATE_F16_ACTIVATIONS')
+    if stage_name.startswith('train_'):
+        rec = audit.read(output / 'recovery_manifest.json', stage_name + '.recovery_contract')
+        request = audit.read(output / 'orchestrator_training_request.json', stage_name + '.environment_request')
+        summary = record.get('environment_summary')
+        if not isinstance(summary, dict) or not isinstance(summary.get('variables'), dict):
+            audit.missing(stage_name + '.environment_summary',
+                          'Stage receipt predates the explicit numerical environment summary',
+                          classification='legacy_pre_provenance',
+                          remediation='Re-run this stage with the provenance-enabled driver before publication')
+        else:
+            values = summary['variables']
+            for key in required:
+                if key not in values:
+                    audit.missing(stage_name + '.environment.' + key, 'Stage environment summary omits required switch')
+        if not rec:
+            return
+        initial_qad = stage_name.startswith('train_qad') and not stage_name.startswith('train_qad_opd')
+        max_grad_ok = (isinstance(rec.get('max_grad_norm'), (int, float)) and
+                       not isinstance(rec.get('max_grad_norm'), bool) and rec.get('max_grad_norm') > 0)
+        if initial_qad and rec.get('max_grad_norm') is None:
+            audit.missing(stage_name + '.max_grad_norm_type',
+                          'Initial QAD manifest predates explicit max_grad_norm recording',
+                          classification='legacy_pre_provenance')
+        else:
+            audit.equal(stage_name + '.max_grad_norm_type', max_grad_ok, True,
+                        'Recovery manifest records a finite positive max_grad_norm')
+        sat_present = 'f16_activation_saturation' in rec
+        if initial_qad and not sat_present:
+            audit.missing(stage_name + '.f16_activation_saturation_type',
+                          'Initial QAD manifest predates explicit activation saturation recording',
+                          classification='legacy_pre_provenance')
+        else:
+            audit.equal(stage_name + '.f16_activation_saturation_type', type(rec.get('f16_activation_saturation')) is bool,
+                        True, 'Recovery manifest records f16 activation saturation explicitly')
+        if request:
+            declared = request.get('environment_summary')
+            if not isinstance(declared, dict) or declared != summary:
+                audit.equal(stage_name + '.request_environment', declared, summary,
+                            'Training request and stage receipt share the same environment summary')
+            if rec.get('environment_summary') != declared:
+                audit.equal(stage_name + '.recovery_environment', rec.get('environment_summary'), declared,
+                            'Recovery manifest and training request share the same environment summary')
+    elif stage_name.startswith(('dev_', 'heldout_', 'collection_')):
+        manifest = audit.read(output / 'eval_manifest.json', stage_name + '.eval_manifest')
+        if not manifest:
+            return
+        variables = (manifest.get('environment_summary') or {}).get('variables')
+        if not isinstance(variables, dict):
+            audit.missing(stage_name + '.eval_environment_summary',
+                          'Evaluation manifest predates explicit W4A4 environment provenance',
+                          classification='legacy_pre_provenance',
+                          remediation='Re-run this evaluation with the provenance-enabled driver before publication')
+            return
+        checkpoint = Path(manifest.get('checkpoint', '/nonexistent'))
+        is_quant = any((checkpoint / name).is_file() for name in
+                       ('ptq_recipe.json', 'category_ptq_recipe.json', 'merge_manifest.json'))
+        expected = {'FP4VLA_QUANT': '0', 'FP4VLA_W4A4': '1' if is_quant else '0',
+                    'FP4VLA_W4A4_ADAPTER': '1' if is_quant and (checkpoint / 'merge_manifest.json').is_file() else '0',
+                    'FP4VLA_SATURATE_F16_ACTIVATIONS': '1' if is_quant else '0'}
+        for key, value in expected.items():
+            audit.equal(stage_name + '.eval_environment.' + key,
+                        variables.get(key) if isinstance(variables, dict) else None, value,
+                        'Evaluation manifest records the effective W4A4 environment')
+        contract = manifest.get('recovery_contract')
+        expected_contract = {'max_grad_norm': None, 'f16_activation_saturation': False}
+        recovery = checkpoint / 'recovery_manifest.json'
+        if recovery.is_file():
+            declared = audit.read(recovery, stage_name + '.checkpoint_recovery_contract') or {}
+            expected_contract = {'max_grad_norm': declared.get('max_grad_norm'),
+                                 'f16_activation_saturation': declared.get('f16_activation_saturation')}
+        if stage_name.startswith(('dev_qad', 'collection_qad', 'heldout_qad')) and contract and contract.get('f16_activation_saturation') is None:
+            contract = {**contract, 'f16_activation_saturation': False}
+        audit.equal(stage_name + '.eval_recovery_contract', contract, expected_contract,
+                    'Evaluation manifest binds recovery training contract')
+
+
 def audit_run(run_dir, repo=ROOT, payload=True):
     run_dir = Path(run_dir).resolve()
     a = Audit(Path(repo), payload)
@@ -401,8 +489,21 @@ def audit_run(run_dir, repo=ROOT, payload=True):
     selection_path = Path(run.get("selection_file", "/nonexistent"))
     selection = a.read(selection_path, "selection.document")
     a.file(selection_path, run.get("selection_sha256"), "selection.run_binding")
-    a.sources({"exp/run_high_fp4_v3.py": run.get("implementation_sha256")}, "run.sources",
-              ("exp/run_category_recovery.py", "eval/run_recovery_eval.py", "eval/serve_recovery.py", "eval/rollout_seeded.py"))
+    if protocol and int(protocol.get('version', 0)) >= 11:
+        # Prefer the amended source binding.  A pre-amendment run is reported
+        # as legacy rather than being falsely compared with today's driver
+        # bytes (which would turn a resumable run into a hard contradiction).
+        if run.get('orchestrator_source_sha256'):
+            a.sources({"exp/run_high_fp4_v3.py": run.get('orchestrator_source_sha256')}, "run.sources",
+                      ("exp/run_category_recovery.py", "eval/run_recovery_eval.py", "eval/serve_recovery.py", "eval/rollout_seeded.py"))
+        else:
+            a.missing('run.sources.orchestrator', 'Run predates explicit orchestrator source provenance',
+                      classification='legacy_pre_provenance')
+            a.sources({}, "run.sources.dependencies",
+                      ("exp/run_category_recovery.py", "eval/run_recovery_eval.py", "eval/serve_recovery.py", "eval/rollout_seeded.py"))
+    else:
+        a.sources({"exp/run_high_fp4_v3.py": run.get("implementation_sha256")}, "run.sources",
+                  ("exp/run_category_recovery.py", "eval/run_recovery_eval.py", "eval/serve_recovery.py", "eval/rollout_seeded.py"))
     if protocol:
         protocol_checks(a, protocol, run)
     teacher = Path(run.get("base", "/nonexistent"))
@@ -423,7 +524,17 @@ def audit_run(run_dir, repo=ROOT, payload=True):
         disk = a.read(run_dir / "stages" / (name + ".json"), "stage.receipt." + name)
         if disk is not None:
             a.equal("stage.record." + name, disk, record, "Stage receipt equals run manifest record")
+        if protocol and int(protocol.get('version', 0)) >= 11:
+            source_sha = record.get('orchestrator_source_sha256')
+            if source_sha is None:
+                a.missing("stage.source." + name,
+                          "Stage predates orchestrator provenance receipts",
+                          classification='legacy_pre_provenance')
+            else:
+                a.file(a.repo / 'exp/run_high_fp4_v3.py', source_sha,
+                       "stage.source." + name)
         output = Path(record.get("output", "/nonexistent"))
+        recovery_environment_checks(a, protocol or {}, name, record, output, base)
         for field in ("checkpoint_identity", "model_identity"):
             if record.get(field):
                 a.checkpoint(Path(record[field]["path"]), record[field], name + "." + field)

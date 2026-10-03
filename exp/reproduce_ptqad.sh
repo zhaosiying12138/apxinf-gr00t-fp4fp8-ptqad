@@ -29,6 +29,7 @@ QAD_STEPS=${QAD_STEPS:-500}
 CONT_STEPS=${PTQAD_CONT_STEPS:-100}
 BSZ=${QAD_GLOBAL_BATCH:-16}
 MICRO_BATCH=${QAD_MICRO_BATCH:-1}
+W4A4=${QAD_W4A4:-0}
 export QAD_ACTIVATION_CHECKPOINTING=${QAD_ACTIVATION_CHECKPOINTING:-1}
 RANK=${QAD_LORA_R:-32}
 ALPHA=${QAD_LORA_ALPHA:-64}
@@ -39,6 +40,10 @@ PORT_BASE=${PTQAD_PORT_BASE:-5610}
 export HF_HUB_OFFLINE=1
 export PYTHONHASHSEED=${PYTHONHASHSEED:-20260929}
 export LD_LIBRARY_PATH="${PTQAD_MEDIA_LIB:-$HOME/miniforge3/envs/media7/lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+# Numerical switches are reset for every logged child below.  Keeping these
+# defaults explicit prevents a stale shell export from changing a resumed
+# stage's W4A4 path.
+export FP4VLA_QUANT=0 FP4VLA_W4A4=0 FP4VLA_W4A4_ADAPTER=0 FP4VLA_SATURATE_F16_ACTIVATIONS=0
 
 [[ -x "$PY" && -d "$BASE" && -d "$DATASET" ]] || { printf '%s\n' 'Python, base or dataset unavailable'; exit 2; }
 [[ -f "$PROTOCOL_FILE" ]] || { printf 'Protocol file missing: %s\n' "$PROTOCOL_FILE"; exit 2; }
@@ -118,8 +123,22 @@ run_logged() {
   shift
   local log="$RUN_DIR/logs/$stage.log"
   [[ ! -e "$log" ]] || { printf 'Refusing existing stage log: %s\n' "$log"; return 2; }
-  { printf 'UTC '; date -u +%FT%TZ; printf 'COMMAND '; printf '%q ' "$@"; printf '\n'; } > "$log"
-  "$@" 2>&1 | tee -a "$log"
+  local run_quant=$FP4VLA_QUANT run_w4a4=$FP4VLA_W4A4 run_adapter=$FP4VLA_W4A4_ADAPTER run_sat=$FP4VLA_SATURATE_F16_ACTIVATIONS
+  for arg in "$@"; do
+    case "$arg" in
+      FP4VLA_QUANT=*) run_quant=${arg#*=};;
+      FP4VLA_W4A4=*) run_w4a4=${arg#*=};;
+      FP4VLA_W4A4_ADAPTER=*) run_adapter=${arg#*=};;
+      FP4VLA_SATURATE_F16_ACTIVATIONS=*) run_sat=${arg#*=};;
+    esac
+  done
+  { printf 'UTC '; date -u +%FT%TZ; printf 'COMMAND '; printf '%q ' "$@"; printf '\n';
+    printf 'ENV_SUMMARY {"FP4VLA_QUANT":"%s","FP4VLA_W4A4":"%s","FP4VLA_W4A4_ADAPTER":"%s","FP4VLA_SATURATE_F16_ACTIVATIONS":"%s"}\n' \
+      "$run_quant" "$run_w4a4" "$run_adapter" "$run_sat"; } > "$log"
+  env "FP4VLA_QUANT=$run_quant" "FP4VLA_W4A4=$run_w4a4" \
+      "FP4VLA_W4A4_ADAPTER=$run_adapter" \
+      "FP4VLA_SATURATE_F16_ACTIVATIONS=$run_sat" \
+      "$@" 2>&1 | tee -a "$log"
   printf 'COMPLETED UTC %s\n' "$(date -u +%FT%TZ)" >> "$log"
 }
 
@@ -139,6 +158,8 @@ train_arm() {
   local arm=$1 steps=$2 init=${3:-} weight=${4:-0}
   [[ ! -e "$RUN_DIR/train_$arm" ]] || { printf 'Refusing existing training output: %s\n' "$RUN_DIR/train_$arm"; return 2; }
   local -a command=(env "GR00T_BASE_CKPT=$RUN_DIR/$RECOVERY_RECIPE" "QAD_DATASET=$DATASET"
+    "FP4VLA_QUANT=0" "FP4VLA_W4A4=$W4A4" "FP4VLA_W4A4_ADAPTER=$([[ -n "$init" && "$W4A4" == 1 ]] && printf 1 || printf 0)"
+    "FP4VLA_SATURATE_F16_ACTIVATIONS=$([[ -n "$init" && "$W4A4" == 1 ]] && printf 1 || printf 0)"
     "QAD_OUT=$RUN_DIR/train_$arm" "QAD_STEPS=$steps" "QAD_SAVE_STEPS=$steps" "QAD_GLOBAL_BATCH=$BSZ" "QAD_MICRO_BATCH=$MICRO_BATCH"
     "QAD_LORA_R=$RANK" "QAD_LORA_ALPHA=$ALPHA" "QAD_LORA_SCOPE=${QAD_LORA_SCOPE:-head+lang_all}" "QAD_LR=$LR"
     "QAD_OPD_MSE_W=$weight" "OPD_EVERY=${OPD_EVERY:-4}" "TRAIN_SEED=$TRAIN_SEED" "PROTOCOL_FILE=$PROTOCOL_FILE")

@@ -26,9 +26,11 @@ results/ptqad_20261003/v11_recovery_r4
 
 ## 当前 GPU 进程与续跑纪律
 
-截至 2026-10-02 12:30 左右（Asia/Shanghai），QAD 的 `5e-5` 臂已超过 1,260/2,000 optimizer steps，driver PID 为 4118527，训练 PID 为 4118579；这些是当时的快照，接手时必须重新检查。续跑服务仍为 active，尚无 `final_manifest.json`；WSL 可用约 266 GiB，宿主 C 盘可用约 79 GB。随后按冻结顺序完成另一学习率、QAD 选择、学生状态采集、continued-QAD、两个 OPD 权重及 held-out 五臂比较。
+截至 2026-10-04 06:00 左右（Asia/Shanghai），现场 driver PID 为 `318548`，训练子进程为 `343242`，正在执行 `train_opd_025`，日志约 948/2,000 optimizer steps；GPU 占用约 16.9 GiB，训练仍在进行。`final_manifest.json` 尚不存在，held-out 五臂尚未开始。接手时必须重新检查 PID、日志更新时间和显存，严禁重复启动 GPU 作业。
 
-续跑由 systemd 用户服务 `fp4vla-v11-r4-continuation.service` 托管，入口为 `exp/continue_w4a4_run.py`。服务先等待绑定的 driver 退出，然后校验并复用已完成阶段。当前 driver 没有 `PTQAD_MEDIA_LIB`，第一条 development 评测预计会在 FFmpeg 预检时退出；续跑器仅在日志精确匹配该错误、评测目录完全为空、没有评测 manifest 或完成标记且 GPU 空闲时，归档原日志并记录 SHA，再使用已验证的 media7 路径续跑。它不删除已有结果，不重跑部分训练，不修改冻结的训练或评测实现。
+本轮在两次有限 FP16 激活溢出后采用了**已记录但尚未纳入原冻结 JSON 的数值修订**：continued-QAD/OPD 训练使用 `max_grad_norm=0.25`，并设置 `FP4VLA_SATURATE_F16_ACTIVATIONS=1`；初始 QAD 训练仍来自旧 strict 路径。该修订使当前运行不再等同于原始 strict v11，不能在发布中声称“冻结协议未变”或宣称与 APXInf 原生路径已验证等价。须在每阶段 manifest 和评测 manifest 中显式记录梯度裁剪、饱和开关、相关环境摘要及源码 SHA，并在发布审计中核验跨臂一致性。若无法补齐，当前结果只能作为修订协议结果，不能回填为原协议结论。
+
+续跑由 driver 的持久 TTY 会话承载；此前的 `fp4vla-v11-r4-continuation.service` 实测为 failed（原因是找不到 `nvidia-smi`），不能把 systemd 状态当作当前作业状态。只允许复用已完成阶段，不能删除唯一 checkpoint 后重训，也不能把不完整日志补写为完成证明。
 
 ```bash
 python3 exp/high_fp4_status.py --recovery-root results/ptqad_20261003/v11_recovery_r4

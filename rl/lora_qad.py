@@ -402,6 +402,17 @@ def install_trainer_hooks():
                     "max_grad_norm": float(self.args.max_grad_norm),
                     "f16_activation_saturation": os.environ.get(
                         "FP4VLA_SATURATE_F16_ACTIVATIONS", "0") == "1",
+                    # Keep a secret-free copy of all numerical environment
+                    # switches in the recovery receipt.  The orchestrator
+                    # request records the same summary before launch; this
+                    # second copy proves what Trainer actually observed.
+                    "environment_summary": {"variables": {
+                        key: os.environ.get(key) for key in (
+                            "FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
+                            "FP4VLA_SATURATE_F16_ACTIVATIONS", "QAD_W4A4",
+                            "QAD_MAX_GRAD_NORM", "QAD_LORA_SCOPE", "QAD_LORA_R",
+                            "QAD_LORA_ALPHA", "QAD_LR", "QAD_STEPS", "QAD_OPD_MSE_W",
+                            "OPD_EVERY", "TRAIN_SEED", "QAD_ACTIVATION_CHECKPOINTING")}},
                     "train_seed": TRAIN_SEED,
                     "protocol_file": str(PROTOCOL_FILE),
                     "protocol_sha256": file_sha256(PROTOCOL_FILE),
