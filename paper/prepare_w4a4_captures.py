@@ -47,8 +47,15 @@ def directory(path, label):
 
 def executable(path, label):
     """Resolve the venv launcher; virtualenv Python is commonly a symlink."""
-    value = Path(path).expanduser().resolve(strict=True)
-    need(value.is_file() and os.access(value, os.X_OK), f"{label} is not executable: {value}")
+    value = Path(path).expanduser()
+    if not value.is_absolute():
+        value = Path.cwd() / value
+    value = Path(os.path.abspath(value))
+    target = value.resolve(strict=True)
+    need(value.is_file() and target.is_file() and os.access(target, os.X_OK),
+         f"{label} is not executable: {value}")
+    # Keep the venv launcher path in generated commands. Returning ``target``
+    # would silently replace it with the system interpreter behind the symlink.
     return value
 
 
@@ -194,6 +201,7 @@ BACKBONE_MODEL=@BACKBONE_MODEL@
 CAPTURE_ROOT=@CAPTURE_ROOT@
 SCRATCH_ROOT="$CAPTURE_ROOT/scratch"
 export PROJECT GR00T_REPO PTQAD_PYTHON LIBERO_PYTHON BF16_TEACHER PTQ_BASE QAD_MODEL QAD_ADAPTER OPD_MODEL DATASET CAPTURE_DATASET CAPTURE_DATASET_SHA256 PROTOCOL_FILE BACKBONE_MODEL CAPTURE_ROOT SCRATCH_ROOT
+export GR00T_BACKBONE_MODEL="$BACKBONE_MODEL"
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=2 NO_ALBUMENTATIONS_UPDATE=1
 export PTQAD_MEDIA_LIB="${PTQAD_MEDIA_LIB:-$HOME/miniforge3/envs/media7/lib}"
 export LD_LIBRARY_PATH="$PTQAD_MEDIA_LIB:/usr/local/cuda/lib64:/usr/lib/wsl/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
@@ -209,7 +217,10 @@ prepare_scratch() {
   mkdir -p "$out"; printf '%s\n' "$(date -u +%FT%TZ)" > "$out/started_utc.txt"; printf '%s\n' "$out"
 }
 assert_no_compute_apps() {
-  local rows; rows="$(nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null || true)"
+  local rows
+  if ! rows="$(nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null)"; then
+    echo "nvidia-smi query failed; refusing to start capture" >&2; exit 2
+  fi
   if [[ -n "${rows//[[:space:]]/}" ]]; then echo "CUDA process exists; do not start capture: $rows" >&2; exit 2; fi
 }
 wait_for_port() {
@@ -260,6 +271,7 @@ cd "$GR00T_REPO"
 export GR00T_BASE_CKPT="$PTQ_BASE" QAD_OUT="$OUT/qad" QAD_DATASET="$DATASET" QAD_CAPTURE_DATASET="$CAPTURE_DATASET" QAD_CAPTURE_DATASET_SHA256="$CAPTURE_DATASET_SHA256"
 export QAD_STEPS=2 QAD_SAVE_STEPS=2 QAD_SAVE_TOTAL_LIMIT=2 QAD_MICRO_BATCH=1 QAD_GLOBAL_BATCH=1 QAD_ACTIVATION_CHECKPOINTING=1 QAD_OPD_MSE_W=0 TRAIN_SEED=@SEED@ PROTOCOL_FILE="$PROTOCOL_FILE"
 export @COMMON_TRAIN@@Q_SAT@
+unset QAD_INIT_ADAPTER QAD_MAX_GRAD_NORM OPD_CACHE_PATH || true
 "$PTQAD_PYTHON" -u "$PROJECT/rl/lora_qad.py" 2>&1 | tee "$OUT/qad_2step.raw.log"
 test -f "$OUT/qad/checkpoint-2/recovery_manifest.json"
 printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
@@ -271,6 +283,7 @@ OUT="$(prepare_scratch shot_opdcache)"; assert_no_compute_apps
 ROLLOUT="$SCRATCH_ROOT/shot_rollout"; test -d "$ROLLOUT/observations"
 test "$(find "$ROLLOUT/observations" -name 'sample_*.pt' | wc -l)" -eq 2
 cd "$GR00T_REPO"
+export FP4VLA_QUANT=0 FP4VLA_W4A4=0 FP4VLA_W4A4_ADAPTER=0 FP4VLA_SATURATE_F16_ACTIVATIONS=0
 "$PTQAD_PYTHON" -u "$PROJECT/rl/opd_probe_cache.py" --teacher "$BF16_TEACHER" --input-dir "$ROLLOUT/observations" --dataset "$DATASET" --count 2 --seed @SEED@ --model-dtype float32 --autocast-dtype bfloat16 --device cuda --out "$OUT/teacher_probes.pt" 2>&1 | tee "$OUT/opdcache_2sample.raw.log"
 test -f "$OUT/teacher_probes.pt"
 printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
@@ -295,16 +308,16 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
         text = text.replace("@EVERY@", q(every)).replace("@WEIGHT@", q(weight))
         write_script(out / f"{name}.sh", text)
 
-    server_tail = '''export GR00T_EVAL_SEED=@SEED@ FP4VLA_W4A4=1 FP4VLA_W4A4_ADAPTER=1 FP4VLA_QUANT=0 FP4VLA_SATURATE_F16_ACTIVATIONS=@OP_SAT@ GR00T_BACKBONE_MODEL="$BACKBONE_MODEL"
+    server_tail = '''export GR00T_EVAL_SEED=@SEED@ FP4VLA_W4A4=1 FP4VLA_W4A4_ADAPTER=1 FP4VLA_QUANT=0 FP4VLA_SATURATE_F16_ACTIVATIONS=@SAT@ GR00T_BACKBONE_MODEL="$BACKBONE_MODEL"
 PORT=@PORT@
 server_pid=""
 cleanup() { if [[ -n "$server_pid" ]] && kill -0 "$server_pid" 2>/dev/null; then kill -TERM "$server_pid" 2>/dev/null || true; wait "$server_pid" || true; fi; }
 trap cleanup EXIT
 cd "$GR00T_REPO"
-"$PTQAD_PYTHON" -u "$PROJECT/eval/serve_recovery.py" --model-path "$OPD_MODEL" --embodiment-tag LIBERO_PANDA --use-sim-policy-wrapper --host 127.0.0.1 --port "$PORT" > "$OUT/server.raw.log" 2>&1 &
+"$PTQAD_PYTHON" -u "$PROJECT/eval/serve_recovery.py" --model-path @MODEL@ --embodiment-tag LIBERO_PANDA --use-sim-policy-wrapper --host 127.0.0.1 --port "$PORT" > >(tee "$OUT/server.raw.log") 2>&1 &
 server_pid=$!; wait_for_port "$server_pid" "$PORT"
 '''
-    server_tail = server_tail.replace("@SEED@", q(values["state_seed"])).replace("@OP_SAT@", q(op_sat))
+    server_tail = server_tail.replace("@SEED@", q(values["state_seed"]))
     scripts["shot_evalserver"] = '''#!/usr/bin/env bash
 set -euxo pipefail
 source "$(dirname "$0")/common_v11.sh"
@@ -327,9 +340,9 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 set -euxo pipefail
 source "$(dirname "$0")/common_v11.sh"
 OUT="$(prepare_scratch shot_rollout)"; assert_no_compute_apps
-@SERVER@
 export MUJOCO_GL=egl PYOPENGL_PLATFORM=egl OPD_CAPTURE_DIR="$OUT/observations" OPD_CAPTURE_EVERY=1 OPD_CAPTURE_PER_TASK=2 OPD_CAPTURE_LIMIT=2 OPD_CAPTURE_PER_EPISODE=2
-export FP4VLA_CAPTURE_PURPOSE=screenshot_smoke FP4VLA_CAPTURE_SEED=@TASK_SEED@ FP4VLA_CAPTURE_INIT_STATE_INDICES=4 FP4VLA_CAPTURE_PROTOCOL_SHA256="$(sha256sum "$PROTOCOL_FILE" | cut -d' ' -f1)"
+export FP4VLA_CAPTURE_PURPOSE=screenshot_smoke FP4VLA_CAPTURE_TASK_NAME="@TASK@" FP4VLA_CAPTURE_SEED=@TASK_SEED@ FP4VLA_CAPTURE_INIT_STATE_INDICES=4 FP4VLA_CAPTURE_PROTOCOL_SHA256="$(sha256sum "$PROTOCOL_FILE" | cut -d' ' -f1)" FP4VLA_CAPTURE_EVENT_FILE="$OUT/reset_events.jsonl"
+@SERVER@
 "$LIBERO_PYTHON" -u "$PROJECT/eval/rollout_seeded.py" --env-name libero_sim/@TASK@ --n-episodes 1 --n-envs 1 --seed @TASK_SEED@ --init-state-indices 4 --max-episode-steps 720 --n-action-steps 8 --video-dir "$OUT/videos" --policy-client-host 127.0.0.1 --policy-client-port "$PORT" 2>&1 | tee "$OUT/rollout_1task_1episode.raw.log"
 test "$(find "$OUT/observations" -name 'sample_*.pt' | wc -l)" -eq 2
 python3 - "$OUT" <<'PY'
@@ -347,20 +360,27 @@ wait "$server_pid" || true; server_pid=""
 printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 '''
     for name, text in (("shot_evalserver", scripts["shot_evalserver"]), ("shot_rollout", scripts["shot_rollout"])):
-        text = text.replace("@SERVER@", server_tail.replace("@PORT@", "5617" if name == "shot_evalserver" else "5618"))
+        if name == "shot_evalserver":
+            server = server_tail.replace("@PORT@", "5617").replace("@MODEL@", '"$OPD_MODEL"').replace("@SAT@", q(op_sat))
+        else:
+            server = server_tail.replace("@PORT@", "5618").replace("@MODEL@", '"$QAD_MODEL"').replace("@SAT@", q(q_sat))
+        text = text.replace("@SERVER@", server)
         text = text.replace("@TASK_SEED@", q(values["task_seed"])).replace("@TASK@", TASK)
         write_script(out / f"{name}.sh", text)
     plan = {"version": 1, "scope": "v11_w4a4_capture_preparation", "gpu_executed": False,
-            "final_manifest": str(bundle["final_path"]), "protocol": str(bundle["protocol_path"]),
+            "final_manifest": str(bundle["final_path"]), "final_manifest_sha256": digest(bundle["final_path"]),
+            "protocol": str(bundle["protocol_path"]), "protocol_sha256": digest(bundle["protocol_path"]),
             "scratch_root": str(out / "scratch"), "selected_qad_learning_rate": lr,
             "selected_opd_weight": weight, "lora_scope": scope, "rank": rank, "alpha": alpha,
             "activation_saturation": {"qad": q_sat, "opd": op_sat},
             "stages": {"shot_qad": "two optimizer steps from selected W4A4 PTQ base; path smoke only",
-                        "shot_rollout": "one LIBERO task and one episode; exactly two student observations",
+                        "shot_rollout": "one LIBERO task and one episode using selected QAD model and its activation saturation; exactly two student observations",
                         "shot_opdcache": "labels those two observations with the BF16 teacher",
                         "shot_opd": "four optimizer steps from selected QAD adapter with selected OPD weight",
                         "shot_evalserver": "loads selected OPD W4A4 adapter and calls health ping only"},
             "execution_order": ["shot_qad", "shot_rollout", "shot_opdcache", "shot_opd", "shot_evalserver"],
+            "rollout_model": "selected_qad_model_identity",
+            "rollout_activation_saturation": q_sat,
             "note": "Short smoke output is not formal 2000-step training or held-out success evidence. Every script refuses an existing scratch stage and checks GPU idleness."}
     (out / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "README.md").write_text("""# v11 W4A4 screenshot command set
