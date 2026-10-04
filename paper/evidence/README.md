@@ -11,7 +11,7 @@
 | paired_comparison.json | 五臂使用相同任务、初态身份和分母的逐任务配对比较 |
 | heldout_arm/ | BF16、全 NVFP4 W4A4 PTQ、QAD、continued-QAD、QAD+OPD 各自的 manifest、task results 和 summary |
 | training/ | QAD、continued-QAD、OPD 的训练请求、runtime metrics、合并清单和教师缓存来源 |
-| captures.json、captures/ | 真实 Ubuntu 执行截图及其 SHA-256、尺寸和 sidecar |
+| captures.json、retained_captures.json、captures/ | 真实 Ubuntu 执行截图及其 SHA-256、尺寸和 sidecar；正式校验合并 15 张当前截图与 2 张经批准保留的 BF16 截图，共 17 张 |
 | recipe_inventory.json | 从 v11 category recipe 计算的编码预算；不把预算当成实测文件大小或延迟 |
 
 ## 统计口径

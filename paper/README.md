@@ -4,7 +4,7 @@
 
 - `paper.html`：单文件离线阅读版，包含公式、字体、图表和 17 个截图环节；已完成截图可点击放大，当前未完成的环节会在正式发布前由同一协议的实拍证据替换。
 - `zhihu/article.md`：与 HTML 共用正文的 Markdown 发表稿，代码块和 LaTeX 公式完整保留。
-- `zhihu/images/`：正文技术图、数据图与运行截图；截图来源、哈希和待更新状态见 `figures.json` 与 `evidence/captures.json`。
+- `zhihu/images/`：正文技术图、数据图与运行截图；截图来源、哈希和待更新状态见 `figures.json`、`evidence/captures.json` 与 `evidence/retained_captures.json`。正式校验将两份清单合并为 15 张当前截图加 2 张经批准保留的 BF16 截图，共 17 张。
 - `sections/`：唯一正文源；修改正文后重建两种格式，避免手动修改生成文件。
 - `evidence/`：本文实验的结果数组、配置、运行日志、来源散列与截图清单。
 - `validation/`：发布完整性与浏览器排版校验报告。
