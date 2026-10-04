@@ -1,0 +1,9 @@
+{
+  "source_commit": "52458b8fdaf6eb464de558a23a22ccf6740c3381",
+  "source_path": "exp/run_high_fp4_v3.py",
+  "snapshot_path": "exp/run_high_fp4_v3_producer.py",
+  "bytes": 74856,
+  "sha256": "a996454b49d6ca4724613c7c5ea3746d46bc1ccb763834bf78572fb32e15bd48",
+  "purpose": "Byte-identical source matching the initialization implementation_sha256 in v11_recovery_r4. This archive does not establish source identity for subsequent resumed invocations. It is evidence only, not the active experiment driver.",
+  "run_manifest": "results/ptqad_20261003/v11_recovery_r4/run_manifest.json"
+}
