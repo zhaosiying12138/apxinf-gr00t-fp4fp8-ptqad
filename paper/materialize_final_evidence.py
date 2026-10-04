@@ -241,7 +241,13 @@ def materialize(final_manifest: str | Path, out: str | Path,
                     "selected_recipe": final_results["selected_recipe"],
                     "files": mapping,
                     "raw_absolute_paths_preserved": True,
-                    "development_scores_included": False}
+                    # Development outcomes are retained only inside the
+                    # verified training-cost audit; they are never promoted
+                    # to the public held-out result table.
+                    "development_scores_included": False,
+                    "development_selection_audit_included":
+                        isinstance(costs.get("development_selection_audit"), dict),
+                    "development_scores_scope": "audit_only_not_public_main_results"}
         (stage / "evidence_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
                                                        encoding="utf-8")
         (stage / "final_costs_summary.json").write_text(json.dumps(costs, ensure_ascii=False, indent=2) + "\n",
@@ -255,7 +261,11 @@ def materialize(final_manifest: str | Path, out: str | Path,
                     f"materialized file changed: {path}")
         stage.rename(target)
     return {"status": "complete", "out": str(target), "selected_recipe": final_results["selected_recipe"],
-            "public_arms": list(final_results["public_arms"]), "development_scores_included": False,
+            "public_arms": list(final_results["public_arms"]),
+            "development_scores_included": False,
+            "development_selection_audit_included":
+                isinstance(costs.get("development_selection_audit"), dict),
+            "development_scores_scope": "audit_only_not_public_main_results",
             "files": len(mapping) + 2}
 
 
