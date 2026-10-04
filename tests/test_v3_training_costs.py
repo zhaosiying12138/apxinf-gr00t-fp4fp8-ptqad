@@ -98,6 +98,14 @@ def v3_run(root):
                 protocol['partitions']['development'],'development',45-i,sha)} for i,value in enumerate(values)}
         selections[kind]={'protocol_sha256':sha,'selection_uses_heldout':False,'environment_pairing_verified':True,
             'candidates':rows,'selected_'+field:values[0]}
+    qad_selection_file=art/'select_qad_lr/selection.json'
+    write(qad_selection_file,selections['qad'])
+    selections['opd'].update(control_arm='continued_qad',control_evaluation=evaluation_fixture(
+        art/'dev_continued_qad',merged['continued_qad'],protocol['partitions']['development'],'development',44,sha),
+        continued_qad_control_score=.88,selected_opd_score=.9,qad_reference_score=.9,
+        opd_not_below_control=True,opd_beats_continued_qad=True,opd_beats_qad=False,opd_gate_override=False,
+        selected_qad_learning_rate=.00005,qad_selection_identity=full_identity(qad_selection_file),
+        qad_reference_evaluation=copy.deepcopy(selections['qad']['candidates']['5e-05']))
     heldout=art/'heldout_round';heldout.mkdir()
     for arm in ('bf16','qad','continued_qad','qad_opd'):
         write(heldout/('heldout_'+arm)/'eval_manifest.json',{'checkpoint':str(private/'bf16' if arm=='bf16' else merged[arm]),
@@ -177,6 +185,138 @@ class V3TrainingCosts(unittest.TestCase):
                 write(path,data)
                 with self.assertRaises(ValueError):cost.collect(None,None,None,out,protocol,orchestrator_run=run)
                 self.assertFalse(out.exists())
+
+    def test_overridden_false_control_flag_is_derived_without_rewriting_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);run,private,protocol_path,cache=v3_run(root);out=root/'costs'
+            final_path=run/'final_manifest.json';final=read(final_path);record=final['opd_selection']
+            protocol=read(protocol_path)
+            record['control_evaluation']=evaluation_fixture(run/'artifacts/dev_continued_qad',
+                Path(final['selected_continued_model_identity']['path']),protocol['partitions']['development'],
+                'development',46,cost.identity(protocol_path)['sha256'])
+            record.update(continued_qad_control_score=.92,opd_beats_continued_qad=False,opd_gate_override=True)
+            # Reproduce the producer gap: an incorrect True flag plus omitted QAD fields.
+            for field in ('qad_reference_score','opd_beats_qad','qad_reference_evaluation','qad_selection_identity'):
+                del record[field]
+            write(final_path,final);original=final_path.read_bytes()
+            with patch.dict(sys.modules,{'torch':types.SimpleNamespace(load=lambda *a,**kw:cache)}):
+                result=cost.collect(None,None,None,out,protocol_path,orchestrator_run=run)
+            audit=result['development_selection_audit']
+            self.assertFalse(audit['derived_flags']['opd_not_below_control'])
+            self.assertFalse(audit['derived_flags']['opd_beats_qad'])
+            self.assertEqual(audit['exact_rate_differences']['opd_minus_continued_qad'],
+                             {'numerator':-1,'denominator':50})
+            discrepancies={(row['field'],row['kind']) for row in audit['original_record_discrepancies']}
+            self.assertIn(('opd_not_below_control','mismatch'),discrepancies)
+            self.assertIn(('opd_gate_override','explicit_override'),discrepancies)
+            self.assertIn(('qad_reference_score','missing'),discrepancies)
+            self.assertEqual(final_path.read_bytes(),original)
+            self.assertEqual((out/'orchestration/final_manifest.json').read_bytes(),original)
+            shutil.rmtree(private)
+            self.assertEqual(cost.verify_published(out),result)
+            result['development_selection_audit']['derived_flags']['opd_not_below_control']=True
+            write(out/'costs.json',result)
+            with self.assertRaisesRegex(ValueError,'development selection audit differs'):
+                cost.verify_published(out)
+
+    def test_missing_summary_fields_are_explicitly_reconstructed_from_selected_qad(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);run,_,protocol_path,cache=v3_run(root);out=root/'costs'
+            final_path=run/'final_manifest.json';final=read(final_path)
+            for field in ('qad_reference_score','opd_beats_qad'):
+                del final['opd_selection'][field]
+            write(final_path,final)
+            with patch.dict(sys.modules,{'torch':types.SimpleNamespace(load=lambda *a,**kw:cache)}):
+                result=cost.collect(None,None,None,out,protocol_path,orchestrator_run=run)
+            audit=result['development_selection_audit']
+            self.assertFalse(audit['original_opd_gate_override'])
+            self.assertEqual(audit['arms']['qad']['successes'],45)
+            self.assertEqual(audit['exact_rate_differences']['opd_minus_qad'],{'numerator':0,'denominator':1})
+            self.assertEqual({row['field'] for row in audit['original_record_discrepancies']},
+                             {'qad_reference_score','opd_beats_qad'})
+            self.assertEqual(cost.verify_published(out),result)
+
+    def test_incorrect_flags_need_override_but_scores_and_denominators_never_do(self):
+        for mutation in ('flag_without_override','other_flag_with_override','nonboolean_flag_with_override',
+                         'reverse_notbelow_with_override','score_with_override','denominator_with_override'):
+            with self.subTest(mutation=mutation),tempfile.TemporaryDirectory() as directory:
+                root=Path(directory);run,_,protocol,_=v3_run(root);out=root/'costs'
+                final_path=run/'final_manifest.json';final=read(final_path);record=final['opd_selection']
+                if mutation=='flag_without_override':
+                    record['opd_beats_qad']=True
+                else:
+                    record['opd_gate_override']=True
+                    if mutation=='other_flag_with_override':record['opd_beats_continued_qad']=False
+                    elif mutation=='nonboolean_flag_with_override':record['opd_not_below_control']=1
+                    elif mutation=='reverse_notbelow_with_override':record['opd_not_below_control']=False
+                    elif mutation=='score_with_override':record['qad_reference_score']=.89
+                    else:record['control_evaluation']['episodes']=49
+                write(final_path,final)
+                with self.assertRaises(ValueError):cost.collect(None,None,None,out,protocol,orchestrator_run=run)
+                self.assertFalse(out.exists())
+
+    def test_control_pairing_tampering_rejects_even_with_rehashed_inputs_and_override(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);run,_,protocol_path,_=v3_run(root);out=root/'costs'
+            final_path=run/'final_manifest.json';final=read(final_path);record=final['opd_selection']
+            record['opd_gate_override']=True;control=record['control_evaluation']
+            evaluation=cost.evaluation_helpers(ROOT/'eval/run_recovery_eval.py')
+            folder=Path(control['evaluation_path']);task=evaluation.TASKS[0];log=folder/(task+'.log')
+            text=log.read_text().replace('"initial_state_sha256": "'+('0'*64)+'"',
+                                        '"initial_state_sha256": "'+('f'*64)+'"',1)
+            log.write_text(text);tasks=read(folder/'task_results.json')
+            tasks[task].update(evaluation.parse_log(log));write(folder/'task_results.json',tasks)
+            control['raw_log_identities'][task]=full_identity(log)
+            control['evaluation_identity']['task_results.json']=full_identity(folder/'task_results.json')
+            part=read(protocol_path)['partitions']['development'];signature=[]
+            for ti,name in enumerate(evaluation.TASKS):
+                resets=evaluation.validate_resets(tasks[name],part['seed']+1000*ti,part['init_state_indices'])
+                signature.extend({'task':name,**{k:z[k] for k in ('episode_index','seed','init_state_index','settle_steps',
+                    'initial_state_sha256','restored_state_sha256','init_state_bank_sha256')}} for z in resets)
+            control['pairing_sha256']=hashlib.sha256(json.dumps(signature,sort_keys=True).encode()).hexdigest()
+            write(final_path,final)
+            with self.assertRaisesRegex(ValueError,'initial states do not pair'):
+                cost.collect(None,None,None,out,protocol_path,orchestrator_run=run)
+            self.assertFalse(out.exists())
+
+    def test_truthful_failed_gate_requires_override_including_strict_ties(self):
+        for version,control_score,qad_score in ((3,46,45),(11,46,45),(11,45,44),(11,44,45)):
+            with self.subTest(version=version,control=control_score,qad=qad_score),tempfile.TemporaryDirectory() as directory:
+                root=Path(directory)
+                protocol_path=ROOT/('exp/recovery_protocol_v3_high_fp4.json' if version==3 else
+                                   'exp/recovery_protocol_v11_w4a4_category.json')
+                protocol=read(protocol_path);sha=cost.identity(protocol_path)['sha256']
+                final={};models={arm:{'path':str(root/arm)} for arm in ('qad','continued_qad','qad_opd')}
+                for arm,key in (('qad','selected_qad_model_identity'),('continued_qad','selected_continued_model_identity'),
+                                ('qad_opd','selected_opd_model_identity')):
+                    final[key]=models[arm]
+                for kind,field,declared,score,arm in (
+                        ('qad','learning_rate','qad_learning_rates',qad_score,'qad'),
+                        ('opd','opd_weight','opd_weights',45,'qad_opd')):
+                    values=protocol['selection'][declared]
+                    rows={str(value):{field:value,**evaluation_fixture(root/f'{kind}_{i}',Path(models[arm]['path']),
+                        protocol['partitions']['development'],'development',score-i,sha)} for i,value in enumerate(values)}
+                    final[kind+'_selection']={'protocol_sha256':sha,'selection_uses_heldout':False,
+                        'environment_pairing_verified':True,'candidates':rows,'selected_'+field:values[0]}
+                    final['selected_qad_learning_rate' if kind=='qad' else 'selected_opd_weight']=values[0]
+                record=final['opd_selection']
+                record.update(control_arm='continued_qad',control_evaluation=evaluation_fixture(root/'control',
+                    Path(models['continued_qad']['path']),protocol['partitions']['development'],'development',control_score,sha),
+                    continued_qad_control_score=control_score/50,selected_opd_score=.9,qad_reference_score=qad_score/50,
+                    opd_not_below_control=45>=control_score,opd_beats_continued_qad=45>control_score,
+                    opd_beats_qad=45>qad_score,opd_gate_override=False)
+                def resolve(item):
+                    path=Path(item['path'])
+                    self.assertEqual(cost.identity(path),{key:item[key] for key in ('bytes','sha256')})
+                    return path
+                evaluation=cost.evaluation_helpers(ROOT/'eval/run_recovery_eval.py')
+                with self.assertRaisesRegex(ValueError,'gate failed without override'):
+                    cost.audit_development_relationships(final,protocol,sha,resolve,evaluation)
+                record['opd_gate_override']=True
+                audit=cost.audit_development_relationships(final,protocol,sha,resolve,evaluation)
+                self.assertTrue(audit['original_opd_gate_override'])
+                self.assertEqual(audit['derived_flags']['opd_beats_continued_qad'],45>control_score)
+                self.assertEqual(audit['derived_flags']['opd_beats_qad'],45>qad_score)
 
 
 if __name__=='__main__':unittest.main()

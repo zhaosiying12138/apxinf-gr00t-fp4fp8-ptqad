@@ -195,6 +195,55 @@ def microbatches_per_update(manifest, steps):
     return [epoch[i % len(epoch)] for i in range(steps)]
 
 
+def audit_development_evaluation(row,protocol,protocol_sha,resolve,evaluation,model=None):
+    """Read a development score and pairing from identity-verified raw logs."""
+    expected=protocol['partitions']['development']
+    task_count,episodes=partition_budget(protocol,'development')
+    need(row.get('selection_source')=='development_only','Recovery choice uses non-development data')
+    ids=row['evaluation_identity'];base=Path(row['evaluation_path'])
+    need(set(ids)=={'eval_manifest.json','task_results.json','summary.json'},'Incomplete selection evaluation identity')
+    for name,item in ids.items():need(item['path']==str(base/name),'Selection input path differs')
+    manifest,tasks,summary=[json.loads(resolve(ids[name]).read_text()) for name in
+                           ('eval_manifest.json','task_results.json','summary.json')]
+    values={'purpose':'development','seed':expected['seed'],'episodes':episodes,
+        'init_state_indices':expected['init_state_indices'],'tasks':evaluation.TASKS,
+        'n_envs':1,'settle_steps':10,'n_action_steps':8,'max_episode_steps':720,
+        'protocol_sha256':protocol_sha,'initial_state_protocol':'libero10_official_bank_v1'}
+    need(all(manifest.get(k)==v for k,v in values.items()),'Selection evaluation protocol differs')
+    if model is not None:
+        need(manifest.get('checkpoint')==model['path'],'Development comparison uses another selected model')
+        if 'model_identity' in row:
+            need(row['model_identity']==model,'Development comparison model identity differs')
+    need(set(tasks)==set(evaluation.TASKS) and set(row['raw_log_identities'])==set(evaluation.TASKS),'Selection task/log set incomplete')
+    count=successes=0;signature=[]
+    for ti,task in enumerate(evaluation.TASKS):
+        result=tasks[task];outcomes=result['results'];log=row['raw_log_identities'][task]
+        need(log['path']==str(base/(task+'.log')),'Selection raw log path differs')
+        parsed=evaluation.parse_log(resolve(log))
+        need(type(result.get('returncode')) is int and result['returncode']==0 and
+             len(outcomes)==episodes and all(type(x) is bool for x in outcomes) and
+             all(result.get(k)==v for k,v in parsed.items()),'Selection task differs from raw log')
+        need(result.get('seed')==expected['seed']+1000*ti,'Selection task seed differs')
+        resets=evaluation.validate_resets(result,expected['seed']+1000*ti,expected['init_state_indices'])
+        signature.extend({'task':task,**{k:z[k] for k in ('episode_index','seed','init_state_index','settle_steps',
+            'initial_state_sha256','restored_state_sha256','init_state_bank_sha256')}} for z in resets)
+        successes+=sum(outcomes);count+=len(outcomes)
+    digest=hashlib.sha256(json.dumps(signature,sort_keys=True).encode()).hexdigest()
+    need(row.get('pairing_sha256')==digest,'Selection pairing digest differs')
+    need(count==task_count*episodes and summary.get('tasks_complete')==task_count and
+         type(summary.get('total_successes')) is int and summary['total_successes']==successes and
+         type(summary.get('total_episodes')) is int and summary['total_episodes']==count and
+         summary.get('purpose')=='development' and summary.get('seed')==expected['seed'] and
+         math.isclose(summary['macro_success_rate'],successes/count,rel_tol=0,abs_tol=1e-12),
+         'Selection summary differs from raw outcomes')
+    need(type(row.get('successes')) is int and row['successes']==successes and
+         type(row.get('episodes')) is int and row['episodes']==count and
+         math.isclose(row['macro_success_rate'],successes/count,rel_tol=0,abs_tol=1e-12),
+         'Selection score differs from raw outcomes')
+    return {'successes':successes,'episodes':count,'pairing_sha256':digest,
+            'evaluation_identity':ids,'raw_log_identities':row['raw_log_identities']}
+
+
 def audit_recovery_selection(record,kind,protocol,protocol_sha,resolve,evaluation):
     """Recompute recovery choice from archived development raw logs, never heldout."""
     field='learning_rate' if kind=='qad' else 'opd_weight'
@@ -203,47 +252,104 @@ def audit_recovery_selection(record,kind,protocol,protocol_sha,resolve,evaluatio
          record.get('environment_pairing_verified') is True,'Recovery choice lacks frozen development provenance')
     rows=list(record['candidates'].values())
     need(len(rows)==len(declared) and {row[field] for row in rows}==set(declared),'Recovery candidate set differs')
-    expected=protocol['partitions']['development'];signatures=[]
-    for row in rows:
-        need(row.get('selection_source')=='development_only','Recovery choice uses non-development data')
-        ids=row['evaluation_identity'];base=Path(row['evaluation_path'])
-        need(set(ids)=={'eval_manifest.json','task_results.json','summary.json'},'Incomplete selection evaluation identity')
-        for name,item in ids.items():need(item['path']==str(base/name),'Selection input path differs')
-        manifest,tasks,summary=[json.loads(resolve(ids[name]).read_text()) for name in
-                               ('eval_manifest.json','task_results.json','summary.json')]
-        values={'purpose':'development','seed':expected['seed'],'episodes':expected['episodes_per_task'],
-            'init_state_indices':expected['init_state_indices'],'tasks':evaluation.TASKS,
-            'n_envs':1,'settle_steps':10,'n_action_steps':8,'max_episode_steps':720,
-            'protocol_sha256':protocol_sha,'initial_state_protocol':'libero10_official_bank_v1'}
-        need(all(manifest.get(k)==v for k,v in values.items()),'Selection evaluation protocol differs')
-        need(set(tasks)==set(evaluation.TASKS) and set(row['raw_log_identities'])==set(evaluation.TASKS),'Selection task/log set incomplete')
-        count=successes=0;signature=[]
-        for ti,task in enumerate(evaluation.TASKS):
-            result=tasks[task];outcomes=result['results'];log=row['raw_log_identities'][task]
-            need(log['path']==str(base/(task+'.log')),'Selection raw log path differs')
-            parsed=evaluation.parse_log(resolve(log))
-            need(type(result.get('returncode')) is int and result['returncode']==0 and
-                 len(outcomes)==expected['episodes_per_task'] and all(type(x) is bool for x in outcomes) and
-                 all(result.get(k)==v for k,v in parsed.items()),'Selection task differs from raw log')
-            need(result.get('seed')==expected['seed']+1000*ti,'Selection task seed differs')
-            resets=evaluation.validate_resets(result,expected['seed']+1000*ti,expected['init_state_indices'])
-            signature.extend({'task':task,**{k:z[k] for k in ('episode_index','seed','init_state_index','settle_steps',
-                'initial_state_sha256','restored_state_sha256','init_state_bank_sha256')}} for z in resets)
-            successes+=sum(outcomes);count+=len(outcomes)
-        digest=hashlib.sha256(json.dumps(signature,sort_keys=True).encode()).hexdigest();signatures.append(digest)
-        need(row.get('pairing_sha256')==digest,'Selection pairing digest differs')
-        need(summary.get('tasks_complete')==10 and summary.get('total_successes')==successes and
-             summary.get('total_episodes')==count and summary.get('purpose')=='development' and
-             summary.get('seed')==expected['seed'] and
-             math.isclose(summary['macro_success_rate'],successes/count,rel_tol=0,abs_tol=1e-12),
-             'Selection summary differs from raw outcomes')
-        need(row.get('successes')==successes and row.get('episodes')==count and
-             math.isclose(row['macro_success_rate'],successes/count,rel_tol=0,abs_tol=1e-12),
-             'Selection score differs from raw outcomes')
+    signatures=[audit_development_evaluation(row,protocol,protocol_sha,resolve,evaluation)['pairing_sha256']
+                for row in rows]
     need(len(set(signatures))==1,'Recovery development candidate initial states do not pair')
     winner=sorted(rows,key=lambda row:(-Fraction(row['successes'],row['episodes']),row[field]))[0][field]
     need(record['selected_'+field]==winner,'Recovery selection violates frozen score/tie-break rule')
     return winner
+
+
+def audit_development_relationships(final,protocol,protocol_sha,resolve,evaluation):
+    """Derive OPD comparisons without trusting producer gate/override flags.
+
+    A producer may explicitly override a failed development gate. Preserve that
+    record, expose its discrepancies, and never turn the override into a gain.
+    Missing QAD reference fields can be reconstructed; wrong scores or raw
+    evidence cannot be excused by an override. This does not read held-out outcomes.
+    """
+    qad_record,record=final['qad_selection'],final['opd_selection']
+    selected={}
+    for arm,source,field in (('qad',qad_record,'learning_rate'),('qad_opd',record,'opd_weight')):
+        winner=audit_recovery_selection(source,'qad' if arm=='qad' else 'opd',protocol,protocol_sha,resolve,evaluation)
+        need(final['selected_qad_learning_rate' if arm=='qad' else 'selected_opd_weight']==winner,
+             'Final settings differ from selected recovery')
+        selected[arm]=next(row for row in source['candidates'].values() if row[field]==winner)
+    need(record.get('control_arm')==protocol['selection'].get('same_budget_control','continued_qad'),
+         'OPD development control arm differs')
+    need(isinstance(record.get('control_evaluation'),dict),'OPD development control evidence missing')
+    selected['continued_qad']=record['control_evaluation']
+    models={arm:final[key] for arm,key in (
+        ('qad','selected_qad_model_identity'),('continued_qad','selected_continued_model_identity'),
+        ('qad_opd','selected_opd_model_identity'))}
+    arms={arm:{**audit_development_evaluation(row,protocol,protocol_sha,resolve,evaluation,models[arm]),
+               'model_identity':models[arm]} for arm,row in selected.items()}
+    need(len({row['pairing_sha256'] for row in arms.values()})==1,
+         'OPD/QAD/control development initial states do not pair')
+    need(len({row['episodes'] for row in arms.values()})==1,'OPD development denominators differ')
+    scores={arm:Fraction(row['successes'],row['episodes']) for arm,row in arms.items()}
+    flags={'opd_not_below_control':scores['qad_opd']>=scores['continued_qad'],
+           'opd_beats_continued_qad':scores['qad_opd']>scores['continued_qad'],
+           'opd_beats_qad':scores['qad_opd']>scores['qad']}
+    override=record.get('opd_gate_override',False)
+    need(type(override) is bool,'OPD gate override must be a boolean')
+    if not override:
+        need(flags['opd_not_below_control'],'OPD development control gate failed without override')
+        if int(protocol.get('version',0))>=8:
+            need(flags['opd_beats_continued_qad'] and flags['opd_beats_qad'],
+                 'OPD strict development gain gate failed without override')
+    discrepancies=[]
+    if override:
+        discrepancies.append({'field':'opd_gate_override','kind':'explicit_override','recorded':True,
+            'meaning':'Gate override permits comparison; it is not evidence of improvement.'})
+    for field,expected in flags.items():
+        if field not in record:
+            need(field=='opd_beats_qad','Missing OPD development flag: '+field)
+            discrepancies.append({'field':field,'kind':'missing','derived':expected})
+        else:
+            need(type(record[field]) is bool,'OPD development flag must be a boolean: '+field)
+            if record[field]!=expected:
+                # Only the known producer bug hardcodes this flag to True.
+                need(override and field=='opd_not_below_control' and record[field] is True and expected is False,
+                     'Incorrect OPD development flag outside known producer override discrepancy: '+field)
+                discrepancies.append({'field':field,'kind':'mismatch','recorded':record[field],'derived':expected})
+    reported_scores={'continued_qad_control_score':scores['continued_qad'],
+                     'selected_opd_score':scores['qad_opd'],'qad_reference_score':scores['qad']}
+    if 'selected_qad_or_candidate_score' in record:
+        reported_scores['selected_qad_or_candidate_score']=scores['qad_opd']
+    for field,expected in reported_scores.items():
+        if field not in record:
+            need(field=='qad_reference_score','Missing OPD reported development score: '+field)
+            discrepancies.append({'field':field,'kind':'missing','derived':float(expected)})
+        else:
+            need(type(record[field]) in (int,float) and math.isfinite(record[field]) and
+                 math.isclose(record[field],float(expected),rel_tol=0,abs_tol=1e-12),
+                 'OPD reported development score differs from raw outcomes: '+field)
+    if 'qad_reference_evaluation' in record:
+        reference=audit_development_evaluation(record['qad_reference_evaluation'],protocol,protocol_sha,
+                                               resolve,evaluation,models['qad'])
+        need(reference=={k:v for k,v in arms['qad'].items() if k!='model_identity'},
+             'OPD QAD reference differs from selected QAD evidence')
+    else:
+        discrepancies.append({'field':'qad_reference_evaluation','kind':'missing',
+                              'derived_from':'final_manifest.qad_selection'})
+    if 'qad_selection_identity' in record:
+        need(json.loads(resolve(record['qad_selection_identity']).read_text())==qad_record,
+             'OPD QAD selection identity differs from final manifest')
+    else:
+        discrepancies.append({'field':'qad_selection_identity','kind':'missing',
+                              'derived_from':'final_manifest.qad_selection'})
+    if 'selected_qad_learning_rate' in record:
+        need(record['selected_qad_learning_rate']==final['selected_qad_learning_rate'],
+             'OPD QAD reference learning rate differs')
+    fractions={name:{'numerator':value.numerator,'denominator':value.denominator} for name,value in (
+        ('opd_minus_qad',scores['qad_opd']-scores['qad']),
+        ('opd_minus_continued_qad',scores['qad_opd']-scores['continued_qad']))}
+    return {'version':1,'scope':'development_only_not_heldout','protocol_sha256':protocol_sha,
+        'embedded_selection_sha256':{kind:hashlib.sha256(json.dumps(value,sort_keys=True).encode()).hexdigest()
+            for kind,value in (('qad',qad_record),('opd',record))},
+        'arms':arms,'exact_rate_differences':fractions,'derived_flags':flags,
+        'original_opd_gate_override':override,'original_record_discrepancies':discrepancies}
 
 
 def evaluation_helpers(source):
@@ -710,9 +816,7 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
         target='orchestration/inputs/'+hashlib.sha256(record['path'].encode()).hexdigest()[:20]+'-'+path.name
         evidence.add(path,target,'recovery_selection_input');return path
     evaluation=evaluation_helpers(ROOT/'eval/run_recovery_eval.py')
-    lr=audit_recovery_selection(final['qad_selection'],'qad',protocol,protocol_sha,resolve,evaluation)
-    weight=audit_recovery_selection(final['opd_selection'],'opd',protocol,protocol_sha,resolve,evaluation)
-    need(lr==final['selected_qad_learning_rate'] and weight==final['selected_opd_weight'],'Final settings differ from selected recovery')
+    selection_audit=audit_development_relationships(final,protocol,protocol_sha,resolve,evaluation)
     comparison=json.loads(resolve(final['heldout_comparison']).read_text())
     audit_final_comparison(comparison, final, protocol)
     merged={name:Path(final[key]['path']).resolve(strict=True) for name,key in (
@@ -750,6 +854,7 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
         evidence.add(verifier,'source/exp/verify_teacher_cache_cpu.py','collector_time_orchestrator_dependency')
     return {'final':final,'training':training,'merged':merged,'logs':logs,'collection':collection,'teacher':cache.parent,
             'invocations': invocations, 'invocation_summary': invocation_summary,
+            'development_selection_audit':selection_audit,
             'source_snapshots': run/'operations/opd-tail-fix/source_snapshots'}
 
 
@@ -877,6 +982,7 @@ def collect(qad_dir, qad_merged, round_dir, out, protocol_path, qad_log=None,orc
             'opd_weight':protocol['continuation']['opd_weight'],'train_seed':protocol['train_seed']}
         result['cost_scope']='Selected final three training arms. Hyperparameter-search training and development evaluations are separate and excluded from these stage costs.'
         result['recovery_provenance'] = layout['invocation_summary']
+        result['development_selection_audit'] = layout['development_selection_audit']
     # All audit checks finish before creating the output. Existing paths are never reused.
     out.mkdir(parents=True, exist_ok=False)
     for row, data in evidence.files.values():
@@ -932,11 +1038,10 @@ def verify_published(directory):
             need(bool(matches),'Missing/mismatched published selection input: '+record['path'])
             return root/matches[0]['published_path']
         evaluation=evaluation_helpers(root/'source/eval/run_recovery_eval.py')
-        lr=audit_recovery_selection(final['qad_selection'],'qad',raw_protocol,protocol_sha,resolve,evaluation)
-        weight=audit_recovery_selection(final['opd_selection'],'opd',raw_protocol,protocol_sha,resolve,evaluation)
+        selection_audit=audit_development_relationships(final,raw_protocol,protocol_sha,resolve,evaluation)
+        need(costs.get('development_selection_audit')==selection_audit,
+             'Published development selection audit differs from verified raw logs')
         audit_final_comparison(json.loads(resolve(final['heldout_comparison']).read_text()), final, raw_protocol)
-        need(lr==final['selected_qad_learning_rate'] and weight==final['selected_opd_weight'],
-             'Published final settings differ from development selection')
         # In a portable package the live repository is absent; resolve the
         # implementation identity against copied ``source/`` files.
         implementation_relative = orchestrator_source(raw_protocol, state, root/'source')
