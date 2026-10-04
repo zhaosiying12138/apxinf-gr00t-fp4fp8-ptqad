@@ -2,7 +2,9 @@
 
 APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
 
-视觉—语言—动作模型（VLA）把图像、语言和机器人状态映射为动作；本项目研究如何在 **GR00T N1.7** 上把量化推进到 W4A4，同时保持 LIBERO 闭环任务能力。方法由四个环节组成：面向 NVFP4 块缩放格式的训练后量化（PTQ）、固定二级 scale 的 NVFP4 激活 QDQ、量化基座上的低秩恢复（QAD），以及在学生访问状态上加入教师约束的 OPD。QAD/OPD 的残差始终读取原始 BF16 输入，因此不会把恢复分支再次量化。GR00T 闭环使用 Torch W4A4 数值路径验证行为恢复；APXInf 的原生算子和图执行作为独立工程验证，不把独立引擎延迟写成 GR00T 闭环结果。
+视觉—语言—动作模型（VLA）把图像、语言和机器人状态映射为动作。本项目研究 **GR00T N1.7 的全 NVFP4 W4A4 训练后量化（PTQ）→ QAD 演示适配 → OPD 教师监督**：先将可量化权重及线性层输入量化为四位，再用成功演示训练低秩修正，最后在学生访问的状态上加入教师速度监督，以恢复 LIBERO 闭环任务能力。
+
+**验证范围。** GR00T 使用 Torch QDQ（量化后反量化）模拟 W4A4 主分支，QAD/OPD 保留读取原始 BF16 输入的独立 LoRA（低秩适配）残差。APXInf 的原生 NVFP4 算子与 π0.5 图执行另作独立基准；GR00T 的 packed W4A4 原生执行尚未接入，因此其闭环成功率、目标编码压缩比和 APXInf 延迟分别报告。
 
 论文和可视化发布包是本仓库的主要入口：
 
@@ -13,27 +15,25 @@ APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
 
 ## 研究贡献
 
-1. **W4A4 PTQ。** 权重使用 NVFP4 E2M1，激活先转 F16，再按 16 元素块用 E4M3 scale 和 E2M1 格点 QDQ；二级 activation scale 固定为 1.0，各阶段训练与对应评测使用同一算术开关；恢复阶段有限 FP16 饱和修订记录在 manifest，初始 QAD 保持严格路径。
-2. **量化域恢复。** 在固定 PTQ 基座上训练低秩 QAD，再用学生访问的观测和 BF16 教师速度训练 OPD；正式部署保留冻结 base 与 A/B adapter，避免 `Wq+BA` 合并后破坏 W4A4 语义。
-3. **闭环评测。** 所有正式臂使用同一组 LIBERO-10 任务、官方初态和 episode 预算，报告逐回合结果、任务宏平均和配对身份。
-4. **APXInf 验证。** APXInf 的 NVFP4 算子、布局和图重放单独验收；它们的延迟结果不替代 GR00T 的闭环成功率。
+1. **W4A4 PTQ。** 将 GPTQ 误差补偿适配到 NVFP4 块缩放。激活先转 F16，再按 16 元素块使用 E4M3 缩放和 E2M1 格点，二级缩放固定为 1.0。各阶段训练与对应评测使用同一算术开关；初始 QAD 保持严格路径，continued-QAD/OPD 的有限 FP16 饱和修订记录在 manifest。
+2. **量化域恢复。** 冻结 PTQ 基座，在参与动作前向的 468 个普通 Linear 上训练 QAD/OPD 的 A/B 低秩参数；部署保留基座与 adapter 两条分支。词表输出层 `lm_head` 不参与动作前向，7 个类别线性层保持 W4A4 且无低秩旁路。
+3. **闭环评测。** BF16、PTQ、QAD、continued-QAD 和 QAD+OPD 使用相同任务、官方初态和回合预算。continued-QAD 匹配追加演示更新数，用来检验 OPD 教师监督的额外作用。
+4. **APXInf 验证。** 提供 NVFP4 算子、缩放布局和图重放的数值验收与计时记录。
 5. **可复现发布。** 协议、配置、权重来源、日志、图表及 17 个 Ubuntu 截图环节共同组成复现记录。
 
 ## 结果状态
 
-最终公开表只从冻结协议对应的 `final_manifest.json` 和 `paired_comparison.json` 生成。实验完成前保留“待回填”，不把开发集分数写入最终结论。
+编码预算已由量化配方与完整 adapter 清单核验。闭环成功率仍待冻结协议对应的 `final_manifest.json` 和 `paired_comparison.json` 完成后回填。
 
 | 配置 | 目标编码压缩比（去别名） | FP4／去别名可量化元素 | LIBERO-10 闭环成功率 | 备注 |
 |---|---:|---:|---:|---|
 | BF16 基线 | 1.0000× | 0% | <span style="color:#c00">待回填</span> | 同一 v11 bank、同一 episode 协议 |
-| 全 NVFP4 PTQ + W4A4 | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | <span style="color:#c00">待回填</span> | 469 个普通 Linear 与 7 个 CategorySpecificLinear 进入 W4A4 QDQ；3 个 embedding/位置参数仅有 NVFP4 权重 |
-| PTQ + QAD（W4A4 基座） | <span style="color:#c00">待回填（含 BF16 adapter）</span> | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | `base(QA(x)) + BF16 LoRA(x)` |
-| continued-QAD 对照 | <span style="color:#c00">待回填（含 BF16 adapter）</span> | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | 与 OPD 使用相同追加更新预算 |
-| PTQ + QAD + OPD（W4A4 基座） | <span style="color:#c00">待回填（含 BF16 adapter）</span> | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | 学生访问状态上的教师速度蒸馏 |
+| 全 NVFP4 PTQ + W4A4 | 3.5460× | 100% | <span style="color:#c00">待回填</span> | 469 个普通 Linear 与 7 个 CategorySpecificLinear 进入 W4A4 QDQ；3 个 embedding/位置参数仅有 NVFP4 权重 |
+| PTQ + QAD（W4A4 基座） | 3.2762×（含 BF16 adapter） | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | `base(QA(x)) + BF16 LoRA(x)` |
+| continued-QAD 对照 | 3.2762×（含 BF16 adapter） | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | 与 OPD 使用相同追加更新预算 |
+| PTQ + QAD + OPD（W4A4 基座） | 3.2762×（含 BF16 adapter） | 同 PTQ 基座 | <span style="color:#c00">待回填</span> | 学生访问状态上的教师速度蒸馏 |
 
-压缩比以去别名后的 BF16 模型权重字节数为分子，以目标编码中的 NVFP4 权重、E4M3 block scale、FP32 secondary scale、未量化张量及 BF16 adapter 的总字节数为分母。恢复臂多了 adapter，净压缩比不能照抄 PTQ 基座。成功率从 v11 的 `final_manifest.json` 所绑定的配对评测读取，压缩预算从同一模型的量化清单和 adapter 清单计算；快速 smoke 分数不会写入这张表。正式结果另附十任务逐任务分子/分母、160 回合总数和训练预算。
-
-本文 GR00T 路径是 **数值 W4A4 仿真**：普通 NVFP4 base 的输入激活使用固定 scale 的 QDQ，QAD/OPD 残差以 BF16 保留。当前 GR00T 原生 executor 尚未提供与 APXInf π0.5 相同的 packed W4A4 loader，因此本文不把这条 Torch QDQ 路径称为原生 APXInf GR00T kernel；原生加速只在独立算子和 π0.5 图执行基准中报告。
+压缩比以去别名后的 BF16 权重 **6,288,032,000 字节**为基准。PTQ 编码占 **1,773,292,508 字节**，含 NVFP4 数据、E4M3 块缩放、FP32 二级缩放和未量化张量；恢复臂再计入 **145,997,824 字节**的完整 BF16 adapter，共 **1,919,290,332 字节**。训练 A/B 以 FP32 保存，表中按评测时的 BF16 部署计账。NVFP4 覆盖全部可量化元素，占去别名后源模型全部元素的 **99.9065%**。这些是目标编码预算，不能代替当前稠密 checkpoint 文件大小或实测显存。正式闭环结果另附十任务逐任务分子/分母、每臂 160 回合记录和训练预算。
 
 ## 运行环境
 
@@ -145,11 +145,9 @@ PTQAD_GPU_EXCLUSIVE=1 \
   bash exp/run_native_graph_gates.sh "$PROJECT/results/native_graph_new_run"
 ```
 
-原生算子结果与 GR00T PyTorch 闭环结果分开报告；不要用单个 GEMM 延迟推断闭环成功率。
-
 ## Ubuntu 运行截图
 
-论文保留全部 17 个紫色 Ubuntu 终端截图环节。当前审阅稿展示 11 张已核对的截图，另外 6 个环节等待本轮 W4A4 实拍，以文字占位；正式稿将补齐 17 张。每张实拍对应真实命令，原始日志和 SHA-256 保存在 [截图清单](paper/evidence/captures.json)；未更新的内部资产不作为本轮实验依据。
+论文保留全部 17 个紫色 Ubuntu 终端截图环节。当前审阅稿展示 12 张已核对的截图，另外 5 个环节等待本轮 W4A4 实拍，以文字占位；正式稿将补齐 17 张。每张实拍对应真实命令，原始日志和 SHA-256 保存在 [截图清单](paper/evidence/captures.json)；未更新的内部资产不作为本轮实验依据。
 
 | 阶段 | 运行证据 |
 |---|---|
@@ -219,8 +217,6 @@ uv run --with-requirements paper/requirements-build.txt python paper/package_pub
 
 ## 总结
 
-本项目把 GR00T N1.7 的全覆盖 NVFP4 W4A4 PTQ、冻结基座上的 QAD 低秩恢复，以及学生访问状态上的 OPD 教师监督，组织成一条可复现的闭环实验链。量化主分支始终执行 W4A4 数值契约，恢复分支保留原始 BF16 输入；continued-QAD 作为同预算对照，用来区分追加训练和 OPD 教师监督的作用。最终结论只从同一 v11 协议下的五臂 held-out 逐回合记录、配对统计和编码预算得出。APXInf 原生算子与图执行结果单独报告，不替代 GR00T 的闭环成功率。安装、训练、评测、截图和论文构建均有脚本与证据索引，便于复核每一步的输入、输出和版本身份。
-
-本仓库把 NVFP4 W4A4 数值契约、模块级 PTQ、QAD/OPD 恢复和 LIBERO 闭环评测放在同一条复现链路中。读者可以从 HTML 和知乎稿阅读方法，从 v11 协议运行实验，从逐回合日志核对结果，并从 Ubuntu 截图确认关键步骤。
+本仓库提供从 NVFP4 校准、QAD/OPD 恢复到 LIBERO 闭环评测的完整复现入口。论文解释方法，脚本执行实验，逐回合日志、编码账本和 Ubuntu 截图提供核查依据；最终效果以冻结协议下的五臂评测为准。
 
 第三方代码、模型权重和数据遵循各自上游许可证。项目自身许可证将在正式发布时确定。

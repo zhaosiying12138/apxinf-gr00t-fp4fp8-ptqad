@@ -28,9 +28,8 @@
     "swizzle_layout"
   ],
   "screenshot_slots": 17,
-  "screenshots": 11,
+  "screenshots": 12,
   "screenshot_refresh_pending": [
-    "shot_bake",
     "shot_evalserver",
     "shot_opd",
     "shot_opdcache",
@@ -38,9 +37,9 @@
     "shot_rollout"
   ],
   "meta_sha256": "624b2568e5e673b721189321d3155cbbb18d65b801175ab7db9335275e7d9364",
-  "html_sha256": "0c8e67bfb13d6a28110e66456c82ff0528577feb6a3d9a79abde2ca69a169856",
+  "html_sha256": "2ea8fc6978de0e62d9b892e4a1f321341e524b1b2bbc987c6eb601a462348116",
   "qa_script_sha256": "4dc0329af03f7e9b8e8a61545c0265c698645dd818b2fa4676a1ffc4fda3c632",
-  "figures_manifest_sha256": "3058a5fea4a70ac73025187480c759d9d770dc5ca70526b8a602c8bcafabaf48",
+  "figures_manifest_sha256": "76ddbb1e62de8dccda0e5aa91b1f40ba28b9e8d6500fe8169aa4fa783686f0a4",
   "svg_sha256": {
     "budget_ladder": "0e92fa7dac3489346c64589ff56ce630d06562d6668ca4b1bf0225b6743a006b",
     "e1_latency": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
@@ -57,7 +56,7 @@
     "ladder": "fadb8174654a3792db4ee8092db9d388db55b4b00297b0753cd443c05ea07c2d",
     "ptq_frontier": "20eebbd47e18e4484e043b927debe99a893a38bfe4976cc6afe1706c0624669d",
     "recovery_protocol": "950909be8dea50bd7d42c0f0834b55d79d4fc62f71c1e2b43516e330059acc1b",
-    "shot_bake": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
+    "shot_bake": "60abac3df423856939ae7e2fdde74645fa80328cca57beec4b497bfd930003d8",
     "shot_collect": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
     "shot_evalserver": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf",
     "shot_fp8probe": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
@@ -107,7 +106,6 @@
       "swizzle_layout"
     ],
     "pendingNames": [
-      "shot_bake",
       "shot_evalserver",
       "shot_opd",
       "shot_opdcache",
@@ -115,12 +113,17 @@
       "shot_rollout"
     ],
     "diagramCount": 7,
-    "mathCount": 276,
+    "mathCount": 272,
     "mathErrors": 0,
     "svgOverflow": [],
     "decoded": [
       {
         "figure": "shot_collect",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_bake",
         "width": 3840,
         "height": 2280
       },

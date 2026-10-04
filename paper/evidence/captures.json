@@ -17,12 +17,12 @@
         "verified": true,
         "scope": "Terminal content, command identity, theme and overlays manually inspected"
       },
-      "sha256": "38e0fe6548cc913fbefd13892f663fd4b9861ba8f1cc3fa1cc7d2875b3236519",
+      "sha256": "60abac3df423856939ae7e2fdde74645fa80328cca57beec4b497bfd930003d8",
       "dimensions": [
         3840,
         2280
       ],
-      "captured_at": "2026-09-29T08:44:43.3517424Z",
+      "captured_at": "2026-10-04T07:29:12.4776001Z",
       "exit_status": 0,
       "capture_status": "accepted_not_black",
       "image_quality": {
@@ -34,20 +34,20 @@
         "near_black_rgb_max": 12,
         "rejection_fraction_threshold": 0.98,
         "near_black_fraction": 0.0003392041748206132,
-        "mean_luminance": 53.34557540501501,
+        "mean_luminance": 38.444717184605615,
         "maximum_luminance": 254.99999999999997,
         "accepted_not_black": true,
         "limitation": "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
       },
       "image_processing": "taskbar crop only",
       "raw_log": "evidence/captures/shot_bake.log",
-      "raw_log_sha256": "5efc18bbcdc0e01dd31d8b221fac131721c6d902643a95bb261bf10794d41820",
+      "raw_log_sha256": "7fb61c7c29322552903cc27879a6174c6ac0d4006b32e22da63b4e88335fc04a",
       "script": "evidence/captures/shot_bake.sh",
-      "script_sha256": "fbf4d4fdb4516d5b66ecf4e4af578dcd5c04ecfa5d9b196b05e8427ee0be678d",
+      "script_sha256": "1c8dd84f69431ff63ca8892ebc66bc7d1604dd563816478b97a160aa9c7e8b0f",
       "capture_sidecar": "evidence/captures/shot_bake.capture.json",
-      "capture_sidecar_sha256": "af7d089982e567ed65cec66bdb9c98a9c5c7dbfabcdcd35cd958203235f1433f",
+      "capture_sidecar_sha256": "904b9e9b35b30e09e0533e7c7fdc0f93eaf50231840e9beecba088ac2949586d",
       "crop_manifest": "evidence/captures/shot_bake.crop.json",
-      "crop_manifest_sha256": "1c13f25eff45cc1fc150d314c55b97170353c51242e037205fd3f406b477a057"
+      "crop_manifest_sha256": "b6594206be1622531d526cc4abb99cec12bcdb572f332b71b2ca4afa719c9b3f"
     },
     {
       "figure": "shot_collect",

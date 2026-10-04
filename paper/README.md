@@ -2,9 +2,9 @@
 
 主稿：**PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与 QAD/OPD 闭环恢复**。
 
-- `paper.html`：单文件离线阅读版，包含公式、字体、图表和 17 个截图环节；已完成截图可点击放大，当前未完成的环节会在正式发布前由同一协议的实拍证据替换。
+- `paper.html`：单文件离线阅读版，包含公式、字体、图表和 17 个截图环节；已完成截图可点击放大。
 - `zhihu/article.md`：与 HTML 共用正文的 Markdown 发表稿，代码块和 LaTeX 公式完整保留。
-- `zhihu/images/`：正文技术图、数据图与运行截图；截图来源、哈希和待更新状态见 `figures.json`、`evidence/captures.json` 与 `evidence/retained_captures.json`。正式校验将两份清单合并为 15 张当前截图加 2 张经批准保留的 BF16 截图，共 17 张。
+- `zhihu/images/`：技术图、数据图与运行截图。`figures.json` 记录图位及更新状态；`evidence/captures.json` 与 `evidence/retained_captures.json` 记录来源和哈希，正式校验合并 15 张当前截图与 2 张经批准保留的 BF16 截图。
 - `sections/`：唯一正文源；修改正文后重建两种格式，避免手动修改生成文件。
 - `evidence/`：本文实验的结果数组、配置、运行日志、来源散列与截图清单。
 - `validation/`：发布完整性与浏览器排版校验报告。
@@ -29,12 +29,12 @@ uv run --with-requirements paper/requirements-build.txt python paper/validate_pu
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
-当前审阅稿使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成。它保留全部 17 个截图环节，展示 11 张已核对截图，另 6 个环节以文字占位等待本轮实拍；旧画面不进入 HTML、知乎稿或审阅 ZIP，内部原始文件保留至替换。红色 `xxx` 标出尚未完成的结果。这是结构审阅用的离线预览，不是正式发布。`validate_publication.py` 会按设计拒绝含有这些占位符的审阅稿；补齐本轮截图、解除对应的 `refresh_pending` 标记并回填完整结果后，再执行上面的正式构建、验证和打包流程。
+当前审阅稿使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成：展示 12 张已核对截图，另 5 个环节以文字占位等待本轮实拍；旧画面只在内部保留，红色 `xxx` 表示结果未完成。正式发布前须回填完整结果、实拍替换五图并解除对应的 `refresh_pending` 标记，再执行上述构建流程。`validate_publication.py` 会拒绝仍含占位的审阅稿。
 
 `make_figs.py` 从结果 JSON 读取图表数值，并验证缩放地址映射。截图文件不会由构建脚本改写。`validate_publication.py` 核对已审验截图的 SHA-256、全部图位、代码块、图像路径和离线资源完整性。
 
-浏览器排版验证使用 `qa_browser.cjs`；结果写入 `validation/browser-validation.json`，预览截图保存在不入库的 `_build/`。本机使用 Node.js 22.22.1；较新的 Ubuntu 上运行本轮 Playwright 时设置了 `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64`。数据图需要完整的本轮配对结果与原生执行记录；缺少输入时构建会报错。必须先生成 HTML/Markdown，再运行浏览器检查，最后验证和打包，不能用过期的浏览器检查替代新稿验收。
+`qa_browser.cjs` 将排版报告写入 `validation/browser-validation.json`，预览截图保存在不入库的 `_build/`。参考环境为 Node.js 22.22.1；本机 Playwright 使用 `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64`。数据图依赖完整配对结果和原生执行记录。每次改稿都按“生成 HTML/Markdown → 浏览器检查 → 验证 → 打包”的顺序重建。
 
 ## 发表
 
-先阅读 `zhihu/README.md`。知乎端的图片上传和公式处理取决于编辑器当前行为；本包提供 Markdown 与本地原图，不声称本地相对路径会自动成为知乎托管图片。本次交付不自动发表文章。
+先阅读 `zhihu/README.md`。发布包提供 Markdown 与本地原图；在知乎编辑器中上传图片并检查公式后，再手动发表。
