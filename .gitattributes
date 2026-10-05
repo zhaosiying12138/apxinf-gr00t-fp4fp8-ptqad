@@ -1,0 +1,3 @@
+# Evidence and producer source files are linked by byte-level SHA-256 receipts.
+# Preserve their original line endings on every checkout, including Windows.
+* -text

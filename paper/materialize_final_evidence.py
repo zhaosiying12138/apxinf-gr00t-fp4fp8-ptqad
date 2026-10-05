@@ -3,7 +3,8 @@
 
 The command is deliberately downstream of the experiment.  It refuses an
 incomplete run, copies the paired heldout JSON byte-for-byte through
-``collect_pairing_evidence``, records the selected category/PTQ provenance,
+``collect_pairing_evidence`` and all fifty rollout/server log pairs, replays
+the existing evaluation parser, records the selected category/PTQ provenance,
 and optionally builds or copies the CPU-only training-cost evidence.  It never
 edits the run directory, ``paper/evidence`` or the raw JSON paths embedded in
 the copied files.
@@ -86,6 +87,76 @@ def _copy_tree(source: Path, target: Path, mapping: list[dict[str, Any]], role: 
     for file in files:
         relative = file.relative_to(source)
         _copy_file(file, target / relative, mapping, role)
+
+
+def audit_heldout_raw_logs(folder: Path) -> dict[str, dict[str, Any]]:
+    """Bind complete task JSON to raw bytes using the actual evaluation parser.
+
+    This checks receipts only: it neither launches inference nor implements a
+    second scoring/reset parser. Summary and paired statistics remain owned by
+    collect_pairing_evidence/compare_round.
+    """
+    from run_recovery_eval import TASKS, parse_log, validate_resets
+    folder = Path(folder)
+    files: dict[str, dict[str, Any]] = {}
+    for arm in collect_pairing_evidence.ARMS:
+        arm_folder = folder / ('heldout_' + arm)
+        manifest = json.loads((arm_folder / 'eval_manifest.json').read_text())
+        results = json.loads((arm_folder / 'task_results.json').read_text())
+        require(manifest.get('tasks') == TASKS and set(results) == set(TASKS),
+                f'Raw heldout evidence must contain all ten official tasks: {arm}')
+        for index, task in enumerate(TASKS):
+            row = results[task]
+            require(isinstance(row, dict), f'Invalid raw task receipt: {arm}/{task}')
+            expected_seed = manifest['seed'] + 1000 * index
+            require(type(row.get('returncode')) is int and row['returncode'] == 0 and
+                    row.get('seed') == expected_seed,
+                    f'Incomplete raw task receipt: {arm}/{task}')
+            for suffix in ('.log', '.server.log'):
+                relative = f'heldout_{arm}/{task}{suffix}'
+                path = folder / relative
+                require(path.is_file() and not path.is_symlink() and path.stat().st_size > 0,
+                        f'Missing nonempty raw heldout log: {relative}')
+                receipt = identity(path)
+                files[relative] = {key: receipt[key] for key in ('bytes', 'sha256')}
+            log = arm_folder / (task + '.log')
+            parsed = parse_log(log)
+            require(parsed['log_sha256'] == row.get('log_sha256') ==
+                    files[f'heldout_{arm}/{task}.log']['sha256'],
+                    f'Raw rollout log hash differs from task receipt: {arm}/{task}')
+            require(all(key in row and row[key] == value for key, value in parsed.items()),
+                    f'Raw rollout parse differs from task receipt: {arm}/{task}')
+            require(parsed['episodes'] == manifest['episodes'],
+                    f'Raw rollout episode count differs from manifest: {arm}/{task}')
+            validate_resets(parsed, expected_seed, manifest['init_state_indices'])
+    return files
+
+
+def _materialize_heldout_raw_logs(round_dir: Path, pair_dir: Path, protocol_path: Path,
+                                 mapping: list[dict[str, Any]]) -> dict[str, Any]:
+    """Copy the fixed fifty rollout/server pairs and record collector-time hashes."""
+    import run_recovery_eval
+    expected = audit_heldout_raw_logs(round_dir)
+    for relative, recorded in expected.items():
+        _copy_file(round_dir / relative, pair_dir / relative, mapping,
+                   'verified_heldout_server_log' if relative.endswith('.server.log')
+                   else 'verified_heldout_rollout_log')
+        require({key: mapping[-1]['source'][key] for key in ('bytes', 'sha256')} == recorded,
+                f'Raw heldout log changed during copy: {relative}')
+    require(audit_heldout_raw_logs(pair_dir) == expected,
+            'Copied raw heldout logs do not reproduce the source task receipts')
+    parser = identity(Path(run_recovery_eval.__file__))
+    parser['path'] = 'eval/run_recovery_eval.py'
+    report = {'version': 1, 'status': 'complete', 'protocol_sha256': digest(protocol_path),
+              'source_round': str(round_dir), 'parser': parser,
+              'parser_functions': ['parse_log', 'validate_resets'], 'files': expected,
+              'scope': 'Fifty rollout and fifty server logs copied byte-for-byte. Rollout hashes '
+                       'and parsed results/reset records match original task_results.json. Server '
+                       'hashes are recorded at collection time; no launch-time server hash is inferred.'}
+    path = pair_dir / 'heldout_raw_logs.json'
+    with path.open('x', encoding='utf-8') as stream:
+        stream.write(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
+    return {'path': 'evidence/heldout_raw_logs.json', 'bytes': path.stat().st_size, 'sha256': digest(path)}
 
 
 def _selected_recipe_sources(final: dict[str, Any]) -> list[tuple[Path, str]]:
@@ -219,13 +290,14 @@ def materialize(final_manifest: str | Path, out: str | Path,
         # Keep the published layout compatible with the paper validator and
         # compare_recovery: paired_comparison.json and heldout_<arm>/ live
         # directly under evidence/.  The source run remains nested below its
-        # heldout_round directory; only the verified JSON mirrors are copied.
+        # heldout_round directory; raw log bytes retain their original names.
         pair_dir = stage / "evidence"
         collect_pairing_evidence.collect(round_dir, pair_dir, str(protocol_path))
         for name in collect_pairing_evidence.NAMES:
             mapping.append({"source": identity(round_dir / name),
                             "published_path": str(pair_dir / name),
                             "role": "verified_heldout_pairing_copy"})
+        raw_logs = _materialize_heldout_raw_logs(round_dir, pair_dir, protocol_path, mapping)
 
         costs = _materialize_training(stage, final_path, protocol_path, orchestrator_run,
                                       training_evidence, mapping)
@@ -236,7 +308,8 @@ def materialize(final_manifest: str | Path, out: str | Path,
             if path_value.is_absolute():
                 row["published_path"] = str(path_value.relative_to(stage))
         manifest = {"version": 1, "status": "complete",
-                    "scope": "complete final manifest; heldout pairing; selected recipe metadata; verified training costs",
+                    "scope": "complete final manifest; heldout pairing and raw logs; selected recipe metadata; verified training costs",
+                    "heldout_raw_logs_manifest": raw_logs,
                     "source_final_manifest": final_results["source"],
                     "selected_recipe": final_results["selected_recipe"],
                     "files": mapping,
@@ -266,7 +339,7 @@ def materialize(final_manifest: str | Path, out: str | Path,
             "development_selection_audit_included":
                 isinstance(costs.get("development_selection_audit"), dict),
             "development_scores_scope": "audit_only_not_public_main_results",
-            "files": len(mapping) + 2}
+            "files": len(mapping) + 3}
 
 
 def main() -> int:

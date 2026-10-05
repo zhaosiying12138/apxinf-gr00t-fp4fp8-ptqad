@@ -1,0 +1,38 @@
+[robosuite WARNING] No private macro file found! (__init__.py:7)
+[robosuite WARNING] It is recommended to use a private macro file (__init__.py:8)
+[robosuite WARNING] To setup, run: python /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/robosuite/scripts/setup_macros.py (__init__.py:9)
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[Warning]: datasets path /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/../datasets does not exist!
+Running collecting 4 episodes for libero_sim/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket with 1 vec envs
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket", "episode_index": 0, "seed": 957000, "task_id": 7, "init_state_index": 20, "init_state_bank_size": 50, "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc", "restored_state_sha256": "f7bc0934e7e293a6a0766c7b475340ee7491ec8854b986d8498320aadd6f5369", "settle_steps": 10, "initial_state_sha256": "ca84c94ee4861d5d3ea629a6b298753f20135699eca06995cd4c3eea40088b0c"}
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `reset()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:240: UserWarning: [33mWARN: Casting input x to numpy array.[0m
+  gym.logger.warn("Casting input x to numpy array.")
+Episodes:   0%|          | 0/4 [00:00<?, ?it/s]/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `step()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket", "episode_index": 1, "seed": 957001, "task_id": 7, "init_state_index": 21, "init_state_bank_size": 50, "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc", "restored_state_sha256": "f074e7906fa9e43a51a8b324f3d3fe7e16ff19d95f4046d8559b45542ca69e5a", "settle_steps": 10, "initial_state_sha256": "8ef4661f8e86117037cab02987b3d1e3c29f505289f91c1f473b1c17176cc2b3"}
+Episodes:  25%|██▌       | 1/4 [00:30<01:32, 30.91s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket", "episode_index": 2, "seed": 957002, "task_id": 7, "init_state_index": 22, "init_state_bank_size": 50, "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc", "restored_state_sha256": "a869a3c7b9d7169ffa58bfa187852119396ea72609de1983e02670a0e4831e79", "settle_steps": 10, "initial_state_sha256": "1cb3794a10f4c43069ab2335f12d45c8677463e13c4c7087b1f8a0877d7246ee"}
+Episodes:  50%|█████     | 2/4 [00:59<00:59, 29.75s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket", "episode_index": 3, "seed": 957003, "task_id": 7, "init_state_index": 23, "init_state_bank_size": 50, "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc", "restored_state_sha256": "422ddef14dd0806036dab04781ec0afb4f2c91aaf893842140936ecbb479bba7", "settle_steps": 10, "initial_state_sha256": "525bccd7ba4eb1d284c951271c396da3183977b9c63512f225ac1b63bd1077ac"}
+Episodes:  75%|███████▌  | 3/4 [01:25<00:28, 28.06s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket", "episode_index": 4, "seed": 957004, "task_id": 7, "init_state_index": 20, "init_state_bank_size": 50, "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc", "restored_state_sha256": "f7bc0934e7e293a6a0766c7b475340ee7491ec8854b986d8498320aadd6f5369", "settle_steps": 10, "initial_state_sha256": "dba5b4828a50a81832272a528166d4548de315c3ee7a18ed7202fb62144c75b8"}
+Episodes: 100%|██████████| 4/4 [01:52<00:00, 27.60s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket", "episode_index": 5, "seed": 957005, "task_id": 7, "init_state_index": 21, "init_state_bank_size": 50, "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc", "restored_state_sha256": "f074e7906fa9e43a51a8b324f3d3fe7e16ff19d95f4046d8559b45542ca69e5a", "settle_steps": 10, "initial_state_sha256": "96e488bff088b1c4ece2e5ba62498fac18ffd92c7181b165e33f4c02eec476a0"}
+Episodes: 100%|██████████| 4/4 [01:54<00:00, 28.68s/it]
+Collecting 4 episodes took 119.46927165985107 seconds
+Video saved to:  /home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_teacher_supervision/videos/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket
+results:  ('libero_sim/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket', [True, True, True, True], {'episode_lengths': [282, 274, 242, 255], 'episode_rewards': [1.0, 1.0, 1.0, 1.0]})
+success rate:  1.0

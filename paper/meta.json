@@ -1,6 +1,6 @@
 {
-  "title": "PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与 QAD/OPD 闭环恢复",
-  "meta": "APXInf 生态下 GR00T 的全 NVFP4 W4A4 PTQ、QAD/OPD 恢复与 LIBERO 闭环评测",
-  "date": "2026-10-02",
-  "status": "v11 W4A4 category 结构审阅稿：最终五臂评测完成后回填结果并验收"
+  "title": "PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与行为适配",
+  "meta": "块缩放 PTQ、QAD/OPD 低秩适配与 LIBERO 五臂闭环评测",
+  "date": "2026-10-06",
+  "status": "v11 W4A4 完整五臂评测与发布证据已核验"
 }

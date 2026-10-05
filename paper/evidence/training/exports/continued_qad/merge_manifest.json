@@ -1,0 +1,2007 @@
+{
+  "export_version": "base-anchored-additive-v2",
+  "base": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+  "training_checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_continued_qad/checkpoint-2000",
+  "rank": 32,
+  "alpha": 64.0,
+  "metadata_source": "base",
+  "base_tensor_count": 1031,
+  "training_tensor_count": 1966,
+  "lora_pairs": 468,
+  "retained_base_only_keys": [
+    "backbone.model.lm_head.weight"
+  ],
+  "storage": "dense original-base dtype; BF16 residual merged without requantization",
+  "numerical_note": "Dense casting introduces final rounding; this is not an assertion of bitwise identity to a separate low-rank branch.",
+  "w4a4_note": "If recovery_manifest.w4a4_enabled is true, formal deployment must load base and A/B separately; this dense export is retained for diagnostics only.",
+  "recovery_manifest_source": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_continued_qad/checkpoint-2000/recovery_manifest.json",
+  "recovery_manifest_sha256": "bb01d6b3db8258e2d71a88390d6fdfc5667cdc8c133a2d79025b1ca89faa5b4b",
+  "recovery_manifest": {
+    "version": 1,
+    "base": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+    "rank": 32,
+    "alpha": 64.0,
+    "scope": "all_ordinary_linear",
+    "architecture": {
+      "language_layers": 16,
+      "dit_layers": 32,
+      "vl_layers": 4
+    },
+    "parameter_dtype": "torch.float32",
+    "compute_dtype": "bfloat16",
+    "base_config_sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+    "base_statistics_sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+    "base_recipe_sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
+    "base_category_recipe_sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+    "base_category_manifest_sha256": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
+    "initial_adapter": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000",
+    "optimizer_resumed": false,
+    "probe_weight": 0.0,
+    "probe_every": 4,
+    "probe_cache": null,
+    "probe_cache_sha256": null,
+    "probe_action_mask": null,
+    "objective": "demo flow loss",
+    "activation_format": "NVFP4",
+    "execution_mode": "W4A4 numerical QDQ + BF16 LoRA residual",
+    "w4a4_enabled": true,
+    "normalization": "frozen base statistics",
+    "seed": 20261003,
+    "max_grad_norm": 0.25,
+    "f16_activation_saturation": true,
+    "train_seed": 20261003,
+    "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
+    "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+    "capture_dataset": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_teacher_supervision",
+    "capture_dataset_sha256": "67fb84ea77bedd2197cf666dada80aa47eb556539029125268885f79c019bb85",
+    "capture_dataset_samples": 148,
+    "activation_checkpointing": {
+      "implementation": "torch.non_reentrant_per_block",
+      "blocks": {
+        "language": 16,
+        "dit": 32,
+        "vl": 4
+      },
+      "preserve_rng_state": true,
+      "eval_mode_gradients_supported": true,
+      "kv_cache": false,
+      "parameter_dtypes_changed": false
+    },
+    "recovery_source_sha256": {
+      "rl/lora_qad.py": "b6f75b7a81cc24219982390f20534e5b7336e41c5e5237ef5052518c1752a288",
+      "rl/probe_distill.py": "b745beb9ca498637d0dadc54c4f162235b96a66fae187d86f269e8b488d4950d",
+      "rl/lora_scope.py": "f75acbc121e35158ffdae83e8a08ce331844adfbfa248b780d7422113380642e",
+      "rl/recovery_batch.py": "ba14aa6ad2eaff8259b7e306a705cb1ecd507de4d1fa42e4d33e9fb3f0e6495e",
+      "rl/gr00t_runtime.py": "92f61fd9d36c68136394095ac151df46255b9f3308b18efc81b4426d057e1fa0",
+      "rl/activation_checkpoint.py": "d29938bffac2566e567bc758c8dc1999743a3f33f1df77ad94b61eb1ddd45ff6",
+      "rl/runtime_metrics.py": "7db4128201f7bfa78a5f745ce8a0d1942e86219e6d90108499ceb1e76ac3b3a3",
+      "rl/w4a4_lora.py": "fea047ea9fe2a490e91cb6169774bca2ce3124275097b13b01bd8c9b6b53809a",
+      "quant/native_activation.py": "f2d4c977f907c9637c555894a9fb9ab20767f00ed07b490008a9bdc6099384ff"
+    },
+    "micro_batch": 1,
+    "gradient_accumulation_steps": 16,
+    "effective_global_batch": 16,
+    "upstream_global_batch_size_cli": 1,
+    "trainable_parameters": 72998912,
+    "lora_linear_modules": 468,
+    "budget_note": "Equal continuation demo examples/optimizer steps; OPD adds probe forward/backward compute"
+  },
+  "base_ptq_recipe_sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
+  "base_bake_manifest_sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef",
+  "base_weights": {
+    "model-00001-of-00002.safetensors": {
+      "bytes": 4990519232,
+      "sha256": "d56aee188feaa4275f780852a218a1998180556fe49c2032ac30f969c1b9f5c9"
+    },
+    "model-00002-of-00002.safetensors": {
+      "bytes": 1919980184,
+      "sha256": "69ff092038067087d178be66c69b2f6e27b25105e76023d259015c17ca40ef71"
+    }
+  },
+  "training_weights": {
+    "model-00001-of-00003.safetensors": {
+      "bytes": 4993510800,
+      "sha256": "5e2b8d29ea85896fae7b5d5b89a4a7c43b7802df84f2c773052ca7e2b88ad739"
+    },
+    "model-00002-of-00003.safetensors": {
+      "bytes": 4981458392,
+      "sha256": "b8ff2ebfa832284a47e3cc873d5a4680d60d9f1f020c0d72a1740cf1270f231f"
+    },
+    "model-00003-of-00003.safetensors": {
+      "bytes": 2893354536,
+      "sha256": "ab81981ad15b786e2342f05b6fcf27835095b3deab677f0694431e3bc79e0708"
+    }
+  },
+  "implementation_sha256": "2c4d8de29e0ad30a2607b6e8f8109c29454deb96a986de05f99b478cd5dca372",
+  "frozen_tensors_verified": 1030,
+  "output_tensor_bytes": 6910361856,
+  "output_dtype_parameter_counts": {
+    "torch.bfloat16": 3455180928
+  },
+  "residuals": {
+    "action_head.model.timestep_encoder.timestep_embedder.linear_1.weight": {
+      "rms": 0.0015564353670924902,
+      "relative_frobenius": 0.04976008087396622
+    },
+    "action_head.model.timestep_encoder.timestep_embedder.linear_2.weight": {
+      "rms": 0.0010476128663867712,
+      "relative_frobenius": 0.07295472174882889
+    },
+    "action_head.model.transformer_blocks.0.attn1.to_k.weight": {
+      "rms": 0.0010950230062007904,
+      "relative_frobenius": 0.06797248870134354
+    },
+    "action_head.model.transformer_blocks.0.attn1.to_out.0.weight": {
+      "rms": 0.0006568119279108942,
+      "relative_frobenius": 0.048845428973436356
+    },
+    "action_head.model.transformer_blocks.0.attn1.to_q.weight": {
+      "rms": 0.0007326106424443424,
+      "relative_frobenius": 0.04101356491446495
+    },
+    "action_head.model.transformer_blocks.0.attn1.to_v.weight": {
+      "rms": 0.0006667535053566098,
+      "relative_frobenius": 0.05732336267828941
+    },
+    "action_head.model.transformer_blocks.0.ff.net.0.proj.weight": {
+      "rms": 0.0013160951202735305,
+      "relative_frobenius": 0.07878098636865616
+    },
+    "action_head.model.transformer_blocks.0.ff.net.2.weight": {
+      "rms": 0.0007126841228455305,
+      "relative_frobenius": 0.05569445341825485
+    },
+    "action_head.model.transformer_blocks.0.norm1.linear.weight": {
+      "rms": 0.0018134352285414934,
+      "relative_frobenius": 0.11181733012199402
+    },
+    "action_head.model.transformer_blocks.1.attn1.to_k.weight": {
+      "rms": 0.001050533726811409,
+      "relative_frobenius": 0.05269020050764084
+    },
+    "action_head.model.transformer_blocks.1.attn1.to_out.0.weight": {
+      "rms": 0.0012763453414663672,
+      "relative_frobenius": 0.05667249113321304
+    },
+    "action_head.model.transformer_blocks.1.attn1.to_q.weight": {
+      "rms": 0.0005686610238626599,
+      "relative_frobenius": 0.029195312410593033
+    },
+    "action_head.model.transformer_blocks.1.attn1.to_v.weight": {
+      "rms": 0.0006404439336620271,
+      "relative_frobenius": 0.038844943046569824
+    },
+    "action_head.model.transformer_blocks.1.ff.net.0.proj.weight": {
+      "rms": 0.0011425670236349106,
+      "relative_frobenius": 0.06538105756044388
+    },
+    "action_head.model.transformer_blocks.1.ff.net.2.weight": {
+      "rms": 0.0005952356732450426,
+      "relative_frobenius": 0.039338111877441406
+    },
+    "action_head.model.transformer_blocks.1.norm1.linear.weight": {
+      "rms": 0.0009934443514794111,
+      "relative_frobenius": 0.054736800491809845
+    },
+    "action_head.model.transformer_blocks.10.attn1.to_k.weight": {
+      "rms": 0.0008008297882042825,
+      "relative_frobenius": 0.04117247834801674
+    },
+    "action_head.model.transformer_blocks.10.attn1.to_out.0.weight": {
+      "rms": 0.0008317722822539508,
+      "relative_frobenius": 0.04251478239893913
+    },
+    "action_head.model.transformer_blocks.10.attn1.to_q.weight": {
+      "rms": 0.0009909527143463492,
+      "relative_frobenius": 0.05384286120533943
+    },
+    "action_head.model.transformer_blocks.10.attn1.to_v.weight": {
+      "rms": 0.0006562079070135951,
+      "relative_frobenius": 0.03396381065249443
+    },
+    "action_head.model.transformer_blocks.10.ff.net.0.proj.weight": {
+      "rms": 0.0008484154823236167,
+      "relative_frobenius": 0.046850502490997314
+    },
+    "action_head.model.transformer_blocks.10.ff.net.2.weight": {
+      "rms": 0.0005694351275451481,
+      "relative_frobenius": 0.056290365755558014
+    },
+    "action_head.model.transformer_blocks.10.norm1.linear.weight": {
+      "rms": 0.0008802969241514802,
+      "relative_frobenius": 0.048442427068948746
+    },
+    "action_head.model.transformer_blocks.11.attn1.to_k.weight": {
+      "rms": 0.0009047741768881679,
+      "relative_frobenius": 0.045771874487400055
+    },
+    "action_head.model.transformer_blocks.11.attn1.to_out.0.weight": {
+      "rms": 0.0011061435798183084,
+      "relative_frobenius": 0.05574703589081764
+    },
+    "action_head.model.transformer_blocks.11.attn1.to_q.weight": {
+      "rms": 0.0008572108927182853,
+      "relative_frobenius": 0.04292886331677437
+    },
+    "action_head.model.transformer_blocks.11.attn1.to_v.weight": {
+      "rms": 0.000770906510297209,
+      "relative_frobenius": 0.0408155582845211
+    },
+    "action_head.model.transformer_blocks.11.ff.net.0.proj.weight": {
+      "rms": 0.0008546299068257213,
+      "relative_frobenius": 0.04750446230173111
+    },
+    "action_head.model.transformer_blocks.11.ff.net.2.weight": {
+      "rms": 0.0005970418569631875,
+      "relative_frobenius": 0.06079792603850365
+    },
+    "action_head.model.transformer_blocks.11.norm1.linear.weight": {
+      "rms": 0.0009103335905820131,
+      "relative_frobenius": 0.05151927471160889
+    },
+    "action_head.model.transformer_blocks.12.attn1.to_k.weight": {
+      "rms": 0.0007368868682533503,
+      "relative_frobenius": 0.040087923407554626
+    },
+    "action_head.model.transformer_blocks.12.attn1.to_out.0.weight": {
+      "rms": 0.0007138227811083198,
+      "relative_frobenius": 0.043544135987758636
+    },
+    "action_head.model.transformer_blocks.12.attn1.to_q.weight": {
+      "rms": 0.0007907419349066913,
+      "relative_frobenius": 0.04177810996770859
+    },
+    "action_head.model.transformer_blocks.12.attn1.to_v.weight": {
+      "rms": 0.000619029626250267,
+      "relative_frobenius": 0.03659680858254433
+    },
+    "action_head.model.transformer_blocks.12.ff.net.0.proj.weight": {
+      "rms": 0.0008005080744624138,
+      "relative_frobenius": 0.043799154460430145
+    },
+    "action_head.model.transformer_blocks.12.ff.net.2.weight": {
+      "rms": 0.0005831715534441173,
+      "relative_frobenius": 0.058687981218099594
+    },
+    "action_head.model.transformer_blocks.12.norm1.linear.weight": {
+      "rms": 0.0008143888553604484,
+      "relative_frobenius": 0.046368375420570374
+    },
+    "action_head.model.transformer_blocks.13.attn1.to_k.weight": {
+      "rms": 0.0008889726595953107,
+      "relative_frobenius": 0.04445110633969307
+    },
+    "action_head.model.transformer_blocks.13.attn1.to_out.0.weight": {
+      "rms": 0.0008520303526893258,
+      "relative_frobenius": 0.042095232754945755
+    },
+    "action_head.model.transformer_blocks.13.attn1.to_q.weight": {
+      "rms": 0.0009440525900572538,
+      "relative_frobenius": 0.04614312946796417
+    },
+    "action_head.model.transformer_blocks.13.attn1.to_v.weight": {
+      "rms": 0.0005676428554579616,
+      "relative_frobenius": 0.029388807713985443
+    },
+    "action_head.model.transformer_blocks.13.ff.net.0.proj.weight": {
+      "rms": 0.0009170001139864326,
+      "relative_frobenius": 0.05006423220038414
+    },
+    "action_head.model.transformer_blocks.13.ff.net.2.weight": {
+      "rms": 0.000557358143851161,
+      "relative_frobenius": 0.05617476627230644
+    },
+    "action_head.model.transformer_blocks.13.norm1.linear.weight": {
+      "rms": 0.0008015726343728602,
+      "relative_frobenius": 0.04436473175883293
+    },
+    "action_head.model.transformer_blocks.14.attn1.to_k.weight": {
+      "rms": 0.0008343000081367791,
+      "relative_frobenius": 0.04151708260178566
+    },
+    "action_head.model.transformer_blocks.14.attn1.to_out.0.weight": {
+      "rms": 0.0008156821713782847,
+      "relative_frobenius": 0.039796531200408936
+    },
+    "action_head.model.transformer_blocks.14.attn1.to_q.weight": {
+      "rms": 0.001460835337638855,
+      "relative_frobenius": 0.07485073804855347
+    },
+    "action_head.model.transformer_blocks.14.attn1.to_v.weight": {
+      "rms": 0.0006545244250446558,
+      "relative_frobenius": 0.03271477296948433
+    },
+    "action_head.model.transformer_blocks.14.ff.net.0.proj.weight": {
+      "rms": 0.0010353645775467157,
+      "relative_frobenius": 0.055948060005903244
+    },
+    "action_head.model.transformer_blocks.14.ff.net.2.weight": {
+      "rms": 0.0005630568484775722,
+      "relative_frobenius": 0.05532686412334442
+    },
+    "action_head.model.transformer_blocks.14.norm1.linear.weight": {
+      "rms": 0.0007826253422535956,
+      "relative_frobenius": 0.041214052587747574
+    },
+    "action_head.model.transformer_blocks.15.attn1.to_k.weight": {
+      "rms": 0.0007448301184922457,
+      "relative_frobenius": 0.03687271848320961
+    },
+    "action_head.model.transformer_blocks.15.attn1.to_out.0.weight": {
+      "rms": 0.0007996503845788538,
+      "relative_frobenius": 0.03990430757403374
+    },
+    "action_head.model.transformer_blocks.15.attn1.to_q.weight": {
+      "rms": 0.0008452425827272236,
+      "relative_frobenius": 0.04153026267886162
+    },
+    "action_head.model.transformer_blocks.15.attn1.to_v.weight": {
+      "rms": 0.0006376560195349157,
+      "relative_frobenius": 0.033158864825963974
+    },
+    "action_head.model.transformer_blocks.15.ff.net.0.proj.weight": {
+      "rms": 0.0009988297242671251,
+      "relative_frobenius": 0.053389426320791245
+    },
+    "action_head.model.transformer_blocks.15.ff.net.2.weight": {
+      "rms": 0.0004998426302336156,
+      "relative_frobenius": 0.04863828048110008
+    },
+    "action_head.model.transformer_blocks.15.norm1.linear.weight": {
+      "rms": 0.001205733511596918,
+      "relative_frobenius": 0.06607301533222198
+    },
+    "action_head.model.transformer_blocks.16.attn1.to_k.weight": {
+      "rms": 0.0006781218107789755,
+      "relative_frobenius": 0.0341445617377758
+    },
+    "action_head.model.transformer_blocks.16.attn1.to_out.0.weight": {
+      "rms": 0.000617296202108264,
+      "relative_frobenius": 0.03438275679945946
+    },
+    "action_head.model.transformer_blocks.16.attn1.to_q.weight": {
+      "rms": 0.0007698952103964984,
+      "relative_frobenius": 0.03849669173359871
+    },
+    "action_head.model.transformer_blocks.16.attn1.to_v.weight": {
+      "rms": 0.0004951911396346986,
+      "relative_frobenius": 0.027343207970261574
+    },
+    "action_head.model.transformer_blocks.16.ff.net.0.proj.weight": {
+      "rms": 0.001024209544993937,
+      "relative_frobenius": 0.05353666469454765
+    },
+    "action_head.model.transformer_blocks.16.ff.net.2.weight": {
+      "rms": 0.0006286883726716042,
+      "relative_frobenius": 0.059648457914590836
+    },
+    "action_head.model.transformer_blocks.16.norm1.linear.weight": {
+      "rms": 0.001003395183943212,
+      "relative_frobenius": 0.05195256322622299
+    },
+    "action_head.model.transformer_blocks.17.attn1.to_k.weight": {
+      "rms": 0.0009454796090722084,
+      "relative_frobenius": 0.04698953405022621
+    },
+    "action_head.model.transformer_blocks.17.attn1.to_out.0.weight": {
+      "rms": 0.0007051715510897338,
+      "relative_frobenius": 0.03498278185725212
+    },
+    "action_head.model.transformer_blocks.17.attn1.to_q.weight": {
+      "rms": 0.0010372387478128076,
+      "relative_frobenius": 0.051369328051805496
+    },
+    "action_head.model.transformer_blocks.17.attn1.to_v.weight": {
+      "rms": 0.0006270667654462159,
+      "relative_frobenius": 0.032415177673101425
+    },
+    "action_head.model.transformer_blocks.17.ff.net.0.proj.weight": {
+      "rms": 0.0008048620074987411,
+      "relative_frobenius": 0.04038853198289871
+    },
+    "action_head.model.transformer_blocks.17.ff.net.2.weight": {
+      "rms": 0.0005766222602687776,
+      "relative_frobenius": 0.05159708857536316
+    },
+    "action_head.model.transformer_blocks.17.norm1.linear.weight": {
+      "rms": 0.0010114784818142653,
+      "relative_frobenius": 0.05538111552596092
+    },
+    "action_head.model.transformer_blocks.18.attn1.to_k.weight": {
+      "rms": 0.0007901268545538187,
+      "relative_frobenius": 0.0386589840054512
+    },
+    "action_head.model.transformer_blocks.18.attn1.to_out.0.weight": {
+      "rms": 0.0007900047930888832,
+      "relative_frobenius": 0.03720005229115486
+    },
+    "action_head.model.transformer_blocks.18.attn1.to_q.weight": {
+      "rms": 0.001058572786860168,
+      "relative_frobenius": 0.05234254151582718
+    },
+    "action_head.model.transformer_blocks.18.attn1.to_v.weight": {
+      "rms": 0.0006248955032788217,
+      "relative_frobenius": 0.030578721314668655
+    },
+    "action_head.model.transformer_blocks.18.ff.net.0.proj.weight": {
+      "rms": 0.0009578140452504158,
+      "relative_frobenius": 0.045825447887182236
+    },
+    "action_head.model.transformer_blocks.18.ff.net.2.weight": {
+      "rms": 0.0005055121146142483,
+      "relative_frobenius": 0.04206032678484917
+    },
+    "action_head.model.transformer_blocks.18.norm1.linear.weight": {
+      "rms": 0.0009176515159197152,
+      "relative_frobenius": 0.04599718749523163
+    },
+    "action_head.model.transformer_blocks.19.attn1.to_k.weight": {
+      "rms": 0.000961058831308037,
+      "relative_frobenius": 0.04558301344513893
+    },
+    "action_head.model.transformer_blocks.19.attn1.to_out.0.weight": {
+      "rms": 0.000739529961720109,
+      "relative_frobenius": 0.03820917010307312
+    },
+    "action_head.model.transformer_blocks.19.attn1.to_q.weight": {
+      "rms": 0.0008551733917556703,
+      "relative_frobenius": 0.04002656787633896
+    },
+    "action_head.model.transformer_blocks.19.attn1.to_v.weight": {
+      "rms": 0.0006990580586716533,
+      "relative_frobenius": 0.037516575306653976
+    },
+    "action_head.model.transformer_blocks.19.norm1.linear.weight": {
+      "rms": 0.0011439434019848704,
+      "relative_frobenius": 0.06057358905673027
+    },
+    "action_head.model.transformer_blocks.2.attn1.to_k.weight": {
+      "rms": 0.0006791150663048029,
+      "relative_frobenius": 0.040739964693784714
+    },
+    "action_head.model.transformer_blocks.2.attn1.to_out.0.weight": {
+      "rms": 0.0006600088090635836,
+      "relative_frobenius": 0.0378103144466877
+    },
+    "action_head.model.transformer_blocks.2.attn1.to_q.weight": {
+      "rms": 0.00074573396705091,
+      "relative_frobenius": 0.04168522357940674
+    },
+    "action_head.model.transformer_blocks.2.attn1.to_v.weight": {
+      "rms": 0.0006194261368364096,
+      "relative_frobenius": 0.050342489033937454
+    },
+    "action_head.model.transformer_blocks.2.ff.net.0.proj.weight": {
+      "rms": 0.0009810739429667592,
+      "relative_frobenius": 0.05442671477794647
+    },
+    "action_head.model.transformer_blocks.2.ff.net.2.weight": {
+      "rms": 0.0005460407701320946,
+      "relative_frobenius": 0.03611624240875244
+    },
+    "action_head.model.transformer_blocks.2.norm1.linear.weight": {
+      "rms": 0.0015232277801260352,
+      "relative_frobenius": 0.08894018828868866
+    },
+    "action_head.model.transformer_blocks.3.attn1.to_k.weight": {
+      "rms": 0.0014801424695178866,
+      "relative_frobenius": 0.07647354900836945
+    },
+    "action_head.model.transformer_blocks.3.attn1.to_out.0.weight": {
+      "rms": 0.000900526880286634,
+      "relative_frobenius": 0.040416620671749115
+    },
+    "action_head.model.transformer_blocks.3.attn1.to_q.weight": {
+      "rms": 0.0006496550631709397,
+      "relative_frobenius": 0.03470379114151001
+    },
+    "action_head.model.transformer_blocks.3.attn1.to_v.weight": {
+      "rms": 0.0008398406207561493,
+      "relative_frobenius": 0.04788726568222046
+    },
+    "action_head.model.transformer_blocks.3.ff.net.0.proj.weight": {
+      "rms": 0.0007648313767276704,
+      "relative_frobenius": 0.04222660884261131
+    },
+    "action_head.model.transformer_blocks.3.ff.net.2.weight": {
+      "rms": 0.0005459777312353253,
+      "relative_frobenius": 0.035767074674367905
+    },
+    "action_head.model.transformer_blocks.3.norm1.linear.weight": {
+      "rms": 0.0016987386625260115,
+      "relative_frobenius": 0.09752470999956131
+    },
+    "action_head.model.transformer_blocks.4.attn1.to_k.weight": {
+      "rms": 0.0005907801678404212,
+      "relative_frobenius": 0.03966815397143364
+    },
+    "action_head.model.transformer_blocks.4.attn1.to_out.0.weight": {
+      "rms": 0.0006622308283112943,
+      "relative_frobenius": 0.04352065548300743
+    },
+    "action_head.model.transformer_blocks.4.attn1.to_q.weight": {
+      "rms": 0.0004539065412245691,
+      "relative_frobenius": 0.02601933293044567
+    },
+    "action_head.model.transformer_blocks.4.attn1.to_v.weight": {
+      "rms": 0.0005556263495236635,
+      "relative_frobenius": 0.04960556700825691
+    },
+    "action_head.model.transformer_blocks.4.ff.net.0.proj.weight": {
+      "rms": 0.000500311201903969,
+      "relative_frobenius": 0.027275338768959045
+    },
+    "action_head.model.transformer_blocks.4.ff.net.2.weight": {
+      "rms": 0.0007091581937856972,
+      "relative_frobenius": 0.050554342567920685
+    },
+    "action_head.model.transformer_blocks.4.norm1.linear.weight": {
+      "rms": 0.0012887989869341254,
+      "relative_frobenius": 0.0757303237915039
+    },
+    "action_head.model.transformer_blocks.5.attn1.to_k.weight": {
+      "rms": 0.0007371928077191114,
+      "relative_frobenius": 0.03767450526356697
+    },
+    "action_head.model.transformer_blocks.5.attn1.to_out.0.weight": {
+      "rms": 0.0009178504114970565,
+      "relative_frobenius": 0.04441389441490173
+    },
+    "action_head.model.transformer_blocks.5.attn1.to_q.weight": {
+      "rms": 0.0004574005724862218,
+      "relative_frobenius": 0.02422516606748104
+    },
+    "action_head.model.transformer_blocks.5.attn1.to_v.weight": {
+      "rms": 0.0006438487325794995,
+      "relative_frobenius": 0.034400731325149536
+    },
+    "action_head.model.transformer_blocks.5.ff.net.0.proj.weight": {
+      "rms": 0.0005036175134591758,
+      "relative_frobenius": 0.02763078361749649
+    },
+    "action_head.model.transformer_blocks.5.ff.net.2.weight": {
+      "rms": 0.0005837134085595608,
+      "relative_frobenius": 0.046459611505270004
+    },
+    "action_head.model.transformer_blocks.5.norm1.linear.weight": {
+      "rms": 0.001802434679120779,
+      "relative_frobenius": 0.10738397389650345
+    },
+    "action_head.model.transformer_blocks.6.attn1.to_k.weight": {
+      "rms": 0.0007477160543203354,
+      "relative_frobenius": 0.040094003081321716
+    },
+    "action_head.model.transformer_blocks.6.attn1.to_out.0.weight": {
+      "rms": 0.0007849645335227251,
+      "relative_frobenius": 0.045676086097955704
+    },
+    "action_head.model.transformer_blocks.6.attn1.to_q.weight": {
+      "rms": 0.0011370715219527483,
+      "relative_frobenius": 0.06176801025867462
+    },
+    "action_head.model.transformer_blocks.6.attn1.to_v.weight": {
+      "rms": 0.0006023666355758905,
+      "relative_frobenius": 0.03596804663538933
+    },
+    "action_head.model.transformer_blocks.6.ff.net.0.proj.weight": {
+      "rms": 0.0005978703266009688,
+      "relative_frobenius": 0.03355900198221207
+    },
+    "action_head.model.transformer_blocks.6.ff.net.2.weight": {
+      "rms": 0.0005140104331076145,
+      "relative_frobenius": 0.04502919688820839
+    },
+    "action_head.model.transformer_blocks.6.norm1.linear.weight": {
+      "rms": 0.0012238712515681982,
+      "relative_frobenius": 0.06870107352733612
+    },
+    "action_head.model.transformer_blocks.7.attn1.to_k.weight": {
+      "rms": 0.0006861125584691763,
+      "relative_frobenius": 0.03654906526207924
+    },
+    "action_head.model.transformer_blocks.7.attn1.to_out.0.weight": {
+      "rms": 0.000842309498693794,
+      "relative_frobenius": 0.039127543568611145
+    },
+    "action_head.model.transformer_blocks.7.attn1.to_q.weight": {
+      "rms": 0.0005201453459449112,
+      "relative_frobenius": 0.02743118442595005
+    },
+    "action_head.model.transformer_blocks.7.attn1.to_v.weight": {
+      "rms": 0.0005246797227300704,
+      "relative_frobenius": 0.026854850351810455
+    },
+    "action_head.model.transformer_blocks.7.ff.net.0.proj.weight": {
+      "rms": 0.0006629260606132448,
+      "relative_frobenius": 0.03722142428159714
+    },
+    "action_head.model.transformer_blocks.7.ff.net.2.weight": {
+      "rms": 0.0005139523418620229,
+      "relative_frobenius": 0.047997262328863144
+    },
+    "action_head.model.transformer_blocks.7.norm1.linear.weight": {
+      "rms": 0.0013126848498359323,
+      "relative_frobenius": 0.0792754739522934
+    },
+    "action_head.model.transformer_blocks.8.attn1.to_k.weight": {
+      "rms": 0.00068630650639534,
+      "relative_frobenius": 0.043288469314575195
+    },
+    "action_head.model.transformer_blocks.8.attn1.to_out.0.weight": {
+      "rms": 0.0008435966446995735,
+      "relative_frobenius": 0.05824008211493492
+    },
+    "action_head.model.transformer_blocks.8.attn1.to_q.weight": {
+      "rms": 0.0006758375093340874,
+      "relative_frobenius": 0.0375092513859272
+    },
+    "action_head.model.transformer_blocks.8.attn1.to_v.weight": {
+      "rms": 0.0008132985676638782,
+      "relative_frobenius": 0.05961156263947487
+    },
+    "action_head.model.transformer_blocks.8.ff.net.0.proj.weight": {
+      "rms": 0.0007691021892242134,
+      "relative_frobenius": 0.04265689104795456
+    },
+    "action_head.model.transformer_blocks.8.ff.net.2.weight": {
+      "rms": 0.0004992360481992364,
+      "relative_frobenius": 0.047694187611341476
+    },
+    "action_head.model.transformer_blocks.8.norm1.linear.weight": {
+      "rms": 0.0006800235132686794,
+      "relative_frobenius": 0.03991887718439102
+    },
+    "action_head.model.transformer_blocks.9.attn1.to_k.weight": {
+      "rms": 0.0007055923924781382,
+      "relative_frobenius": 0.036188896745443344
+    },
+    "action_head.model.transformer_blocks.9.attn1.to_out.0.weight": {
+      "rms": 0.001324678654782474,
+      "relative_frobenius": 0.06682240962982178
+    },
+    "action_head.model.transformer_blocks.9.attn1.to_q.weight": {
+      "rms": 0.000685355975292623,
+      "relative_frobenius": 0.034738149493932724
+    },
+    "action_head.model.transformer_blocks.9.attn1.to_v.weight": {
+      "rms": 0.0006623205845244229,
+      "relative_frobenius": 0.03564928472042084
+    },
+    "action_head.model.transformer_blocks.9.ff.net.0.proj.weight": {
+      "rms": 0.0006894611869938672,
+      "relative_frobenius": 0.03784840181469917
+    },
+    "action_head.model.transformer_blocks.9.ff.net.2.weight": {
+      "rms": 0.0006041314918547869,
+      "relative_frobenius": 0.0578312948346138
+    },
+    "action_head.model.transformer_blocks.9.norm1.linear.weight": {
+      "rms": 0.001263176091015339,
+      "relative_frobenius": 0.07256416231393814
+    },
+    "backbone.model.model.language_model.layers.0.mlp.down_proj.weight": {
+      "rms": 0.00040036108111962676,
+      "relative_frobenius": 0.012788757681846619
+    },
+    "backbone.model.model.language_model.layers.0.mlp.gate_proj.weight": {
+      "rms": 0.00048522092401981354,
+      "relative_frobenius": 0.01328173466026783
+    },
+    "backbone.model.model.language_model.layers.0.mlp.up_proj.weight": {
+      "rms": 0.00048667838564142585,
+      "relative_frobenius": 0.01643669418990612
+    },
+    "backbone.model.model.language_model.layers.0.self_attn.k_proj.weight": {
+      "rms": 0.0009021523292176425,
+      "relative_frobenius": 0.02694854885339737
+    },
+    "backbone.model.model.language_model.layers.0.self_attn.o_proj.weight": {
+      "rms": 0.0007929262355901301,
+      "relative_frobenius": 0.02597733773291111
+    },
+    "backbone.model.model.language_model.layers.0.self_attn.q_proj.weight": {
+      "rms": 0.0010296484688296914,
+      "relative_frobenius": 0.031221168115735054
+    },
+    "backbone.model.model.language_model.layers.0.self_attn.v_proj.weight": {
+      "rms": 0.0008407285786233842,
+      "relative_frobenius": 0.026574797928333282
+    },
+    "backbone.model.model.language_model.layers.1.mlp.down_proj.weight": {
+      "rms": 0.00113712961319834,
+      "relative_frobenius": 0.04158169403672218
+    },
+    "backbone.model.model.language_model.layers.1.mlp.gate_proj.weight": {
+      "rms": 0.0010657265083864331,
+      "relative_frobenius": 0.025067754089832306
+    },
+    "backbone.model.model.language_model.layers.1.mlp.up_proj.weight": {
+      "rms": 0.001061641494743526,
+      "relative_frobenius": 0.039683178067207336
+    },
+    "backbone.model.model.language_model.layers.1.self_attn.k_proj.weight": {
+      "rms": 0.0007943667587824166,
+      "relative_frobenius": 0.025010736659169197
+    },
+    "backbone.model.model.language_model.layers.1.self_attn.o_proj.weight": {
+      "rms": 0.0012099170126020908,
+      "relative_frobenius": 0.03961852192878723
+    },
+    "backbone.model.model.language_model.layers.1.self_attn.q_proj.weight": {
+      "rms": 0.000639509002212435,
+      "relative_frobenius": 0.01967043988406658
+    },
+    "backbone.model.model.language_model.layers.1.self_attn.v_proj.weight": {
+      "rms": 0.0008750865235924721,
+      "relative_frobenius": 0.026891855522990227
+    },
+    "backbone.model.model.language_model.layers.10.mlp.down_proj.weight": {
+      "rms": 0.00014181526785250753,
+      "relative_frobenius": 0.004655388183891773
+    },
+    "backbone.model.model.language_model.layers.10.mlp.gate_proj.weight": {
+      "rms": 0.0003142858622595668,
+      "relative_frobenius": 0.008811330422759056
+    },
+    "backbone.model.model.language_model.layers.10.mlp.up_proj.weight": {
+      "rms": 0.00028814925462938845,
+      "relative_frobenius": 0.008928459137678146
+    },
+    "backbone.model.model.language_model.layers.10.self_attn.k_proj.weight": {
+      "rms": 0.00027641141787171364,
+      "relative_frobenius": 0.008978208526968956
+    },
+    "backbone.model.model.language_model.layers.10.self_attn.o_proj.weight": {
+      "rms": 0.00024315733753610402,
+      "relative_frobenius": 0.008227042853832245
+    },
+    "backbone.model.model.language_model.layers.10.self_attn.q_proj.weight": {
+      "rms": 0.00029653083765879273,
+      "relative_frobenius": 0.009246754460036755
+    },
+    "backbone.model.model.language_model.layers.10.self_attn.v_proj.weight": {
+      "rms": 0.0002635255514178425,
+      "relative_frobenius": 0.008247718214988708
+    },
+    "backbone.model.model.language_model.layers.11.mlp.down_proj.weight": {
+      "rms": 0.00014178788114804775,
+      "relative_frobenius": 0.004499583970755339
+    },
+    "backbone.model.model.language_model.layers.11.mlp.gate_proj.weight": {
+      "rms": 0.00031461729668080807,
+      "relative_frobenius": 0.009290589019656181
+    },
+    "backbone.model.model.language_model.layers.11.mlp.up_proj.weight": {
+      "rms": 0.00028001057216897607,
+      "relative_frobenius": 0.008491124957799911
+    },
+    "backbone.model.model.language_model.layers.11.self_attn.k_proj.weight": {
+      "rms": 0.00030918122502043843,
+      "relative_frobenius": 0.009886225685477257
+    },
+    "backbone.model.model.language_model.layers.11.self_attn.o_proj.weight": {
+      "rms": 0.00022496994643006474,
+      "relative_frobenius": 0.007991403341293335
+    },
+    "backbone.model.model.language_model.layers.11.self_attn.q_proj.weight": {
+      "rms": 0.0003668731660582125,
+      "relative_frobenius": 0.01072156336158514
+    },
+    "backbone.model.model.language_model.layers.11.self_attn.v_proj.weight": {
+      "rms": 0.0002473297354299575,
+      "relative_frobenius": 0.008104787208139896
+    },
+    "backbone.model.model.language_model.layers.12.mlp.down_proj.weight": {
+      "rms": 0.000142215532832779,
+      "relative_frobenius": 0.004509857390075922
+    },
+    "backbone.model.model.language_model.layers.12.mlp.gate_proj.weight": {
+      "rms": 0.00031222699908539653,
+      "relative_frobenius": 0.009479758329689503
+    },
+    "backbone.model.model.language_model.layers.12.mlp.up_proj.weight": {
+      "rms": 0.0002882145927287638,
+      "relative_frobenius": 0.008760927245020866
+    },
+    "backbone.model.model.language_model.layers.12.self_attn.k_proj.weight": {
+      "rms": 0.00031731955823488533,
+      "relative_frobenius": 0.010472593829035759
+    },
+    "backbone.model.model.language_model.layers.12.self_attn.o_proj.weight": {
+      "rms": 0.00023309084645006806,
+      "relative_frobenius": 0.00832272320985794
+    },
+    "backbone.model.model.language_model.layers.12.self_attn.q_proj.weight": {
+      "rms": 0.0002920438419096172,
+      "relative_frobenius": 0.008942860178649426
+    },
+    "backbone.model.model.language_model.layers.12.self_attn.v_proj.weight": {
+      "rms": 0.00026391533901914954,
+      "relative_frobenius": 0.008466703817248344
+    },
+    "backbone.model.model.language_model.layers.13.mlp.down_proj.weight": {
+      "rms": 0.0001432011922588572,
+      "relative_frobenius": 0.0046555045992136
+    },
+    "backbone.model.model.language_model.layers.13.mlp.gate_proj.weight": {
+      "rms": 0.00031429374939762056,
+      "relative_frobenius": 0.009897885844111443
+    },
+    "backbone.model.model.language_model.layers.13.mlp.up_proj.weight": {
+      "rms": 0.00029201607685536146,
+      "relative_frobenius": 0.00910672266036272
+    },
+    "backbone.model.model.language_model.layers.13.self_attn.k_proj.weight": {
+      "rms": 0.0002870970929507166,
+      "relative_frobenius": 0.009928906336426735
+    },
+    "backbone.model.model.language_model.layers.13.self_attn.o_proj.weight": {
+      "rms": 0.00022996831103228033,
+      "relative_frobenius": 0.008433818817138672
+    },
+    "backbone.model.model.language_model.layers.13.self_attn.q_proj.weight": {
+      "rms": 0.00033022669958882034,
+      "relative_frobenius": 0.00996871292591095
+    },
+    "backbone.model.model.language_model.layers.13.self_attn.v_proj.weight": {
+      "rms": 0.0002361377264605835,
+      "relative_frobenius": 0.007586980238556862
+    },
+    "backbone.model.model.language_model.layers.14.mlp.down_proj.weight": {
+      "rms": 0.0001482883671997115,
+      "relative_frobenius": 0.004862263798713684
+    },
+    "backbone.model.model.language_model.layers.14.mlp.gate_proj.weight": {
+      "rms": 0.000316509889671579,
+      "relative_frobenius": 0.010413403622806072
+    },
+    "backbone.model.model.language_model.layers.14.mlp.up_proj.weight": {
+      "rms": 0.0003059257287532091,
+      "relative_frobenius": 0.009848661720752716
+    },
+    "backbone.model.model.language_model.layers.14.self_attn.k_proj.weight": {
+      "rms": 0.0003082442271988839,
+      "relative_frobenius": 0.010742832906544209
+    },
+    "backbone.model.model.language_model.layers.14.self_attn.o_proj.weight": {
+      "rms": 0.000251700752414763,
+      "relative_frobenius": 0.009232768788933754
+    },
+    "backbone.model.model.language_model.layers.14.self_attn.q_proj.weight": {
+      "rms": 0.0003087081422563642,
+      "relative_frobenius": 0.00965933222323656
+    },
+    "backbone.model.model.language_model.layers.14.self_attn.v_proj.weight": {
+      "rms": 0.00024938449496403337,
+      "relative_frobenius": 0.008223404176533222
+    },
+    "backbone.model.model.language_model.layers.15.mlp.down_proj.weight": {
+      "rms": 0.000145945799886249,
+      "relative_frobenius": 0.004759772680699825
+    },
+    "backbone.model.model.language_model.layers.15.mlp.gate_proj.weight": {
+      "rms": 0.0003352526982780546,
+      "relative_frobenius": 0.01094671431928873
+    },
+    "backbone.model.model.language_model.layers.15.mlp.up_proj.weight": {
+      "rms": 0.0003191160212736577,
+      "relative_frobenius": 0.010031572543084621
+    },
+    "backbone.model.model.language_model.layers.15.self_attn.k_proj.weight": {
+      "rms": 0.0003512483963277191,
+      "relative_frobenius": 0.012852235697209835
+    },
+    "backbone.model.model.language_model.layers.15.self_attn.o_proj.weight": {
+      "rms": 0.00027711904840543866,
+      "relative_frobenius": 0.010147731751203537
+    },
+    "backbone.model.model.language_model.layers.15.self_attn.q_proj.weight": {
+      "rms": 0.0003057420253753662,
+      "relative_frobenius": 0.009361776523292065
+    },
+    "backbone.model.model.language_model.layers.15.self_attn.v_proj.weight": {
+      "rms": 0.0002512386126909405,
+      "relative_frobenius": 0.008354244753718376
+    },
+    "backbone.model.model.language_model.layers.2.mlp.down_proj.weight": {
+      "rms": 0.00024087469500955194,
+      "relative_frobenius": 0.008351498283445835
+    },
+    "backbone.model.model.language_model.layers.2.mlp.gate_proj.weight": {
+      "rms": 0.016701506450772285,
+      "relative_frobenius": 0.38037362694740295
+    },
+    "backbone.model.model.language_model.layers.2.mlp.up_proj.weight": {
+      "rms": 0.012609326280653477,
+      "relative_frobenius": 0.45456451177597046
+    },
+    "backbone.model.model.language_model.layers.2.self_attn.k_proj.weight": {
+      "rms": 0.0008454019553028047,
+      "relative_frobenius": 0.026848647743463516
+    },
+    "backbone.model.model.language_model.layers.2.self_attn.o_proj.weight": {
+      "rms": 0.0015916815027594566,
+      "relative_frobenius": 0.05341312289237976
+    },
+    "backbone.model.model.language_model.layers.2.self_attn.q_proj.weight": {
+      "rms": 0.0018110775854438543,
+      "relative_frobenius": 0.05605900287628174
+    },
+    "backbone.model.model.language_model.layers.2.self_attn.v_proj.weight": {
+      "rms": 0.0017268051160499454,
+      "relative_frobenius": 0.05301965773105621
+    },
+    "backbone.model.model.language_model.layers.3.mlp.down_proj.weight": {
+      "rms": 0.00016600110393483192,
+      "relative_frobenius": 0.005800473038107157
+    },
+    "backbone.model.model.language_model.layers.3.mlp.gate_proj.weight": {
+      "rms": 0.00033872402855195105,
+      "relative_frobenius": 0.007795425597578287
+    },
+    "backbone.model.model.language_model.layers.3.mlp.up_proj.weight": {
+      "rms": 0.000278268416877836,
+      "relative_frobenius": 0.009799178689718246
+    },
+    "backbone.model.model.language_model.layers.3.self_attn.k_proj.weight": {
+      "rms": 0.000371595291653648,
+      "relative_frobenius": 0.011589075438678265
+    },
+    "backbone.model.model.language_model.layers.3.self_attn.o_proj.weight": {
+      "rms": 0.0003188404953107238,
+      "relative_frobenius": 0.010127822868525982
+    },
+    "backbone.model.model.language_model.layers.3.self_attn.q_proj.weight": {
+      "rms": 0.00039377427310682833,
+      "relative_frobenius": 0.012054243125021458
+    },
+    "backbone.model.model.language_model.layers.3.self_attn.v_proj.weight": {
+      "rms": 0.00039510507485829294,
+      "relative_frobenius": 0.011475030332803726
+    },
+    "backbone.model.model.language_model.layers.4.mlp.down_proj.weight": {
+      "rms": 0.00016703316941857338,
+      "relative_frobenius": 0.005827810149639845
+    },
+    "backbone.model.model.language_model.layers.4.mlp.gate_proj.weight": {
+      "rms": 0.00032332268892787397,
+      "relative_frobenius": 0.007655991241335869
+    },
+    "backbone.model.model.language_model.layers.4.mlp.up_proj.weight": {
+      "rms": 0.0002704585494939238,
+      "relative_frobenius": 0.009455089457333088
+    },
+    "backbone.model.model.language_model.layers.4.self_attn.k_proj.weight": {
+      "rms": 0.0003898394643329084,
+      "relative_frobenius": 0.012551795691251755
+    },
+    "backbone.model.model.language_model.layers.4.self_attn.o_proj.weight": {
+      "rms": 0.0002889793540816754,
+      "relative_frobenius": 0.0093831866979599
+    },
+    "backbone.model.model.language_model.layers.4.self_attn.q_proj.weight": {
+      "rms": 0.00039055279921740294,
+      "relative_frobenius": 0.012126217596232891
+    },
+    "backbone.model.model.language_model.layers.4.self_attn.v_proj.weight": {
+      "rms": 0.0002924215223174542,
+      "relative_frobenius": 0.008622008375823498
+    },
+    "backbone.model.model.language_model.layers.5.mlp.down_proj.weight": {
+      "rms": 0.00016590631275903434,
+      "relative_frobenius": 0.005423007532954216
+    },
+    "backbone.model.model.language_model.layers.5.mlp.gate_proj.weight": {
+      "rms": 0.00031767101609148085,
+      "relative_frobenius": 0.00848940759897232
+    },
+    "backbone.model.model.language_model.layers.5.mlp.up_proj.weight": {
+      "rms": 0.0002817967615555972,
+      "relative_frobenius": 0.00914830807596445
+    },
+    "backbone.model.model.language_model.layers.5.self_attn.k_proj.weight": {
+      "rms": 0.00048271732521243393,
+      "relative_frobenius": 0.015329456888139248
+    },
+    "backbone.model.model.language_model.layers.5.self_attn.o_proj.weight": {
+      "rms": 0.0002918328682426363,
+      "relative_frobenius": 0.00943582784384489
+    },
+    "backbone.model.model.language_model.layers.5.self_attn.q_proj.weight": {
+      "rms": 0.00045353927998803556,
+      "relative_frobenius": 0.013646209612488747
+    },
+    "backbone.model.model.language_model.layers.5.self_attn.v_proj.weight": {
+      "rms": 0.0002820985100697726,
+      "relative_frobenius": 0.008615424856543541
+    },
+    "backbone.model.model.language_model.layers.6.mlp.down_proj.weight": {
+      "rms": 0.00014962440764065832,
+      "relative_frobenius": 0.004957233555614948
+    },
+    "backbone.model.model.language_model.layers.6.mlp.gate_proj.weight": {
+      "rms": 0.000313462718622759,
+      "relative_frobenius": 0.008479670621454716
+    },
+    "backbone.model.model.language_model.layers.6.mlp.up_proj.weight": {
+      "rms": 0.00027649017283692956,
+      "relative_frobenius": 0.008944976143538952
+    },
+    "backbone.model.model.language_model.layers.6.self_attn.k_proj.weight": {
+      "rms": 0.000304695509839803,
+      "relative_frobenius": 0.009871811605989933
+    },
+    "backbone.model.model.language_model.layers.6.self_attn.o_proj.weight": {
+      "rms": 0.0002910742477979511,
+      "relative_frobenius": 0.009758107364177704
+    },
+    "backbone.model.model.language_model.layers.6.self_attn.q_proj.weight": {
+      "rms": 0.00031065091025084257,
+      "relative_frobenius": 0.009547611698508263
+    },
+    "backbone.model.model.language_model.layers.6.self_attn.v_proj.weight": {
+      "rms": 0.00027368892915546894,
+      "relative_frobenius": 0.00817069597542286
+    },
+    "backbone.model.model.language_model.layers.7.mlp.down_proj.weight": {
+      "rms": 0.0001538677024655044,
+      "relative_frobenius": 0.005175399128347635
+    },
+    "backbone.model.model.language_model.layers.7.mlp.gate_proj.weight": {
+      "rms": 0.0003080677124671638,
+      "relative_frobenius": 0.008082334883511066
+    },
+    "backbone.model.model.language_model.layers.7.mlp.up_proj.weight": {
+      "rms": 0.00027574982959777117,
+      "relative_frobenius": 0.009061028249561787
+    },
+    "backbone.model.model.language_model.layers.7.self_attn.k_proj.weight": {
+      "rms": 0.00025605197879485786,
+      "relative_frobenius": 0.00864962488412857
+    },
+    "backbone.model.model.language_model.layers.7.self_attn.o_proj.weight": {
+      "rms": 0.0002701444027479738,
+      "relative_frobenius": 0.009031645953655243
+    },
+    "backbone.model.model.language_model.layers.7.self_attn.q_proj.weight": {
+      "rms": 0.00030856975354254246,
+      "relative_frobenius": 0.009810658171772957
+    },
+    "backbone.model.model.language_model.layers.7.self_attn.v_proj.weight": {
+      "rms": 0.0002546912000980228,
+      "relative_frobenius": 0.007840191945433617
+    },
+    "backbone.model.model.language_model.layers.8.mlp.down_proj.weight": {
+      "rms": 0.0001477247424190864,
+      "relative_frobenius": 0.004836600739508867
+    },
+    "backbone.model.model.language_model.layers.8.mlp.gate_proj.weight": {
+      "rms": 0.00030278449412435293,
+      "relative_frobenius": 0.008329742588102818
+    },
+    "backbone.model.model.language_model.layers.8.mlp.up_proj.weight": {
+      "rms": 0.00028105254750698805,
+      "relative_frobenius": 0.009116088040173054
+    },
+    "backbone.model.model.language_model.layers.8.self_attn.k_proj.weight": {
+      "rms": 0.0002690953842829913,
+      "relative_frobenius": 0.008876926265656948
+    },
+    "backbone.model.model.language_model.layers.8.self_attn.o_proj.weight": {
+      "rms": 0.0002714497968554497,
+      "relative_frobenius": 0.009252557530999184
+    },
+    "backbone.model.model.language_model.layers.8.self_attn.q_proj.weight": {
+      "rms": 0.000300952116958797,
+      "relative_frobenius": 0.00931752473115921
+    },
+    "backbone.model.model.language_model.layers.8.self_attn.v_proj.weight": {
+      "rms": 0.0002707880921661854,
+      "relative_frobenius": 0.008257536217570305
+    },
+    "backbone.model.model.language_model.layers.9.mlp.down_proj.weight": {
+      "rms": 0.00015609883121214807,
+      "relative_frobenius": 0.005081804934889078
+    },
+    "backbone.model.model.language_model.layers.9.mlp.gate_proj.weight": {
+      "rms": 0.000304579472867772,
+      "relative_frobenius": 0.008414668962359428
+    },
+    "backbone.model.model.language_model.layers.9.mlp.up_proj.weight": {
+      "rms": 0.0002814417821355164,
+      "relative_frobenius": 0.008780177682638168
+    },
+    "backbone.model.model.language_model.layers.9.self_attn.k_proj.weight": {
+      "rms": 0.0003543268539942801,
+      "relative_frobenius": 0.011761645786464214
+    },
+    "backbone.model.model.language_model.layers.9.self_attn.o_proj.weight": {
+      "rms": 0.00026195633108727634,
+      "relative_frobenius": 0.008640614338219166
+    },
+    "backbone.model.model.language_model.layers.9.self_attn.q_proj.weight": {
+      "rms": 0.0003452607779763639,
+      "relative_frobenius": 0.010561312548816204
+    },
+    "backbone.model.model.language_model.layers.9.self_attn.v_proj.weight": {
+      "rms": 0.0002699884062167257,
+      "relative_frobenius": 0.008533835411071777
+    },
+    "backbone.model.model.visual.blocks.0.attn.proj.weight": {
+      "rms": 0.0005426997086033225,
+      "relative_frobenius": 0.0353555791079998
+    },
+    "backbone.model.model.visual.blocks.0.attn.qkv.weight": {
+      "rms": 0.0005536086391657591,
+      "relative_frobenius": 0.020687684416770935
+    },
+    "backbone.model.model.visual.blocks.0.mlp.linear_fc1.weight": {
+      "rms": 0.0005660444148816168,
+      "relative_frobenius": 0.028061741963028908
+    },
+    "backbone.model.model.visual.blocks.0.mlp.linear_fc2.weight": {
+      "rms": 0.00029743637423962355,
+      "relative_frobenius": 0.015818247571587563
+    },
+    "backbone.model.model.visual.blocks.1.attn.proj.weight": {
+      "rms": 0.0006042749737389386,
+      "relative_frobenius": 0.038316015154123306
+    },
+    "backbone.model.model.visual.blocks.1.attn.qkv.weight": {
+      "rms": 0.0005712960264645517,
+      "relative_frobenius": 0.02209978923201561
+    },
+    "backbone.model.model.visual.blocks.1.mlp.linear_fc1.weight": {
+      "rms": 0.0005596975097432733,
+      "relative_frobenius": 0.02683430351316929
+    },
+    "backbone.model.model.visual.blocks.1.mlp.linear_fc2.weight": {
+      "rms": 0.0003393811930436641,
+      "relative_frobenius": 0.018338220193982124
+    },
+    "backbone.model.model.visual.blocks.10.attn.proj.weight": {
+      "rms": 0.0004178220988251269,
+      "relative_frobenius": 0.025018766522407532
+    },
+    "backbone.model.model.visual.blocks.10.attn.qkv.weight": {
+      "rms": 0.00046530779218301177,
+      "relative_frobenius": 0.022564897313714027
+    },
+    "backbone.model.model.visual.blocks.10.mlp.linear_fc1.weight": {
+      "rms": 0.00045398512156680226,
+      "relative_frobenius": 0.022841593250632286
+    },
+    "backbone.model.model.visual.blocks.10.mlp.linear_fc2.weight": {
+      "rms": 0.00020820814825128764,
+      "relative_frobenius": 0.012558044865727425
+    },
+    "backbone.model.model.visual.blocks.11.attn.proj.weight": {
+      "rms": 0.000457531277788803,
+      "relative_frobenius": 0.026874050498008728
+    },
+    "backbone.model.model.visual.blocks.11.attn.qkv.weight": {
+      "rms": 0.00048254456487484276,
+      "relative_frobenius": 0.023672087118029594
+    },
+    "backbone.model.model.visual.blocks.11.mlp.linear_fc1.weight": {
+      "rms": 0.0004508110578171909,
+      "relative_frobenius": 0.022371677681803703
+    },
+    "backbone.model.model.visual.blocks.11.mlp.linear_fc2.weight": {
+      "rms": 0.00021964310144539922,
+      "relative_frobenius": 0.0118286507204175
+    },
+    "backbone.model.model.visual.blocks.12.attn.proj.weight": {
+      "rms": 0.0004088410350959748,
+      "relative_frobenius": 0.023380689322948456
+    },
+    "backbone.model.model.visual.blocks.12.attn.qkv.weight": {
+      "rms": 0.0004500736540649086,
+      "relative_frobenius": 0.02173401229083538
+    },
+    "backbone.model.model.visual.blocks.12.mlp.linear_fc1.weight": {
+      "rms": 0.00045934852096252143,
+      "relative_frobenius": 0.023765355348587036
+    },
+    "backbone.model.model.visual.blocks.12.mlp.linear_fc2.weight": {
+      "rms": 0.00021366799774114043,
+      "relative_frobenius": 0.011484649032354355
+    },
+    "backbone.model.model.visual.blocks.13.attn.proj.weight": {
+      "rms": 0.0004130378074478358,
+      "relative_frobenius": 0.023731399327516556
+    },
+    "backbone.model.model.visual.blocks.13.attn.qkv.weight": {
+      "rms": 0.0004276719701010734,
+      "relative_frobenius": 0.021216077730059624
+    },
+    "backbone.model.model.visual.blocks.13.mlp.linear_fc1.weight": {
+      "rms": 0.0004666945314966142,
+      "relative_frobenius": 0.024425489827990532
+    },
+    "backbone.model.model.visual.blocks.13.mlp.linear_fc2.weight": {
+      "rms": 0.00022056055604480207,
+      "relative_frobenius": 0.012082725763320923
+    },
+    "backbone.model.model.visual.blocks.14.attn.proj.weight": {
+      "rms": 0.00043166644172742963,
+      "relative_frobenius": 0.02436060644686222
+    },
+    "backbone.model.model.visual.blocks.14.attn.qkv.weight": {
+      "rms": 0.00046065726201049984,
+      "relative_frobenius": 0.022675054147839546
+    },
+    "backbone.model.model.visual.blocks.14.mlp.linear_fc1.weight": {
+      "rms": 0.0005089875776320696,
+      "relative_frobenius": 0.02725372277200222
+    },
+    "backbone.model.model.visual.blocks.14.mlp.linear_fc2.weight": {
+      "rms": 0.00024700805079191923,
+      "relative_frobenius": 0.013062069192528725
+    },
+    "backbone.model.model.visual.blocks.15.attn.proj.weight": {
+      "rms": 0.0004342553438618779,
+      "relative_frobenius": 0.024071404710412025
+    },
+    "backbone.model.model.visual.blocks.15.attn.qkv.weight": {
+      "rms": 0.00045450986362993717,
+      "relative_frobenius": 0.022384576499462128
+    },
+    "backbone.model.model.visual.blocks.15.mlp.linear_fc1.weight": {
+      "rms": 0.0005304909427650273,
+      "relative_frobenius": 0.027440693229436874
+    },
+    "backbone.model.model.visual.blocks.15.mlp.linear_fc2.weight": {
+      "rms": 0.00025674080825410783,
+      "relative_frobenius": 0.013103858567774296
+    },
+    "backbone.model.model.visual.blocks.16.attn.proj.weight": {
+      "rms": 0.0004392197588458657,
+      "relative_frobenius": 0.023705556988716125
+    },
+    "backbone.model.model.visual.blocks.16.attn.qkv.weight": {
+      "rms": 0.00047256957623176277,
+      "relative_frobenius": 0.02333677001297474
+    },
+    "backbone.model.model.visual.blocks.16.mlp.linear_fc1.weight": {
+      "rms": 0.0005364638636820018,
+      "relative_frobenius": 0.027661731466650963
+    },
+    "backbone.model.model.visual.blocks.16.mlp.linear_fc2.weight": {
+      "rms": 0.0002564048918429762,
+      "relative_frobenius": 0.012935546226799488
+    },
+    "backbone.model.model.visual.blocks.17.attn.proj.weight": {
+      "rms": 0.00042082215077243745,
+      "relative_frobenius": 0.02186872810125351
+    },
+    "backbone.model.model.visual.blocks.17.attn.qkv.weight": {
+      "rms": 0.0004584193229675293,
+      "relative_frobenius": 0.022719120606780052
+    },
+    "backbone.model.model.visual.blocks.17.mlp.linear_fc1.weight": {
+      "rms": 0.0005426402203738689,
+      "relative_frobenius": 0.028060410171747208
+    },
+    "backbone.model.model.visual.blocks.17.mlp.linear_fc2.weight": {
+      "rms": 0.00024042840232141316,
+      "relative_frobenius": 0.011907340958714485
+    },
+    "backbone.model.model.visual.blocks.18.attn.proj.weight": {
+      "rms": 0.0004320286388974637,
+      "relative_frobenius": 0.02199964039027691
+    },
+    "backbone.model.model.visual.blocks.18.attn.qkv.weight": {
+      "rms": 0.00045272248098626733,
+      "relative_frobenius": 0.022086452692747116
+    },
+    "backbone.model.model.visual.blocks.18.mlp.linear_fc1.weight": {
+      "rms": 0.0005502095445990562,
+      "relative_frobenius": 0.027898119762539864
+    },
+    "backbone.model.model.visual.blocks.18.mlp.linear_fc2.weight": {
+      "rms": 0.0002607791102491319,
+      "relative_frobenius": 0.012305007316172123
+    },
+    "backbone.model.model.visual.blocks.19.attn.proj.weight": {
+      "rms": 0.000422015757067129,
+      "relative_frobenius": 0.02166181243956089
+    },
+    "backbone.model.model.visual.blocks.19.attn.qkv.weight": {
+      "rms": 0.0004631200572475791,
+      "relative_frobenius": 0.022946631535887718
+    },
+    "backbone.model.model.visual.blocks.19.mlp.linear_fc1.weight": {
+      "rms": 0.0005691970000043511,
+      "relative_frobenius": 0.028521785512566566
+    },
+    "backbone.model.model.visual.blocks.19.mlp.linear_fc2.weight": {
+      "rms": 0.00026016111951321363,
+      "relative_frobenius": 0.012004862539470196
+    },
+    "backbone.model.model.visual.blocks.2.attn.proj.weight": {
+      "rms": 0.0005485183210112154,
+      "relative_frobenius": 0.03430076688528061
+    },
+    "backbone.model.model.visual.blocks.2.attn.qkv.weight": {
+      "rms": 0.0005560274003073573,
+      "relative_frobenius": 0.023515714332461357
+    },
+    "backbone.model.model.visual.blocks.2.mlp.linear_fc1.weight": {
+      "rms": 0.0004939489299431443,
+      "relative_frobenius": 0.026174379512667656
+    },
+    "backbone.model.model.visual.blocks.2.mlp.linear_fc2.weight": {
+      "rms": 0.00028522260254248977,
+      "relative_frobenius": 0.017131604254245758
+    },
+    "backbone.model.model.visual.blocks.20.attn.proj.weight": {
+      "rms": 0.00042514808592386544,
+      "relative_frobenius": 0.02103406749665737
+    },
+    "backbone.model.model.visual.blocks.20.attn.qkv.weight": {
+      "rms": 0.0004644690197892487,
+      "relative_frobenius": 0.022782867774367332
+    },
+    "backbone.model.model.visual.blocks.20.mlp.linear_fc1.weight": {
+      "rms": 0.0005501927807927132,
+      "relative_frobenius": 0.02745620533823967
+    },
+    "backbone.model.model.visual.blocks.20.mlp.linear_fc2.weight": {
+      "rms": 0.0002388232242083177,
+      "relative_frobenius": 0.010884054936468601
+    },
+    "backbone.model.model.visual.blocks.21.attn.proj.weight": {
+      "rms": 0.0004169518069829792,
+      "relative_frobenius": 0.019498897716403008
+    },
+    "backbone.model.model.visual.blocks.21.attn.qkv.weight": {
+      "rms": 0.0004557546926662326,
+      "relative_frobenius": 0.022010646760463715
+    },
+    "backbone.model.model.visual.blocks.21.mlp.linear_fc1.weight": {
+      "rms": 0.000553604681044817,
+      "relative_frobenius": 0.027447659522294998
+    },
+    "backbone.model.model.visual.blocks.21.mlp.linear_fc2.weight": {
+      "rms": 0.00025021625333465636,
+      "relative_frobenius": 0.01135399378836155
+    },
+    "backbone.model.model.visual.blocks.22.attn.proj.weight": {
+      "rms": 0.0003950097307097167,
+      "relative_frobenius": 0.01743924245238304
+    },
+    "backbone.model.model.visual.blocks.22.attn.qkv.weight": {
+      "rms": 0.0005102106370031834,
+      "relative_frobenius": 0.02414018288254738
+    },
+    "backbone.model.model.visual.blocks.22.mlp.linear_fc1.weight": {
+      "rms": 0.0005298927426338196,
+      "relative_frobenius": 0.026327766478061676
+    },
+    "backbone.model.model.visual.blocks.22.mlp.linear_fc2.weight": {
+      "rms": 0.00023097230587154627,
+      "relative_frobenius": 0.010997560806572437
+    },
+    "backbone.model.model.visual.blocks.23.attn.proj.weight": {
+      "rms": 0.0003656649205368012,
+      "relative_frobenius": 0.013362101279199123
+    },
+    "backbone.model.model.visual.blocks.23.attn.qkv.weight": {
+      "rms": 0.0005097492830827832,
+      "relative_frobenius": 0.021957051008939743
+    },
+    "backbone.model.model.visual.blocks.23.mlp.linear_fc1.weight": {
+      "rms": 0.0004984747502021492,
+      "relative_frobenius": 0.025020413100719452
+    },
+    "backbone.model.model.visual.blocks.23.mlp.linear_fc2.weight": {
+      "rms": 0.0002053393400274217,
+      "relative_frobenius": 0.009801656007766724
+    },
+    "backbone.model.model.visual.blocks.3.attn.proj.weight": {
+      "rms": 0.0005732653080485761,
+      "relative_frobenius": 0.03476240858435631
+    },
+    "backbone.model.model.visual.blocks.3.attn.qkv.weight": {
+      "rms": 0.0005351449362933636,
+      "relative_frobenius": 0.02497430518269539
+    },
+    "backbone.model.model.visual.blocks.3.mlp.linear_fc1.weight": {
+      "rms": 0.0005229462985880673,
+      "relative_frobenius": 0.027249181643128395
+    },
+    "backbone.model.model.visual.blocks.3.mlp.linear_fc2.weight": {
+      "rms": 0.00028615223709493876,
+      "relative_frobenius": 0.015062878839671612
+    },
+    "backbone.model.model.visual.blocks.4.attn.proj.weight": {
+      "rms": 0.0005130870849825442,
+      "relative_frobenius": 0.030230989679694176
+    },
+    "backbone.model.model.visual.blocks.4.attn.qkv.weight": {
+      "rms": 0.0005271052359603345,
+      "relative_frobenius": 0.024942854419350624
+    },
+    "backbone.model.model.visual.blocks.4.mlp.linear_fc1.weight": {
+      "rms": 0.0005205049528740346,
+      "relative_frobenius": 0.026799576357007027
+    },
+    "backbone.model.model.visual.blocks.4.mlp.linear_fc2.weight": {
+      "rms": 0.00028242706321179867,
+      "relative_frobenius": 0.014086738228797913
+    },
+    "backbone.model.model.visual.blocks.5.attn.proj.weight": {
+      "rms": 0.000495570304337889,
+      "relative_frobenius": 0.02845560573041439
+    },
+    "backbone.model.model.visual.blocks.5.attn.qkv.weight": {
+      "rms": 0.0005817859782837331,
+      "relative_frobenius": 0.02809043414890766
+    },
+    "backbone.model.model.visual.blocks.5.mlp.linear_fc1.weight": {
+      "rms": 0.0005154375685378909,
+      "relative_frobenius": 0.026537243276834488
+    },
+    "backbone.model.model.visual.blocks.5.mlp.linear_fc2.weight": {
+      "rms": 0.000295061559882015,
+      "relative_frobenius": 0.015241985209286213
+    },
+    "backbone.model.model.visual.blocks.6.attn.proj.weight": {
+      "rms": 0.0005066574667580426,
+      "relative_frobenius": 0.02953985147178173
+    },
+    "backbone.model.model.visual.blocks.6.attn.qkv.weight": {
+      "rms": 0.0005345355602912605,
+      "relative_frobenius": 0.025967778638005257
+    },
+    "backbone.model.model.visual.blocks.6.mlp.linear_fc1.weight": {
+      "rms": 0.000518916524015367,
+      "relative_frobenius": 0.026053357869386673
+    },
+    "backbone.model.model.visual.blocks.6.mlp.linear_fc2.weight": {
+      "rms": 0.00024699533241800964,
+      "relative_frobenius": 0.012922059744596481
+    },
+    "backbone.model.model.visual.blocks.7.attn.proj.weight": {
+      "rms": 0.00045004813000559807,
+      "relative_frobenius": 0.02602257765829563
+    },
+    "backbone.model.model.visual.blocks.7.attn.qkv.weight": {
+      "rms": 0.0004997648065909743,
+      "relative_frobenius": 0.02491028606891632
+    },
+    "backbone.model.model.visual.blocks.7.mlp.linear_fc1.weight": {
+      "rms": 0.0005178271094337106,
+      "relative_frobenius": 0.026051301509141922
+    },
+    "backbone.model.model.visual.blocks.7.mlp.linear_fc2.weight": {
+      "rms": 0.00026227504713460803,
+      "relative_frobenius": 0.014953210018575191
+    },
+    "backbone.model.model.visual.blocks.8.attn.proj.weight": {
+      "rms": 0.0004814034327864647,
+      "relative_frobenius": 0.028602302074432373
+    },
+    "backbone.model.model.visual.blocks.8.attn.qkv.weight": {
+      "rms": 0.0005161677254363894,
+      "relative_frobenius": 0.025162091478705406
+    },
+    "backbone.model.model.visual.blocks.8.mlp.linear_fc1.weight": {
+      "rms": 0.0004856451414525509,
+      "relative_frobenius": 0.024331126362085342
+    },
+    "backbone.model.model.visual.blocks.8.mlp.linear_fc2.weight": {
+      "rms": 0.00022937257017474622,
+      "relative_frobenius": 0.013629211112856865
+    },
+    "backbone.model.model.visual.blocks.9.attn.proj.weight": {
+      "rms": 0.0004275325336493552,
+      "relative_frobenius": 0.02594606578350067
+    },
+    "backbone.model.model.visual.blocks.9.attn.qkv.weight": {
+      "rms": 0.000464795419247821,
+      "relative_frobenius": 0.022552307695150375
+    },
+    "backbone.model.model.visual.blocks.9.mlp.linear_fc1.weight": {
+      "rms": 0.0004730175423901528,
+      "relative_frobenius": 0.023819684982299805
+    },
+    "backbone.model.model.visual.blocks.9.mlp.linear_fc2.weight": {
+      "rms": 0.00021369826572481543,
+      "relative_frobenius": 0.012951759621500969
+    },
+    "backbone.model.model.visual.deepstack_merger_list.0.linear_fc1.weight": {
+      "rms": 0.000256687548244372,
+      "relative_frobenius": 0.01649921014904976
+    },
+    "backbone.model.model.visual.deepstack_merger_list.0.linear_fc2.weight": {
+      "rms": 0.00023619941202923656,
+      "relative_frobenius": 0.015935612842440605
+    },
+    "backbone.model.model.visual.deepstack_merger_list.1.linear_fc1.weight": {
+      "rms": 0.00022902406635694206,
+      "relative_frobenius": 0.014160447753965855
+    },
+    "backbone.model.model.visual.deepstack_merger_list.1.linear_fc2.weight": {
+      "rms": 0.00020673141989391297,
+      "relative_frobenius": 0.013951133005321026
+    },
+    "backbone.model.model.visual.deepstack_merger_list.2.linear_fc1.weight": {
+      "rms": 0.00020612383377738297,
+      "relative_frobenius": 0.012543221935629845
+    },
+    "backbone.model.model.visual.deepstack_merger_list.2.linear_fc2.weight": {
+      "rms": 0.00017028069123625755,
+      "relative_frobenius": 0.011440278962254524
+    },
+    "backbone.model.model.visual.merger.linear_fc1.weight": {
+      "rms": 0.00021467673650477082,
+      "relative_frobenius": 0.012915430590510368
+    },
+    "backbone.model.model.visual.merger.linear_fc2.weight": {
+      "rms": 0.00019126183178741485,
+      "relative_frobenius": 0.01240467093884945
+    },
+    "action_head.model.proj_out_1.weight": {
+      "rms": 0.0006182541837915778,
+      "relative_frobenius": 0.03877788037061691
+    },
+    "action_head.model.proj_out_2.weight": {
+      "rms": 0.0004018893523607403,
+      "relative_frobenius": 0.025476256385445595
+    },
+    "action_head.model.transformer_blocks.19.ff.net.0.proj.weight": {
+      "rms": 0.0008952606003731489,
+      "relative_frobenius": 0.04253871738910675
+    },
+    "action_head.model.transformer_blocks.19.ff.net.2.weight": {
+      "rms": 0.0005183196044526994,
+      "relative_frobenius": 0.04253003001213074
+    },
+    "action_head.model.transformer_blocks.20.attn1.to_k.weight": {
+      "rms": 0.0006913380930200219,
+      "relative_frobenius": 0.03418984264135361
+    },
+    "action_head.model.transformer_blocks.20.attn1.to_out.0.weight": {
+      "rms": 0.0006466277409344912,
+      "relative_frobenius": 0.034037716686725616
+    },
+    "action_head.model.transformer_blocks.20.attn1.to_q.weight": {
+      "rms": 0.0008267497760243714,
+      "relative_frobenius": 0.039803680032491684
+    },
+    "action_head.model.transformer_blocks.20.attn1.to_v.weight": {
+      "rms": 0.000580576597712934,
+      "relative_frobenius": 0.03140133619308472
+    },
+    "action_head.model.transformer_blocks.20.ff.net.0.proj.weight": {
+      "rms": 0.001092413323931396,
+      "relative_frobenius": 0.05018676817417145
+    },
+    "action_head.model.transformer_blocks.20.ff.net.2.weight": {
+      "rms": 0.0005083843134343624,
+      "relative_frobenius": 0.0400005541741848
+    },
+    "action_head.model.transformer_blocks.20.norm1.linear.weight": {
+      "rms": 0.001362167065963149,
+      "relative_frobenius": 0.06847701221704483
+    },
+    "action_head.model.transformer_blocks.21.attn1.to_k.weight": {
+      "rms": 0.0008604642935097218,
+      "relative_frobenius": 0.04083491489291191
+    },
+    "action_head.model.transformer_blocks.21.attn1.to_out.0.weight": {
+      "rms": 0.0007559880032204092,
+      "relative_frobenius": 0.03923305496573448
+    },
+    "action_head.model.transformer_blocks.21.attn1.to_q.weight": {
+      "rms": 0.0008623878238722682,
+      "relative_frobenius": 0.040739335119724274
+    },
+    "action_head.model.transformer_blocks.21.attn1.to_v.weight": {
+      "rms": 0.0006711291498504579,
+      "relative_frobenius": 0.03612898662686348
+    },
+    "action_head.model.transformer_blocks.21.ff.net.0.proj.weight": {
+      "rms": 0.0010657006641849875,
+      "relative_frobenius": 0.047457724809646606
+    },
+    "action_head.model.transformer_blocks.21.ff.net.2.weight": {
+      "rms": 0.0005033593042753637,
+      "relative_frobenius": 0.03810396417975426
+    },
+    "action_head.model.transformer_blocks.21.norm1.linear.weight": {
+      "rms": 0.0011952432105317712,
+      "relative_frobenius": 0.06430507451295853
+    },
+    "action_head.model.transformer_blocks.22.attn1.to_k.weight": {
+      "rms": 0.0006531738326884806,
+      "relative_frobenius": 0.0320982001721859
+    },
+    "action_head.model.transformer_blocks.22.attn1.to_out.0.weight": {
+      "rms": 0.0007574487826786935,
+      "relative_frobenius": 0.03416607901453972
+    },
+    "action_head.model.transformer_blocks.22.attn1.to_q.weight": {
+      "rms": 0.0009646562393754721,
+      "relative_frobenius": 0.04675065726041794
+    },
+    "action_head.model.transformer_blocks.22.attn1.to_v.weight": {
+      "rms": 0.0005588135682046413,
+      "relative_frobenius": 0.027212852612137794
+    },
+    "action_head.model.transformer_blocks.22.ff.net.0.proj.weight": {
+      "rms": 0.0010312155354768038,
+      "relative_frobenius": 0.04423632472753525
+    },
+    "action_head.model.transformer_blocks.22.ff.net.2.weight": {
+      "rms": 0.0004753104585688561,
+      "relative_frobenius": 0.03372441232204437
+    },
+    "action_head.model.transformer_blocks.22.norm1.linear.weight": {
+      "rms": 0.0010785135673359036,
+      "relative_frobenius": 0.05488964915275574
+    },
+    "action_head.model.transformer_blocks.23.attn1.to_k.weight": {
+      "rms": 0.0009485565824434161,
+      "relative_frobenius": 0.04451685771346092
+    },
+    "action_head.model.transformer_blocks.23.attn1.to_out.0.weight": {
+      "rms": 0.0007335380068980157,
+      "relative_frobenius": 0.03697961941361427
+    },
+    "action_head.model.transformer_blocks.23.attn1.to_q.weight": {
+      "rms": 0.0008715648436918855,
+      "relative_frobenius": 0.04079389199614525
+    },
+    "action_head.model.transformer_blocks.23.attn1.to_v.weight": {
+      "rms": 0.0006199320196174085,
+      "relative_frobenius": 0.03270045295357704
+    },
+    "action_head.model.transformer_blocks.23.ff.net.0.proj.weight": {
+      "rms": 0.000947654596529901,
+      "relative_frobenius": 0.03942877799272537
+    },
+    "action_head.model.transformer_blocks.23.ff.net.2.weight": {
+      "rms": 0.0005102098220959306,
+      "relative_frobenius": 0.03451306000351906
+    },
+    "action_head.model.transformer_blocks.23.norm1.linear.weight": {
+      "rms": 0.0010858919704332948,
+      "relative_frobenius": 0.05850875750184059
+    },
+    "action_head.model.transformer_blocks.24.attn1.to_k.weight": {
+      "rms": 0.0006885698530822992,
+      "relative_frobenius": 0.03394509479403496
+    },
+    "action_head.model.transformer_blocks.24.attn1.to_out.0.weight": {
+      "rms": 0.0006220487412065268,
+      "relative_frobenius": 0.03257744759321213
+    },
+    "action_head.model.transformer_blocks.24.attn1.to_q.weight": {
+      "rms": 0.0007716601830907166,
+      "relative_frobenius": 0.0364806093275547
+    },
+    "action_head.model.transformer_blocks.24.attn1.to_v.weight": {
+      "rms": 0.0005194171681068838,
+      "relative_frobenius": 0.02875392884016037
+    },
+    "action_head.model.transformer_blocks.24.ff.net.0.proj.weight": {
+      "rms": 0.0010568840662017465,
+      "relative_frobenius": 0.04358220845460892
+    },
+    "action_head.model.transformer_blocks.24.ff.net.2.weight": {
+      "rms": 0.0004974530311301351,
+      "relative_frobenius": 0.03303757309913635
+    },
+    "action_head.model.transformer_blocks.24.norm1.linear.weight": {
+      "rms": 0.0012501300079748034,
+      "relative_frobenius": 0.062495265156030655
+    },
+    "action_head.model.transformer_blocks.25.attn1.to_k.weight": {
+      "rms": 0.0010819898452609777,
+      "relative_frobenius": 0.0508456751704216
+    },
+    "action_head.model.transformer_blocks.25.attn1.to_out.0.weight": {
+      "rms": 0.0007288214401341975,
+      "relative_frobenius": 0.036355528980493546
+    },
+    "action_head.model.transformer_blocks.25.attn1.to_q.weight": {
+      "rms": 0.00088777847122401,
+      "relative_frobenius": 0.04197288677096367
+    },
+    "action_head.model.transformer_blocks.25.attn1.to_v.weight": {
+      "rms": 0.0006288870936259627,
+      "relative_frobenius": 0.033557143062353134
+    },
+    "action_head.model.transformer_blocks.25.ff.net.0.proj.weight": {
+      "rms": 0.000962329562753439,
+      "relative_frobenius": 0.03939561918377876
+    },
+    "action_head.model.transformer_blocks.25.ff.net.2.weight": {
+      "rms": 0.0005412056343629956,
+      "relative_frobenius": 0.035123974084854126
+    },
+    "action_head.model.transformer_blocks.25.norm1.linear.weight": {
+      "rms": 0.0010126343695446849,
+      "relative_frobenius": 0.05667853355407715
+    },
+    "action_head.model.transformer_blocks.26.attn1.to_k.weight": {
+      "rms": 0.000657993892673403,
+      "relative_frobenius": 0.0324413999915123
+    },
+    "action_head.model.transformer_blocks.26.attn1.to_out.0.weight": {
+      "rms": 0.0007528226124122739,
+      "relative_frobenius": 0.033151932060718536
+    },
+    "action_head.model.transformer_blocks.26.attn1.to_q.weight": {
+      "rms": 0.0008545226301066577,
+      "relative_frobenius": 0.04087924584746361
+    },
+    "action_head.model.transformer_blocks.26.attn1.to_v.weight": {
+      "rms": 0.0005628562648780644,
+      "relative_frobenius": 0.02789018116891384
+    },
+    "action_head.model.transformer_blocks.26.ff.net.0.proj.weight": {
+      "rms": 0.000850122538395226,
+      "relative_frobenius": 0.03437807038426399
+    },
+    "action_head.model.transformer_blocks.26.ff.net.2.weight": {
+      "rms": 0.0005060358089394867,
+      "relative_frobenius": 0.03143555298447609
+    },
+    "action_head.model.transformer_blocks.26.norm1.linear.weight": {
+      "rms": 0.0012119559105485678,
+      "relative_frobenius": 0.0649818405508995
+    },
+    "action_head.model.transformer_blocks.27.attn1.to_k.weight": {
+      "rms": 0.0009173927246592939,
+      "relative_frobenius": 0.043531376868486404
+    },
+    "action_head.model.transformer_blocks.27.attn1.to_out.0.weight": {
+      "rms": 0.0007565961568616331,
+      "relative_frobenius": 0.03432254120707512
+    },
+    "action_head.model.transformer_blocks.27.attn1.to_q.weight": {
+      "rms": 0.0009017229313030839,
+      "relative_frobenius": 0.0429922491312027
+    },
+    "action_head.model.transformer_blocks.27.attn1.to_v.weight": {
+      "rms": 0.0005655525019392371,
+      "relative_frobenius": 0.02861793525516987
+    },
+    "action_head.model.transformer_blocks.27.ff.net.0.proj.weight": {
+      "rms": 0.0008687253575772047,
+      "relative_frobenius": 0.03489037603139877
+    },
+    "action_head.model.transformer_blocks.27.ff.net.2.weight": {
+      "rms": 0.0005282168858684599,
+      "relative_frobenius": 0.0318244993686676
+    },
+    "action_head.model.transformer_blocks.27.norm1.linear.weight": {
+      "rms": 0.0007172373589128256,
+      "relative_frobenius": 0.03954075649380684
+    },
+    "action_head.model.transformer_blocks.28.attn1.to_k.weight": {
+      "rms": 0.0007100349175743759,
+      "relative_frobenius": 0.034657202661037445
+    },
+    "action_head.model.transformer_blocks.28.attn1.to_out.0.weight": {
+      "rms": 0.0006019172724336386,
+      "relative_frobenius": 0.03083614818751812
+    },
+    "action_head.model.transformer_blocks.28.attn1.to_q.weight": {
+      "rms": 0.0008125003078021109,
+      "relative_frobenius": 0.0373372919857502
+    },
+    "action_head.model.transformer_blocks.28.attn1.to_v.weight": {
+      "rms": 0.0005134378443472087,
+      "relative_frobenius": 0.028959030285477638
+    },
+    "action_head.model.transformer_blocks.28.ff.net.0.proj.weight": {
+      "rms": 0.0008696510340087116,
+      "relative_frobenius": 0.035594578832387924
+    },
+    "action_head.model.transformer_blocks.28.ff.net.2.weight": {
+      "rms": 0.0004999935626983643,
+      "relative_frobenius": 0.03011332079768181
+    },
+    "action_head.model.transformer_blocks.28.norm1.linear.weight": {
+      "rms": 0.0007008353131823242,
+      "relative_frobenius": 0.034895896911621094
+    },
+    "action_head.model.transformer_blocks.29.attn1.to_k.weight": {
+      "rms": 0.000813029648270458,
+      "relative_frobenius": 0.039825960993766785
+    },
+    "action_head.model.transformer_blocks.29.attn1.to_out.0.weight": {
+      "rms": 0.000652277609333396,
+      "relative_frobenius": 0.027391720563173294
+    },
+    "action_head.model.transformer_blocks.29.attn1.to_q.weight": {
+      "rms": 0.0007701693684794009,
+      "relative_frobenius": 0.03770950436592102
+    },
+    "action_head.model.transformer_blocks.29.attn1.to_v.weight": {
+      "rms": 0.0005370716098695993,
+      "relative_frobenius": 0.02667151391506195
+    },
+    "action_head.model.transformer_blocks.29.ff.net.0.proj.weight": {
+      "rms": 0.0008682245970703661,
+      "relative_frobenius": 0.03703173249959946
+    },
+    "action_head.model.transformer_blocks.29.ff.net.2.weight": {
+      "rms": 0.00047256302786991,
+      "relative_frobenius": 0.029193276539444923
+    },
+    "action_head.model.transformer_blocks.29.norm1.linear.weight": {
+      "rms": 0.0009679367649368942,
+      "relative_frobenius": 0.054195836186409
+    },
+    "action_head.model.transformer_blocks.30.attn1.to_k.weight": {
+      "rms": 0.00071040476905182,
+      "relative_frobenius": 0.03514750674366951
+    },
+    "action_head.model.transformer_blocks.30.attn1.to_out.0.weight": {
+      "rms": 0.0007024467922747135,
+      "relative_frobenius": 0.03390798717737198
+    },
+    "action_head.model.transformer_blocks.30.attn1.to_q.weight": {
+      "rms": 0.0008607264026068151,
+      "relative_frobenius": 0.04090719670057297
+    },
+    "action_head.model.transformer_blocks.30.attn1.to_v.weight": {
+      "rms": 0.000542295107152313,
+      "relative_frobenius": 0.029638702049851418
+    },
+    "action_head.model.transformer_blocks.30.ff.net.0.proj.weight": {
+      "rms": 0.0007501795189455152,
+      "relative_frobenius": 0.032489895820617676
+    },
+    "action_head.model.transformer_blocks.30.ff.net.2.weight": {
+      "rms": 0.0004774174594786018,
+      "relative_frobenius": 0.029002979397773743
+    },
+    "action_head.model.transformer_blocks.30.norm1.linear.weight": {
+      "rms": 0.0011521695414558053,
+      "relative_frobenius": 0.06421557813882828
+    },
+    "action_head.model.transformer_blocks.31.attn1.to_k.weight": {
+      "rms": 0.0006651969742961228,
+      "relative_frobenius": 0.03429505228996277
+    },
+    "action_head.model.transformer_blocks.31.attn1.to_out.0.weight": {
+      "rms": 0.0005182433524169028,
+      "relative_frobenius": 0.020015696063637733
+    },
+    "action_head.model.transformer_blocks.31.attn1.to_q.weight": {
+      "rms": 0.0006367656169459224,
+      "relative_frobenius": 0.033123135566711426
+    },
+    "action_head.model.transformer_blocks.31.attn1.to_v.weight": {
+      "rms": 0.0003844590100925416,
+      "relative_frobenius": 0.01923445053398609
+    },
+    "action_head.model.transformer_blocks.31.ff.net.0.proj.weight": {
+      "rms": 0.000685773091390729,
+      "relative_frobenius": 0.03316892310976982
+    },
+    "action_head.model.transformer_blocks.31.ff.net.2.weight": {
+      "rms": 0.00051318813348189,
+      "relative_frobenius": 0.038834553211927414
+    },
+    "action_head.model.transformer_blocks.31.norm1.linear.weight": {
+      "rms": 0.0009517297730781138,
+      "relative_frobenius": 0.054138053208589554
+    },
+    "action_head.vl_self_attention.transformer_blocks.0.attn1.to_k.weight": {
+      "rms": 0.000416486116591841,
+      "relative_frobenius": 0.024207036942243576
+    },
+    "action_head.vl_self_attention.transformer_blocks.0.attn1.to_out.0.weight": {
+      "rms": 0.000406043604016304,
+      "relative_frobenius": 0.025635652244091034
+    },
+    "action_head.vl_self_attention.transformer_blocks.0.attn1.to_q.weight": {
+      "rms": 0.00044011909631080925,
+      "relative_frobenius": 0.025456180796027184
+    },
+    "action_head.vl_self_attention.transformer_blocks.0.attn1.to_v.weight": {
+      "rms": 0.0005467557348310947,
+      "relative_frobenius": 0.03309936076402664
+    },
+    "action_head.vl_self_attention.transformer_blocks.0.ff.net.0.proj.weight": {
+      "rms": 0.0003999545588158071,
+      "relative_frobenius": 0.020086491480469704
+    },
+    "action_head.vl_self_attention.transformer_blocks.0.ff.net.2.weight": {
+      "rms": 0.00028397870482876897,
+      "relative_frobenius": 0.02290486730635166
+    },
+    "action_head.vl_self_attention.transformer_blocks.1.attn1.to_k.weight": {
+      "rms": 0.00046235238551162183,
+      "relative_frobenius": 0.024091213941574097
+    },
+    "action_head.vl_self_attention.transformer_blocks.1.attn1.to_out.0.weight": {
+      "rms": 0.0004762293247040361,
+      "relative_frobenius": 0.0261157788336277
+    },
+    "action_head.vl_self_attention.transformer_blocks.1.attn1.to_q.weight": {
+      "rms": 0.0005237816367298365,
+      "relative_frobenius": 0.027373729273676872
+    },
+    "action_head.vl_self_attention.transformer_blocks.1.attn1.to_v.weight": {
+      "rms": 0.00038751494139432907,
+      "relative_frobenius": 0.021844588220119476
+    },
+    "action_head.vl_self_attention.transformer_blocks.1.ff.net.0.proj.weight": {
+      "rms": 0.0005227858200669289,
+      "relative_frobenius": 0.025531325489282608
+    },
+    "action_head.vl_self_attention.transformer_blocks.1.ff.net.2.weight": {
+      "rms": 0.0003611109859775752,
+      "relative_frobenius": 0.024425465613603592
+    },
+    "action_head.vl_self_attention.transformer_blocks.2.attn1.to_k.weight": {
+      "rms": 0.0005490444018505514,
+      "relative_frobenius": 0.028409194201231003
+    },
+    "action_head.vl_self_attention.transformer_blocks.2.attn1.to_out.0.weight": {
+      "rms": 0.0005509890033863485,
+      "relative_frobenius": 0.02762807346880436
+    },
+    "action_head.vl_self_attention.transformer_blocks.2.attn1.to_q.weight": {
+      "rms": 0.0005695110303349793,
+      "relative_frobenius": 0.029275447130203247
+    },
+    "action_head.vl_self_attention.transformer_blocks.2.attn1.to_v.weight": {
+      "rms": 0.0004950373549945652,
+      "relative_frobenius": 0.02587278001010418
+    },
+    "action_head.vl_self_attention.transformer_blocks.2.ff.net.0.proj.weight": {
+      "rms": 0.000666049134451896,
+      "relative_frobenius": 0.03181420639157295
+    },
+    "action_head.vl_self_attention.transformer_blocks.2.ff.net.2.weight": {
+      "rms": 0.00039366912096738815,
+      "relative_frobenius": 0.02397129498422146
+    },
+    "action_head.vl_self_attention.transformer_blocks.3.attn1.to_k.weight": {
+      "rms": 0.0006198110640980303,
+      "relative_frobenius": 0.031265389174222946
+    },
+    "action_head.vl_self_attention.transformer_blocks.3.attn1.to_out.0.weight": {
+      "rms": 0.0005932240164838731,
+      "relative_frobenius": 0.02835943177342415
+    },
+    "action_head.vl_self_attention.transformer_blocks.3.attn1.to_q.weight": {
+      "rms": 0.0006368563044816256,
+      "relative_frobenius": 0.03165869787335396
+    },
+    "action_head.vl_self_attention.transformer_blocks.3.attn1.to_v.weight": {
+      "rms": 0.0005223500193096697,
+      "relative_frobenius": 0.025892114266753197
+    },
+    "action_head.vl_self_attention.transformer_blocks.3.ff.net.0.proj.weight": {
+      "rms": 0.0007607295992784202,
+      "relative_frobenius": 0.03552315756678581
+    },
+    "action_head.vl_self_attention.transformer_blocks.3.ff.net.2.weight": {
+      "rms": 0.00040387798799201846,
+      "relative_frobenius": 0.022811943665146828
+    }
+  },
+  "elapsed_seconds": 57.058204650878906,
+  "status": "complete",
+  "output_weights": {
+    "model-00001-of-00002.safetensors": {
+      "bytes": 4990519232,
+      "sha256": "4afbf03aa2dbcb4ddb9e5a67a371234790193d2956c7766492253612fe39bf44"
+    },
+    "model-00002-of-00002.safetensors": {
+      "bytes": 1919980184,
+      "sha256": "02f59028700042adc9f1ea922124ab304e0e2d67e53f2ff478cb335ee440e30b"
+    }
+  }
+}

@@ -1,0 +1,418 @@
+{
+  "version": 1,
+  "status": "complete",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "source_round": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round",
+  "parser": {
+    "path": "eval/run_recovery_eval.py",
+    "bytes": 28158,
+    "sha256": "991a696ba141c423272689bbbfdac44f60c3396e793590ce7bda5dd5115b32ea"
+  },
+  "parser_functions": [
+    "parse_log",
+    "validate_resets"
+  ],
+  "files": {
+    "heldout_bf16/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log": {
+      "bytes": 15050,
+      "sha256": "f355f46ead4593ad91ce5c367556f1465eaf4c930587151a9961d74581aff6a5"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+      "bytes": 1520,
+      "sha256": "c959d0e4631ec31f7db6fa2eb54188567cf06e2e4182ddabb960287c27d334d4"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log": {
+      "bytes": 14984,
+      "sha256": "fc7aee8ce810b12dfc699d5d129d6d115e6fff50d7b96f8580292be746781b01"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+      "bytes": 1520,
+      "sha256": "ed20a2aca9bf3225225bb8cc1aa2ed0f9c2862c56f0384b9a1238eb93a646089"
+    },
+    "heldout_bf16/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log": {
+      "bytes": 14609,
+      "sha256": "64796aa1cf7a8480d8dfbed53af538751fc40f31a723a6772af44c992bc0c637"
+    },
+    "heldout_bf16/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+      "bytes": 1520,
+      "sha256": "e2604920e4be9d57b1162d15ddf66ead9e6c01566608471e183cf28ec985f1c2"
+    },
+    "heldout_bf16/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log": {
+      "bytes": 15094,
+      "sha256": "9f90be5ced8125b0caae8a0f3de6ce2df2ff9382a74f452c6a2e948de62e1907"
+    },
+    "heldout_bf16/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+      "bytes": 1520,
+      "sha256": "3d62abc2f1e110589d0cdcaf82c035dbb049acf7d348d8f9b5d16171c881d839"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log": {
+      "bytes": 15596,
+      "sha256": "4b73babec243b50f461b15a3fd8f0b54b40a0168b869fc4635d6e9aaf557291e"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+      "bytes": 1520,
+      "sha256": "20ab2896d430c6f5796a590aaf308ecf8e568a3012bf6926474e614300a85df4"
+    },
+    "heldout_bf16/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log": {
+      "bytes": 15029,
+      "sha256": "906b4ad54315ce4155c42622f0922c39148146cbcc9ac2f34884b40e67ec96b1"
+    },
+    "heldout_bf16/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+      "bytes": 1520,
+      "sha256": "b5e54f6924ffcf84bd1f08389e5f9c7681d188069e537f03486c74b56b1ea08e"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log": {
+      "bytes": 15572,
+      "sha256": "8ee3cf2b7b79ef29bd012c677b028df2dce956594e84a60d039685f7a327a856"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+      "bytes": 1520,
+      "sha256": "537a5d398e2cfad123279afd2a465d63b971f6c846f2af8af23582a7aba1b247"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log": {
+      "bytes": 15134,
+      "sha256": "ca2521e325fdb8d7cf33d75fa08ec646d6dd653038435a020a0abc581cc729e3"
+    },
+    "heldout_bf16/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+      "bytes": 1520,
+      "sha256": "3573bfb2bd5bb9147ed7979e3136090566cc57e2740de263b3e92e2e1393c43b"
+    },
+    "heldout_bf16/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log": {
+      "bytes": 14337,
+      "sha256": "bcf33041d2de592a7e2104dc075778ce9948fb34fd88230ba958e0add34c3cba"
+    },
+    "heldout_bf16/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+      "bytes": 1520,
+      "sha256": "04a46b376fc5e7bb78625dc02233f1d266bee43d9e1c0e1b750f8a8c55894ca7"
+    },
+    "heldout_bf16/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log": {
+      "bytes": 14903,
+      "sha256": "863b177f59b909bc27d12548a5d0e7d362d022bca7fae05ea77115f53829a352"
+    },
+    "heldout_bf16/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+      "bytes": 1520,
+      "sha256": "d7d6fd7aec287af46046ac1703bd5b20fb4040e5e2eccffc62ec7985162f087c"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log": {
+      "bytes": 15060,
+      "sha256": "0ac319a0daeada46d75df7dad5f485b06a56f5cac1f70ea6dd35dde724334c91"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+      "bytes": 51290,
+      "sha256": "e94ad4165f4aa6ecf8681b2986178a94a8d24a2ab5505e8cda576ffa5c0b2aa6"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log": {
+      "bytes": 14983,
+      "sha256": "92ae451aa8089ae4471471e00a269b77aa39036fdb1512bd624e966957582f5a"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+      "bytes": 51290,
+      "sha256": "8577a5c0f5fdc386fde67430626f4572486f5735f15615c3b62ee3243d63af8f"
+    },
+    "heldout_ptq/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log": {
+      "bytes": 14618,
+      "sha256": "e78248e998758e0ab3de2c6b72918fc95e34963d4a3381a0090b65da502838c4"
+    },
+    "heldout_ptq/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+      "bytes": 51290,
+      "sha256": "9cd197b3c9c819b85134be5b3b621786c1a6928dae31eb940a808c30c1550698"
+    },
+    "heldout_ptq/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log": {
+      "bytes": 15094,
+      "sha256": "6b86dc4b290e442b595a2e0b1f1af55cfefc4ddeac5962b67c29c72a37eaa8b9"
+    },
+    "heldout_ptq/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+      "bytes": 51290,
+      "sha256": "200ee013b5b73f2bf4012599a470ef19af3923135ead6a1f31a8f68dfcbd8ec8"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log": {
+      "bytes": 15596,
+      "sha256": "20cc9a58a764bb75de48490ba5a4365f27e913ebc16a522ddae557b5e134615a"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+      "bytes": 51290,
+      "sha256": "050f7ebcad6a185e23e745bbd1b541ee21fda979be509c04bc611a9a06a0672e"
+    },
+    "heldout_ptq/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log": {
+      "bytes": 15028,
+      "sha256": "b7e3ad5f631f5011b52ca33dda3147803f76cc3af5e77168005e16f0477f3c90"
+    },
+    "heldout_ptq/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+      "bytes": 51290,
+      "sha256": "3002424c03951fb5165e4c918de21f74b396ec5b9ade77fbb841da9aae23d3a7"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log": {
+      "bytes": 15576,
+      "sha256": "411b982c833f31433832f87e865f76bf44622adc7b46a0b81fa6feffcbd19d42"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+      "bytes": 51290,
+      "sha256": "e2b44e3178eb470c5669600774d91c0457d7453c696c80f218be912540e4a220"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log": {
+      "bytes": 15132,
+      "sha256": "97a43115045812d08183e1d9a936ee851c651996549cb1d33876afc25c618fbf"
+    },
+    "heldout_ptq/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+      "bytes": 51290,
+      "sha256": "98c886fc31d8eead555b9f807321171e80877fa7defd2ac56763b4824e68b49c"
+    },
+    "heldout_ptq/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log": {
+      "bytes": 14354,
+      "sha256": "af6ad3c20c68bb4b0feaef65cc678e1cec4a28eac5858ef51c043c684784276a"
+    },
+    "heldout_ptq/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+      "bytes": 51290,
+      "sha256": "d25b4631e8d93e61ce30fe18b55b4844476c743d52577ab515196e35f4a8286b"
+    },
+    "heldout_ptq/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log": {
+      "bytes": 14913,
+      "sha256": "6bacbb77e0292e1deb4ccbc9d56a621585d8b72f4e485e931c64d37a486ddf26"
+    },
+    "heldout_ptq/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+      "bytes": 51290,
+      "sha256": "f889ba54b0104533c5685fff7f4ff3c09805b575e028281d444ae06b22391cdd"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log": {
+      "bytes": 15050,
+      "sha256": "8e173acd31796b92ae91c8f00af7b5ae03fda9c0d0e4abc9513300cd7d539f50"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+      "bytes": 51528,
+      "sha256": "e30ef55612cb06ba211b76801d6008225e27e4d723664986dcc09a19da40a12f"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log": {
+      "bytes": 14983,
+      "sha256": "396b2ad71f8f600c830e93e3b8c2ba8ac21c8769fadee437842373037d6cffbc"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+      "bytes": 51528,
+      "sha256": "5cc4c5f1a8fa78773584f42084b78515e0d30ed416d899c3813d67a2339b6811"
+    },
+    "heldout_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log": {
+      "bytes": 14622,
+      "sha256": "9c6ca55bc70231289eeccf7d11a3d39d49831d738617105d14ccb7605b788a2e"
+    },
+    "heldout_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+      "bytes": 51528,
+      "sha256": "7a036b1937716eda1796981daaf78192c6f56c9bef318139674113d2d07c8927"
+    },
+    "heldout_qad/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log": {
+      "bytes": 15094,
+      "sha256": "c66135791c1c56dcc5d13beeccbf144d0828ea97e6f0ca3d089c1cd480c35642"
+    },
+    "heldout_qad/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+      "bytes": 51528,
+      "sha256": "1813baeafc7a2ab3e574df0d8d93e83942946ff7ae77e4b21fc2e17c03e11130"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log": {
+      "bytes": 15607,
+      "sha256": "6d3975b4fe53912d871b1787d8236de30df96a1e2d73815afd8962d35c63aeda"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+      "bytes": 51528,
+      "sha256": "148f14254c8a32fe7682307c8a4580052db4afc5f8932363aabd4e9efb5402a7"
+    },
+    "heldout_qad/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log": {
+      "bytes": 15024,
+      "sha256": "21e88bbb34c41a883301703a00701d6b869087bce4b966ba10f8bec612d69345"
+    },
+    "heldout_qad/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+      "bytes": 51528,
+      "sha256": "657cd84efe9f76e4d8659016658cf0b164ddb3ccf1679f62ed008ad31aec5277"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log": {
+      "bytes": 15582,
+      "sha256": "8a29d25152aa5bbef47758b061f6a0ac5ee5eb297833627a020f0c3026ca2e72"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+      "bytes": 51528,
+      "sha256": "7a13fadfef120e79797ee90b5d071f809a248f400dadf896c5a87742f69e3d31"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log": {
+      "bytes": 15139,
+      "sha256": "3429045d20787d46abbfb05460e90d278edc385980185b93161991b0d80dd566"
+    },
+    "heldout_qad/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+      "bytes": 51528,
+      "sha256": "c7855867ff5544a449ba8dec26fd038fabdc2de8778cf909700b918b2698ba2d"
+    },
+    "heldout_qad/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log": {
+      "bytes": 14354,
+      "sha256": "d5a0a66f598f8dad61ad85c9d216bfb61a9833951f2df7c1925e78b97c1500bc"
+    },
+    "heldout_qad/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+      "bytes": 51528,
+      "sha256": "cf517c38b36eeef24b558710e76863381c414ceb4cf098b51f8c37e17a2a7412"
+    },
+    "heldout_qad/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log": {
+      "bytes": 14912,
+      "sha256": "2fb005f749ee43d3a535db9edc14d9682f84049076652d4a5d3751b380840a66"
+    },
+    "heldout_qad/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+      "bytes": 51528,
+      "sha256": "dc6776ff461e225c6b1c75acc55b9321d9532fb7950a45fa4154d1d710e3f99f"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log": {
+      "bytes": 15089,
+      "sha256": "52186ff8a7e6882fbc23b01f13bf98c4751e26477c14e3d4fb113a54d5f7b87b"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+      "bytes": 51696,
+      "sha256": "b4e35e9008cac7f6e086408f0045f3ff2f68c254f837a9d3fbb37f5af8d44653"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log": {
+      "bytes": 15026,
+      "sha256": "2978b47896094e93741983d4714361c03e75527a0ee74620e61e075fc7596338"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+      "bytes": 51696,
+      "sha256": "4db4e3b879fc1099c0d2de382c6f92fd96b1249242bd9f0049830ff87e3852fa"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log": {
+      "bytes": 14636,
+      "sha256": "d28ed26603b20d41f83a22425238519a092020694a5f9b90b8b04e61316d23ad"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+      "bytes": 51696,
+      "sha256": "a25526dbeceeceb13c55330b392b59736b2a9403f4e53fdebe1a3096e204f3fb"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log": {
+      "bytes": 15100,
+      "sha256": "4382379b7feed591a2ba82b461d09007402b3ade39c3f7310b9df3f4a9b5f660"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+      "bytes": 51696,
+      "sha256": "900288e9b41d7f0caea8714be84a9bfe6d15083ee738c8640b839d73fee0a5a8"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log": {
+      "bytes": 15617,
+      "sha256": "e713207fa0a3c97d21e39bec5f2f1981a6324fd2944540e5f6f4b0cace9ed227"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+      "bytes": 51696,
+      "sha256": "056382fabf3d329c8dec36fed4f1ed0ab3be469b4bc6b7e14679673e2b462bf4"
+    },
+    "heldout_continued_qad/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log": {
+      "bytes": 15039,
+      "sha256": "55ddef31871adb33a5eb37f9250a9f2486dc0254e8123af4997566bb14bac9a9"
+    },
+    "heldout_continued_qad/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+      "bytes": 51696,
+      "sha256": "f5d9b15fdf5d7383c00f3caa5a1ae4f61bb2fb9cf018415426bd606641c5c290"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log": {
+      "bytes": 15605,
+      "sha256": "5a35a5ac4e3a8f8eb05dec4d8707ef609bdf4829684c810a0a4cb21bce870536"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+      "bytes": 51696,
+      "sha256": "9ee014f7adc8c040b5761cfb71e4e173d3b47fb64ee9f29e93b742f4e4cd7df1"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log": {
+      "bytes": 15154,
+      "sha256": "9f4948e51af30820aca02c0593ef3b26f24cb9437403e40252cfb85518360ce0"
+    },
+    "heldout_continued_qad/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+      "bytes": 51696,
+      "sha256": "ae47b3b4d1e468565cadc6a337f4dee7f0f6443284b2b2906089c437b9acd59c"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log": {
+      "bytes": 14364,
+      "sha256": "e9531cba0f2ffcb258c999bf245fb8f326ab97971d45ea24effcf9a1d797962d"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+      "bytes": 51696,
+      "sha256": "dd9d1e61f9c4f80f7fd6a75caca55575b3649db02649641675f0e44390b45e46"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log": {
+      "bytes": 14934,
+      "sha256": "c5def7a8b3d063e430d031eba8cbf2d143b3d381c612d1da38435c56b42b36cc"
+    },
+    "heldout_continued_qad/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+      "bytes": 51696,
+      "sha256": "7e60c6b6c3fa15349513e0a5d8958891e98fe44361a804c1acb93621f074c2c4"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log": {
+      "bytes": 15061,
+      "sha256": "0be2adc9071dfad3af90448e6707a139e737ac1948645867f9d23bb811fe27b3"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+      "bytes": 51684,
+      "sha256": "317c3008a753e2136cfef8729b0667050cad473aeee76347c73c0e4522f834d7"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log": {
+      "bytes": 14987,
+      "sha256": "aa0f385595efde25e3cce0a83dc8ce64e02d5ac07074b536a1db3587e53349e7"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+      "bytes": 51684,
+      "sha256": "91226c4e0a77bb267e9b5e941c44746be4f9143d1045fdf94446ed769bbbdb85"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log": {
+      "bytes": 14623,
+      "sha256": "f237ead28e42857b645e08ca098cad1fdc2300ee30c6743676b494126c1123d6"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+      "bytes": 51684,
+      "sha256": "b22650ae58baf9f50152ecba50508401d8d82a585ba14628c60206df618534c6"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log": {
+      "bytes": 15105,
+      "sha256": "1155927a4f8b835feb7e642c9c702f5cfc5aa4c6f5e89062820ce5b9cde6f20b"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+      "bytes": 51684,
+      "sha256": "086c4a9f757c9a86b61f5a1f918fb80e3a4966960cf382ef1b12615ab93a7ace"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log": {
+      "bytes": 15608,
+      "sha256": "b421ac49bc6d8453dfdf66e83225a25d219837843bb431c8e6f766ede709a5d6"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+      "bytes": 51684,
+      "sha256": "bce5c1a1ab6d7ea7031c9d1e6261d9225dae9cb5f38f6b31b2148dbadbfef26d"
+    },
+    "heldout_qad_opd/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log": {
+      "bytes": 15032,
+      "sha256": "3034ca1001065df9c641cb07308f6d1b14e3244589c16b67a080bed9c62207f6"
+    },
+    "heldout_qad_opd/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+      "bytes": 51684,
+      "sha256": "7dbdead1c2bfab4be01eaa0785c6741ab9ce3920c3bbf347c35c63bcc10fc124"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log": {
+      "bytes": 15584,
+      "sha256": "b823209873a992748cfe624612e901618ae5905e0f9831a0fbab25aa977ed706"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+      "bytes": 51684,
+      "sha256": "867a461abb8660ffd1739745da1dc4821f98672328043cd6fcde086280fa3f97"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log": {
+      "bytes": 15143,
+      "sha256": "00cd20ecf6991da6b7745baccd7d9ecc9c46159484312e1c56f06a396e01df07"
+    },
+    "heldout_qad_opd/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+      "bytes": 51684,
+      "sha256": "27ff54dc60632542c8acb86ded16552d3003542580223ff6d9d7dd802dd6b838"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log": {
+      "bytes": 14360,
+      "sha256": "bf34d13c2680dadcf5b845f58c0d673ec6f5fb50004b33c7740f7b3a3c528fb7"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+      "bytes": 51684,
+      "sha256": "8baea303964f9b4d8919d4284269d5ab48313dd518b1983d235169a8d0c1e2b0"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log": {
+      "bytes": 14920,
+      "sha256": "a434637013bf4be8db9a5014406cb523b25f78520b23c533463167a2c6311f93"
+    },
+    "heldout_qad_opd/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+      "bytes": 51684,
+      "sha256": "ecdb550077eb3cfb40a306135cebe92fdbdc5f14080342ede2f3fa9ac6deda6a"
+    }
+  },
+  "scope": "Fifty rollout and fifty server logs copied byte-for-byte. Rollout hashes and parsed results/reset records match original task_results.json. Server hashes are recorded at collection time; no launch-time server hash is inferred."
+}

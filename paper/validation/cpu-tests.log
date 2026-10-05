@@ -1,6 +1,6 @@
-Complete CPU unittest collection and four paper suites
-No GPU/model/closed-loop evaluation; test fixtures are synthetic.
-ENVIRONMENT {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}
+Complete CPU unittest collection and 9 paper suites
+No GPU/pretrained-model/closed-loop evaluation; test fixtures are synthetic.
+ENVIRONMENT {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}
 
 SUITE unittest-discovery
 COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -v
@@ -96,6 +96,15 @@ test_legacy_reference_or_selected_recipe_is_rejected (test_frontier_figures.Fron
 test_missing_arm_or_bf16_recipe_mislabel_is_rejected (test_frontier_figures.FrontierFigureTests.test_missing_arm_or_bf16_recipe_mislabel_is_rejected) ... ok
 test_plot_uses_success_percentage_instead_of_160_episode_success_count (test_frontier_figures.FrontierFigureTests.test_plot_uses_success_percentage_instead_of_160_episode_success_count) ... ok
 test_scope_keeps_checkpoint_horizon_statistics_mapping_and_valid_actions (test_gr00t_runtime.RuntimeTests.test_scope_keeps_checkpoint_horizon_statistics_mapping_and_valid_actions) ... ok
+test_all_one_hundred_logs_are_byte_identical_and_validate_without_private_run (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_all_one_hundred_logs_are_byte_identical_and_validate_without_private_run) ... ok
+test_changed_published_server_log_is_rejected_by_hash (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_changed_published_server_log_is_rejected_by_hash) ... ok
+test_changed_source_rollout_fails_original_task_hash (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_changed_source_rollout_fails_original_task_hash) ... ok
+test_claimed_task_success_count_must_match_actual_parser (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_claimed_task_success_count_must_match_actual_parser) ... ok
+test_matching_hash_and_task_json_cannot_hide_wrong_reset_seed (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_matching_hash_and_task_json_cannot_hide_wrong_reset_seed) ... ok
+test_missing_published_log_is_rejected (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_missing_published_log_is_rejected) ... ok
+test_missing_source_rollout_or_server_is_rejected_before_log_copy (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_missing_source_rollout_or_server_is_rejected_before_log_copy) ... ok
+test_published_manifest_cannot_omit_an_official_log (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_published_manifest_cannot_omit_an_official_log) ... ok
+test_published_task_outcomes_must_match_raw_log (test_heldout_raw_evidence.HeldoutRawEvidenceTests.test_published_task_outcomes_must_match_raw_log) ... ok
 test_v11_exposes_teacher_supervision_partition (test_high_fp4_protocol.HighFp4ProtocolTest.test_v11_exposes_teacher_supervision_partition) ... ok
 test_mixed_protocol_requires_nonzero_fp4_and_fp8 (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_mixed_protocol_requires_nonzero_fp4_and_fp8) ... ok
 test_pairing_mapping_is_unique_and_names_original_round_sources (test_materialize_final_evidence.MaterializeFinalEvidenceTests.test_pairing_mapping_is_unique_and_names_original_round_sources) ... ok
@@ -138,6 +147,15 @@ test_incomplete_source_creates_no_output (test_pairing_evidence.PairingCopyTests
 test_source_changes_during_copy_rejected (test_pairing_evidence.PairingCopyTests.test_source_changes_during_copy_rejected) ... ok
 test_symbolic_output_cannot_escape (test_pairing_evidence.PairingCopyTests.test_symbolic_output_cannot_escape) ... ok
 test_v11_sixteen_episodes_per_task_are_copied_and_missing_tail_rejected (test_pairing_evidence.PairingCopyTests.test_v11_sixteen_episodes_per_task_are_copied_and_missing_tail_rejected) ... ok
+test_executable_preserves_venv_symlink_path (test_prepare_w4a4_captures.PrepareW4A4Captures.test_executable_preserves_venv_symlink_path) ... ok
+test_inference_saturation_is_read_from_bound_evaluation (test_prepare_w4a4_captures.PrepareW4A4Captures.test_inference_saturation_is_read_from_bound_evaluation) ... ok
+test_missing_comparison_source_identity_is_rejected (test_prepare_w4a4_captures.PrepareW4A4Captures.test_missing_comparison_source_identity_is_rejected) ... ok
+test_missing_or_nonbinary_saturation_cannot_fall_back_to_training (test_prepare_w4a4_captures.PrepareW4A4Captures.test_missing_or_nonbinary_saturation_cannot_fall_back_to_training) ... ok
+test_modified_evaluation_receipt_is_rejected_before_reading_switches (test_prepare_w4a4_captures.PrepareW4A4Captures.test_modified_evaluation_receipt_is_rejected_before_reading_switches) ... ok
+test_non_adapter_or_double_quantized_inference_is_rejected (test_prepare_w4a4_captures.PrepareW4A4Captures.test_non_adapter_or_double_quantized_inference_is_rejected) ... ok
+test_readme_protocol_copy_under_results_uses_generator_repository (test_prepare_w4a4_captures.PrepareW4A4Captures.test_readme_protocol_copy_under_results_uses_generator_repository) ... ok
+test_rollout_capture_environment_precedes_fake_server_and_is_logged (test_prepare_w4a4_captures.PrepareW4A4Captures.test_rollout_capture_environment_precedes_fake_server_and_is_logged) ... ok
+test_wrong_checkpoint_protocol_or_partition_is_rejected (test_prepare_w4a4_captures.PrepareW4A4Captures.test_wrong_checkpoint_protocol_or_partition_is_rejected) ... ok
 test_all_ordinary_scope_injects_visual_linear_and_keeps_category_out (test_probe_distill.ProbeTests.test_all_ordinary_scope_injects_visual_linear_and_keeps_category_out) ... [lora-qad] LoRA on 78 Linears (r=32, scope=all_ordinary_linear); trainable=0.0M frozen=0M
 ok
 test_explicit_batch_contract (test_probe_distill.ProbeTests.test_explicit_batch_contract) ... ok
@@ -149,7 +167,7 @@ test_prediction_contracts (test_probe_distill.ProbeTests.test_prediction_contrac
 test_real_accelerator_full_and_tail_gradients_match_update_mean (test_probe_distill.ProbeTests.test_real_accelerator_full_and_tail_gradients_match_update_mean) ... ok
 test_real_lora_injection_keeps_language_eval_differentiable (test_probe_distill.ProbeTests.test_real_lora_injection_keeps_language_eval_differentiable) ... [lora-qad] LoRA on 81 Linears (r=32, scope=head+lang_all); trainable=0.0M frozen=0M
 ok
-test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20 (test_probe_distill.ProbeTests.test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20) ... [2026-10-02 12:38:57,401] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20 (test_probe_distill.ProbeTests.test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20) ... [2026-10-06 05:25:52,659] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
 [opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
 [opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
 [opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
@@ -168,7 +186,7 @@ test_real_transformers_148_samples_reaches_scheduled_tail_at_update_20 (test_pro
 [opd] step=4 probe=0 mse=0.04 weight=0.7 microbatch=1
 ok
 test_reject_legacy_and_mismatched_dtype (test_probe_distill.ProbeTests.test_reject_legacy_and_mismatched_dtype) ... ok
-test_sequential_backward_accumulation_and_return_outputs (test_probe_distill.ProbeTests.test_sequential_backward_accumulation_and_return_outputs) ... {'train_runtime': 0.1222, 'train_samples_per_second': 2617.616, 'train_steps_per_second': 163.601, 'train_loss': 1.3666049003601075, 'epoch': 2.0}
+test_sequential_backward_accumulation_and_return_outputs (test_probe_distill.ProbeTests.test_sequential_backward_accumulation_and_return_outputs) ... {'train_runtime': 0.1188, 'train_samples_per_second': 2692.842, 'train_steps_per_second': 168.303, 'train_loss': 1.3666049003601075, 'epoch': 2.0}
 [opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1
 [opd] step=2 probe=0 mse=0.04 weight=0.7 microbatch=1
 ok
@@ -211,6 +229,7 @@ test_existing_event_file_is_replaced_and_capture_remains_enabled (test_recovery_
 test_fresh_event_file_path_is_exported_for_teacher_and_collection (test_recovery_eval_capture_env.RecoveryEvalCaptureEnvironmentTests.test_fresh_event_file_path_is_exported_for_teacher_and_collection) ... ok
 test_non_capture_purpose_removes_inherited_capture_directory (test_recovery_eval_capture_env.RecoveryEvalCaptureEnvironmentTests.test_non_capture_purpose_removes_inherited_capture_directory) ... ok
 test_provenance_summary_preserves_unrecorded_initial_stages (test_recovery_invocation.RecoveryInvocationTest.test_provenance_summary_preserves_unrecorded_initial_stages) ... ok
+test_resumed_launch_keeps_its_own_source_separate_from_initialization (test_recovery_invocation.RecoveryInvocationTest.test_resumed_launch_keeps_its_own_source_separate_from_initialization) ... ok
 test_snapshot_tampering_is_rejected (test_recovery_invocation.RecoveryInvocationTest.test_snapshot_tampering_is_rejected) ... ok
 test_corruption_rejected_even_at_same_size (test_recovery_setup.DemoLfsTests.test_corruption_rejected_even_at_same_size) ... ok
 test_hydrated_exact_payloads_pass (test_recovery_setup.DemoLfsTests.test_hydrated_exact_payloads_pass) ... ok
@@ -277,8 +296,13 @@ test_runtime_allowlist_carries_v3_protocol_and_orchestrator (test_v3_publication
 test_v3_freezes_only_declared_candidates_and_requires_final_reference (test_v3_publication_protocol.V3PublicationProtocolTests.test_v3_freezes_only_declared_candidates_and_requires_final_reference) ... ok
 test_v3_public_copy_verifies_without_original_protocol_or_runs (test_v3_publication_protocol.V3PublicationProtocolTests.test_v3_public_copy_verifies_without_original_protocol_or_runs) ... ok
 test_actual_orchestrator_layout_and_portable_public_verification (test_v3_training_costs.V3TrainingCosts.test_actual_orchestrator_layout_and_portable_public_verification) ... ok
+test_control_pairing_tampering_rejects_even_with_rehashed_inputs_and_override (test_v3_training_costs.V3TrainingCosts.test_control_pairing_tampering_rejects_even_with_rehashed_inputs_and_override) ... ok
 test_current_v7_manifest_format_is_auditable (test_v3_training_costs.V3TrainingCosts.test_current_v7_manifest_format_is_auditable) ... ok
+test_incorrect_flags_need_override_but_scores_and_denominators_never_do (test_v3_training_costs.V3TrainingCosts.test_incorrect_flags_need_override_but_scores_and_denominators_never_do) ... ok
+test_missing_summary_fields_are_explicitly_reconstructed_from_selected_qad (test_v3_training_costs.V3TrainingCosts.test_missing_summary_fields_are_explicitly_reconstructed_from_selected_qad) ... ok
 test_orchestrator_schema_survives_protocol_label_bump (test_v3_training_costs.V3TrainingCosts.test_orchestrator_schema_survives_protocol_label_bump) ... ok
+test_overridden_false_control_flag_is_derived_without_rewriting_evidence (test_v3_training_costs.V3TrainingCosts.test_overridden_false_control_flag_is_derived_without_rewriting_evidence) ... ok
+test_truthful_failed_gate_requires_override_including_strict_ties (test_v3_training_costs.V3TrainingCosts.test_truthful_failed_gate_requires_override_including_strict_ties) ... ok
 test_unfinished_orchestrator_and_forged_winner_refuse_output (test_v3_training_costs.V3TrainingCosts.test_unfinished_orchestrator_and_forged_winner_refuse_output) ... ok
 test_v11_nested_evaluation_contract_normalizes_for_cost_audit (test_v3_training_costs.V3TrainingCosts.test_v11_nested_evaluation_contract_normalizes_for_cost_audit) ... ok
 test_loads_a_b_and_keeps_raw_residual (test_w4a4_deploy.W4A4DeployTests.test_loads_a_b_and_keeps_raw_residual) ... ok
@@ -287,10 +311,13 @@ test_native_base_operator_receives_qdq_and_scope_is_explicit (test_w4a4_lora.W4A
 test_rejects_bad_contract_without_touching_modules (test_w4a4_lora.W4A4LoRATests.test_rejects_bad_contract_without_touching_modules) ... ok
 test_activation_scope_is_not_reimported_inside_main (test_w4a4_server_contract.W4A4ServerContractTest.test_activation_scope_is_not_reimported_inside_main) ... ok
 test_relocated_project_resolves_its_own_rl_and_quant_modules (test_w4a4_server_contract.W4A4ServerContractTest.test_relocated_project_resolves_its_own_rl_and_quant_modules) ... ok
+test_amended_orchestrator_keeps_initial_source_in_portable_package (test_w4a4_training_costs.W4A4TrainingCosts.test_amended_orchestrator_keeps_initial_source_in_portable_package) ... ok
 test_capture_identity_and_w4a4_source_omissions_fail_closed (test_w4a4_training_costs.W4A4TrainingCosts.test_capture_identity_and_w4a4_source_omissions_fail_closed) ... ok
 test_capture_tail_budget_and_epoch_are_bound (test_w4a4_training_costs.W4A4TrainingCosts.test_capture_tail_budget_and_epoch_are_bound) ... ok
 test_content_addressed_snapshot_must_match_manifest (test_w4a4_training_costs.W4A4TrainingCosts.test_content_addressed_snapshot_must_match_manifest) ... ok
 test_exact_v11_format_and_160_episode_contract (test_w4a4_training_costs.W4A4TrainingCosts.test_exact_v11_format_and_160_episode_contract) ... ok
+test_explicit_initialization_path_must_match_its_own_digest (test_w4a4_training_costs.W4A4TrainingCosts.test_explicit_initialization_path_must_match_its_own_digest) ... ok
+test_initialization_resolution_ignores_later_driver_amendment (test_w4a4_training_costs.W4A4TrainingCosts.test_initialization_resolution_ignores_later_driver_amendment) ... ok
 test_per_stage_source_snapshots_survive_portable_verification (test_w4a4_training_costs.W4A4TrainingCosts.test_per_stage_source_snapshots_survive_portable_verification) ... ok
 test_probe_passes_include_short_epoch_tails (test_w4a4_training_costs.W4A4TrainingCosts.test_probe_passes_include_short_epoch_tails) ... ok
 test_real_v11_orchestrator_path_is_resolved_by_hash (test_w4a4_training_costs.W4A4TrainingCosts.test_real_v11_orchestrator_path_is_resolved_by_hash) ... ok
@@ -298,24 +325,99 @@ test_changed_bytes_rejected_even_when_size_matches (test_weight_identity.WeightI
 test_missing_is_not_certified_as_success (test_weight_identity.WeightIdentityTests.test_missing_is_not_certified_as_success) ... ok
 
 ----------------------------------------------------------------------
-Ran 242 tests in 20.019s
+Ran 269 tests in 21.555s
 
 OK
 
-RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -v", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-m", "unittest", "discover", "-s", "tests", "-v"], "completed_utc": "2026-10-02T04:39:10.585912+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/unittest-discovery.log", "log_sha256": "a3811a9ba3a672fc684a4f3d5d33e45adda5196e55b0b4f78fc9d34f3dd92995", "process_wall_seconds": 21.966927222994855, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:38:48.618991+00:00", "status": "passed", "suite": "unittest-discovery", "test_files": ["tests/test_activation_checkpoint.py", "tests/test_baseline_timing.py", "tests/test_calibration_verifier.py", "tests/test_capture_runtime_provenance.py", "tests/test_capture_success_metadata.py", "tests/test_category_development.py", "tests/test_category_fp4.py", "tests/test_category_recovery.py", "tests/test_checkpoint_roundtrip.py", "tests/test_compare_recovery_gate.py", "tests/test_continue_w4a4_run.py", "tests/test_development_runner.py", "tests/test_development_selection.py", "tests/test_engine_timing.py", "tests/test_extract_final_evidence.py", "tests/test_frontier_figures.py", "tests/test_gr00t_runtime.py", "tests/test_high_fp4_protocol.py", "tests/test_materialize_final_evidence.py", "tests/test_native_activation.py", "tests/test_native_pi05_prepare.py", "tests/test_onpolicy_capture.py", "tests/test_paired_uncertainty.py", "tests/test_pairing_evidence.py", "tests/test_probe_distill.py", "tests/test_ptq_frontier.py", "tests/test_ptq_tied_weights.py", "tests/test_quantization_semantics.py", "tests/test_recipe_inventory.py", "tests/test_recovery_checkpoint_guard.py", "tests/test_recovery_eval_capture_env.py", "tests/test_recovery_invocation.py", "tests/test_recovery_setup.py", "tests/test_release_audit.py", "tests/test_render_recovery_results.py", "tests/test_runtime_metrics.py", "tests/test_scoped_quant_activation.py", "tests/test_teacher_replay_audit.py", "tests/test_training_costs.py", "tests/test_v3_publication_protocol.py", "tests/test_v3_training_costs.py", "tests/test_w4a4_deploy.py", "tests/test_w4a4_lora.py", "tests/test_w4a4_server_contract.py", "tests/test_w4a4_training_costs.py", "tests/test_weight_identity.py"], "tests": 242, "unexpected_successes": 0, "unittest_elapsed_seconds": 20.019}
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -m unittest discover -s tests -v", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-m", "unittest", "discover", "-s", "tests", "-v"], "completed_utc": "2026-10-05T21:26:04.831373+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "unittest-discovery.log", "log_sha256": "fe718af58b3c3cdbdc51415675f29565d6eb9c98fa7554ddf0d33c9cce4b57e1", "process_wall_seconds": 23.920128956029657, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:25:40.911250+00:00", "status": "passed", "suite": "unittest-discovery", "test_files": ["tests/test_activation_checkpoint.py", "tests/test_baseline_timing.py", "tests/test_calibration_verifier.py", "tests/test_capture_runtime_provenance.py", "tests/test_capture_success_metadata.py", "tests/test_category_development.py", "tests/test_category_fp4.py", "tests/test_category_recovery.py", "tests/test_checkpoint_roundtrip.py", "tests/test_compare_recovery_gate.py", "tests/test_continue_w4a4_run.py", "tests/test_development_runner.py", "tests/test_development_selection.py", "tests/test_engine_timing.py", "tests/test_extract_final_evidence.py", "tests/test_frontier_figures.py", "tests/test_gr00t_runtime.py", "tests/test_heldout_raw_evidence.py", "tests/test_high_fp4_protocol.py", "tests/test_materialize_final_evidence.py", "tests/test_native_activation.py", "tests/test_native_pi05_prepare.py", "tests/test_onpolicy_capture.py", "tests/test_paired_uncertainty.py", "tests/test_pairing_evidence.py", "tests/test_prepare_w4a4_captures.py", "tests/test_probe_distill.py", "tests/test_ptq_frontier.py", "tests/test_ptq_tied_weights.py", "tests/test_quantization_semantics.py", "tests/test_recipe_inventory.py", "tests/test_recovery_checkpoint_guard.py", "tests/test_recovery_eval_capture_env.py", "tests/test_recovery_invocation.py", "tests/test_recovery_setup.py", "tests/test_release_audit.py", "tests/test_render_recovery_results.py", "tests/test_runtime_metrics.py", "tests/test_scoped_quant_activation.py", "tests/test_teacher_replay_audit.py", "tests/test_training_costs.py", "tests/test_v3_publication_protocol.py", "tests/test_v3_training_costs.py", "tests/test_w4a4_deploy.py", "tests/test_w4a4_lora.py", "tests/test_w4a4_server_contract.py", "tests/test_w4a4_training_costs.py", "tests/test_weight_identity.py"], "tests": 269, "unexpected_successes": 0, "unittest_elapsed_seconds": 21.555}
+
+SUITE capture-support-files
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_capture_support_files.py
+test_cli_archives_original_basenames_and_shared_dependencies_are_reusable (__main__.CaptureSupportFilesTests.test_cli_archives_original_basenames_and_shared_dependencies_are_reusable) ... ok
+test_duplicate_or_primary_proof_basename_rejected_before_install (__main__.CaptureSupportFilesTests.test_duplicate_or_primary_proof_basename_rejected_before_install) ... ok
+test_existing_support_conflict_rejected_before_main_proof_changes (__main__.CaptureSupportFilesTests.test_existing_support_conflict_rejected_before_main_proof_changes) ... ok
+test_publication_rejects_duplicate_primary_or_nonlocal_support (__main__.CaptureSupportFilesTests.test_publication_rejects_duplicate_primary_or_nonlocal_support) ... ok
+test_publication_rejects_tampered_dependency_or_size (__main__.CaptureSupportFilesTests.test_publication_rejects_tampered_dependency_or_size) ... ok
+test_publication_verifies_five_supported_and_twelve_legacy_rows (__main__.CaptureSupportFilesTests.test_publication_verifies_five_supported_and_twelve_legacy_rows) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.026s
+
+OK
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_1: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+Recorded shot_fixture_0: image, raw log, script, capture quality and crop proof hashed
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_capture_support_files.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_capture_support_files.py"], "completed_utc": "2026-10-05T21:26:04.954785+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "capture-support-files.log", "log_sha256": "7d042d62dd520b198651571aaa41d090de97e245a956df9475c5b9418016c36e", "process_wall_seconds": 0.12255734199425206, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:04.832239+00:00", "status": "passed", "suite": "capture-support-files", "test_files": ["paper/validation/test_capture_support_files.py"], "tests": 6, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.026}
+
+SUITE evaluation-environment
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_evaluation_environment.py
+test_arbitrary_legacy_qad_producer_is_rejected (__main__.EvaluationEnvironmentTests.test_arbitrary_legacy_qad_producer_is_rejected) ... ok
+test_archive_export_must_match_runtime_weights_and_original_path (__main__.EvaluationEnvironmentTests.test_archive_export_must_match_runtime_weights_and_original_path) ... ok
+test_changed_archived_export_is_rejected_without_using_private_checkpoint (__main__.EvaluationEnvironmentTests.test_changed_archived_export_is_rejected_without_using_private_checkpoint) ... ok
+test_continuation_cannot_use_legacy_missing_or_nonfinite_clip (__main__.EvaluationEnvironmentTests.test_continuation_cannot_use_legacy_missing_or_nonfinite_clip) ... ok
+test_continuation_saturation_receipt_required_and_not_truthy_integer (__main__.EvaluationEnvironmentTests.test_continuation_saturation_receipt_required_and_not_truthy_integer) ... ok
+test_inference_switch_is_checked_separately_from_ptq_training_contract (__main__.EvaluationEnvironmentTests.test_inference_switch_is_checked_separately_from_ptq_training_contract) ... ok
+test_legacy_qad_eval_cannot_claim_a_new_training_setting (__main__.EvaluationEnvironmentTests.test_legacy_qad_eval_cannot_claim_a_new_training_setting) ... ok
+test_missing_or_ambiguous_archived_export_is_rejected (__main__.EvaluationEnvironmentTests.test_missing_or_ambiguous_archived_export_is_rejected) ... ok
+test_source_bound_legacy_qad_and_nonrecovery_ptq_are_accepted_without_rewriting (__main__.EvaluationEnvironmentTests.test_source_bound_legacy_qad_and_nonrecovery_ptq_are_accepted_without_rewriting) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.021s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_evaluation_environment.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_evaluation_environment.py"], "completed_utc": "2026-10-05T21:26:05.026544+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "evaluation-environment.log", "log_sha256": "a6b12591f11b4893e523bc642d6688916af7a94ad5dd5db97ba732eab2779cd3", "process_wall_seconds": 0.0715614189975895, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:04.954992+00:00", "status": "passed", "suite": "evaluation-environment", "test_files": ["paper/validation/test_evaluation_environment.py"], "tests": 9, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.021}
+
+SUITE frontier-layout
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_layout.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.702s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_layout.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_frontier_layout.py"], "completed_utc": "2026-10-05T21:26:05.789871+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "frontier-layout.log", "log_sha256": "f69c87ca847a1bb364c1c1cdeb675e165f51017c918e162905f2a4dc540bacad", "process_wall_seconds": 0.7631469439947978, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:05.026735+00:00", "status": "passed", "suite": "frontier-layout", "test_files": ["paper/validation/test_frontier_layout.py"], "tests": 7, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.702}
 
 SUITE frontier-publication
 COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_publication.py
 ...............
 ----------------------------------------------------------------------
-Ran 15 tests in 0.954s
+Ran 15 tests in 0.859s
 
 OK
 
-RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_publication.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_frontier_publication.py"], "completed_utc": "2026-10-02T04:39:11.598994+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/frontier-publication.log", "log_sha256": "9caac39294336c3ec2397924e360098d96f27e7cbdfb71d1bcbfb6f53dadf4dd", "process_wall_seconds": 1.0107105159841012, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:10.588290+00:00", "status": "passed", "suite": "frontier-publication", "test_files": ["paper/validation/test_frontier_publication.py"], "tests": 15, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.954}
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_publication.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_frontier_publication.py"], "completed_utc": "2026-10-05T21:26:06.704899+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "frontier-publication.log", "log_sha256": "dafa76a1082ba8045b4217105c4d4f7461383be90413df0a84e18c54f1492cac", "process_wall_seconds": 0.9148499779985286, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:05.790059+00:00", "status": "passed", "suite": "frontier-publication", "test_files": ["paper/validation/test_frontier_publication.py"], "tests": 15, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.859}
+
+SUITE install-final-evidence
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_install_final_evidence.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.082s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_install_final_evidence.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_install_final_evidence.py"], "completed_utc": "2026-10-05T21:26:06.837582+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "install-final-evidence.log", "log_sha256": "e32ceaaf56ac0f12917c1bbe2d354133c104164805b593c48d67d9e80e77da92", "process_wall_seconds": 0.13252415403258055, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:06.705068+00:00", "status": "passed", "suite": "install-final-evidence", "test_files": ["paper/validation/test_install_final_evidence.py"], "tests": 9, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.082}
+
+SUITE protocol-portability
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_protocol_portability.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_protocol_portability.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_protocol_portability.py"], "completed_utc": "2026-10-05T21:26:06.888399+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "protocol-portability.log", "log_sha256": "62cfbeb2911bb226088bfb0918eb4b05008ea70b20bce854ee2ca8a564bd37a5", "process_wall_seconds": 0.05065603996627033, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:06.837752+00:00", "status": "passed", "suite": "protocol-portability", "test_files": ["paper/validation/test_protocol_portability.py"], "tests": 6, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.002}
 
 SUITE publication-guards
 COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py
+test_actual_html_and_plain_result_placeholders_rejected (__main__.Gates.test_actual_html_and_plain_result_placeholders_rejected) ... ok
 test_all_pending_block_kinds_rejected (__main__.Gates.test_all_pending_block_kinds_rejected) ... ok
 test_black_png_rejected_and_text_image_accepted (__main__.Gates.test_black_png_rejected_and_text_image_accepted) ... ok
 test_browser_failure_invalidates_old_report_before_loading (__main__.Gates.test_browser_failure_invalidates_old_report_before_loading) ... ok
@@ -330,6 +432,7 @@ test_duplicate_initial_state_rejected_even_when_all_arms_match (__main__.Gates.t
 test_evidence_hash_mutation_rejected (__main__.Gates.test_evidence_hash_mutation_rejected) ... ok
 test_incomplete_or_wrong_outcome_rejected (__main__.Gates.test_incomplete_or_wrong_outcome_rejected) ... ok
 test_markdown_includes_complete_prose_and_caption (__main__.Gates.test_markdown_includes_complete_prose_and_caption) ... ok
+test_missing_measurement_discussion_is_not_a_result_placeholder (__main__.Gates.test_missing_measurement_discussion_is_not_a_result_placeholder) ... ok
 test_package_contains_analysis_plan_required_by_bundled_analyzer (__main__.Gates.test_package_contains_analysis_plan_required_by_bundled_analyzer) ... ok
 test_package_excludes_old_reports_and_keeps_cited_evidence_and_sources (__main__.Gates.test_package_excludes_old_reports_and_keeps_cited_evidence_and_sources) ... ok
 test_package_never_trusts_old_pass (__main__.Gates.test_package_never_trusts_old_pass) ... ok
@@ -343,19 +446,38 @@ test_svg_remote_resource_is_detected_but_citation_is_allowed (__main__.Gates.tes
 test_uncertainty_is_recomputed_and_modified_ci_or_plan_rejected (__main__.Gates.test_uncertainty_is_recomputed_and_modified_ci_or_plan_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 25 tests in 0.149s
+Ran 27 tests in 0.221s
 
 OK
-Publication ZIP: /tmp/tmpiz8gcn4o/apxinf-gr00t-fp4fp8-ptqad-publication.zip files: 31 bytes: 5805
+Publication ZIP: /tmp/tmpoctvvlzx/apxinf-gr00t-fp4fp8-ptqad-publication.zip files: 31 bytes: 5803
 
-RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_publication_guards.py"], "completed_utc": "2026-10-02T04:39:11.805718+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/publication-guards.log", "log_sha256": "c317bd726c4e5f7db1b24b45e5c83a8d70694fb9f8fd51db4395f9de5bb6d930", "process_wall_seconds": 0.20654342498164624, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:11.599188+00:00", "status": "passed", "suite": "publication-guards", "test_files": ["paper/validation/test_publication_guards.py"], "tests": 25, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.149}
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_publication_guards.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_publication_guards.py"], "completed_utc": "2026-10-05T21:26:07.169826+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "publication-guards.log", "log_sha256": "b6cf635b94193a839e5922720791bc796b38dfcb50789bf6ee8ec91b7db0ede5", "process_wall_seconds": 0.2812546670320444, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:06.888583+00:00", "status": "passed", "suite": "publication-guards", "test_files": ["paper/validation/test_publication_guards.py"], "tests": 27, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.221}
+
+SUITE search-cost-publication
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_search_cost_publication.py
+test_archive_verifier_is_required_and_all_files_enter_package_inputs (__main__.SearchCostPublicationTests.test_archive_verifier_is_required_and_all_files_enter_package_inputs) ... ok
+test_changed_archived_input_after_verifier_return_is_rejected (__main__.SearchCostPublicationTests.test_changed_archived_input_after_verifier_return_is_rejected) ... ok
+test_other_protocol_or_unverified_status_is_rejected (__main__.SearchCostPublicationTests.test_other_protocol_or_unverified_status_is_rejected) ... ok
+test_search_collector_is_in_runtime_source_allowlist (__main__.SearchCostPublicationTests.test_search_collector_is_in_runtime_source_allowlist) ... ok
+test_verifier_failure_is_not_ignored (__main__.SearchCostPublicationTests.test_verifier_failure_is_not_ignored) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.004s
+
+OK
+
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_search_cost_publication.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_search_cost_publication.py"], "completed_utc": "2026-10-05T21:26:07.238469+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "search-cost-publication.log", "log_sha256": "d306c1458ea175ec35a4874e3d80d657f14b01bd43d74cc946f366c629bb1033", "process_wall_seconds": 0.06846323795616627, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:07.170016+00:00", "status": "passed", "suite": "search-cost-publication", "test_files": ["paper/validation/test_search_cost_publication.py"], "tests": 5, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.004}
 
 SUITE training-publication
 COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_training_publication.py
 test_any_recovery_output_mismatch_rejected (__main__.TrainingPublicationTests.test_any_recovery_output_mismatch_rejected) ... ok
 test_changed_archived_input_rejected_even_after_verifier_return (__main__.TrainingPublicationTests.test_changed_archived_input_rejected_even_after_verifier_return) ... ok
+test_conflicting_numerical_request_rejected (__main__.TrainingPublicationTests.test_conflicting_numerical_request_rejected) ... ok
+test_continuation_missing_numerical_request_rejected_without_summary (__main__.TrainingPublicationTests.test_continuation_missing_numerical_request_rejected_without_summary) ... ok
 test_evaluated_export_path_mismatch_rejected (__main__.TrainingPublicationTests.test_evaluated_export_path_mismatch_rejected) ... ok
+test_legacy_qad_request_cannot_enable_unrecorded_numerical_setting (__main__.TrainingPublicationTests.test_legacy_qad_request_cannot_enable_unrecorded_numerical_setting) ... ok
 test_non_w4a4_protocol_rejected_even_with_matching_protocol_hash (__main__.TrainingPublicationTests.test_non_w4a4_protocol_rejected_even_with_matching_protocol_hash) ... ok
+test_numerical_summary_must_agree_when_present (__main__.TrainingPublicationTests.test_numerical_summary_must_agree_when_present) ... ok
 test_other_collection_student_rejected_even_with_valid_metadata_hash (__main__.TrainingPublicationTests.test_other_collection_student_rejected_even_with_valid_metadata_hash) ... ok
 test_ptq_source_mismatch_rejected (__main__.TrainingPublicationTests.test_ptq_source_mismatch_rejected) ... ok
 test_public_verifier_failure_never_ignored (__main__.TrainingPublicationTests.test_public_verifier_failure_never_ignored) ... ok
@@ -364,18 +486,8 @@ test_teacher_mismatch_rejected (__main__.TrainingPublicationTests.test_teacher_m
 test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files (__main__.TrainingPublicationTests.test_verified_public_costs_bind_to_all_evaluated_weights_without_private_files) ... ok
 
 ----------------------------------------------------------------------
-Ran 10 tests in 0.019s
+Ran 14 tests in 0.053s
 
 OK
 
-RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_training_publication.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_training_publication.py"], "completed_utc": "2026-10-02T04:39:11.893707+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/training-publication.log", "log_sha256": "a89970bce19ab2de6f6f30fee78792717fc23119c59f06d8871e5b6f446b8535", "process_wall_seconds": 0.08778809901559725, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:11.805932+00:00", "status": "passed", "suite": "training-publication", "test_files": ["paper/validation/test_training_publication.py"], "tests": 10, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.019}
-
-SUITE frontier-layout
-COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_layout.py
-.......
-----------------------------------------------------------------------
-Ran 7 tests in 0.780s
-
-OK
-
-RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_frontier_layout.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_frontier_layout.py"], "completed_utc": "2026-10-02T04:39:12.733363+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "paper/_build/final_cpu_20261002/frontier-layout.log", "log_sha256": "55904572ba7f06f1b4a603114bccc1ffb91c2b20d6802e5daf7c15679190aaf1", "process_wall_seconds": 0.8394372519978788, "returncode": 0, "skipped": 0, "started_utc": "2026-10-02T04:39:11.893937+00:00", "status": "passed", "suite": "frontier-layout", "test_files": ["paper/validation/test_frontier_layout.py"], "tests": 7, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.78}
+RECEIPT {"command": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python -O paper/validation/test_training_publication.py", "command_argv": ["/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python", "-O", "paper/validation/test_training_publication.py"], "completed_utc": "2026-10-05T21:26:07.343460+00:00", "cwd": "/home/zhaosiying/codebase/fp4vla", "environment": {"CUDA_VISIBLE_DEVICES": "", "GR00T_REPO": "/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T", "HF_HUB_OFFLINE": "1", "MKL_NUM_THREADS": "2", "NO_ALBUMENTATIONS_UPDATE": "1", "OMP_NUM_THREADS": "2", "TRANSFORMERS_OFFLINE": "1"}, "errors": 0, "expected_failures": 0, "failures": 0, "log": "training-publication.log", "log_sha256": "7db2ea20bd4102435eb1efb3c3e3d9a1d7b9cfe1afe84ceb6a3db69827fb992e", "process_wall_seconds": 0.10482997598592192, "returncode": 0, "skipped": 0, "started_utc": "2026-10-05T21:26:07.238642+00:00", "status": "passed", "suite": "training-publication", "test_files": ["paper/validation/test_training_publication.py"], "tests": 14, "unexpected_successes": 0, "unittest_elapsed_seconds": 0.053}

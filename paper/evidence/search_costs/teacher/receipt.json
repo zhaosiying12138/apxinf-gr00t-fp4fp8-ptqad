@@ -1,0 +1,23 @@
+{
+  "stage": "teacher_cache",
+  "status": "complete",
+  "completed_utc": "2026-10-02T21:22:52Z",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "selection_sha256": "d6ca9c938b9d296e81882965c20aed3f78c8e44c40bf979649f98fa99ccce299",
+  "output": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/teacher_cache",
+  "adopted": false,
+  "collection_observations": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/collection_qad/observations",
+  "requested_count": 160,
+  "cache_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/teacher_cache/teacher_probes.pt",
+    "bytes": 262993857,
+    "sha256": "fca97f5db6f28eb2a1b14e0f26cfb7771032da82e176f3fa47ea85961bfee969"
+  },
+  "metadata_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/teacher_cache/teacher_probes.json",
+    "bytes": 58264,
+    "sha256": "5b6c0036a11f955a29e02cefc3074239a6ebee81573d88e42a1c686b6cdebf62"
+  },
+  "count": 160
+}

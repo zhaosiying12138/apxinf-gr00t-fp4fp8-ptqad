@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-10-02T04:26:49.356035+00:00",
-  "git_head": "3205c51e60a10a1c11655623c7d915b0d22982b4",
+  "generated_utc": "2026-10-05T17:36:59.945668+00:00",
+  "git_head": "8dd780b394bfff6b3b62214bbdde42d4a1ca5c2a",
   "scope": "Working-tree file hashes; line numbers are generated navigation, not stable citations.",
   "status": "passed",
   "files": [
@@ -70,19 +70,19 @@
     },
     {
       "path": "quant/native_activation.py",
-      "sha256": "8606b36e9ef2d4a4e194bcf2ab7ae6fc70d800cfc5cbb13f8552d1d4f842c8d3",
+      "sha256": "f2d4c977f907c9637c555894a9fb9ab20767f00ed07b490008a9bdc6099384ff",
       "symbols": [
         {
           "symbol": "_torch_native_activation_qdq",
-          "line": 40
+          "line": 45
         },
         {
           "symbol": "native_activation_qdq_torch",
-          "line": 80
+          "line": 98
         },
         {
           "symbol": "encode_native_activation",
-          "line": 111
+          "line": 129
         }
       ]
     },
@@ -246,23 +246,23 @@
     },
     {
       "path": "rl/lora_qad.py",
-      "sha256": "aa755bd3809b44abad97dd373417851addbd7ffdbbf7bbc69eb30c9cada2be2c",
+      "sha256": "6259e854207a30db9ead07088f36de2524c784dc7ac7cfc58850ed44faa69d57",
       "symbols": [
         {
           "symbol": "install_lora",
-          "line": 162
+          "line": 169
         },
         {
           "symbol": "load_initial_adapter",
-          "line": 227
+          "line": 234
         },
         {
           "symbol": "install_gradient_audit",
-          "line": 268
+          "line": 275
         },
         {
           "symbol": "install_trainer_hooks",
-          "line": 314
+          "line": 321
         }
       ]
     },
@@ -466,19 +466,19 @@
     },
     {
       "path": "eval/run_recovery_eval.py",
-      "sha256": "e7b3a3eeac3bf056bb868357a8f913bac847bb82644940da81a9944fca684def",
+      "sha256": "991a696ba141c423272689bbbfdac44f60c3396e793590ce7bda5dd5115b32ea",
       "symbols": [
         {
           "symbol": "validate_resets",
-          "line": 94
+          "line": 106
         },
         {
           "symbol": "parse_log",
-          "line": 124
+          "line": 136
         },
         {
           "symbol": "main",
-          "line": 278
+          "line": 290
         }
       ]
     },

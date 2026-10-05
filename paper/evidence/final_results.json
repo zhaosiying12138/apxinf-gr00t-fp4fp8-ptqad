@@ -1,0 +1,417 @@
+{
+  "format": "publication_final_results_v1",
+  "status": "complete",
+  "scope": "heldout-only; development scores and candidate logs excluded",
+  "source": {
+    "run_dir": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4",
+    "final_manifest": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/final_manifest.json",
+      "sha256": "b15cf775201a3c18a157de7e8e62663af70bad8bdbcfedc03ed36fea32e41f5e",
+      "bytes": 83861
+    },
+    "protocol": {
+      "path": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
+      "sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb"
+    },
+    "heldout_comparison": {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/paired_comparison.json",
+      "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392",
+      "bytes": 494565
+    }
+  },
+  "selected_recipe": "all_nvfp4_gptq_category",
+  "selected_ptq_checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+  "public_arms": {
+    "bf16": {
+      "successes": 145,
+      "episodes": 160,
+      "success_rate": 0.90625,
+      "macro_success_rate": 0.90625,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        }
+      }
+    },
+    "ptq": {
+      "successes": 145,
+      "episodes": 160,
+      "success_rate": 0.90625,
+      "macro_success_rate": 0.90625,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        }
+      }
+    },
+    "qad": {
+      "successes": 144,
+      "episodes": 160,
+      "success_rate": 0.9,
+      "macro_success_rate": 0.9,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        }
+      }
+    },
+    "qad_opd": {
+      "successes": 134,
+      "episodes": 160,
+      "success_rate": 0.8375,
+      "macro_success_rate": 0.8375,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 10,
+          "episodes": 16,
+          "success_rate": 0.625
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        }
+      }
+    }
+  },
+  "control": {
+    "continued_qad": {
+      "successes": 104,
+      "episodes": 160,
+      "success_rate": 0.65,
+      "macro_success_rate": 0.65,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 2,
+          "episodes": 16,
+          "success_rate": 0.125
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 2,
+          "episodes": 16,
+          "success_rate": 0.125
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 10,
+          "episodes": 16,
+          "success_rate": 0.625
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 11,
+          "episodes": 16,
+          "success_rate": 0.6875
+        }
+      }
+    }
+  },
+  "deltas": {
+    "ptq_minus_bf16_pp": 0.0,
+    "qad_minus_ptq_pp": -0.6249999999999978,
+    "qad_opd_minus_qad_pp": -6.25,
+    "qad_opd_minus_continued_qad_pp": 18.75
+  },
+  "uncertainty": {
+    "format": "w4a4_paired_uncertainty_v1",
+    "analysis_plan_sha256": "b357f71d6eb900abb2a29a48070f8d3117513b6a6bf378aae6b322b6f6603964",
+    "confidence_interval": {
+      "method": "paired percentile bootstrap, resampling episodes within each fixed task",
+      "level": 0.95,
+      "replicates": 20000,
+      "seed": 20261002,
+      "quantile": "linear interpolation, rank (B-1)*p"
+    },
+    "tests": {
+      "method": "exact two-sided McNemar on paired episode outcomes",
+      "null_and_assumptions": "Independent discordant signs, with baseline and treatment labels exchangeable within every task under the null (each sign has probability 0.5). Equality of the task-macro average alone is a weaker null and does not guarantee this exact binomial distribution. Holm inherits the component tests' assumptions.",
+      "multiplicity": "Holm correction across the four named contrasts",
+      "alpha": 0.05
+    },
+    "contrasts": {
+      "ptq_vs_bf16": {
+        "baseline": "bf16",
+        "treatment": "ptq",
+        "difference_pp": 0.0,
+        "pointwise_ci_pp": [
+          -5.625,
+          5.625
+        ],
+        "paired_episodes": 160,
+        "tasks": 10,
+        "only_treatment_success": 11,
+        "only_baseline_success": 11,
+        "discordant_episodes": 22,
+        "exact_mcnemar_two_sided_p": 1.0,
+        "zero_discordance_warning": false,
+        "holm_adjusted_p": 1.0
+      },
+      "qad_vs_ptq": {
+        "baseline": "ptq",
+        "treatment": "qad",
+        "difference_pp": -0.625,
+        "pointwise_ci_pp": [
+          -6.875,
+          5.625
+        ],
+        "paired_episodes": 160,
+        "tasks": 10,
+        "only_treatment_success": 13,
+        "only_baseline_success": 14,
+        "discordant_episodes": 27,
+        "exact_mcnemar_two_sided_p": 1.0,
+        "zero_discordance_warning": false,
+        "holm_adjusted_p": 1.0
+      },
+      "opd_vs_qad": {
+        "baseline": "qad",
+        "treatment": "qad_opd",
+        "difference_pp": -6.25,
+        "pointwise_ci_pp": [
+          -11.875,
+          -0.625
+        ],
+        "paired_episodes": 160,
+        "tasks": 10,
+        "only_treatment_success": 7,
+        "only_baseline_success": 17,
+        "discordant_episodes": 24,
+        "exact_mcnemar_two_sided_p": 0.06391465663909912,
+        "zero_discordance_warning": false,
+        "holm_adjusted_p": 0.19174396991729736
+      },
+      "opd_vs_continued_qad": {
+        "baseline": "continued_qad",
+        "treatment": "qad_opd",
+        "difference_pp": 18.75,
+        "pointwise_ci_pp": [
+          11.25,
+          26.25
+        ],
+        "paired_episodes": 160,
+        "tasks": 10,
+        "only_treatment_success": 46,
+        "only_baseline_success": 16,
+        "discordant_episodes": 62,
+        "exact_mcnemar_two_sided_p": 0.00017632711255144299,
+        "zero_discordance_warning": false,
+        "holm_adjusted_p": 0.0007053084502057719
+      }
+    },
+    "interpretation": "Intervals are pointwise, conditional on these ten tasks and one training seed; they do not establish generalization to unseen tasks. Inference assumes independently sampled episodes within each task. The official bank is finite and policies share task structure, so tests remain conditional evidence, not an unconditional significance guarantee. A zero-discordance empirical bootstrap can be degenerate and does not prove equivalence. Report all four contrasts regardless of sign; no automatic success gate or power guarantee."
+  },
+  "selection": {
+    "selection_uses_heldout": false,
+    "selected_qad_learning_rate": 0.0001,
+    "selected_opd_weight": 0.25
+  }
+}

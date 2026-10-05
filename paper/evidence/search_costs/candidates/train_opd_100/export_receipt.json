@@ -1,0 +1,40 @@
+{
+  "stage": "merge_opd_100",
+  "status": "complete",
+  "completed_utc": "2026-10-04T11:14:21Z",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "selection_sha256": "d6ca9c938b9d296e81882965c20aed3f78c8e44c40bf979649f98fa99ccce299",
+  "output": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_opd_100",
+  "adopted": false,
+  "base": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+  "training_checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_opd_100/checkpoint-2000",
+  "optimizer_steps": 2000,
+  "model_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_opd_100",
+    "metadata": {
+      "config.json": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+      "statistics.json": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+      "ptq_recipe.json": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
+      "bake_manifest.json": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef",
+      "category_ptq_recipe.json": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+      "category_bake_manifest.json": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
+      "recovery_manifest.json": "a1c844881b9fa5c727cfc3fe18e85912258088a95f77575783cba927b4741ca1",
+      "merge_manifest.json": "f35854e7d27d143b1275b5e7e84974a6125d210c94f43d40453aaf158985db7b",
+      "model.safetensors.index.json": "b3b2d9cd50338bbda18822f765389a4c841a044f1a44adf14178d74432bedfa5"
+    },
+    "shards": [
+      {
+        "name": "model-00001-of-00002.safetensors",
+        "bytes": 4990519232,
+        "sha256": "7d612e6d9d3783da19d8ea8cb457d96daba22d7296366496ecfcf9af162dc8e1"
+      },
+      {
+        "name": "model-00002-of-00002.safetensors",
+        "bytes": 1919980184,
+        "sha256": "40d9b6285effd14ae0605f856034e2863640274a99b58f404c5ccee0036cc8e8"
+      }
+    ]
+  },
+  "merge_manifest_sha256": "f35854e7d27d143b1275b5e7e84974a6125d210c94f43d40453aaf158985db7b"
+}

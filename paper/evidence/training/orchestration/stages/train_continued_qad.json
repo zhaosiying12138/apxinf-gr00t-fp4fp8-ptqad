@@ -1,0 +1,53 @@
+{
+  "stage": "train_continued_qad",
+  "status": "complete",
+  "completed_utc": "2026-10-03T10:15:32Z",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "selection_sha256": "d6ca9c938b9d296e81882965c20aed3f78c8e44c40bf979649f98fa99ccce299",
+  "output": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_continued_qad",
+  "adopted": false,
+  "base": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+  "learning_rate": 0.0001,
+  "optimizer_steps": 2000,
+  "opd_weight": 0.0,
+  "initial_adapter": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000",
+  "teacher_cache": null,
+  "checkpoint_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_continued_qad/checkpoint-2000",
+    "metadata": {
+      "config.json": "bdfcbcf12c230d31ea5833686aca8101cc819984e826f804f2b45da7b2d0b764",
+      "statistics.json": "796682f67bcaa007268770a7d58dd4602b7f1cbe85a849916a61da389119ca4c",
+      "recovery_manifest.json": "bb01d6b3db8258e2d71a88390d6fdfc5667cdc8c133a2d79025b1ca89faa5b4b",
+      "model.safetensors.index.json": "542ea08293102367415fb4923e02115416def10aef05fc4e514700898bfa5ac5"
+    },
+    "shards": [
+      {
+        "name": "model-00001-of-00003.safetensors",
+        "bytes": 4993510800,
+        "sha256": "5e2b8d29ea85896fae7b5d5b89a4a7c43b7802df84f2c773052ca7e2b88ad739"
+      },
+      {
+        "name": "model-00002-of-00003.safetensors",
+        "bytes": 4981458392,
+        "sha256": "b8ff2ebfa832284a47e3cc873d5a4680d60d9f1f020c0d72a1740cf1270f231f"
+      },
+      {
+        "name": "model-00003-of-00003.safetensors",
+        "bytes": 2893354536,
+        "sha256": "ab81981ad15b786e2342f05b6fcf27835095b3deab677f0694431e3bc79e0708"
+      }
+    ]
+  },
+  "recovery_manifest_sha256": "bb01d6b3db8258e2d71a88390d6fdfc5667cdc8c133a2d79025b1ca89faa5b4b",
+  "training_request_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_continued_qad/orchestrator_training_request.json",
+    "bytes": 110029,
+    "sha256": "99d88870f5b61489d36d396d96294f544e399513c5759ad12e78ccb05c8d5602"
+  },
+  "runtime_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_continued_qad/runtime_metrics.json",
+    "bytes": 1022,
+    "sha256": "dc45a8be7a4ae09a452c0b52848b2cbfae87409a6ad4b2f5884d4ce68dfc35b5"
+  }
+}

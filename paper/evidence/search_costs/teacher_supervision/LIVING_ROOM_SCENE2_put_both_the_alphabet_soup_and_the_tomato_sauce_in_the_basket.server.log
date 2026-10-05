@@ -1,0 +1,36 @@
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+flash_attn is not installed. Falling back to sdpa attention. Install flash-attn for better performance: pip install flash-attn
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'compute_dtype' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.compute_dtype'.
+  embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'output_dim' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.output_dim'.
+  self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
+Starting GR00T inference server...
+  Embodiment tag: EmbodimentTag.LIBERO_PANDA
+  Model path: /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10
+  Device: cuda
+  Host: 0.0.0.0
+  Port: 5760
+Total number of DiT parameters:  1091722240
+Total number of SelfAttentionTransformer parameters:  201433088
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.07s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.01s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.16s/it]
+
+✓ Server ready — listening on 0.0.0.0:5760
+
+Server is ready and listening on tcp://0.0.0.0:5760
+[onpolicy-capture] saved=1 task=8204544096e9 task_count=1 slot=0 call=1
+[onpolicy-capture] saved=2 task=8204544096e9 task_count=2 slot=0 call=5
+[onpolicy-capture] saved=3 task=8204544096e9 task_count=3 slot=0 call=9
+[onpolicy-capture] saved=4 task=8204544096e9 task_count=4 slot=0 call=13
+[onpolicy-capture] saved=5 task=8204544096e9 task_count=5 slot=0 call=37
+[onpolicy-capture] saved=6 task=8204544096e9 task_count=6 slot=0 call=41
+[onpolicy-capture] saved=7 task=8204544096e9 task_count=7 slot=0 call=45
+[onpolicy-capture] saved=8 task=8204544096e9 task_count=8 slot=0 call=49
+[onpolicy-capture] saved=9 task=8204544096e9 task_count=9 slot=0 call=73
+[onpolicy-capture] saved=10 task=8204544096e9 task_count=10 slot=0 call=77
+[onpolicy-capture] saved=11 task=8204544096e9 task_count=11 slot=0 call=81
+[onpolicy-capture] saved=12 task=8204544096e9 task_count=12 slot=0 call=85
+[onpolicy-capture] saved=13 task=8204544096e9 task_count=13 slot=0 call=105
+[onpolicy-capture] saved=14 task=8204544096e9 task_count=14 slot=0 call=109
+[onpolicy-capture] saved=15 task=8204544096e9 task_count=15 slot=0 call=113
+[onpolicy-capture] saved=16 task=8204544096e9 task_count=16 slot=0 call=117

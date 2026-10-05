@@ -6,6 +6,7 @@ import hashlib
 import html
 from html.parser import HTMLParser
 import json
+import math
 from pathlib import Path
 import re
 import struct
@@ -19,7 +20,9 @@ CURRENT_INPUTS = {
     'paper/evidence/paired_comparison.json', 'paper/evidence/recipe_inventory.json',
     'paper/evidence/selected_recipe/category_memory.json',
     'paper/evidence/selected_recipe/category_ptq_recipe.json',
+    'paper/evidence/selected_recipe/category_bake_manifest.json',
     'paper/evidence/frontier_comparison.json',
+    'paper/evidence/selected_recipe/category_bake_manifest.json',
     'results/baselines/pi05_pt_bf16_ptqad_20260929.json',
     'results/baselines/gr00t_pt_bf16_ptqad_20260929.json',
     'results/engine/pi05_bf16_ptqad_20260929.json',
@@ -30,6 +33,84 @@ CURRENT_INPUTS = {
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def load(path): return json.loads(path.read_text())
+
+
+def publication_protocol(manifest, protocol_file=None):
+    """Bind recorded protocol bytes to the local publication, never a private path."""
+    digest = manifest.get('protocol_sha256')
+    require(isinstance(digest, str) and re.fullmatch(r'[0-9a-f]{64}', digest),
+            'Evaluation manifest lacks a valid protocol SHA256')
+    root = P.parent.resolve()
+    candidates = ([Path(protocol_file)] if protocol_file is not None else
+                  sorted((P / 'evidence/protocol').glob('*.json')))
+    matched = []
+    for path in candidates:
+        require(not path.is_symlink() and path.resolve().is_relative_to(root),
+                'Publication protocol must be a regular file inside the public repository')
+        if path.is_file() and sha(path) == digest:
+            matched.append(path.resolve())
+    require(len(matched) == 1,
+            'Publication protocol has no unique SHA-matching local archive copy')
+    return matched[0]
+
+
+# Only these audited initial-QAD producers predate the numerical receipt fields.
+# The public training collector verifies their archived bytes against these
+# manifest digests. Do not turn a missing field in an arbitrary checkpoint into
+# an inferred strict training contract.
+LEGACY_STRICT_QAD_SOURCES = {
+    'rl/lora_qad.py': 'aa755bd3809b44abad97dd373417851addbd7ffdbbf7bbc69eb30c9cada2be2c',
+    'quant/native_activation.py': '8606b36e9ef2d4a4e194bcf2ab7ae6fc70d800cfc5cbb13f8552d1d4f842c8d3',
+}
+
+
+def recovery_numerical_contract(recovery, arm, protocol_sha):
+    """Read original receipt values; narrowly recognize the strict QAD schema."""
+    require(recovery.get('protocol_sha256') == protocol_sha and recovery.get('w4a4_enabled') is True,
+            f'Recovery numerical contract has a different W4A4 protocol: {arm}')
+    legacy = (arm == 'qad' and 'max_grad_norm' not in recovery and
+              'f16_activation_saturation' not in recovery)
+    if legacy:
+        sources = recovery.get('recovery_source_sha256') or {}
+        require(recovery.get('initial_adapter') is None and
+                all(sources.get(key) == digest for key, digest in LEGACY_STRICT_QAD_SOURCES.items()),
+                'Legacy QAD numerical contract lacks verified strict producer identity')
+    else:
+        norm = recovery.get('max_grad_norm')
+        require(type(norm) in (int, float) and math.isfinite(norm) and norm > 0,
+                f'Recovery export lacks finite max_grad_norm: {arm}')
+        require(type(recovery.get('f16_activation_saturation')) is bool,
+                f'Recovery export lacks f16 activation saturation provenance: {arm}')
+    return {key: recovery.get(key) for key in ('max_grad_norm', 'f16_activation_saturation')}, legacy
+
+
+def check_training_numerical_environment(recovery, request, arm, protocol_sha):
+    """Cross-check archived launch request and receipt without filling old fields."""
+    contract, legacy = recovery_numerical_contract(recovery, arm, protocol_sha)
+    env = request.get('environment')
+    require(request.get('protocol_sha256') == protocol_sha and isinstance(env, dict) and
+            env.get('QAD_W4A4') == '1', f'Training numerical request lacks W4A4 provenance: {arm}')
+    keys = ('QAD_W4A4', 'QAD_MAX_GRAD_NORM', 'FP4VLA_SATURATE_F16_ACTIVATIONS')
+    if legacy:
+        require(all(key not in env for key in keys[1:]),
+                'Legacy QAD request conflicts with strict producer numerical schema')
+    else:
+        raw_norm = env.get('QAD_MAX_GRAD_NORM')
+        try:
+            norm = float(raw_norm) if isinstance(raw_norm, str) else None
+        except ValueError:
+            norm = None
+        require(norm is not None and math.isfinite(norm) and norm == contract['max_grad_norm'] and
+                env.get('FP4VLA_SATURATE_F16_ACTIVATIONS') ==
+                ('1' if contract['f16_activation_saturation'] else '0'),
+                f'Training numerical request differs from recovery receipt: {arm}')
+    summary = recovery.get('environment_summary')
+    if summary is not None:
+        variables = summary.get('variables') if isinstance(summary, dict) else None
+        require(isinstance(variables, dict) and all(variables.get(key) == env.get(key) for key in keys),
+                f'Training numerical environment summary differs from request: {arm}')
+    # A missing summary remains missing. The hash-bound request and explicit
+    # continuation fields above provide the older schema's numerical evidence.
 
 
 class Page(HTMLParser):
@@ -50,6 +131,17 @@ class Page(HTMLParser):
 def check_finished(source):
     require('textcolor{#b42318}' not in source and 'mathrm{xxx}' not in source,
             'Incomplete review draft: red xxx placeholders must be replaced by verified results')
+    # Check visible result placeholders independently of their Markdown/HTML
+    # styling; missing measurements discussed as limitations remain valid.
+    def visible(text):
+        return html.unescape(re.sub(r'<[^>]*>','',text))
+    prose=visible(source)
+    numerical_placeholder=r'(?<![A-Za-z0-9_])(?:x{2,}\s*(?:[/\uFF0F]\s*(?:\d+|x{2,})|[%\uFF05])|\d+\s*[/\uFF0F]\s*x{2,})(?![A-Za-z0-9_])'
+    span_placeholders=any(re.search(r'(?<![A-Za-z0-9_])x{2,}(?![A-Za-z0-9_])',visible(body),re.I)
+                          for body in re.findall(r'<span\b[^>]*>([\s\S]*?)</span\s*>',source,re.I))
+    require(not re.search(numerical_placeholder,prose,re.I) and not span_placeholders,
+            'Incomplete review draft: numerical xxx/XX placeholders must be replaced by verified results')
+    require('待回填' not in prose,'Incomplete review draft: result marked 待回填')
     phrases=('正式开发结果将在','五臂最终结果将在','本轮执行结果将在',
              '本轮显式精度配置的 PyTorch 与 APXInf 测量结果将在','训练、教师标注、额外学生探针与评测成本分别从实际运行日志统计',
              '本轮矩阵乘时延、吞吐和格式可用性将在','本轮逐形状结果将在')
@@ -122,6 +214,11 @@ def capture_records(captures,required,package_inputs):
     rows=captures['screenshots']; names=[row['figure'] for row in rows]
     require(len(names)==len(set(names)) and set(names)==required and len(names)==17,
             'Capture manifest must contain each of the 17 required screenshots exactly once')
+    reserved_support_names = {name + suffix for name in names
+                              for suffix in ('.png','.log','.sh','.capture.json','.crop.json')}
+    reserved_support_names.update(Path(row[field]).name for row in rows
+                                  for field in ('raw_log','script','capture_sidecar','crop_manifest')
+                                  if isinstance(row.get(field),str))
     checked=[]
     for row in rows:
         name=row['figure'];path=P/'figs'/(name+'.png');git_anchor=None;acceptance='current_capture_and_crop'
@@ -169,6 +266,22 @@ def capture_records(captures,required,package_inputs):
             require(row.get('capture_status') == 'accepted_not_black' and row.get('image_quality') == proof['capture_sidecar']['image_quality'],
                     f'Capture quality metadata differs: {name}')
             require(row.get('visual_review',{}).get('verified') is True, f'Capture lacks explicit manual inspection: {name}')
+        if 'supporting_files' in row:
+            support=row['supporting_files'];seen=set()
+            require(isinstance(support,list),f'Invalid capture supporting_files: {name}')
+            for identity in support:
+                require(isinstance(identity,dict) and isinstance(identity.get('path'),str) and
+                        type(identity.get('bytes')) is int and identity['bytes']>0 and
+                        isinstance(identity.get('sha256'),str),f'Invalid capture support record: {name}')
+                relative=Path(identity['path']);basename=relative.name
+                require(relative.as_posix()=='evidence/captures/'+basename and
+                        basename not in reserved_support_names and basename not in seen,
+                        f'Unsafe, duplicate or conflicting capture support path: {name}/{identity["path"]}')
+                seen.add(basename)
+                evidence=check_record(identity,P)
+                require(evidence.parent==(P/'evidence/captures').resolve(),
+                        f'Capture support escapes capture directory: {name}')
+                package_inputs.add(evidence)
         checked.append({'file':path.name,'sha256':row['sha256'],'verified':True,
                         'retained_unaffected':row.get('retained_unaffected') is True,
                         'acceptance':acceptance,'verified_git_anchor':git_anchor})
@@ -253,31 +366,18 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
         # preserving the check formerly provided by the PTQ-ladder validator.
         residual=load(P/'evidence/recipe_inventory.json')['recovery_residual']
         recovery=merge['recovery_manifest']
-        initial_qad = arm == 'qad'
-        if initial_qad and recovery.get('max_grad_norm') is None:
-            # The original strict QAD stage predated the explicit clip field;
-            # its absence is a legacy receipt, not evidence that continuation
-            # used the same numerical setting.
-            require(recovery.get('f16_activation_saturation', False) is False,
-                    'Legacy QAD export unexpectedly enables F16 saturation')
-        else:
-            require(isinstance(recovery.get('max_grad_norm'), (int, float)) and
-                    not isinstance(recovery.get('max_grad_norm'), bool) and recovery['max_grad_norm'] > 0,
-                    f'Recovery export lacks finite max_grad_norm: {arm}')
-            require(type(recovery.get('f16_activation_saturation')) is bool,
-                    f'Recovery export lacks f16 activation saturation provenance: {arm}')
-        env_summary = recovery.get('environment_summary')
-        if initial_qad and env_summary is None:
-            # Same legacy allowance for the initial QAD receipt.  The heldout
-            # evaluation manifest still records the effective W4A4 switches.
-            pass
-        else:
-            require(isinstance(env_summary, dict) and isinstance(env_summary.get('variables'), dict),
-                    f'Recovery export lacks numerical environment summary: {arm}')
         require(merge['lora_pairs']==residual['linear_modules'] and
                 recovery['trainable_parameters']==residual['tensor_elements'] and
                 all(recovery[key]==residual[key] for key in ('rank','alpha','scope')),
                 f'Recovery export differs from the plotted LoRA budget: {arm}')
+        stage_relative = 'stages/' + arm + '/recovery_manifest.json'
+        request_relative = 'stages/' + arm + '/orchestrator_training_request.json'
+        require(stage_relative in records and request_relative in records,
+                f'Recovery numerical source records are missing: {arm}')
+        require(load(resolve_inside(folder, stage_relative)) == recovery,
+                f'Recovery export differs from archived training receipt: {arm}')
+        request = load(resolve_inside(folder, request_relative))
+        check_training_numerical_environment(recovery, request, arm, costs['protocol_sha256'])
     collection=load(folder/'collection/eval_manifest.json')
     require(Path(collection['checkpoint']).resolve()==Path(runtime['checkpoints']['qad']['path']).resolve(),
             'Collection student identity differs from evaluated QAD')
@@ -285,6 +385,51 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
     require(Path(teacher['teacher']).resolve()==Path(runtime['checkpoints']['bf16']['path']).resolve() and
             teacher['teacher_weights']==weights('bf16'),'Teacher identity differs from evaluated BF16')
     return costs
+
+
+def check_search_costs(package_inputs, protocol_file, folder=None):
+    """Require the independently verified search archive and bundle every input."""
+    from collect_search_costs import verify
+    folder = Path(folder) if folder is not None else P / 'evidence/search_costs'
+    report = verify(folder)
+    require(report.get('status') == 'verified' and report.get('protocol_sha256') == sha(protocol_file),
+            'Search cost archive used a different protocol or did not verify')
+    manifest_path = folder / 'evidence_manifest.json'
+    manifest = load(manifest_path)
+    require(type(report.get('files')) is int and report['files'] == len(manifest['files']),
+            'Search cost archive file count differs from verified report')
+    for row in manifest['files']:
+        package_inputs.add(check_record({'path': row['published_path'],
+                                         'bytes': row['bytes'], 'sha256': row['sha256']}, folder))
+    package_inputs.update((manifest_path, P / 'collect_search_costs.py', P / 'collect_training_costs.py'))
+    return report
+
+
+def archived_recovery_receipt(package_inputs, runtime, arm):
+    """Resolve the evaluated export's receipt entirely from hash-bound public files."""
+    folder = P / 'evidence/training'
+    archive_path = folder / 'evidence_manifest.json'
+    archive = load(archive_path)
+    require(archive.get('status') == 'complete' and isinstance(archive.get('files'), list),
+            'Recovery archive identity map is missing or incomplete')
+    relative = 'exports/' + arm + '/merge_manifest.json'
+    matches = [row for row in archive['files'] if row.get('published_path') == relative]
+    require(len(matches) == 1, f'Recovery archive export is missing or ambiguous: {arm}')
+    row = matches[0]
+    source = row.get('original_absolute_path')
+    require(isinstance(source, str) and Path(source).is_absolute() and
+            Path(source).parent.resolve() == Path(runtime['checkpoints'][arm]['path']).resolve(),
+            f'Archived recovery export differs from evaluated checkpoint: {arm}')
+    path = check_record({'path': relative, 'bytes': row['bytes'], 'sha256': row['sha256']}, folder)
+    merge = load(path)
+    weights = {item['name']: {key: item[key] for key in ('bytes', 'sha256')}
+               for item in runtime['checkpoints'][arm]['files'] if item['name'].endswith('.safetensors')}
+    require(weights and merge.get('output_weights') == weights,
+            f'Archived recovery export weights differ from evaluated checkpoint: {arm}')
+    receipt = merge.get('recovery_manifest')
+    require(isinstance(receipt, dict), f'Archived recovery export lacks its training receipt: {arm}')
+    package_inputs.update((archive_path, path))
+    return receipt
 
 
 def check_evaluation_environment(package_inputs, runtime, protocol_file):
@@ -307,26 +452,51 @@ def check_evaluation_environment(package_inputs, runtime, protocol_file):
         contract = manifest.get('recovery_contract')
         require(isinstance(contract, dict) and 'max_grad_norm' in contract,
                 f'Evaluation manifest lacks recovery contract: {arm}')
-        if arm == 'qad' and contract.get('f16_activation_saturation') is None:
-            # Legacy strict QAD manifests did not serialize this field.
-            contract['f16_activation_saturation'] = False
-        require(type(contract.get('f16_activation_saturation')) is bool,
+        require('f16_activation_saturation' in contract,
                 f'Evaluation manifest lacks recovery saturation contract: {arm}')
         if arm in ('bf16', 'ptq'):
             require(contract['max_grad_norm'] is None and contract['f16_activation_saturation'] is False,
                     f'Non-recovery arm carries a recovery training contract: {arm}')
         else:
-            require(isinstance(contract['max_grad_norm'], (int, float)) and
-                    not isinstance(contract['max_grad_norm'], bool) and contract['max_grad_norm'] > 0,
-                    f'Recovery arm lacks finite max_grad_norm: {arm}')
-            runtime_path = Path(runtime['checkpoints'][arm]['path'])
-            source = runtime_path / 'recovery_manifest.json'
-            require(source.is_file(), f'Recovery manifest missing beside evaluated checkpoint: {arm}')
-            recorded = load(source)
-            require(contract['max_grad_norm'] == recorded.get('max_grad_norm') and
-                    contract['f16_activation_saturation'] == recorded.get('f16_activation_saturation'),
+            recorded = archived_recovery_receipt(package_inputs, runtime, arm)
+            expected_contract, legacy = recovery_numerical_contract(recorded, arm, sha(protocol_file))
+            if not legacy:
+                require(type(contract['max_grad_norm']) in (int, float) and
+                        type(contract['f16_activation_saturation']) is bool,
+                        f'Evaluation recovery contract has invalid numerical types: {arm}')
+            require(contract == expected_contract,
                     f'Evaluation recovery contract differs from checkpoint: {arm}')
         package_inputs.add(path)
+
+
+def check_heldout_raw_logs(package_inputs, protocol_file):
+    """Verify every published rollout/server byte and replay the existing parser."""
+    from materialize_final_evidence import audit_heldout_raw_logs
+    from run_recovery_eval import TASKS
+    folder = P / 'evidence'
+    manifest_path = folder / 'heldout_raw_logs.json'
+    manifest = load(manifest_path)
+    require(manifest.get('version') == 1 and manifest.get('status') == 'complete' and
+            manifest.get('protocol_sha256') == sha(protocol_file),
+            'Raw heldout log manifest has a different protocol or incomplete status')
+    parser = manifest.get('parser')
+    require(isinstance(parser, dict) and parser.get('path') == 'eval/run_recovery_eval.py' and
+            manifest.get('parser_functions') == ['parse_log', 'validate_resets'],
+            'Raw heldout evidence does not identify the evaluation parser')
+    package_inputs.add(check_record(parser, P.parent))
+    expected = {f'heldout_{arm}/{task}{suffix}'
+                for arm in ('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd')
+                for task in TASKS for suffix in ('.log', '.server.log')}
+    records = manifest.get('files')
+    require(isinstance(records, dict) and set(records) == expected,
+            'Raw heldout evidence must contain exactly fifty rollout/server log pairs')
+    for relative, record in records.items():
+        require(isinstance(record, dict) and set(record) == {'bytes', 'sha256'},
+                'Raw heldout log identity is incomplete: ' + relative)
+        package_inputs.add(check_record({'path': relative, **record}, folder))
+    require(audit_heldout_raw_logs(folder) == records,
+            'Published raw heldout logs do not reproduce the task receipts')
+    package_inputs.add(manifest_path)
 
 
 def check_v11_frontier(package_inputs, paired):
@@ -413,6 +583,13 @@ def validate(write_report=True,protocol_file=None):
     require(md==expected_markdown(sections,metadata,registry),'Zhihu Markdown is stale or differs from the complete source')
     require(not re.search(r'\{\{fig:|FPV(?:MATH|CODE)TOKEN|\[缺图',doc+md),'Unresolved figure/math/code token')
     package_inputs=set()
+    from install_final_evidence import verify as verify_installed_evidence
+    verify_installed_evidence(P / 'evidence')
+    installed_manifest = load(P / 'evidence/evidence_manifest.json')
+    package_inputs.update((P / 'evidence/evidence_manifest.json',
+                           P / 'evidence/source_bundle_manifest.json', P / 'install_final_evidence.py'))
+    package_inputs.update(resolve_inside(P / 'evidence', row['published_path'])
+                          for row in installed_manifest['files'])
     provenance=load(P/'validation/figure-inputs.json')
     require(provenance.get('version')==1 and provenance.get('status')=='passed','Figure generation did not pass')
     require(provenance['generator']['path']=='paper/make_figs.py','Unexpected figure generator')
@@ -442,7 +619,8 @@ def validate(write_report=True,protocol_file=None):
     sys.path.insert(0,str(P.parent/'eval'))
     from compare_ptq_frontier import recorded_protocol
     baseline_manifest=load(P/'evidence/heldout_bf16/eval_manifest.json')
-    protocol_file=recorded_protocol(baseline_manifest,P.parent,protocol_file)
+    protocol_file=recorded_protocol(baseline_manifest,P.parent,
+                                    publication_protocol(baseline_manifest,protocol_file))
     protocol_paths={baseline_manifest['protocol_file']:protocol_file} if baseline_manifest.get('protocol_file') else None
     package_inputs.add(protocol_file)
     paired,_=paired_rows();check_pairing(paired,protocol_file);budget_rows()
@@ -455,6 +633,7 @@ def validate(write_report=True,protocol_file=None):
     sys.path.insert(0,str(P.parent/'eval'))
     from compare_recovery import compare_round
     require(compare_round(P/'evidence',protocol_paths)==paired, 'Copied heldout evidence does not reproduce the reported comparison')
+    check_heldout_raw_logs(package_inputs, protocol_file)
     # v11 publishes one selected W4A4 checkpoint; rebuild that frontier from
     # its heldout-only source instead of accepting the retired PTQ ladder
     # validator and its reference runs.
@@ -513,12 +692,15 @@ def validate(write_report=True,protocol_file=None):
                     re.fullmatch(r'[0-9a-f]{64}',row['sha256']),f'Invalid checkpoint file identity: {arm}')
     for path,row in runtime['source_files'].items():package_inputs.add(check_record({'path':path,**row},P.parent))
     training_costs=check_training_costs(runtime,package_inputs,protocol_file)
+    search_costs=check_search_costs(package_inputs,protocol_file)
     report={'passed':True,'source_sections':len(sections),'figures':len(figures),'required_figure_references':len(required),
             'verified_screenshots':len(checks),'code_blocks_preserved':len(code(source)),'offline_html':True,
             'table_of_contents_links':len(page.anchors),'screenshots':checks,'training_cost_evidence_verified':True,
             'teacher_backward_accounting':{
                 key:training_costs['training']['qad_opd'][key]
                 for key in ('logged_teacher_backward_passes','scheduled_teacher_backward_passes','teacher_schedule_note')},
+            'raw_heldout_logs_verified': True, 'raw_heldout_log_files': 100,
+            'search_cost_evidence_verified': True, 'search_cost_evidence_files': search_costs['files'],
             'outputs':{str(path.relative_to(P)):{'bytes':path.stat().st_size,'sha256':sha(path)} for path in (P/'paper.html',P/'zhihu/article.md')},
             'package_inputs':[file_record(path,P.parent) for path in sorted(package_inputs)]}
     if write_report:

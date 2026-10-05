@@ -1,0 +1,618 @@
+{
+  "version": 1,
+  "status": "complete",
+  "created_utc": "2026-10-05T20:15:03.296951+00:00",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "training": {
+    "qad": {
+      "status": "completed",
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "demonstration_window_draws_scope": "source-derived from bound capture sample count, epoch tail batches and completed updates; not an independent draw counter",
+      "wall_seconds": 34317.012404267996,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15904500224,
+          "max_memory_reserved_bytes": 16160653312,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16160653312
+        }
+      ],
+      "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "compute_dtype": "bfloat16",
+      "micro_batch": 1,
+      "gradient_accumulation_steps": 16,
+      "effective_global_batch": 16,
+      "trainable_parameters": 72998912,
+      "lora_linear_modules": 468,
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000",
+      "initial_adapter": null
+    },
+    "continued_qad": {
+      "status": "completed",
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "demonstration_window_draws_scope": "source-derived from bound capture sample count, epoch tail batches and completed updates; not an independent draw counter",
+      "wall_seconds": 36020.975146579,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15904500224,
+          "max_memory_reserved_bytes": 16160653312,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16160653312
+        }
+      ],
+      "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "compute_dtype": "bfloat16",
+      "micro_batch": 1,
+      "gradient_accumulation_steps": 16,
+      "effective_global_batch": 16,
+      "trainable_parameters": 72998912,
+      "lora_linear_modules": 468,
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_continued_qad/checkpoint-2000",
+      "initial_adapter": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000",
+      "logged_teacher_backward_passes": 0,
+      "scheduled_teacher_backward_passes": 0,
+      "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls."
+    },
+    "qad_opd": {
+      "status": "completed",
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "demonstration_window_draws_scope": "source-derived from bound capture sample count, epoch tail batches and completed updates; not an independent draw counter",
+      "wall_seconds": 44281.18965431501,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15904500736,
+          "max_memory_reserved_bytes": 16164847616,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16164847616
+        }
+      ],
+      "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "compute_dtype": "bfloat16",
+      "micro_batch": 1,
+      "gradient_accumulation_steps": 16,
+      "effective_global_batch": 16,
+      "trainable_parameters": 72998912,
+      "lora_linear_modules": 468,
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_opd_025/checkpoint-2000",
+      "initial_adapter": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000",
+      "logged_teacher_backward_passes": 1600,
+      "scheduled_teacher_backward_passes": 6800,
+      "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls."
+    }
+  },
+  "collection": {
+    "wall_seconds": 3673.78284907341,
+    "timing_scope": "serial ten-task collection loop including server loads, rollouts and server shutdown",
+    "episodes": 40,
+    "tasks": 10,
+    "captured_observations": 160,
+    "cuda_peak_memory": null,
+    "cuda_peak_note": "Collection wrapper does not record allocator peaks"
+  },
+  "teacher_labeling": {
+    "elapsed_seconds": 54.949952363967896,
+    "timing_scope": "checkpoint loading and teacher labeling, before cache serialization",
+    "cuda_peak_memory": [
+      {
+        "device_index": 0,
+        "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "max_memory_allocated_bytes": 13327141376,
+        "max_memory_reserved_bytes": 13570670592,
+        "memory_allocated_bytes_at_end": 12587730944,
+        "memory_reserved_bytes_at_end": 13570670592
+      }
+    ],
+    "cuda_peak_scope": "PyTorch allocator peaks for this labeling process",
+    "model_dtype": "float32",
+    "autocast_dtype": "bfloat16",
+    "requested_probes": 160,
+    "actual_probes": 160,
+    "source_observations_per_task": {
+      "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": 16,
+      "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": 16,
+      "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": 16,
+      "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": 16,
+      "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": 16,
+      "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": 16,
+      "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": 16,
+      "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": 16,
+      "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": 16,
+      "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": 16
+    },
+    "cache_identity": {
+      "bytes": 262993857,
+      "sha256": "fca97f5db6f28eb2a1b14e0f26cfb7771032da82e176f3fa47ea85961bfee969"
+    }
+  },
+  "export_reported_seconds": {
+    "qad": 46.5563850402832,
+    "continued_qad": 57.058204650878906,
+    "qad_opd": 57.4845917224884
+  },
+  "comparison": {
+    "same_initial_adapter": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000",
+    "initial_adapter_weight_files": {
+      "model-00001-of-00003.safetensors": {
+        "bytes": 4993510800,
+        "sha256": "d61875eda05549bbb436cbde8b2bebe357fda5a1f82998c61a777302007521a7"
+      },
+      "model-00002-of-00003.safetensors": {
+        "bytes": 4981458392,
+        "sha256": "3f9f2721b20f67ab045ac3bc4778a7da4fcc334b3f48abf2adcc2fbf54761dfc"
+      },
+      "model-00003-of-00003.safetensors": {
+        "bytes": 2893354536,
+        "sha256": "19a7cc69b32f2fa11030f0c867a03670f31ff7989f9e8cf1905a34537a3364f5"
+      }
+    },
+    "same_frozen_base": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+    "same_demo_and_update_budget": true,
+    "continuation_wall_ratio_opd_over_continued": 1.2293167931773912,
+    "equal_total_compute": false
+  },
+  "excluded_from_formal_cost_comparison": [
+    "initial QAD smoke",
+    "OPD smoke",
+    "calibration",
+    "baking",
+    "heldout evaluation",
+    "collector audit"
+  ],
+  "accounting_notes": [
+    "Training, collection and labeling retain their producer timing scopes; do not sum them as a measured end-to-end wall clock.",
+    "Teacher labeling elapsed includes checkpoint/input hashing, configuration and observation reading, model loading and labeling, but ends before cache serialization. Export elapsed is a producer field, not process end-to-end timing.",
+    "Training timing includes checkpoint saving; the three arms can have different save counts. This is measured stage cost, not a pure per-update compute benchmark.",
+    "Allocator peaks are process-local PyTorch measurements; collection peaks were not recorded and are null.",
+    "Both continuation manifests name the same adapter; current adapter bytes match the completed QAD export. Training did not record a separate initial-adapter weight digest at start.",
+    "Training and teacher producer-attested hashes are matched to per-stage archived bytes; matching a later content-addressed snapshot does not prove launch-time import identity. Collection records protocol SHA but not its own source SHA; archived wrapper source is a collector-time snapshot.",
+    "Weights, observation tensors and teacher cache are hashed/checked but are not copied into this lightweight evidence package.",
+    "For bound capture replay, demonstration draws are source-derived from sample count, epoch tail batches and completed updates and checked against Trainer epoch; otherwise only the configured full-batch budget is available. Neither is an independent draw counter or a count of distinct samples.",
+    "Teacher backward fields count student backward passes against cached teacher velocity targets; the BF16 teacher labels under no_grad and is never updated.",
+    "Public verification checks copied metadata/logs and recorded identities without opening private model, observation or cache tensor files; the collector-time tensor hash checks cannot be independently repeated from this lightweight package."
+  ],
+  "evidence_manifest": "evidence_manifest.json",
+  "selected_recovery_settings": {
+    "learning_rate": 0.0001,
+    "opd_weight": 0.25,
+    "train_seed": 20261003
+  },
+  "cost_scope": "Selected final three training arms. Hyperparameter-search training and development evaluations are separate and excluded from these stage costs.",
+  "recovery_provenance": {
+    "version": 1,
+    "initialization_snapshot": {
+      "published_path": "source/exp/run_high_fp4_v3_producer.py",
+      "sha256": "a996454b49d6ca4724613c7c5ea3746d46bc1ccb763834bf78572fb32e15bd48",
+      "scope": "Source identity recorded when run_manifest.json was created; this does not attest the orchestration source imported by every resumed process."
+    },
+    "launch_snapshot_scope": "File snapshots taken before and after recorded recovery launches. Stages completed before the first recorded launch have no launch-source snapshot; later snapshots do not retroactively prove their orchestration source identity.",
+    "launch_snapshot_coverage": "none",
+    "stages_without_launch_snapshot": [
+      "collection_qad",
+      "dev_continued_qad",
+      "dev_opd_025",
+      "dev_opd_100",
+      "dev_qad_lr_0.0001",
+      "dev_qad_lr_5e-05",
+      "heldout_bf16",
+      "heldout_continued_qad",
+      "heldout_ptq",
+      "heldout_qad",
+      "heldout_qad_opd",
+      "merge_continued_qad",
+      "merge_opd_025",
+      "merge_opd_100",
+      "merge_qad_lr_0.0001",
+      "merge_qad_lr_5e-05",
+      "select_opd_weight",
+      "select_qad_lr",
+      "teacher_cache",
+      "train_continued_qad",
+      "train_opd_025",
+      "train_opd_100",
+      "train_qad_lr_0.0001",
+      "train_qad_lr_5e-05"
+    ],
+    "stages_completed_during_recorded_invocations": [],
+    "recorded_invocations": [],
+    "training_source_verification": {
+      "status": "verified",
+      "scope": "Each selected training arm separately verifies and archives all producer-attested recovery_source_sha256 bytes, including W4A4 dependencies when enabled. Different stages may have different source hashes. Matching bytes do not supply a missing launch snapshot.",
+      "arms": [
+        "qad",
+        "continued_qad",
+        "qad_opd"
+      ]
+    }
+  },
+  "development_selection_audit": {
+    "version": 1,
+    "scope": "development_only_not_heldout",
+    "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+    "embedded_selection_sha256": {
+      "qad": "a45054892958764158aa16bd44bc2b1f7735da5cb71c4dfec554728b79fa29d4",
+      "opd": "c01dd08ae44f5bda56a218d3d20cf626b9dc9bc8fc504e37bea3a45d3c4fe942"
+    },
+    "arms": {
+      "qad": {
+        "successes": 45,
+        "episodes": 50,
+        "pairing_sha256": "7519fb0474d0f49ea81e6a177fe61a03f3cd48b711a1159d727db1303b6c71d7",
+        "evaluation_identity": {
+          "eval_manifest.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/eval_manifest.json",
+            "bytes": 2391,
+            "sha256": "fbc8f3249618f65346e3ca2ef43ee6b61172c8c36ac31277f46c82055ba54d4c"
+          },
+          "task_results.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/task_results.json",
+            "bytes": 35684,
+            "sha256": "c2675e6480ac2c30031335c55997cf064e429ef6c16b76adebea2dc1e5c84026"
+          },
+          "summary.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/summary.json",
+            "bytes": 363,
+            "sha256": "083e95ff66bb61293cbd83211e3412df6f90f75d8f62a7e9abf303ceed84271d"
+          }
+        },
+        "raw_log_identities": {
+          "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log",
+            "bytes": 8163,
+            "sha256": "cfffcf40e1d7474caf4d573b14d8d7182c5085206a2568e4eb031ae2d66bb073"
+          },
+          "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log",
+            "bytes": 8135,
+            "sha256": "3cad56f9a19ef36eec603c9d4b2e6ef2d1c7a162dacc1b13ca6bf76eee20e4b3"
+          },
+          "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
+            "bytes": 7952,
+            "sha256": "c119883cf9b75ad22d38762cf363a821b1047587c1b2bbeb347e4ab144ed6604"
+          },
+          "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log",
+            "bytes": 8182,
+            "sha256": "eb228b9595ec783ab9c388ca609ae5560a9e1984ffa1f9b53e5cbfe7f4d6221f"
+          },
+          "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log",
+            "bytes": 8423,
+            "sha256": "e36814ed50ffd313c6a4ce8ff3c2226c858a90f667e65d157f2e56973804c891"
+          },
+          "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log",
+            "bytes": 8153,
+            "sha256": "3c275fb123394d15f028204e5d18286e2d06f7b157c193f7cd1f6a624d7e90de"
+          },
+          "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log",
+            "bytes": 8412,
+            "sha256": "03b556ada6265124ad8fc165721f4339bb30989fdd8bc8dbbb32a3e8016d1de1"
+          },
+          "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log",
+            "bytes": 8202,
+            "sha256": "460acec283856eafca72496e6c675648f3d11e8242d2cd63fa262a5976f7e0c7"
+          },
+          "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log",
+            "bytes": 7830,
+            "sha256": "22b2096385f9fd6564468345cb443823820875bc005225e880bdcf6de90cd77a"
+          },
+          "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_qad_lr_0.0001/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log",
+            "bytes": 8100,
+            "sha256": "ca8726884249c0a5006c4c8259cbaf0274d621bed523eeddc9b9c7c4c5c4b13a"
+          }
+        },
+        "model_identity": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_qad_lr_0.0001",
+          "metadata": {
+            "config.json": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+            "statistics.json": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+            "ptq_recipe.json": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
+            "bake_manifest.json": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef",
+            "category_ptq_recipe.json": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+            "category_bake_manifest.json": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
+            "recovery_manifest.json": "8b124540de45238b0b0221d544ec3c009b091b8d36f085166636142c51666dc7",
+            "merge_manifest.json": "906dc97dc224283467bab8a87bfac8b9f0c720390c055f717979dce3fe837943",
+            "model.safetensors.index.json": "b3b2d9cd50338bbda18822f765389a4c841a044f1a44adf14178d74432bedfa5"
+          },
+          "shards": [
+            {
+              "name": "model-00001-of-00002.safetensors",
+              "bytes": 4990519232,
+              "sha256": "a81b7b079c6b232c07ecb57484c01cfcc772827a31d8bf418739575992517d3e"
+            },
+            {
+              "name": "model-00002-of-00002.safetensors",
+              "bytes": 1919980184,
+              "sha256": "898bce592f84fef0505c7441359b0c2bb1c15568274c8928bd32d1b026be1713"
+            }
+          ]
+        }
+      },
+      "qad_opd": {
+        "successes": 46,
+        "episodes": 50,
+        "pairing_sha256": "7519fb0474d0f49ea81e6a177fe61a03f3cd48b711a1159d727db1303b6c71d7",
+        "evaluation_identity": {
+          "eval_manifest.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/eval_manifest.json",
+            "bytes": 2657,
+            "sha256": "6cc0c408e43a8c8fda64053262cab1c35f7c557e5e4bde75082072ab7f0468c8"
+          },
+          "task_results.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/task_results.json",
+            "bytes": 35683,
+            "sha256": "69a1ed84c1b87a8cd9af949a39aca7540455fdb6023124db869aa83a542e0f0d"
+          },
+          "summary.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/summary.json",
+            "bytes": 378,
+            "sha256": "6e30a16b8b275415060475aa03d4010071bf061f7e4f8d79a5b624f7a6063c9b"
+          }
+        },
+        "raw_log_identities": {
+          "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log",
+            "bytes": 8161,
+            "sha256": "a7cd68f0dbedd3423972b8e8a5835c5c10191e379df7aafc7625ab971f28fc87"
+          },
+          "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log",
+            "bytes": 8127,
+            "sha256": "a5c221f6d9c645da08b9782837155a160a1d5eb9590e2b87aa7818d05c2d3780"
+          },
+          "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
+            "bytes": 7947,
+            "sha256": "dd9be9beb27aae931c1fe2fc20b5e2e6f01467dca05981536322d2d612a444a6"
+          },
+          "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log",
+            "bytes": 8179,
+            "sha256": "4c9e48ccb743f9051103e8a8a400609d9ef870df9a9157b85336af3678e10e40"
+          },
+          "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log",
+            "bytes": 8419,
+            "sha256": "5327838de798c39ba981b28408665b414307b1ad0084c0c432c66124c65fa062"
+          },
+          "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log",
+            "bytes": 8147,
+            "sha256": "5ad86483c44cd670ec746b823da29445c64c49ed18e9912ac5364f9ba90b2c21"
+          },
+          "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log",
+            "bytes": 8406,
+            "sha256": "488add10595d850e9cb222ea616dde73aec0a2bd97553169527d4c06ae84af87"
+          },
+          "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log",
+            "bytes": 8197,
+            "sha256": "ba3f06057db943381d17e9c0e9441dc578df1761e85c6dbef7faef02b447de0a"
+          },
+          "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log",
+            "bytes": 7822,
+            "sha256": "ac9b3dced4c75dd467d41e4e6139373ed072fdf6a91bff7b37e79d93d01062f3"
+          },
+          "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log",
+            "bytes": 8094,
+            "sha256": "3aa515b39c77634428ef889337bae93d8e4c7d99be1cb7e7217bfd8443832ff6"
+          }
+        },
+        "model_identity": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_opd_025",
+          "metadata": {
+            "config.json": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+            "statistics.json": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+            "ptq_recipe.json": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
+            "bake_manifest.json": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef",
+            "category_ptq_recipe.json": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+            "category_bake_manifest.json": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
+            "recovery_manifest.json": "875ee1da64df5331fb6806d79cc8473689191a076e1b3ea18ee77a6660ae394b",
+            "merge_manifest.json": "005b3e653d2d536d6482b3c2ec3aa2f0493029762093a40b2f06dccbc86867c0",
+            "model.safetensors.index.json": "b3b2d9cd50338bbda18822f765389a4c841a044f1a44adf14178d74432bedfa5"
+          },
+          "shards": [
+            {
+              "name": "model-00001-of-00002.safetensors",
+              "bytes": 4990519232,
+              "sha256": "ed5c87451963d6393e0200b8378efd529c427450bfd3c2753322599c5238f66e"
+            },
+            {
+              "name": "model-00002-of-00002.safetensors",
+              "bytes": 1919980184,
+              "sha256": "5e3e96fdaedf41d71144c5c7e8da1776182f97afab44b3bc60f669e77be70e0d"
+            }
+          ]
+        }
+      },
+      "continued_qad": {
+        "successes": 30,
+        "episodes": 50,
+        "pairing_sha256": "7519fb0474d0f49ea81e6a177fe61a03f3cd48b711a1159d727db1303b6c71d7",
+        "evaluation_identity": {
+          "eval_manifest.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/eval_manifest.json",
+            "bytes": 2675,
+            "sha256": "7a123ee54d2bd7dbcde2e9fa811597f3fc663b2968220cbba45a57cdb538e431"
+          },
+          "task_results.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/task_results.json",
+            "bytes": 35699,
+            "sha256": "1a8d0914a9e8ecd0828ba5c3ab28f26d9fa55eb10f4fcd699ca8e616c1f7a0cd"
+          },
+          "summary.json": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/summary.json",
+            "bytes": 363,
+            "sha256": "4d749a9bdeb3db33519c236086131584d6ed97fd15a0620879dd0c96e84d3890"
+          }
+        },
+        "raw_log_identities": {
+          "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log",
+            "bytes": 8170,
+            "sha256": "e9db809394d82e3d99ecbe224654422fc6072c623bc5854931858ff08e1b1a0c"
+          },
+          "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log",
+            "bytes": 8140,
+            "sha256": "7fb8f81c4655bc5ab95f95f55f86d57348ace0fbcb4a3ab10964ef95f0183915"
+          },
+          "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
+            "bytes": 7952,
+            "sha256": "ea89d6f727c69bea107b636f9aba8d4af3c2106770adc7f1706097d0d1d5202d"
+          },
+          "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log",
+            "bytes": 8186,
+            "sha256": "0909168c34b57f3959652335468888a7ac34c13cb4b3140b59c27363c216f458"
+          },
+          "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log",
+            "bytes": 8431,
+            "sha256": "6680ae129553ccf44add4c965d9d18e0633eac35928251b428e204f8f8e638f6"
+          },
+          "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log",
+            "bytes": 8153,
+            "sha256": "ece4feebc7218d90878f0f76fb1513af50df95e4b342d16ffa8412650536fd05"
+          },
+          "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log",
+            "bytes": 8422,
+            "sha256": "bc44a9238ba9d428e1029f9f5ea7073e354fc216be028a264310058aa13916cb"
+          },
+          "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log",
+            "bytes": 8204,
+            "sha256": "5ad7812c6833fd8c61dd59790d530ba916ca440e72ca2c89847b1314c746086c"
+          },
+          "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log",
+            "bytes": 7831,
+            "sha256": "74e73a4086195714c44b3678ee7cc52eae23d7766d80f6e559e2023a6879f9bf"
+          },
+          "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+            "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_continued_qad/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log",
+            "bytes": 8100,
+            "sha256": "e26080ef2156847e7ae8a1d2d89c6a8b7f24fb41e65d885de50f11f62405e169"
+          }
+        },
+        "model_identity": {
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_continued_qad",
+          "metadata": {
+            "config.json": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+            "statistics.json": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+            "ptq_recipe.json": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
+            "bake_manifest.json": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef",
+            "category_ptq_recipe.json": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+            "category_bake_manifest.json": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
+            "recovery_manifest.json": "bb01d6b3db8258e2d71a88390d6fdfc5667cdc8c133a2d79025b1ca89faa5b4b",
+            "merge_manifest.json": "dbe82eebe3c0a2977162ba850babb1a353d7b2ea2600926cfc7451e571370c8d",
+            "model.safetensors.index.json": "b3b2d9cd50338bbda18822f765389a4c841a044f1a44adf14178d74432bedfa5"
+          },
+          "shards": [
+            {
+              "name": "model-00001-of-00002.safetensors",
+              "bytes": 4990519232,
+              "sha256": "4afbf03aa2dbcb4ddb9e5a67a371234790193d2956c7766492253612fe39bf44"
+            },
+            {
+              "name": "model-00002-of-00002.safetensors",
+              "bytes": 1919980184,
+              "sha256": "02f59028700042adc9f1ea922124ab304e0e2d67e53f2ff478cb335ee440e30b"
+            }
+          ]
+        }
+      }
+    },
+    "exact_rate_differences": {
+      "opd_minus_qad": {
+        "numerator": 1,
+        "denominator": 50
+      },
+      "opd_minus_continued_qad": {
+        "numerator": 8,
+        "denominator": 25
+      }
+    },
+    "derived_flags": {
+      "opd_not_below_control": true,
+      "opd_beats_continued_qad": true,
+      "opd_beats_qad": true
+    },
+    "original_opd_gate_override": true,
+    "original_record_discrepancies": [
+      {
+        "field": "opd_gate_override",
+        "kind": "explicit_override",
+        "recorded": true,
+        "meaning": "Gate override permits comparison; it is not evidence of improvement."
+      },
+      {
+        "field": "opd_beats_qad",
+        "kind": "missing",
+        "derived": true
+      },
+      {
+        "field": "qad_reference_score",
+        "kind": "missing",
+        "derived": 0.9
+      },
+      {
+        "field": "qad_reference_evaluation",
+        "kind": "missing",
+        "derived_from": "final_manifest.qad_selection"
+      },
+      {
+        "field": "qad_selection_identity",
+        "kind": "missing",
+        "derived_from": "final_manifest.qad_selection"
+      }
+    ]
+  }
+}

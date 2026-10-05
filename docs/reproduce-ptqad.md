@@ -2,7 +2,7 @@
 
 本文档只描述仓库当前的 **v11 W4A4 category** 主线：
 
-`BF16 → 全覆盖 NVFP4 权重 PTQ → QAD → continued-QAD → QAD+OPD → LIBERO-10 闭环`。
+`BF16 → 全覆盖 NVFP4 W4A4 PTQ → QAD → {continued-QAD，QAD+OPD}`，最后在同一 LIBERO-10 协议下评测五臂。花括号中的两个追加阶段从同一 QAD 检查点分别开始。
 
 v11 的目标是把 479 个可量化权重张量全部写成 NVFP4；其中 469 个普通 Linear 和 7 个 CategorySpecificLinear 在运行时使用 W4A4 激活 QDQ，另外 3 个 embedding/位置张量只有权重量化。QAD 与 OPD 保留独立的 BF16 低秩残差。本文档中的成功率只指最终协议的原始逐回合记录，不接受 smoke 或 development 分数代替。
 
@@ -87,7 +87,7 @@ mkdir "$V11_ROOT" && cp "$PROJECT/exp/recovery_protocol_v11_w4a4_category.json" 
   exp/run_w4a4_recovery.py exp/make_w4a4_selection.py
 ```
 
-smoke 只能使用协议的 index=0 分区。它证明服务能启动、W4A4 环境变量和输入输出契约有效；smoke 的成功率、延迟和日志不能进入最终结果表。
+协议的接口 smoke 使用 index=0；发布截图中的短测复用 development 分区的 index=4。两者都只检查服务能否启动、W4A4 环境变量及输入输出契约是否有效，其成功率和延迟不进入正式结果表。
 
 ## 4. 128 窗口校准和全覆盖 W4A4 PTQ
 
@@ -242,7 +242,11 @@ FP4VLA_QUANT=0 FP4VLA_W4A4=0 FP4VLA_W4A4_ADAPTER=0 \
   --port-base 5890 --until all
 ```
 
-最后一条命令在 `RECOVERY_DIR/artifacts/heldout_round/` 写出五个 heldout 目录和 `paired_comparison.json`，并在 `RECOVERY_DIR/final_manifest.json` 绑定协议、selection、QAD learning rate、OPD weight 和五个 checkpoint。每臂 10 个任务 × 16 回合，共 160 回合；主摘要同时报告 micro success rate 和十任务 macro success rate。v11 预注册的最小效应量为 PTQ 相对 BF16 下降至少 5 个百分点、QAD 相对 PTQ 恢复至少 5 个百分点、OPD 同时高于 QAD 和 continued-QAD 至少 5 个百分点；更小差异只能作为探索性结果。
+最后一条命令在 `RECOVERY_DIR/artifacts/heldout_round/` 写出五个 heldout 目录和 `paired_comparison.json`，并在 `RECOVERY_DIR/final_manifest.json` 绑定协议、selection、QAD learning rate、OPD weight 和五个 checkpoint。每臂 10 个任务 × 16 回合，共 160 回合；主摘要同时报告 micro success rate 和十任务 macro success rate。
+
+须区分开发筛选与最终统计主张。开发集的压力筛选下限为 5 个百分点。冻结协议的 `primary_effect_minimum` 三个数值字段也写为 0.05，但同一字段的说明将 10 个百分点规定为最低主张；正文采用后者，更小差异作探索性报告。协议没有 `OPD−continued-QAD≥5pp` 的字段，也不能据此保证 160 回合的统计功效。保持冻结协议原样，以实际配对区间判断证据强度。
+
+[固定分析计划](../paper/analysis_plan_w4a4.json)要求报告 PTQ−BF16、QAD−PTQ、OPD−QAD 和 OPD−continued-QAD 全部四项差值，无论其正负方向。95% 区间采用 20,000 次按任务分层的配对 bootstrap，另作双侧精确 McNemar 检验和 Holm 校正。结果只覆盖本次十个固定任务与一个训练种子；区间跨零时不能宣称已确认恢复或额外增益，也不能由这组初态评测推断未见任务泛化。
 
 如需审计阶段收据：
 

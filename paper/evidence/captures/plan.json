@@ -1,0 +1,100 @@
+{
+  "version": 2,
+  "scope": "v11_w4a4_capture_preparation",
+  "gpu_executed": false,
+  "final_manifest": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/final_manifest.json",
+  "final_manifest_sha256": "b15cf775201a3c18a157de7e8e62663af70bad8bdbcfedc03ed36fea32e41f5e",
+  "protocol": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "scratch_root": "/home/zhaosiying/codebase/fp4vla/paper/_build/capture_final_20261006/scratch",
+  "selected_qad_learning_rate": 0.0001,
+  "selected_opd_weight": 0.25,
+  "lora_scope": "all_ordinary_linear",
+  "rank": 32,
+  "alpha": 64.0,
+  "training_activation_saturation": {
+    "qad": "0",
+    "qad_opd": "1"
+  },
+  "inference_contracts": {
+    "qad": {
+      "arm": "qad",
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_qad_lr_0.0001",
+      "eval_manifest": {
+        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/heldout_qad/eval_manifest.json",
+        "bytes": 2893,
+        "sha256": "087bcdcadb338c67bf1971616bbdc05cfea2f50792363513f8bc25d50ffa5d36"
+      },
+      "environment": {
+        "FP4VLA_QUANT": "0",
+        "FP4VLA_W4A4": "1",
+        "FP4VLA_W4A4_ADAPTER": "1",
+        "FP4VLA_SATURATE_F16_ACTIVATIONS": "1"
+      }
+    },
+    "qad_opd": {
+      "arm": "qad_opd",
+      "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_opd_025",
+      "eval_manifest": {
+        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/heldout_qad_opd/eval_manifest.json",
+        "bytes": 2895,
+        "sha256": "dcd3f416c1db99a2e4b49aac9d78b5f1057df05a019e3a298449ef6c964cb52c"
+      },
+      "environment": {
+        "FP4VLA_QUANT": "0",
+        "FP4VLA_W4A4": "1",
+        "FP4VLA_W4A4_ADAPTER": "1",
+        "FP4VLA_SATURATE_F16_ACTIVATIONS": "1"
+      }
+    }
+  },
+  "script_files": {
+    "common_v11.sh": {
+      "bytes": 3567,
+      "sha256": "d43867dd0ccd65c1d73933d0faf575425d1eaa28766f0a65e709fe8abfe0f710"
+    },
+    "shot_evalserver.sh": {
+      "bytes": 1407,
+      "sha256": "3207713d09bad03d4c2db86fa338260c5fc8d8e77db960f9010c279843a14e85"
+    },
+    "shot_opd.sh": {
+      "bytes": 1065,
+      "sha256": "24937b1fc4575a6847ae6b4608c1844e0120830356284b01f997162df77c7e57"
+    },
+    "shot_opdcache.sh": {
+      "bytes": 784,
+      "sha256": "24e395eb68216ea3435023834d22eddf52ac8f0c40d0653a1e9039cc61bdc370"
+    },
+    "shot_qad.sh": {
+      "bytes": 941,
+      "sha256": "271e47b9887e22f7c1442170b890e02746f7e26cd68d5e34e08cff6a23e27fce"
+    },
+    "shot_rollout.sh": {
+      "bytes": 2333,
+      "sha256": "331c661e0455ac2c52e7803bca05504a251abbe77df038fef45e38085a6dd8f5"
+    }
+  },
+  "script_dependencies": {
+    "all_entrypoints": [
+      "common_v11.sh"
+    ],
+    "publication": "Retain common_v11.sh and plan.json beside all five entrypoints; publishing entrypoints alone is incomplete."
+  },
+  "stages": {
+    "shot_qad": "two optimizer steps from selected W4A4 PTQ base; path smoke only",
+    "shot_rollout": "one LIBERO task and one episode using selected QAD model and hash-verified heldout inference switches; exactly two student observations",
+    "shot_opdcache": "labels those two observations with the BF16 teacher",
+    "shot_opd": "four optimizer steps from selected QAD adapter with selected OPD weight",
+    "shot_evalserver": "loads selected OPD W4A4 adapter with hash-verified heldout inference switches and calls health ping only"
+  },
+  "execution_order": [
+    "shot_qad",
+    "shot_rollout",
+    "shot_opdcache",
+    "shot_opd",
+    "shot_evalserver"
+  ],
+  "rollout_model": "selected_qad_model_identity",
+  "rollout_activation_saturation": "1",
+  "note": "Short smoke output is not formal 2000-step training or held-out success evidence. Every script refuses an existing scratch stage and checks GPU idleness."
+}

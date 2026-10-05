@@ -1,10 +1,30 @@
 {
   "status": "passed",
-  "generated_utc": "2026-09-29T05:51:50.824672+00:00",
+  "generated_utc": "2026-10-05T17:37:12.272414+00:00",
   "appendix": "paper/sections/14-附录A-核心源码走读与APXInf框架解析.md",
-  "appendix_sha256": "e6bafd3cdab9a2af1ca8dbe22bb94c44163df52503e5dae90e2b088819c0e280",
+  "appendix_sha256": "735eb8b3e65ebaa24e1772835a48e9316e4b5c3fdc90a8a3501808fa6317c05a",
   "scope": "Source filename/symbol navigation, figure catalog/assets and literal local Markdown links; not GPU/numerical validation.",
   "source_tokens": [
+    {
+      "token": "quant/ptq/collector.py",
+      "path": "quant/ptq/collector.py",
+      "sha256": "52a51eed665d1fbe8a337af7bcf49b458e954ec0c667c35abb29334e71791926"
+    },
+    {
+      "token": "quant/ptq/bake.py",
+      "path": "quant/ptq/bake.py",
+      "sha256": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae"
+    },
+    {
+      "token": "rl/lora_qad.py",
+      "path": "rl/lora_qad.py",
+      "sha256": "6259e854207a30db9ead07088f36de2524c784dc7ac7cfc58850ed44faa69d57"
+    },
+    {
+      "token": "eval/run_recovery_eval.py",
+      "path": "eval/run_recovery_eval.py",
+      "sha256": "991a696ba141c423272689bbbfdac44f60c3396e793590ce7bda5dd5115b32ea"
+    },
     {
       "token": "quant/torch_fp4.py::_round_grid",
       "path": "quant/torch_fp4.py",
@@ -43,7 +63,102 @@
     {
       "token": "quant/ptq/bake.py::inventory",
       "path": "quant/ptq/bake.py",
-      "sha256": "984ec31ade6000cc4c8744a47757c25a51538f0e008c2d4bcad803f94d51d14e"
+      "sha256": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae"
+    },
+    {
+      "token": "quant/ptq/category_fp4.py",
+      "path": "quant/ptq/category_fp4.py",
+      "sha256": "3a06a8e6ef0a4c5f7edb4cbe72210477e5f2d4d0ad77a89bc38f9dcfd082953d"
+    },
+    {
+      "token": "bake.py::alloc",
+      "path": "quant/ptq/bake.py",
+      "sha256": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae"
+    },
+    {
+      "token": "category_fp4.py",
+      "path": "quant/ptq/category_fp4.py",
+      "sha256": "3a06a8e6ef0a4c5f7edb4cbe72210477e5f2d4d0ad77a89bc38f9dcfd082953d"
+    },
+    {
+      "token": "rl/lora_qad.py::install_lora",
+      "path": "rl/lora_qad.py",
+      "sha256": "6259e854207a30db9ead07088f36de2524c784dc7ac7cfc58850ed44faa69d57"
+    },
+    {
+      "token": "rl/w4a4_lora.py::install_w4a4_lora",
+      "path": "rl/w4a4_lora.py",
+      "sha256": "fea047ea9fe2a490e91cb6169774bca2ce3124275097b13b01bd8c9b6b53809a"
+    },
+    {
+      "token": "quant/native_activation.py::native_activation_qdq_torch",
+      "path": "quant/native_activation.py",
+      "sha256": "f2d4c977f907c9637c555894a9fb9ab20767f00ed07b490008a9bdc6099384ff"
+    },
+    {
+      "token": "recovery_batch.py::resolve_batch",
+      "path": "rl/recovery_batch.py",
+      "sha256": "ba14aa6ad2eaff8259b7e306a705cb1ecd507de4d1fa42e4d33e9fb3f0e6495e"
+    },
+    {
+      "token": "rl/capture_onpolicy.py::install_capture",
+      "path": "rl/capture_onpolicy.py",
+      "sha256": "2af8f58d675567a18a83a7aeadd70fd103e42f33c1c880a2a2385fe07322023c"
+    },
+    {
+      "token": "rl/opd_probe_cache.py",
+      "path": "rl/opd_probe_cache.py",
+      "sha256": "e9072d8d16f3097b9b17a6ca8a575e6a8c230369354ede912697cd5d6644ec23"
+    },
+    {
+      "token": "probe_distill.py::replay_context",
+      "path": "rl/probe_distill.py",
+      "sha256": "b745beb9ca498637d0dadc54c4f162235b96a66fae187d86f269e8b488d4950d"
+    },
+    {
+      "token": "eval/run_gr00t_server_fp4vla.py",
+      "path": "eval/run_gr00t_server_fp4vla.py",
+      "sha256": "f82107d31f4059919cff964cfde313c690a3041ef0abc218824425455d1a6fee"
+    },
+    {
+      "token": "rl/w4a4_deploy.py::install_saved_w4a4_adapter",
+      "path": "rl/w4a4_deploy.py",
+      "sha256": "62ddd5ce3342e35d7538cf7b0e4f902bc3a8e0e25a8e4fee4449e05f6d323b50"
+    },
+    {
+      "token": "rl/lora_merge_bake.py",
+      "path": "rl/lora_merge_bake.py",
+      "sha256": "2c4d8de29e0ad30a2607b6e8f8109c29454deb96a986de05f99b478cd5dca372"
+    },
+    {
+      "token": "eval/serve_recovery.py",
+      "path": "eval/serve_recovery.py",
+      "sha256": "7ea3a40eeb11d46f9b0b3498f688138adce7ce47a50940fd0c071c5cb1045621"
+    },
+    {
+      "token": "rl/scoped_quant.py::mark_scope",
+      "path": "rl/scoped_quant.py",
+      "sha256": "87a02b55da550ab85c7f84ae1ca7e4d3459e9d2f7bc18f03cdad154abfb9607e"
+    },
+    {
+      "token": "run_recovery_eval.py",
+      "path": "eval/run_recovery_eval.py",
+      "sha256": "991a696ba141c423272689bbbfdac44f60c3396e793590ce7bda5dd5115b32ea"
+    },
+    {
+      "token": "rollout_seeded.py::install_bank_resets",
+      "path": "eval/rollout_seeded.py",
+      "sha256": "c365d760ef7cab00baf18a1087d5dce6006c93b4da2313071825f4bb2d677442"
+    },
+    {
+      "token": "run_recovery_eval.py::validate_resets",
+      "path": "eval/run_recovery_eval.py",
+      "sha256": "991a696ba141c423272689bbbfdac44f60c3396e793590ce7bda5dd5115b32ea"
+    },
+    {
+      "token": "compare_recovery.py::compare_round",
+      "path": "eval/compare_recovery.py",
+      "sha256": "6864b57eecf280425cb875406981ca10ee2235ca78bbf92588641add83007b5e"
     },
     {
       "token": "apxinf-cuda/build.rs",
@@ -76,71 +191,6 @@
       "sha256": "425721abf9989820deb8a21d073f3151c773fc548ae8a35b64889157033d71e3"
     },
     {
-      "token": "rl/lora_qad.py::install_lora",
-      "path": "rl/lora_qad.py",
-      "sha256": "e74b776e2fd0552597eea292afd0041450afba209aa20d6c08439d9e7cf0acce"
-    },
-    {
-      "token": "recovery_batch.py::resolve_batch",
-      "path": "rl/recovery_batch.py",
-      "sha256": "ba14aa6ad2eaff8259b7e306a705cb1ecd507de4d1fa42e4d33e9fb3f0e6495e"
-    },
-    {
-      "token": "rl/capture_onpolicy.py::install_capture",
-      "path": "rl/capture_onpolicy.py",
-      "sha256": "478195fa8971b628f080339e51b89eb99986be19cebbcafab01fbd04d628a68c"
-    },
-    {
-      "token": "rl/opd_probe_cache.py",
-      "path": "rl/opd_probe_cache.py",
-      "sha256": "acc4d9f1981a452817bff8448a53b6ad2c41216c9b703c45e09aa15a1a1befc1"
-    },
-    {
-      "token": "probe_distill.py::replay_context",
-      "path": "rl/probe_distill.py",
-      "sha256": "7dcbaaf66137db70d7ce762f00c33f33b930a5e29ce43e21ccc75475ba6624f6"
-    },
-    {
-      "token": "rl/lora_merge_bake.py",
-      "path": "rl/lora_merge_bake.py",
-      "sha256": "5666cb8c2f38a2095152bb30dbf313789aa7141ddc8e6d2d3bc1e0df4586ea49"
-    },
-    {
-      "token": "eval/serve_recovery.py",
-      "path": "eval/serve_recovery.py",
-      "sha256": "1202847f769e025d7318b5f09df2c9643f0ec8c9db843862c3093a4d78e3e047"
-    },
-    {
-      "token": "rl/scoped_quant.py::mark_scope",
-      "path": "rl/scoped_quant.py",
-      "sha256": "6b61b0fb4dcb33ce72690405fbd522ddd01c3f7abcaca574a38742aa50b8eca1"
-    },
-    {
-      "token": "run_recovery_eval.py",
-      "path": "eval/run_recovery_eval.py",
-      "sha256": "ca13ac96ad31ea764c4d5e7426bff6533b3cb30146a8db6e5907744572d25620"
-    },
-    {
-      "token": "rollout_seeded.py::install_bank_resets",
-      "path": "eval/rollout_seeded.py",
-      "sha256": "37e08b98bb313978548f9a4b85f438a2f46e77e269a427d2b119c886daf138fa"
-    },
-    {
-      "token": "run_recovery_eval.py::validate_resets",
-      "path": "eval/run_recovery_eval.py",
-      "sha256": "ca13ac96ad31ea764c4d5e7426bff6533b3cb30146a8db6e5907744572d25620"
-    },
-    {
-      "token": "compare_recovery.py::compare_round",
-      "path": "eval/compare_recovery.py",
-      "sha256": "49ad903a090d1ce5f8a6c848c6bbfd159965413da707167366373f3a71799949"
-    },
-    {
-      "token": "lora_rwr.py",
-      "path": "rl/lora_rwr.py",
-      "sha256": "300fbbed0aa92044cfcdc9dca920b102b8b46b7a7c49990b029ffac06db1836b"
-    },
-    {
       "token": "quant/ptq/verify_calibration.py",
       "path": "quant/ptq/verify_calibration.py",
       "sha256": "79f01c9d497ef13b47d5277570e396ccd0ea22fe79faa1d974b68547193e126b"
@@ -158,31 +208,46 @@
     {
       "token": "bake.py",
       "path": "quant/ptq/bake.py",
-      "sha256": "984ec31ade6000cc4c8744a47757c25a51538f0e008c2d4bcad803f94d51d14e"
+      "sha256": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae"
     },
     {
       "token": "lora_merge_bake.py",
       "path": "rl/lora_merge_bake.py",
-      "sha256": "5666cb8c2f38a2095152bb30dbf313789aa7141ddc8e6d2d3bc1e0df4586ea49"
+      "sha256": "2c4d8de29e0ad30a2607b6e8f8109c29454deb96a986de05f99b478cd5dca372"
     },
     {
       "token": "serve_recovery.py",
       "path": "eval/serve_recovery.py",
-      "sha256": "1202847f769e025d7318b5f09df2c9643f0ec8c9db843862c3093a4d78e3e047"
+      "sha256": "7ea3a40eeb11d46f9b0b3498f688138adce7ce47a50940fd0c071c5cb1045621"
     },
     {
       "token": "rollout_seeded.py",
       "path": "eval/rollout_seeded.py",
-      "sha256": "37e08b98bb313978548f9a4b85f438a2f46e77e269a427d2b119c886daf138fa"
+      "sha256": "c365d760ef7cab00baf18a1087d5dce6006c93b4da2313071825f4bb2d677442"
     },
     {
       "token": "run_recovery_eval.py",
       "path": "eval/run_recovery_eval.py",
-      "sha256": "ca13ac96ad31ea764c4d5e7426bff6533b3cb30146a8db6e5907744572d25620"
+      "sha256": "991a696ba141c423272689bbbfdac44f60c3396e793590ce7bda5dd5115b32ea"
+    },
+    {
+      "token": "rl/scoped_quant.py",
+      "path": "rl/scoped_quant.py",
+      "sha256": "87a02b55da550ab85c7f84ae1ca7e4d3459e9d2f7bc18f03cdad154abfb9607e"
+    },
+    {
+      "token": "rl/lora_rwr.py",
+      "path": "rl/lora_rwr.py",
+      "sha256": "300fbbed0aa92044cfcdc9dca920b102b8b46b7a7c49990b029ffac06db1836b"
+    },
+    {
+      "token": "lora_rwr.py",
+      "path": "rl/lora_rwr.py",
+      "sha256": "300fbbed0aa92044cfcdc9dca920b102b8b46b7a7c49990b029ffac06db1836b"
     }
   ],
   "figures": [
-    "shot_packed"
+    "swizzle_layout"
   ],
   "literal_local_links": [],
   "unresolved": []

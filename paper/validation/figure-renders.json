@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "renderer": "cairosvg",
+  "version": "2.9.1",
+  "scale": 2.0,
+  "figures": [
+    {
+      "svg": "paper/figs/budget_ladder.svg",
+      "svg_sha256": "0e92fa7dac3489346c64589ff56ce630d06562d6668ca4b1bf0225b6743a006b",
+      "png": "paper/figs/budget_ladder.png",
+      "png_sha256": "bf30af18ac293e5c60737c5a7432019565f81777e635e840f91eebf10906608e"
+    },
+    {
+      "svg": "paper/figs/e1_latency.svg",
+      "svg_sha256": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
+      "png": "paper/figs/e1_latency.png",
+      "png_sha256": "fa164675b28844757083507a2c5f92742beb18b805c072f2c562ee8c6cfc6c20"
+    },
+    {
+      "svg": "paper/figs/gptq_block.svg",
+      "svg_sha256": "b76200e8d5f3018b454b672f8c2e8ffedf08ad302353bc2e9b1c3c80c70fae23",
+      "png": "paper/figs/gptq_block.png",
+      "png_sha256": "045260cb338429083207d3ec2b9b3fff44e7c03f9522c66dab23e3de1c6fd39e"
+    },
+    {
+      "svg": "paper/figs/ladder.svg",
+      "svg_sha256": "8bdc5a04ec9809557d7548bcaef056e910fde95263dfd263148e6cd617f99772",
+      "png": "paper/figs/ladder.png",
+      "png_sha256": "2d65ce4e5bdd950f220c6f94bdea0a32b2b386619e7a8ebc8ae7f223269ca0c5"
+    },
+    {
+      "svg": "paper/figs/ptq_frontier.svg",
+      "svg_sha256": "7c6ebef17639ba2cb651b901c75d998f9e76052f03940ce1e927bd9840797c77",
+      "png": "paper/figs/ptq_frontier.png",
+      "png_sha256": "a0cb48a066fa9e33977e4c400e2881dbafc97de9d651523c79a1db8e0d592ae3"
+    },
+    {
+      "svg": "paper/figs/recovery_protocol.svg",
+      "svg_sha256": "1d0a1e46bd762745951d8321ad943f2399a16ff0f3acae7344060ee80c0b8f90",
+      "png": "paper/figs/recovery_protocol.png",
+      "png_sha256": "950909be8dea50bd7d42c0f0834b55d79d4fc62f71c1e2b43516e330059acc1b"
+    },
+    {
+      "svg": "paper/figs/swizzle_layout.svg",
+      "svg_sha256": "62da8e6496c030f0fa5e17486051d0fd3ccedbf125376c0e23666b2085c02ff9",
+      "png": "paper/figs/swizzle_layout.png",
+      "png_sha256": "ac2909b72ce8c7e36e3bd69d909e5860f072111b6ace38163499f0181120be9e"
+    }
+  ]
+}

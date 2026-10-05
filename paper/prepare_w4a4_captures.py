@@ -16,8 +16,11 @@ from pathlib import Path
 import shlex
 import stat
 
+ROOT = Path(__file__).resolve().parents[1]
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 TASK = "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket"
+INFERENCE_SWITCHES = ("FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
+                      "FP4VLA_SATURATE_F16_ACTIVATIONS")
 
 
 def need(ok, message):
@@ -110,7 +113,37 @@ def validate_final(final_path):
          compared.get("protocol_consistency_verified") is True and
          set(compared.get("arms", {})) == set(ARMS), "heldout comparison is incomplete")
     return {"final": final, "protocol": protocol, "protocol_path": protocol_path,
-            "run": run, "final_path": final_path}
+            "run": run, "final_path": final_path, "comparison": compared,
+            "comparison_path": comparison_path}
+
+
+def inference_contract(bundle, arm, model):
+    """Read inference switches from the hash-bound evaluation, never training."""
+    need(arm in ("qad", "qad_opd"), "capture inference requires a selected recovery arm")
+    round_dir = directory(bundle["final"].get("heldout_round"), "heldout round")
+    need(bundle["comparison_path"].parent == round_dir,
+         "heldout comparison is outside the final heldout round")
+    relative = f"heldout_{arm}/eval_manifest.json"
+    path = regular(round_dir / relative, f"{arm} evaluation manifest")
+    record = bundle["comparison"].get("source_files", {}).get(relative)
+    need(isinstance(record, dict), f"{arm} evaluation identity is missing from comparison")
+    identity_matches({**record, "path": str(path)}, path, f"{arm} evaluation manifest")
+    manifest = load_json(path, f"{arm} evaluation manifest")
+    need(manifest.get("checkpoint") == str(model),
+         f"{arm} evaluation checkpoint differs from selected model")
+    need(manifest.get("purpose") == "heldout" and
+         manifest.get("protocol_sha256") == bundle["final"]["protocol_sha256"],
+         f"{arm} evaluation does not use the final heldout protocol")
+    summary = manifest.get("environment_summary")
+    env = summary.get("variables") if isinstance(summary, dict) else None
+    need(isinstance(env, dict) and all(env.get(key) in ("0", "1") for key in INFERENCE_SWITCHES),
+         f"{arm} evaluation lacks explicit binary inference switches")
+    need(env["FP4VLA_QUANT"] == "0" and env["FP4VLA_W4A4"] == "1" and
+         env["FP4VLA_W4A4_ADAPTER"] == "1",
+         f"{arm} evaluation does not use the W4A4 adapter inference path")
+    return {"arm": arm, "checkpoint": str(model),
+            "eval_manifest": {"path": str(path), "bytes": path.stat().st_size, "sha256": digest(path)},
+            "environment": {key: env[key] for key in INFERENCE_SWITCHES}}
 
 
 def validate_inputs(bundle):
@@ -158,6 +191,8 @@ def validate_inputs(bundle):
     base_config = load_json(pressure / "config.json", "selected PTQ config")
     return {"pressure": pressure, "q_model": q_model, "op_model": op_model, "q_adapter": q_adapter,
             "q_rec": q_rec, "op_rec": op_rec, "cache": cache, "teacher": teacher,
+            "inference": {"qad": inference_contract(bundle, "qad", q_model),
+                          "qad_opd": inference_contract(bundle, "qad_opd", op_model)},
             "groot": groot, "server_python": server_python, "rollout_python": rollout_python,
             "dataset": dataset, "capture_dataset": capture_dataset, "capture_sha": capture_sha,
             "backbone": base_config.get("model_name", "nvidia/Cosmos-Reason2-2B"),
@@ -177,11 +212,11 @@ def write_script(path, text):
 
 def render_scripts(out, bundle, values):
     out.mkdir(parents=True, exist_ok=False)
-    # The protocol is checked in under <project>/exp; final runs live under
-    # results and therefore cannot be used to infer the repository root.
-    project = bundle["protocol_path"].parents[1]
+    # Frozen protocol copies may live under results/ or outside the checkout.
+    # Source commands belong to this generator's repository, not that copy.
+    project = ROOT
     need((project / "paper").is_dir() and (project / "rl").is_dir() and
-         (project / "eval").is_dir(), "protocol path does not resolve to the fp4vla repository root")
+         (project / "eval").is_dir(), "generator is not inside the fp4vla repository root")
     common = r'''#!/usr/bin/env bash
 set -euo pipefail
 PROJECT=@PROJECT@
@@ -205,7 +240,7 @@ export GR00T_BACKBONE_MODEL="$BACKBONE_MODEL"
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=2 NO_ALBUMENTATIONS_UPDATE=1
 export PTQAD_MEDIA_LIB="${PTQAD_MEDIA_LIB:-$HOME/miniforge3/envs/media7/lib}"
 export LD_LIBRARY_PATH="$PTQAD_MEDIA_LIB:/usr/local/cuda/lib64:/usr/lib/wsl/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-export PATH="${PTQAD_MEDIA_LIB%%/lib}:/usr/local/cuda/bin:$PATH" PYTHONPATH="$PROJECT:$GR00T_REPO"
+export PATH="${PTQAD_MEDIA_LIB%/lib}/bin:/usr/local/cuda/bin:$PATH" PYTHONPATH="$PROJECT:$GR00T_REPO"
 require_sources() {
   for executable in "$PTQAD_PYTHON" "$LIBERO_PYTHON"; do test -x "$executable" || { echo "missing executable: $executable" >&2; exit 2; }; done
   for directory in "$BF16_TEACHER" "$PTQ_BASE" "$QAD_MODEL" "$QAD_ADAPTER" "$OPD_MODEL" "$DATASET" "$CAPTURE_DATASET"; do test -d "$directory" || { echo "missing source: $directory" >&2; exit 2; }; done
@@ -257,8 +292,9 @@ PY
     lr = float(final["selected_qad_learning_rate"])
     weight = float(final["selected_opd_weight"])
     every = int(protocol["selection"]["opd_every"])
-    q_sat = "1" if values["q_rec"].get("f16_activation_saturation") else "0"
-    op_sat = "1" if values["op_rec"].get("f16_activation_saturation") else "0"
+    q_train_sat = "1" if values["q_rec"].get("f16_activation_saturation") else "0"
+    op_train_sat = "1" if values["op_rec"].get("f16_activation_saturation") else "0"
+    inference = values["inference"]
     common_train = (f"QAD_LORA_R={q(rank)} QAD_LORA_ALPHA={q(alpha)} "
                     f"QAD_LORA_SCOPE={q(scope)} QAD_LR={q(lr)} QAD_W4A4=1 "
                     "FP4VLA_QUANT=0 FP4VLA_W4A4=1 FP4VLA_SATURATE_F16_ACTIVATIONS=")
@@ -304,11 +340,11 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
     }
     for name, text in scripts.items():
         text = text.replace("@SEED@", q(values["state_seed"])).replace("@COMMON_TRAIN@", common_train)
-        text = text.replace("@Q_SAT@", q(q_sat)).replace("@OP_SAT@", q(op_sat))
+        text = text.replace("@Q_SAT@", q(q_train_sat)).replace("@OP_SAT@", q(op_train_sat))
         text = text.replace("@EVERY@", q(every)).replace("@WEIGHT@", q(weight))
         write_script(out / f"{name}.sh", text)
 
-    server_tail = '''export GR00T_EVAL_SEED=@SEED@ FP4VLA_W4A4=1 FP4VLA_W4A4_ADAPTER=1 FP4VLA_QUANT=0 FP4VLA_SATURATE_F16_ACTIVATIONS=@SAT@ GR00T_BACKBONE_MODEL="$BACKBONE_MODEL"
+    server_tail = '''export GR00T_EVAL_SEED=@SEED@ @INFERENCE_ENV@ GR00T_BACKBONE_MODEL="$BACKBONE_MODEL"
 PORT=@PORT@
 server_pid=""
 cleanup() { if [[ -n "$server_pid" ]] && kill -0 "$server_pid" 2>/dev/null; then kill -TERM "$server_pid" 2>/dev/null || true; wait "$server_pid" || true; fi; }
@@ -361,26 +397,36 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 '''
     for name, text in (("shot_evalserver", scripts["shot_evalserver"]), ("shot_rollout", scripts["shot_rollout"])):
         if name == "shot_evalserver":
-            server = server_tail.replace("@PORT@", "5617").replace("@MODEL@", '"$OPD_MODEL"').replace("@SAT@", q(op_sat))
+            arm = "qad_opd"
+            server = server_tail.replace("@PORT@", "5617").replace("@MODEL@", '"$OPD_MODEL"')
         else:
-            server = server_tail.replace("@PORT@", "5618").replace("@MODEL@", '"$QAD_MODEL"').replace("@SAT@", q(q_sat))
+            arm = "qad"
+            server = server_tail.replace("@PORT@", "5618").replace("@MODEL@", '"$QAD_MODEL"')
+        env = inference[arm]["environment"]
+        server = server.replace("@INFERENCE_ENV@", " ".join(f"{key}={q(env[key])}" for key in INFERENCE_SWITCHES))
         text = text.replace("@SERVER@", server)
         text = text.replace("@TASK_SEED@", q(values["task_seed"])).replace("@TASK@", TASK)
         write_script(out / f"{name}.sh", text)
-    plan = {"version": 1, "scope": "v11_w4a4_capture_preparation", "gpu_executed": False,
+    script_files = {path.name: {"bytes": path.stat().st_size, "sha256": digest(path)}
+                    for path in sorted(out.glob("*.sh"))}
+    plan = {"version": 2, "scope": "v11_w4a4_capture_preparation", "gpu_executed": False,
             "final_manifest": str(bundle["final_path"]), "final_manifest_sha256": digest(bundle["final_path"]),
             "protocol": str(bundle["protocol_path"]), "protocol_sha256": digest(bundle["protocol_path"]),
             "scratch_root": str(out / "scratch"), "selected_qad_learning_rate": lr,
             "selected_opd_weight": weight, "lora_scope": scope, "rank": rank, "alpha": alpha,
-            "activation_saturation": {"qad": q_sat, "opd": op_sat},
+            "training_activation_saturation": {"qad": q_train_sat, "qad_opd": op_train_sat},
+            "inference_contracts": inference,
+            "script_files": script_files,
+            "script_dependencies": {"all_entrypoints": ["common_v11.sh"],
+                                    "publication": "Retain common_v11.sh and plan.json beside all five entrypoints; publishing entrypoints alone is incomplete."},
             "stages": {"shot_qad": "two optimizer steps from selected W4A4 PTQ base; path smoke only",
-                        "shot_rollout": "one LIBERO task and one episode using selected QAD model and its activation saturation; exactly two student observations",
+                        "shot_rollout": "one LIBERO task and one episode using selected QAD model and hash-verified heldout inference switches; exactly two student observations",
                         "shot_opdcache": "labels those two observations with the BF16 teacher",
                         "shot_opd": "four optimizer steps from selected QAD adapter with selected OPD weight",
-                        "shot_evalserver": "loads selected OPD W4A4 adapter and calls health ping only"},
+                        "shot_evalserver": "loads selected OPD W4A4 adapter with hash-verified heldout inference switches and calls health ping only"},
             "execution_order": ["shot_qad", "shot_rollout", "shot_opdcache", "shot_opd", "shot_evalserver"],
             "rollout_model": "selected_qad_model_identity",
-            "rollout_activation_saturation": q_sat,
+            "rollout_activation_saturation": inference["qad"]["environment"]["FP4VLA_SATURATE_F16_ACTIVATIONS"],
             "note": "Short smoke output is not formal 2000-step training or held-out success evidence. Every script refuses an existing scratch stage and checks GPU idleness."}
     (out / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "README.md").write_text("""# v11 W4A4 screenshot command set
@@ -388,6 +434,10 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 Generated from the completed v11 `final_manifest.json`. This directory contains
 five real shell commands and does not execute training, evaluation, or desktop
 capture. Run each script through the approved Ubuntu screenshot skill wrapper.
+Retain `common_v11.sh` and `plan.json` beside all five entrypoints when archiving
+or publishing this command set. Every entrypoint sources that common file;
+`plan.json` records all six shell-file hashes and the evaluation manifest
+identities used to select inference switches. Entry scripts alone are incomplete.
 The scripts write only below `scratch/`, refuse existing stage directories,
 check `nvidia-smi` before starting, and preserve raw command output with `set -x`
 and `tee`.
@@ -396,6 +446,15 @@ and `tee`.
 their output cannot be reported as the formal 2000-step recovery result. Run
 `shot_rollout.sh` before `shot_opdcache.sh`, then `shot_opd.sh`. The server
 health screenshot reports only a `ping` RPC and is not a closed-loop score.
+Training and inference contracts are separate in `plan.json`: the training
+short checks follow their recovery records, while rollout and server ping use
+the selected models' hash-verified heldout evaluation environments. A strict
+initial QAD training run does not imply strict activation conversion at inference.
+
+`shot_rollout.sh` sets `FP4VLA_CAPTURE_TASK_NAME` and
+`FP4VLA_CAPTURE_EVENT_FILE` before starting the server. The event file is
+written inside that run's scratch directory and is required when
+`OPD_CAPTURE_PER_EPISODE=2`; do not remove it or reuse a file from another run.
 """, encoding="utf-8")
     return plan
 

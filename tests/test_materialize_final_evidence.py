@@ -101,6 +101,7 @@ class MaterializeFinalEvidenceTests(unittest.TestCase):
             with mock.patch.object(materialize, "PAPER", paper), \
                  mock.patch.object(materialize.extract_final_evidence, "extract", return_value=final_results), \
                  mock.patch.object(materialize.collect_pairing_evidence, "collect", side_effect=copy_pairing), \
+                 mock.patch.object(materialize, "_materialize_heldout_raw_logs", return_value={}), \
                  mock.patch.object(materialize, "_materialize_training", return_value={}):
                 materialize.materialize(final_path, out, inventory, orchestrator_run=root)
 

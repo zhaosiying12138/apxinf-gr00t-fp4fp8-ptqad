@@ -1,6 +1,0 @@
-# gpu=NVIDIA GeForce RTX 5090 Laptop GPU sm_120 vram=23.9GB driver=13030 runtime=13030 cublasLt=130600 cuda_ver=13.3
-# verify mode M=N=K=256
-# verify bf16   ok=1  verify_maxrel=0.000028
-# verify fp8    ok=1  verify_maxrel=0.000011
-# verify nvfp4  slayout=hw      ok=1  verify_maxrel=0.000000
-# verify mxfp4  slayout=hw      ok=0 heuristic: 7 algos=0

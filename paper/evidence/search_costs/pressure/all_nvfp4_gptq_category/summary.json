@@ -1,0 +1,11 @@
+{
+  "tasks_complete": 10,
+  "total_successes": 41,
+  "total_episodes": 50,
+  "macro_success_rate": 0.82,
+  "micro_success_rate": 0.82,
+  "score_definition": "macro_success_rate=unweighted mean of ten task rates; micro_success_rate=total successes/episodes",
+  "purpose": "development",
+  "seed": 940000,
+  "wall_seconds_including_server_loads": 4656.223735570908
+}

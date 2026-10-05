@@ -20,7 +20,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 0.95,
-      "wmse": 1.9584960682550445e-05
+      "wmse": 1.9581606466090307e-05
     },
     "action_head.model.timestep_encoder.timestep_embedder.linear_2": {
       "shape": [
@@ -38,7 +38,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.824665898515377e-06
+      "wmse": 2.8231563646841096e-06
     },
     "action_head.model.transformer_blocks.0.attn1.to_k": {
       "shape": [
@@ -56,7 +56,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.051530595461372e-06
+      "wmse": 4.051556061313022e-06
     },
     "action_head.model.transformer_blocks.0.attn1.to_out.0": {
       "shape": [
@@ -74,7 +74,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.994897386088269e-06
+      "wmse": 2.994996975758113e-06
     },
     "action_head.model.transformer_blocks.0.attn1.to_q": {
       "shape": [
@@ -92,7 +92,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.0700983845454175e-06
+      "wmse": 4.070143859280506e-06
     },
     "action_head.model.transformer_blocks.0.attn1.to_v": {
       "shape": [
@@ -128,7 +128,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.117234427918447e-06
+      "wmse": 3.117257392659667e-06
     },
     "action_head.model.transformer_blocks.0.ff.net.2": {
       "shape": [
@@ -146,7 +146,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.0019406292703934e-06
+      "wmse": 1.998501375055639e-06
     },
     "action_head.model.transformer_blocks.0.norm1.linear": {
       "shape": [
@@ -164,7 +164,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.9226348488009535e-06
+      "wmse": 2.922635076174629e-06
     },
     "action_head.model.transformer_blocks.1.attn1.to_k": {
       "shape": [
@@ -182,7 +182,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.301517830957891e-06
+      "wmse": 5.302854788169498e-06
     },
     "action_head.model.transformer_blocks.1.attn1.to_out.0": {
       "shape": [
@@ -200,7 +200,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.76594697526889e-06
+      "wmse": 7.766204362269491e-06
     },
     "action_head.model.transformer_blocks.1.attn1.to_q": {
       "shape": [
@@ -218,7 +218,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.066766334493877e-06
+      "wmse": 5.066616267868085e-06
     },
     "action_head.model.transformer_blocks.1.attn1.to_v": {
       "shape": [
@@ -236,7 +236,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.7315978715923848e-06
+      "wmse": 3.7305039768398274e-06
     },
     "action_head.model.transformer_blocks.1.ff.net.0.proj": {
       "shape": [
@@ -254,7 +254,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.492483074296615e-06
+      "wmse": 3.492494897727738e-06
     },
     "action_head.model.transformer_blocks.1.ff.net.2": {
       "shape": [
@@ -272,7 +272,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.909418981289491e-06
+      "wmse": 2.9026743959548185e-06
     },
     "action_head.model.transformer_blocks.1.norm1.linear": {
       "shape": [
@@ -290,7 +290,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.5698185456567444e-06
+      "wmse": 3.5698180909093935e-06
     },
     "action_head.model.transformer_blocks.10.attn1.to_k": {
       "shape": [
@@ -326,7 +326,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.51028562465217e-06
+      "wmse": 8.510139196005184e-06
     },
     "action_head.model.transformer_blocks.10.attn1.to_q": {
       "shape": [
@@ -344,7 +344,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.494587407563813e-06
+      "wmse": 7.4810036494454835e-06
     },
     "action_head.model.transformer_blocks.10.attn1.to_v": {
       "shape": [
@@ -362,7 +362,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.770970346929971e-06
+      "wmse": 5.770969437435269e-06
     },
     "action_head.model.transformer_blocks.10.ff.net.0.proj": {
       "shape": [
@@ -380,7 +380,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.2495926209085155e-06
+      "wmse": 4.2497008507780265e-06
     },
     "action_head.model.transformer_blocks.10.ff.net.2": {
       "shape": [
@@ -398,7 +398,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.7927173985299305e-06
+      "wmse": 1.793063916011306e-06
     },
     "action_head.model.transformer_blocks.10.norm1.linear": {
       "shape": [
@@ -434,7 +434,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.9106463342905045e-06
+      "wmse": 6.910596312081907e-06
     },
     "action_head.model.transformer_blocks.11.attn1.to_out.0": {
       "shape": [
@@ -452,7 +452,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.6002062339975964e-06
+      "wmse": 6.6006145971186925e-06
     },
     "action_head.model.transformer_blocks.11.attn1.to_q": {
       "shape": [
@@ -470,7 +470,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.000252026045928e-06
+      "wmse": 7.000251571298577e-06
     },
     "action_head.model.transformer_blocks.11.attn1.to_v": {
       "shape": [
@@ -488,7 +488,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.2142416936694644e-06
+      "wmse": 6.214138466020813e-06
     },
     "action_head.model.transformer_blocks.11.ff.net.0.proj": {
       "shape": [
@@ -506,7 +506,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.221774361212738e-06
+      "wmse": 4.221492872602539e-06
     },
     "action_head.model.transformer_blocks.11.ff.net.2": {
       "shape": [
@@ -524,7 +524,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.6382410876758513e-06
+      "wmse": 1.63843026257382e-06
     },
     "action_head.model.transformer_blocks.11.norm1.linear": {
       "shape": [
@@ -542,7 +542,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.3772262213460635e-06
+      "wmse": 3.3772323604353005e-06
     },
     "action_head.model.transformer_blocks.12.attn1.to_k": {
       "shape": [
@@ -560,7 +560,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.251398306427291e-06
+      "wmse": 5.25139785167994e-06
     },
     "action_head.model.transformer_blocks.12.attn1.to_out.0": {
       "shape": [
@@ -578,7 +578,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.554038580157794e-06
+      "wmse": 5.554035396926338e-06
     },
     "action_head.model.transformer_blocks.12.attn1.to_q": {
       "shape": [
@@ -596,7 +596,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.0609976319246925e-06
+      "wmse": 7.060982170514762e-06
     },
     "action_head.model.transformer_blocks.12.attn1.to_v": {
       "shape": [
@@ -614,7 +614,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.405917934491299e-06
+      "wmse": 4.4059643187210895e-06
     },
     "action_head.model.transformer_blocks.12.ff.net.0.proj": {
       "shape": [
@@ -632,7 +632,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.3281852413201705e-06
+      "wmse": 4.328202066972153e-06
     },
     "action_head.model.transformer_blocks.12.ff.net.2": {
       "shape": [
@@ -650,7 +650,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.676886313362047e-06
+      "wmse": 1.6766537100920686e-06
     },
     "action_head.model.transformer_blocks.12.norm1.linear": {
       "shape": [
@@ -668,7 +668,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.378448354851571e-06
+      "wmse": 3.378461769898422e-06
     },
     "action_head.model.transformer_blocks.13.attn1.to_k": {
       "shape": [
@@ -686,7 +686,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.934509201528272e-06
+      "wmse": 6.934998054930475e-06
     },
     "action_head.model.transformer_blocks.13.attn1.to_out.0": {
       "shape": [
@@ -704,7 +704,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.361365987890167e-06
+      "wmse": 7.361437837971607e-06
     },
     "action_head.model.transformer_blocks.13.attn1.to_q": {
       "shape": [
@@ -740,7 +740,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.333192686724942e-06
+      "wmse": 6.333193141472293e-06
     },
     "action_head.model.transformer_blocks.13.ff.net.0.proj": {
       "shape": [
@@ -758,7 +758,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.350968538346933e-06
+      "wmse": 4.351101324573392e-06
     },
     "action_head.model.transformer_blocks.13.ff.net.2": {
       "shape": [
@@ -776,7 +776,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.7076971516871708e-06
+      "wmse": 1.7076205267585465e-06
     },
     "action_head.model.transformer_blocks.13.norm1.linear": {
       "shape": [
@@ -794,7 +794,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.50994264408655e-06
+      "wmse": 3.5099521937809186e-06
     },
     "action_head.model.transformer_blocks.14.attn1.to_k": {
       "shape": [
@@ -812,7 +812,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.256053893594071e-06
+      "wmse": 6.25605343884672e-06
     },
     "action_head.model.transformer_blocks.14.attn1.to_out.0": {
       "shape": [
@@ -830,7 +830,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.971005627245177e-06
+      "wmse": 8.970625458459835e-06
     },
     "action_head.model.transformer_blocks.14.attn1.to_q": {
       "shape": [
@@ -848,7 +848,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.103666004899424e-06
+      "wmse": 8.103663276415318e-06
     },
     "action_head.model.transformer_blocks.14.attn1.to_v": {
       "shape": [
@@ -866,7 +866,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.177251179906307e-06
+      "wmse": 6.177263912832132e-06
     },
     "action_head.model.transformer_blocks.14.ff.net.0.proj": {
       "shape": [
@@ -884,7 +884,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.61122226624866e-06
+      "wmse": 4.611169515555957e-06
     },
     "action_head.model.transformer_blocks.14.ff.net.2": {
       "shape": [
@@ -902,7 +902,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.986161350941984e-06
+      "wmse": 1.9861631699313875e-06
     },
     "action_head.model.transformer_blocks.14.norm1.linear": {
       "shape": [
@@ -938,7 +938,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.1123577072285116e-06
+      "wmse": 7.115403150237398e-06
     },
     "action_head.model.transformer_blocks.15.attn1.to_out.0": {
       "shape": [
@@ -956,7 +956,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.43133148009656e-06
+      "wmse": 8.43141879158793e-06
     },
     "action_head.model.transformer_blocks.15.attn1.to_q": {
       "shape": [
@@ -974,7 +974,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.224752607726259e-06
+      "wmse": 7.226410616567591e-06
     },
     "action_head.model.transformer_blocks.15.attn1.to_v": {
       "shape": [
@@ -992,7 +992,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.433972430386348e-06
+      "wmse": 6.433609996747691e-06
     },
     "action_head.model.transformer_blocks.15.ff.net.0.proj": {
       "shape": [
@@ -1010,7 +1010,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.714304395747604e-06
+      "wmse": 4.714306669484358e-06
     },
     "action_head.model.transformer_blocks.15.ff.net.2": {
       "shape": [
@@ -1028,7 +1028,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.0209045032970607e-06
+      "wmse": 2.01821353584819e-06
     },
     "action_head.model.transformer_blocks.15.norm1.linear": {
       "shape": [
@@ -1082,7 +1082,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.713823040627176e-06
+      "wmse": 6.714246410410851e-06
     },
     "action_head.model.transformer_blocks.16.attn1.to_q": {
       "shape": [
@@ -1100,7 +1100,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.260362276108935e-06
+      "wmse": 9.260348633688409e-06
     },
     "action_head.model.transformer_blocks.16.attn1.to_v": {
       "shape": [
@@ -1136,7 +1136,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.949903996021021e-06
+      "wmse": 4.949950380250812e-06
     },
     "action_head.model.transformer_blocks.16.ff.net.2": {
       "shape": [
@@ -1154,7 +1154,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.2054855435271747e-06
+      "wmse": 2.2054675810068147e-06
     },
     "action_head.model.transformer_blocks.16.norm1.linear": {
       "shape": [
@@ -1190,7 +1190,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.354773970291717e-06
+      "wmse": 7.3575397436798085e-06
     },
     "action_head.model.transformer_blocks.17.attn1.to_out.0": {
       "shape": [
@@ -1208,7 +1208,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.502907803631388e-06
+      "wmse": 8.502981472702231e-06
     },
     "action_head.model.transformer_blocks.17.attn1.to_q": {
       "shape": [
@@ -1226,7 +1226,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.383055617538048e-06
+      "wmse": 7.385148819594178e-06
     },
     "action_head.model.transformer_blocks.17.attn1.to_v": {
       "shape": [
@@ -1244,7 +1244,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.7401715568848886e-06
+      "wmse": 6.741534889442846e-06
     },
     "action_head.model.transformer_blocks.17.ff.net.0.proj": {
       "shape": [
@@ -1262,7 +1262,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.3773060244566295e-06
+      "wmse": 5.3771941566083115e-06
     },
     "action_head.model.transformer_blocks.17.ff.net.2": {
       "shape": [
@@ -1280,7 +1280,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.4660880626470316e-06
+      "wmse": 2.4664000193297397e-06
     },
     "action_head.model.transformer_blocks.17.norm1.linear": {
       "shape": [
@@ -1298,7 +1298,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.5826935800287174e-06
+      "wmse": 3.5826742532663047e-06
     },
     "action_head.model.transformer_blocks.18.attn1.to_k": {
       "shape": [
@@ -1334,7 +1334,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.566189874021802e-06
+      "wmse": 9.56620442593703e-06
     },
     "action_head.model.transformer_blocks.18.attn1.to_q": {
       "shape": [
@@ -1352,7 +1352,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.969506779976655e-06
+      "wmse": 8.9728646344156e-06
     },
     "action_head.model.transformer_blocks.18.attn1.to_v": {
       "shape": [
@@ -1388,7 +1388,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.1072591961419675e-06
+      "wmse": 6.107218268880388e-06
     },
     "action_head.model.transformer_blocks.18.ff.net.2": {
       "shape": [
@@ -1406,7 +1406,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.939147179858992e-06
+      "wmse": 2.9395321234915173e-06
     },
     "action_head.model.transformer_blocks.18.norm1.linear": {
       "shape": [
@@ -1424,7 +1424,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.324622750573326e-06
+      "wmse": 4.324587280279957e-06
     },
     "action_head.model.transformer_blocks.19.attn1.to_k": {
       "shape": [
@@ -1442,7 +1442,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.179121661873069e-06
+      "wmse": 9.177202628052328e-06
     },
     "action_head.model.transformer_blocks.19.attn1.to_out.0": {
       "shape": [
@@ -1460,7 +1460,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.511633157264441e-06
+      "wmse": 7.511631793022389e-06
     },
     "action_head.model.transformer_blocks.19.attn1.to_q": {
       "shape": [
@@ -1478,7 +1478,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.440442227059975e-06
+      "wmse": 9.443352610105649e-06
     },
     "action_head.model.transformer_blocks.19.attn1.to_v": {
       "shape": [
@@ -1496,7 +1496,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.020634711807361e-06
+      "wmse": 7.020529665169306e-06
     },
     "action_head.model.transformer_blocks.19.norm1.linear": {
       "shape": [
@@ -1514,7 +1514,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.866317911160877e-06
+      "wmse": 3.8663797568005975e-06
     },
     "action_head.model.transformer_blocks.2.attn1.to_k": {
       "shape": [
@@ -1532,7 +1532,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.330670890340116e-06
+      "wmse": 4.330710908106994e-06
     },
     "action_head.model.transformer_blocks.2.attn1.to_out.0": {
       "shape": [
@@ -1550,7 +1550,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.791447165393038e-06
+      "wmse": 5.7913480304705445e-06
     },
     "action_head.model.transformer_blocks.2.attn1.to_q": {
       "shape": [
@@ -1568,7 +1568,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.178978088020813e-06
+      "wmse": 4.178977633273462e-06
     },
     "action_head.model.transformer_blocks.2.attn1.to_v": {
       "shape": [
@@ -1586,7 +1586,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.3500069801229984e-06
+      "wmse": 2.35001289183856e-06
     },
     "action_head.model.transformer_blocks.2.ff.net.0.proj": {
       "shape": [
@@ -1604,7 +1604,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.8045156998123275e-06
+      "wmse": 3.803788104050909e-06
     },
     "action_head.model.transformer_blocks.2.ff.net.2": {
       "shape": [
@@ -1622,7 +1622,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.725180138440919e-06
+      "wmse": 2.7173623493581545e-06
     },
     "action_head.model.transformer_blocks.2.norm1.linear": {
       "shape": [
@@ -1640,7 +1640,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.209500164302881e-06
+      "wmse": 3.2095133519760566e-06
     },
     "action_head.model.transformer_blocks.3.attn1.to_k": {
       "shape": [
@@ -1658,7 +1658,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.706357231043512e-06
+      "wmse": 4.706356776296161e-06
     },
     "action_head.model.transformer_blocks.3.attn1.to_out.0": {
       "shape": [
@@ -1694,7 +1694,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.432409696164541e-06
+      "wmse": 4.43240924141719e-06
     },
     "action_head.model.transformer_blocks.3.attn1.to_v": {
       "shape": [
@@ -1730,7 +1730,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.9116603147704154e-06
+      "wmse": 3.912569809472188e-06
     },
     "action_head.model.transformer_blocks.3.ff.net.2": {
       "shape": [
@@ -1748,7 +1748,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.948581141026807e-06
+      "wmse": 2.9485920549632283e-06
     },
     "action_head.model.transformer_blocks.3.norm1.linear": {
       "shape": [
@@ -1766,7 +1766,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.308382702016388e-06
+      "wmse": 3.308386794742546e-06
     },
     "action_head.model.transformer_blocks.4.attn1.to_k": {
       "shape": [
@@ -1784,7 +1784,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.5062200822721934e-06
+      "wmse": 3.506219854898518e-06
     },
     "action_head.model.transformer_blocks.4.attn1.to_out.0": {
       "shape": [
@@ -1802,7 +1802,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.439934971538605e-06
+      "wmse": 3.4356701235083165e-06
     },
     "action_head.model.transformer_blocks.4.attn1.to_q": {
       "shape": [
@@ -1820,7 +1820,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.7184076973062474e-06
+      "wmse": 3.7168272228882415e-06
     },
     "action_head.model.transformer_blocks.4.attn1.to_v": {
       "shape": [
@@ -1856,7 +1856,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.014877504232572e-06
+      "wmse": 4.01593797505484e-06
     },
     "action_head.model.transformer_blocks.4.ff.net.2": {
       "shape": [
@@ -1874,7 +1874,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.5532472136546858e-06
+      "wmse": 2.5536876364640193e-06
     },
     "action_head.model.transformer_blocks.4.norm1.linear": {
       "shape": [
@@ -1892,7 +1892,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.1897584449325223e-06
+      "wmse": 3.189757762811496e-06
     },
     "action_head.model.transformer_blocks.5.attn1.to_k": {
       "shape": [
@@ -1910,7 +1910,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.624208941095276e-06
+      "wmse": 4.624207576853223e-06
     },
     "action_head.model.transformer_blocks.5.attn1.to_out.0": {
       "shape": [
@@ -1928,7 +1928,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.504145858343691e-06
+      "wmse": 6.504055818368215e-06
     },
     "action_head.model.transformer_blocks.5.attn1.to_q": {
       "shape": [
@@ -1946,7 +1946,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.368236659502145e-06
+      "wmse": 4.368207100924337e-06
     },
     "action_head.model.transformer_blocks.5.attn1.to_v": {
       "shape": [
@@ -1964,7 +1964,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.2597184801707044e-06
+      "wmse": 4.25971120421309e-06
     },
     "action_head.model.transformer_blocks.5.ff.net.0.proj": {
       "shape": [
@@ -1982,7 +1982,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.989900960732484e-06
+      "wmse": 3.98995007344638e-06
     },
     "action_head.model.transformer_blocks.5.ff.net.2": {
       "shape": [
@@ -2000,7 +2000,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.978021145987441e-06
+      "wmse": 1.9780682123382576e-06
     },
     "action_head.model.transformer_blocks.5.norm1.linear": {
       "shape": [
@@ -2018,7 +2018,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.0880203212291235e-06
+      "wmse": 3.088028279307764e-06
     },
     "action_head.model.transformer_blocks.6.attn1.to_k": {
       "shape": [
@@ -2036,7 +2036,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.408833658293588e-06
+      "wmse": 5.408846391219413e-06
     },
     "action_head.model.transformer_blocks.6.attn1.to_out.0": {
       "shape": [
@@ -2054,7 +2054,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.265245701797539e-06
+      "wmse": 6.265265710680978e-06
     },
     "action_head.model.transformer_blocks.6.attn1.to_q": {
       "shape": [
@@ -2072,7 +2072,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.9481998252740595e-06
+      "wmse": 6.948068858037004e-06
     },
     "action_head.model.transformer_blocks.6.attn1.to_v": {
       "shape": [
@@ -2090,7 +2090,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.323874691181118e-06
+      "wmse": 4.323830580688082e-06
     },
     "action_head.model.transformer_blocks.6.ff.net.0.proj": {
       "shape": [
@@ -2108,7 +2108,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.935964741685893e-06
+      "wmse": 3.935881977668032e-06
     },
     "action_head.model.transformer_blocks.6.ff.net.2": {
       "shape": [
@@ -2126,7 +2126,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.8276547280038358e-06
+      "wmse": 1.8278414017913747e-06
     },
     "action_head.model.transformer_blocks.6.norm1.linear": {
       "shape": [
@@ -2180,7 +2180,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.771854143356904e-06
+      "wmse": 7.771901437081397e-06
     },
     "action_head.model.transformer_blocks.7.attn1.to_q": {
       "shape": [
@@ -2234,7 +2234,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.931536411982961e-06
+      "wmse": 3.931564606318716e-06
     },
     "action_head.model.transformer_blocks.7.ff.net.2": {
       "shape": [
@@ -2252,7 +2252,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.6941305602813372e-06
+      "wmse": 1.6939690112849348e-06
     },
     "action_head.model.transformer_blocks.7.norm1.linear": {
       "shape": [
@@ -2270,7 +2270,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.009815145560424e-06
+      "wmse": 3.0098181014182046e-06
     },
     "action_head.model.transformer_blocks.8.attn1.to_k": {
       "shape": [
@@ -2288,7 +2288,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.9302849472733214e-06
+      "wmse": 3.930225830117706e-06
     },
     "action_head.model.transformer_blocks.8.attn1.to_out.0": {
       "shape": [
@@ -2306,7 +2306,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.541996420608484e-06
+      "wmse": 3.5419661799096502e-06
     },
     "action_head.model.transformer_blocks.8.attn1.to_q": {
       "shape": [
@@ -2324,7 +2324,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.539447218121495e-06
+      "wmse": 4.541885573416948e-06
     },
     "action_head.model.transformer_blocks.8.attn1.to_v": {
       "shape": [
@@ -2342,7 +2342,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.8918236694153165e-06
+      "wmse": 2.89181252810522e-06
     },
     "action_head.model.transformer_blocks.8.ff.net.0.proj": {
       "shape": [
@@ -2360,7 +2360,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.055668341607088e-06
+      "wmse": 4.0547620301367715e-06
     },
     "action_head.model.transformer_blocks.8.ff.net.2": {
       "shape": [
@@ -2378,7 +2378,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.6868093553057406e-06
+      "wmse": 1.6868840475581237e-06
     },
     "action_head.model.transformer_blocks.8.norm1.linear": {
       "shape": [
@@ -2414,7 +2414,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.920553576288512e-06
+      "wmse": 5.9218491514911875e-06
     },
     "action_head.model.transformer_blocks.9.attn1.to_out.0": {
       "shape": [
@@ -2432,7 +2432,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.662437499471707e-06
+      "wmse": 6.662437044724356e-06
     },
     "action_head.model.transformer_blocks.9.attn1.to_q": {
       "shape": [
@@ -2450,7 +2450,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.002620011713589e-06
+      "wmse": 6.004197985021165e-06
     },
     "action_head.model.transformer_blocks.9.attn1.to_v": {
       "shape": [
@@ -2468,7 +2468,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.379334197641583e-06
+      "wmse": 5.373287422116846e-06
     },
     "action_head.model.transformer_blocks.9.ff.net.0.proj": {
       "shape": [
@@ -2486,7 +2486,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.136681127420161e-06
+      "wmse": 4.136723873671144e-06
     },
     "action_head.model.transformer_blocks.9.ff.net.2": {
       "shape": [
@@ -2504,7 +2504,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.676923488957982e-06
+      "wmse": 1.6787998902145773e-06
     },
     "action_head.model.transformer_blocks.9.norm1.linear": {
       "shape": [
@@ -2522,7 +2522,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.2893422030610964e-06
+      "wmse": 3.2893440220505e-06
     },
     "backbone.model.lm_head": {
       "shape": [
@@ -2578,7 +2578,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4234165064408444e-05
+      "wmse": 1.4233653018891346e-05
     },
     "backbone.model.model.language_model.layers.0.mlp.gate_proj": {
       "shape": [
@@ -2596,7 +2596,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.7977456082007848e-05
+      "wmse": 1.797745790099725e-05
     },
     "backbone.model.model.language_model.layers.0.mlp.up_proj": {
       "shape": [
@@ -2614,7 +2614,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.1733281098713633e-05
+      "wmse": 1.1733271094271913e-05
     },
     "backbone.model.model.language_model.layers.0.self_attn.k_proj": {
       "shape": [
@@ -2650,7 +2650,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3371625755098648e-05
+      "wmse": 1.3380515156313777e-05
     },
     "backbone.model.model.language_model.layers.0.self_attn.q_proj": {
       "shape": [
@@ -2668,7 +2668,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5688467101426795e-05
+      "wmse": 1.56884689204162e-05
     },
     "backbone.model.model.language_model.layers.0.self_attn.v_proj": {
       "shape": [
@@ -2686,7 +2686,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3964081517769955e-05
+      "wmse": 1.3964080608275253e-05
     },
     "backbone.model.model.language_model.layers.1.mlp.down_proj": {
       "shape": [
@@ -2704,7 +2704,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.0355640370107722e-05
+      "wmse": 1.0355746780987829e-05
     },
     "backbone.model.model.language_model.layers.1.mlp.gate_proj": {
       "shape": [
@@ -2722,7 +2722,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.603144821478054e-05
+      "wmse": 2.603162283776328e-05
     },
     "backbone.model.model.language_model.layers.1.mlp.up_proj": {
       "shape": [
@@ -2740,7 +2740,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.71913141256664e-06
+      "wmse": 9.719133231556043e-06
     },
     "backbone.model.model.language_model.layers.1.self_attn.k_proj": {
       "shape": [
@@ -2758,7 +2758,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4669868505734485e-05
+      "wmse": 1.4669867596239783e-05
     },
     "backbone.model.model.language_model.layers.1.self_attn.o_proj": {
       "shape": [
@@ -2794,7 +2794,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.538305150461383e-05
+      "wmse": 1.5383335266960785e-05
     },
     "backbone.model.model.language_model.layers.1.self_attn.v_proj": {
       "shape": [
@@ -2812,7 +2812,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5123690900509246e-05
+      "wmse": 1.5123890079848934e-05
     },
     "backbone.model.model.language_model.layers.10.mlp.down_proj": {
       "shape": [
@@ -2830,7 +2830,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5251285731210373e-05
+      "wmse": 1.5251680451910943e-05
     },
     "backbone.model.model.language_model.layers.10.mlp.gate_proj": {
       "shape": [
@@ -2848,7 +2848,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.73922635440249e-05
+      "wmse": 1.7392261725035496e-05
     },
     "backbone.model.model.language_model.layers.10.mlp.up_proj": {
       "shape": [
@@ -2866,7 +2866,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4040166206541471e-05
+      "wmse": 1.4040229871170595e-05
     },
     "backbone.model.model.language_model.layers.10.self_attn.k_proj": {
       "shape": [
@@ -2884,7 +2884,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3130224942869972e-05
+      "wmse": 1.3135403605701867e-05
     },
     "backbone.model.model.language_model.layers.10.self_attn.o_proj": {
       "shape": [
@@ -2902,7 +2902,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2011379112664144e-05
+      "wmse": 1.2011398212052882e-05
     },
     "backbone.model.model.language_model.layers.10.self_attn.q_proj": {
       "shape": [
@@ -2920,7 +2920,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4153923984849826e-05
+      "wmse": 1.4154009477351792e-05
     },
     "backbone.model.model.language_model.layers.10.self_attn.v_proj": {
       "shape": [
@@ -2938,7 +2938,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3606140782940201e-05
+      "wmse": 1.360912028758321e-05
     },
     "backbone.model.model.language_model.layers.11.mlp.down_proj": {
       "shape": [
@@ -2956,7 +2956,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.610893195902463e-05
+      "wmse": 1.6109093849081546e-05
     },
     "backbone.model.model.language_model.layers.11.mlp.gate_proj": {
       "shape": [
@@ -2974,7 +2974,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.582067307026591e-05
+      "wmse": 1.5820711269043386e-05
     },
     "backbone.model.model.language_model.layers.11.mlp.up_proj": {
       "shape": [
@@ -2992,7 +2992,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4865585399093106e-05
+      "wmse": 1.4865609045955352e-05
     },
     "backbone.model.model.language_model.layers.11.self_attn.k_proj": {
       "shape": [
@@ -3028,7 +3028,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4832352462690324e-05
+      "wmse": 1.4828552593826316e-05
     },
     "backbone.model.model.language_model.layers.11.self_attn.q_proj": {
       "shape": [
@@ -3046,7 +3046,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.663655712036416e-05
+      "wmse": 1.663660441408865e-05
     },
     "backbone.model.model.language_model.layers.11.self_attn.v_proj": {
       "shape": [
@@ -3064,7 +3064,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2799491742043756e-05
+      "wmse": 1.2799347132386174e-05
     },
     "backbone.model.model.language_model.layers.12.mlp.down_proj": {
       "shape": [
@@ -3082,7 +3082,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5563316992484033e-05
+      "wmse": 1.5562276530545205e-05
     },
     "backbone.model.model.language_model.layers.12.mlp.gate_proj": {
       "shape": [
@@ -3100,7 +3100,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.498343681305414e-05
+      "wmse": 1.498355413787067e-05
     },
     "backbone.model.model.language_model.layers.12.mlp.up_proj": {
       "shape": [
@@ -3118,7 +3118,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4836011359875556e-05
+      "wmse": 1.483586947870208e-05
     },
     "backbone.model.model.language_model.layers.12.self_attn.k_proj": {
       "shape": [
@@ -3172,7 +3172,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4876502063998487e-05
+      "wmse": 1.4876501154503785e-05
     },
     "backbone.model.model.language_model.layers.12.self_attn.v_proj": {
       "shape": [
@@ -3208,7 +3208,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4989882402005605e-05
+      "wmse": 1.4989013834565412e-05
     },
     "backbone.model.model.language_model.layers.13.mlp.gate_proj": {
       "shape": [
@@ -3226,7 +3226,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4055333849682938e-05
+      "wmse": 1.4055312021810096e-05
     },
     "backbone.model.model.language_model.layers.13.mlp.up_proj": {
       "shape": [
@@ -3244,7 +3244,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4196480151440483e-05
+      "wmse": 1.4196459233062342e-05
     },
     "backbone.model.model.language_model.layers.13.self_attn.k_proj": {
       "shape": [
@@ -3280,7 +3280,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.073643761628773e-05
+      "wmse": 1.073632483894471e-05
     },
     "backbone.model.model.language_model.layers.13.self_attn.q_proj": {
       "shape": [
@@ -3316,7 +3316,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2940534361405298e-05
+      "wmse": 1.294049434363842e-05
     },
     "backbone.model.model.language_model.layers.14.mlp.down_proj": {
       "shape": [
@@ -3334,7 +3334,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4874242879159283e-05
+      "wmse": 1.4874614862492308e-05
     },
     "backbone.model.model.language_model.layers.14.mlp.gate_proj": {
       "shape": [
@@ -3352,7 +3352,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2883536328445189e-05
+      "wmse": 1.2883443559985608e-05
     },
     "backbone.model.model.language_model.layers.14.mlp.up_proj": {
       "shape": [
@@ -3370,7 +3370,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3388551451498643e-05
+      "wmse": 1.3388455954554956e-05
     },
     "backbone.model.model.language_model.layers.14.self_attn.k_proj": {
       "shape": [
@@ -3388,7 +3388,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.147984221461229e-05
+      "wmse": 1.1479900422273204e-05
     },
     "backbone.model.model.language_model.layers.14.self_attn.o_proj": {
       "shape": [
@@ -3406,7 +3406,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.1016920325346291e-05
+      "wmse": 1.1016912139893975e-05
     },
     "backbone.model.model.language_model.layers.14.self_attn.q_proj": {
       "shape": [
@@ -3424,7 +3424,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4271071449911688e-05
+      "wmse": 1.427107235940639e-05
     },
     "backbone.model.model.language_model.layers.14.self_attn.v_proj": {
       "shape": [
@@ -3460,7 +3460,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4217725038179196e-05
+      "wmse": 1.4222280697140377e-05
     },
     "backbone.model.model.language_model.layers.15.mlp.gate_proj": {
       "shape": [
@@ -3478,7 +3478,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2981839063286316e-05
+      "wmse": 1.2981824511371087e-05
     },
     "backbone.model.model.language_model.layers.15.mlp.up_proj": {
       "shape": [
@@ -3496,7 +3496,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3903067156206816e-05
+      "wmse": 1.3903081708122045e-05
     },
     "backbone.model.model.language_model.layers.15.self_attn.k_proj": {
       "shape": [
@@ -3514,7 +3514,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.0508065315661952e-05
+      "wmse": 1.050426271831384e-05
     },
     "backbone.model.model.language_model.layers.15.self_attn.o_proj": {
       "shape": [
@@ -3532,7 +3532,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 0.95,
-      "wmse": 1.1671158063109033e-05
+      "wmse": 1.1671157153614331e-05
     },
     "backbone.model.model.language_model.layers.15.self_attn.q_proj": {
       "shape": [
@@ -3550,7 +3550,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.498685833212221e-05
+      "wmse": 1.4988323528086767e-05
     },
     "backbone.model.model.language_model.layers.15.self_attn.v_proj": {
       "shape": [
@@ -3568,7 +3568,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2180893463664688e-05
+      "wmse": 1.2179310942883603e-05
     },
     "backbone.model.model.language_model.layers.2.mlp.down_proj": {
       "shape": [
@@ -3586,7 +3586,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.9783396055572666e-05
+      "wmse": 1.9783394236583263e-05
     },
     "backbone.model.model.language_model.layers.2.mlp.gate_proj": {
       "shape": [
@@ -3604,7 +3604,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.819282963173464e-05
+      "wmse": 2.8192658646730706e-05
     },
     "backbone.model.model.language_model.layers.2.mlp.up_proj": {
       "shape": [
@@ -3622,7 +3622,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.0590554666123353e-05
+      "wmse": 1.0590525562292896e-05
     },
     "backbone.model.model.language_model.layers.2.self_attn.k_proj": {
       "shape": [
@@ -3640,7 +3640,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4603146155423019e-05
+      "wmse": 1.4603147064917721e-05
     },
     "backbone.model.model.language_model.layers.2.self_attn.o_proj": {
       "shape": [
@@ -3676,7 +3676,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5319874364649877e-05
+      "wmse": 1.531988164060749e-05
     },
     "backbone.model.model.language_model.layers.2.self_attn.v_proj": {
       "shape": [
@@ -3694,7 +3694,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.53459968714742e-05
+      "wmse": 1.5345995052484795e-05
     },
     "backbone.model.model.language_model.layers.3.mlp.down_proj": {
       "shape": [
@@ -3712,7 +3712,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2652002624236047e-05
+      "wmse": 1.2652012628677767e-05
     },
     "backbone.model.model.language_model.layers.3.mlp.gate_proj": {
       "shape": [
@@ -3730,7 +3730,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.7125817723572254e-05
+      "wmse": 2.712629793677479e-05
     },
     "backbone.model.model.language_model.layers.3.mlp.up_proj": {
       "shape": [
@@ -3748,7 +3748,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.0982835192407947e-05
+      "wmse": 1.0982843377860263e-05
     },
     "backbone.model.model.language_model.layers.3.self_attn.k_proj": {
       "shape": [
@@ -3766,7 +3766,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4514508620777633e-05
+      "wmse": 1.451458956580609e-05
     },
     "backbone.model.model.language_model.layers.3.self_attn.o_proj": {
       "shape": [
@@ -3784,7 +3784,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2684963621723e-05
+      "wmse": 1.2684848115895875e-05
     },
     "backbone.model.model.language_model.layers.3.self_attn.q_proj": {
       "shape": [
@@ -3802,7 +3802,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5195436390058603e-05
+      "wmse": 1.5195451851468533e-05
     },
     "backbone.model.model.language_model.layers.3.self_attn.v_proj": {
       "shape": [
@@ -3820,7 +3820,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.6395588318118826e-05
+      "wmse": 1.6395566490245983e-05
     },
     "backbone.model.model.language_model.layers.4.mlp.down_proj": {
       "shape": [
@@ -3838,7 +3838,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3303108062245883e-05
+      "wmse": 1.3305230822879821e-05
     },
     "backbone.model.model.language_model.layers.4.mlp.gate_proj": {
       "shape": [
@@ -3874,7 +3874,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.111153596866643e-05
+      "wmse": 1.11115714389598e-05
     },
     "backbone.model.model.language_model.layers.4.self_attn.k_proj": {
       "shape": [
@@ -3892,7 +3892,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3522772860596888e-05
+      "wmse": 1.351904938928783e-05
     },
     "backbone.model.model.language_model.layers.4.self_attn.o_proj": {
       "shape": [
@@ -3928,7 +3928,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4484181519947015e-05
+      "wmse": 1.4484006896964274e-05
     },
     "backbone.model.model.language_model.layers.4.self_attn.v_proj": {
       "shape": [
@@ -3946,7 +3946,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5749632439110428e-05
+      "wmse": 1.5747666111565195e-05
     },
     "backbone.model.model.language_model.layers.5.mlp.down_proj": {
       "shape": [
@@ -3964,7 +3964,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4536421076627448e-05
+      "wmse": 1.4535091395373456e-05
     },
     "backbone.model.model.language_model.layers.5.mlp.gate_proj": {
       "shape": [
@@ -4000,7 +4000,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2985598004888743e-05
+      "wmse": 1.2985556168132462e-05
     },
     "backbone.model.model.language_model.layers.5.self_attn.k_proj": {
       "shape": [
@@ -4036,7 +4036,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.1480116882012226e-05
+      "wmse": 1.1478741726023145e-05
     },
     "backbone.model.model.language_model.layers.5.self_attn.q_proj": {
       "shape": [
@@ -4054,7 +4054,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5363693819381297e-05
+      "wmse": 1.536378840683028e-05
     },
     "backbone.model.model.language_model.layers.5.self_attn.v_proj": {
       "shape": [
@@ -4072,7 +4072,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4641475900134537e-05
+      "wmse": 1.4641476809629239e-05
     },
     "backbone.model.model.language_model.layers.6.mlp.down_proj": {
       "shape": [
@@ -4090,7 +4090,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4522393030347303e-05
+      "wmse": 1.4521501725539565e-05
     },
     "backbone.model.model.language_model.layers.6.mlp.gate_proj": {
       "shape": [
@@ -4108,7 +4108,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.8772687326418236e-05
+      "wmse": 1.8772600014926866e-05
     },
     "backbone.model.model.language_model.layers.6.mlp.up_proj": {
       "shape": [
@@ -4126,7 +4126,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2946258721058257e-05
+      "wmse": 1.2946266906510573e-05
     },
     "backbone.model.model.language_model.layers.6.self_attn.k_proj": {
       "shape": [
@@ -4144,7 +4144,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3633757589559536e-05
+      "wmse": 1.3633322851092089e-05
     },
     "backbone.model.model.language_model.layers.6.self_attn.o_proj": {
       "shape": [
@@ -4162,7 +4162,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2638450243684929e-05
+      "wmse": 1.2638612133741844e-05
     },
     "backbone.model.model.language_model.layers.6.self_attn.q_proj": {
       "shape": [
@@ -4180,7 +4180,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.517285272711888e-05
+      "wmse": 1.517351483926177e-05
     },
     "backbone.model.model.language_model.layers.6.self_attn.v_proj": {
       "shape": [
@@ -4198,7 +4198,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.542213067295961e-05
+      "wmse": 1.542412064736709e-05
     },
     "backbone.model.model.language_model.layers.7.mlp.down_proj": {
       "shape": [
@@ -4216,7 +4216,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4758352335775271e-05
+      "wmse": 1.475700810260605e-05
     },
     "backbone.model.model.language_model.layers.7.mlp.gate_proj": {
       "shape": [
@@ -4234,7 +4234,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.0000607037218288e-05
+      "wmse": 1.9999431970063597e-05
     },
     "backbone.model.model.language_model.layers.7.mlp.up_proj": {
       "shape": [
@@ -4252,7 +4252,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2527876606327482e-05
+      "wmse": 1.2528464139904827e-05
     },
     "backbone.model.model.language_model.layers.7.self_attn.k_proj": {
       "shape": [
@@ -4270,7 +4270,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2362650522845797e-05
+      "wmse": 1.2362596862658393e-05
     },
     "backbone.model.model.language_model.layers.7.self_attn.o_proj": {
       "shape": [
@@ -4288,7 +4288,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2318450899329036e-05
+      "wmse": 1.231831447512377e-05
     },
     "backbone.model.model.language_model.layers.7.self_attn.q_proj": {
       "shape": [
@@ -4324,7 +4324,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4251681022869889e-05
+      "wmse": 1.4251680113375187e-05
     },
     "backbone.model.model.language_model.layers.8.mlp.down_proj": {
       "shape": [
@@ -4342,7 +4342,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5048723980726209e-05
+      "wmse": 1.5048938621475827e-05
     },
     "backbone.model.model.language_model.layers.8.mlp.gate_proj": {
       "shape": [
@@ -4360,7 +4360,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.8265232938574627e-05
+      "wmse": 1.8265307517140172e-05
     },
     "backbone.model.model.language_model.layers.8.mlp.up_proj": {
       "shape": [
@@ -4378,7 +4378,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2936870007251855e-05
+      "wmse": 1.2936834536958486e-05
     },
     "backbone.model.model.language_model.layers.8.self_attn.k_proj": {
       "shape": [
@@ -4396,7 +4396,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2844279808632564e-05
+      "wmse": 1.2844280718127266e-05
     },
     "backbone.model.model.language_model.layers.8.self_attn.o_proj": {
       "shape": [
@@ -4414,7 +4414,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.1755200830521062e-05
+      "wmse": 1.1758307664422318e-05
     },
     "backbone.model.model.language_model.layers.8.self_attn.q_proj": {
       "shape": [
@@ -4432,7 +4432,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4594358617614489e-05
+      "wmse": 1.4594352251151577e-05
     },
     "backbone.model.model.language_model.layers.8.self_attn.v_proj": {
       "shape": [
@@ -4468,7 +4468,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.5155417713685893e-05
+      "wmse": 1.51549602378509e-05
     },
     "backbone.model.model.language_model.layers.9.mlp.gate_proj": {
       "shape": [
@@ -4486,7 +4486,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.798305856937077e-05
+      "wmse": 1.7982009012484923e-05
     },
     "backbone.model.model.language_model.layers.9.mlp.up_proj": {
       "shape": [
@@ -4504,7 +4504,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.3976491572975647e-05
+      "wmse": 1.3976748959976248e-05
     },
     "backbone.model.model.language_model.layers.9.self_attn.k_proj": {
       "shape": [
@@ -4522,7 +4522,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2491071174736135e-05
+      "wmse": 1.2494130714912899e-05
     },
     "backbone.model.model.language_model.layers.9.self_attn.o_proj": {
       "shape": [
@@ -4540,7 +4540,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4238181393011473e-05
+      "wmse": 1.423827234248165e-05
     },
     "backbone.model.model.language_model.layers.9.self_attn.q_proj": {
       "shape": [
@@ -4558,7 +4558,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4699210623803083e-05
+      "wmse": 1.4698507584398612e-05
     },
     "backbone.model.model.language_model.layers.9.self_attn.v_proj": {
       "shape": [
@@ -4576,7 +4576,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 0.95,
-      "wmse": 1.4087860108702444e-05
+      "wmse": 1.4090621334617026e-05
     },
     "backbone.model.model.visual.blocks.0.attn.proj": {
       "shape": [
@@ -4612,7 +4612,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.424261275446042e-05
+      "wmse": 7.419672328978777e-05
     },
     "backbone.model.model.visual.blocks.0.mlp.linear_fc1": {
       "shape": [
@@ -4648,7 +4648,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.039521849743323e-06
+      "wmse": 6.0459938140411396e-06
     },
     "backbone.model.model.visual.blocks.1.attn.proj": {
       "shape": [
@@ -4666,7 +4666,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.4180400184122846e-06
+      "wmse": 5.417332886281656e-06
     },
     "backbone.model.model.visual.blocks.1.attn.qkv": {
       "shape": [
@@ -4684,7 +4684,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.9543531127274036e-05
+      "wmse": 2.954769297502935e-05
     },
     "backbone.model.model.visual.blocks.1.mlp.linear_fc1": {
       "shape": [
@@ -4702,7 +4702,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.0308462151442654e-05
+      "wmse": 1.0308286618965212e-05
     },
     "backbone.model.model.visual.blocks.1.mlp.linear_fc2": {
       "shape": [
@@ -4720,7 +4720,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.217717443883885e-06
+      "wmse": 5.217895704845432e-06
     },
     "backbone.model.model.visual.blocks.10.attn.proj": {
       "shape": [
@@ -4738,7 +4738,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.085619821125874e-06
+      "wmse": 4.085620275873225e-06
     },
     "backbone.model.model.visual.blocks.10.attn.qkv": {
       "shape": [
@@ -4756,7 +4756,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.300858331087511e-06
+      "wmse": 6.3007805692905094e-06
     },
     "backbone.model.model.visual.blocks.10.mlp.linear_fc1": {
       "shape": [
@@ -4774,7 +4774,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.436087121779565e-06
+      "wmse": 5.436139872472268e-06
     },
     "backbone.model.model.visual.blocks.10.mlp.linear_fc2": {
       "shape": [
@@ -4792,7 +4792,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.612561497197021e-06
+      "wmse": 4.612123120750766e-06
     },
     "backbone.model.model.visual.blocks.11.attn.proj": {
       "shape": [
@@ -4810,7 +4810,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.664243988372618e-06
+      "wmse": 4.664724656322505e-06
     },
     "backbone.model.model.visual.blocks.11.attn.qkv": {
       "shape": [
@@ -4828,7 +4828,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.971253813186195e-06
+      "wmse": 5.9711946960305795e-06
     },
     "backbone.model.model.visual.blocks.11.mlp.linear_fc1": {
       "shape": [
@@ -4846,7 +4846,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.719397904613288e-06
+      "wmse": 5.719358341593761e-06
     },
     "backbone.model.model.visual.blocks.11.mlp.linear_fc2": {
       "shape": [
@@ -4864,7 +4864,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.708530352421803e-06
+      "wmse": 5.707783657271648e-06
     },
     "backbone.model.model.visual.blocks.12.attn.proj": {
       "shape": [
@@ -4882,7 +4882,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.5829356167814694e-06
+      "wmse": 4.583393547363812e-06
     },
     "backbone.model.model.visual.blocks.12.attn.qkv": {
       "shape": [
@@ -4900,7 +4900,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.068381480872631e-06
+      "wmse": 6.068426046113018e-06
     },
     "backbone.model.model.visual.blocks.12.mlp.linear_fc1": {
       "shape": [
@@ -4918,7 +4918,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.051364041719353e-06
+      "wmse": 5.051392236055108e-06
     },
     "backbone.model.model.visual.blocks.12.mlp.linear_fc2": {
       "shape": [
@@ -4936,7 +4936,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.616619091597386e-06
+      "wmse": 5.616549970000051e-06
     },
     "backbone.model.model.visual.blocks.13.attn.proj": {
       "shape": [
@@ -4954,7 +4954,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.408023869473254e-06
+      "wmse": 4.408994300320046e-06
     },
     "backbone.model.model.visual.blocks.13.attn.qkv": {
       "shape": [
@@ -4990,7 +4990,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.954978066962212e-06
+      "wmse": 4.954996256856248e-06
     },
     "backbone.model.model.visual.blocks.13.mlp.linear_fc2": {
       "shape": [
@@ -5008,7 +5008,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.485095243784599e-06
+      "wmse": 5.485009751282632e-06
     },
     "backbone.model.model.visual.blocks.14.attn.proj": {
       "shape": [
@@ -5026,7 +5026,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.91373748445767e-06
+      "wmse": 4.913699740427546e-06
     },
     "backbone.model.model.visual.blocks.14.attn.qkv": {
       "shape": [
@@ -5044,7 +5044,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.696976586477831e-06
+      "wmse": 5.696941570931813e-06
     },
     "backbone.model.model.visual.blocks.14.mlp.linear_fc1": {
       "shape": [
@@ -5062,7 +5062,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.748283572553191e-06
+      "wmse": 4.7482881200267e-06
     },
     "backbone.model.model.visual.blocks.14.mlp.linear_fc2": {
       "shape": [
@@ -5080,7 +5080,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.717941687384155e-06
+      "wmse": 6.718546501360834e-06
     },
     "backbone.model.model.visual.blocks.15.attn.proj": {
       "shape": [
@@ -5098,7 +5098,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.057767793914536e-06
+      "wmse": 5.057696853327798e-06
     },
     "backbone.model.model.visual.blocks.15.attn.qkv": {
       "shape": [
@@ -5134,7 +5134,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.981185156793799e-06
+      "wmse": 4.98110875923885e-06
     },
     "backbone.model.model.visual.blocks.15.mlp.linear_fc2": {
       "shape": [
@@ -5152,7 +5152,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.41628809919348e-06
+      "wmse": 7.416287189698778e-06
     },
     "backbone.model.model.visual.blocks.16.attn.proj": {
       "shape": [
@@ -5206,7 +5206,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.937015546602197e-06
+      "wmse": 4.937035555485636e-06
     },
     "backbone.model.model.visual.blocks.16.mlp.linear_fc2": {
       "shape": [
@@ -5242,7 +5242,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.614663223241223e-06
+      "wmse": 5.614663677988574e-06
     },
     "backbone.model.model.visual.blocks.17.attn.qkv": {
       "shape": [
@@ -5260,7 +5260,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.281921403366141e-06
+      "wmse": 5.281897301756544e-06
     },
     "backbone.model.model.visual.blocks.17.mlp.linear_fc1": {
       "shape": [
@@ -5278,7 +5278,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.860572971665533e-06
+      "wmse": 4.860577064391691e-06
     },
     "backbone.model.model.visual.blocks.17.mlp.linear_fc2": {
       "shape": [
@@ -5296,7 +5296,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.986279120406834e-06
+      "wmse": 5.986301403027028e-06
     },
     "backbone.model.model.visual.blocks.18.attn.proj": {
       "shape": [
@@ -5332,7 +5332,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.391448212321848e-06
+      "wmse": 5.391331797000021e-06
     },
     "backbone.model.model.visual.blocks.18.mlp.linear_fc1": {
       "shape": [
@@ -5368,7 +5368,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.6111883825215045e-06
+      "wmse": 6.611187927774154e-06
     },
     "backbone.model.model.visual.blocks.19.attn.proj": {
       "shape": [
@@ -5386,7 +5386,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.5254067774512805e-06
+      "wmse": 5.525202141143382e-06
     },
     "backbone.model.model.visual.blocks.19.attn.qkv": {
       "shape": [
@@ -5404,7 +5404,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.2265622798586264e-06
+      "wmse": 5.226612756814575e-06
     },
     "backbone.model.model.visual.blocks.19.mlp.linear_fc1": {
       "shape": [
@@ -5422,7 +5422,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.1159950089640915e-06
+      "wmse": 5.115941803524038e-06
     },
     "backbone.model.model.visual.blocks.19.mlp.linear_fc2": {
       "shape": [
@@ -5458,7 +5458,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.562914909911342e-06
+      "wmse": 4.562914455163991e-06
     },
     "backbone.model.model.visual.blocks.2.attn.qkv": {
       "shape": [
@@ -5476,7 +5476,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.4752978131582495e-05
+      "wmse": 1.4753137293155305e-05
     },
     "backbone.model.model.visual.blocks.2.mlp.linear_fc1": {
       "shape": [
@@ -5494,7 +5494,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.348261533479672e-06
+      "wmse": 7.348402959905798e-06
     },
     "backbone.model.model.visual.blocks.2.mlp.linear_fc2": {
       "shape": [
@@ -5512,7 +5512,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.168069153820397e-06
+      "wmse": 4.16834245697828e-06
     },
     "backbone.model.model.visual.blocks.20.attn.proj": {
       "shape": [
@@ -5530,7 +5530,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.93571667195647e-06
+      "wmse": 5.936037268838845e-06
     },
     "backbone.model.model.visual.blocks.20.attn.qkv": {
       "shape": [
@@ -5548,7 +5548,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.320349373505451e-06
+      "wmse": 5.32032845512731e-06
     },
     "backbone.model.model.visual.blocks.20.mlp.linear_fc1": {
       "shape": [
@@ -5566,7 +5566,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.113294719194528e-06
+      "wmse": 5.113462066219654e-06
     },
     "backbone.model.model.visual.blocks.20.mlp.linear_fc2": {
       "shape": [
@@ -5584,7 +5584,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.67961352923885e-06
+      "wmse": 8.679610800754745e-06
     },
     "backbone.model.model.visual.blocks.21.attn.proj": {
       "shape": [
@@ -5602,7 +5602,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.826267963333521e-06
+      "wmse": 6.826345725130523e-06
     },
     "backbone.model.model.visual.blocks.21.attn.qkv": {
       "shape": [
@@ -5620,7 +5620,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.53872359887464e-06
+      "wmse": 5.538720870390534e-06
     },
     "backbone.model.model.visual.blocks.21.mlp.linear_fc1": {
       "shape": [
@@ -5638,7 +5638,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.179330855753506e-06
+      "wmse": 5.179478648642544e-06
     },
     "backbone.model.model.visual.blocks.21.mlp.linear_fc2": {
       "shape": [
@@ -5674,7 +5674,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.764681868138723e-06
+      "wmse": 7.764585461700335e-06
     },
     "backbone.model.model.visual.blocks.22.attn.qkv": {
       "shape": [
@@ -5692,7 +5692,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.921912816120312e-06
+      "wmse": 5.9219210015726276e-06
     },
     "backbone.model.model.visual.blocks.22.mlp.linear_fc1": {
       "shape": [
@@ -5728,7 +5728,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 0.95,
-      "wmse": 7.1468516580353025e-06
+      "wmse": 7.146844836825039e-06
     },
     "backbone.model.model.visual.blocks.23.attn.proj": {
       "shape": [
@@ -5764,7 +5764,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.2610673669259995e-06
+      "wmse": 7.2610591814736836e-06
     },
     "backbone.model.model.visual.blocks.23.mlp.linear_fc1": {
       "shape": [
@@ -5782,7 +5782,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.246217369858641e-06
+      "wmse": 5.24625784237287e-06
     },
     "backbone.model.model.visual.blocks.23.mlp.linear_fc2": {
       "shape": [
@@ -5800,7 +5800,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.214236469124444e-06
+      "wmse": 4.214238288113847e-06
     },
     "backbone.model.model.visual.blocks.3.attn.proj": {
       "shape": [
@@ -5836,7 +5836,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.568132554704789e-06
+      "wmse": 9.568480891175568e-06
     },
     "backbone.model.model.visual.blocks.3.mlp.linear_fc1": {
       "shape": [
@@ -5854,7 +5854,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.0668576224998105e-06
+      "wmse": 6.066908099455759e-06
     },
     "backbone.model.model.visual.blocks.3.mlp.linear_fc2": {
       "shape": [
@@ -5872,7 +5872,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.123078492237255e-06
+      "wmse": 6.126041625975631e-06
     },
     "backbone.model.model.visual.blocks.4.attn.proj": {
       "shape": [
@@ -5890,7 +5890,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.2940355342580006e-06
+      "wmse": 4.2940077946695965e-06
     },
     "backbone.model.model.visual.blocks.4.attn.qkv": {
       "shape": [
@@ -5908,7 +5908,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.526022727688542e-06
+      "wmse": 7.525433375121793e-06
     },
     "backbone.model.model.visual.blocks.4.mlp.linear_fc1": {
       "shape": [
@@ -5944,7 +5944,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.057445600366918e-06
+      "wmse": 7.057500624796376e-06
     },
     "backbone.model.model.visual.blocks.5.attn.proj": {
       "shape": [
@@ -5962,7 +5962,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.3908885345445015e-06
+      "wmse": 4.390621597849531e-06
     },
     "backbone.model.model.visual.blocks.5.attn.qkv": {
       "shape": [
@@ -5980,7 +5980,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.8786675910814665e-06
+      "wmse": 6.8788081080128904e-06
     },
     "backbone.model.model.visual.blocks.5.mlp.linear_fc1": {
       "shape": [
@@ -5998,7 +5998,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.666548531735316e-06
+      "wmse": 5.666939614457078e-06
     },
     "backbone.model.model.visual.blocks.5.mlp.linear_fc2": {
       "shape": [
@@ -6016,7 +6016,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.4753762671898585e-06
+      "wmse": 6.479731837316649e-06
     },
     "backbone.model.model.visual.blocks.6.attn.proj": {
       "shape": [
@@ -6034,7 +6034,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.788182195625268e-06
+      "wmse": 4.788182650372619e-06
     },
     "backbone.model.model.visual.blocks.6.attn.qkv": {
       "shape": [
@@ -6052,7 +6052,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.357955044222763e-06
+      "wmse": 6.358031441777712e-06
     },
     "backbone.model.model.visual.blocks.6.mlp.linear_fc1": {
       "shape": [
@@ -6070,7 +6070,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.768193659605458e-06
+      "wmse": 5.768150003859773e-06
     },
     "backbone.model.model.visual.blocks.6.mlp.linear_fc2": {
       "shape": [
@@ -6088,7 +6088,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.320045031316113e-06
+      "wmse": 6.320058673736639e-06
     },
     "backbone.model.model.visual.blocks.7.attn.proj": {
       "shape": [
@@ -6106,7 +6106,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.199951945338398e-06
+      "wmse": 4.199951490591047e-06
     },
     "backbone.model.model.visual.blocks.7.attn.qkv": {
       "shape": [
@@ -6124,7 +6124,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.014913651597453e-06
+      "wmse": 6.0150450735818595e-06
     },
     "backbone.model.model.visual.blocks.7.mlp.linear_fc1": {
       "shape": [
@@ -6142,7 +6142,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.5195869208546355e-06
+      "wmse": 5.519559636013582e-06
     },
     "backbone.model.model.visual.blocks.7.mlp.linear_fc2": {
       "shape": [
@@ -6160,7 +6160,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.536995558941271e-06
+      "wmse": 5.534311185328988e-06
     },
     "backbone.model.model.visual.blocks.8.attn.proj": {
       "shape": [
@@ -6178,7 +6178,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.381341568659991e-06
+      "wmse": 4.381368398753693e-06
     },
     "backbone.model.model.visual.blocks.8.attn.qkv": {
       "shape": [
@@ -6196,7 +6196,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.398076493496774e-06
+      "wmse": 6.398076948244125e-06
     },
     "backbone.model.model.visual.blocks.8.mlp.linear_fc1": {
       "shape": [
@@ -6214,7 +6214,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.736572347814217e-06
+      "wmse": 5.736628736485727e-06
     },
     "backbone.model.model.visual.blocks.8.mlp.linear_fc2": {
       "shape": [
@@ -6232,7 +6232,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.100944690639153e-06
+      "wmse": 5.100751423015026e-06
     },
     "backbone.model.model.visual.blocks.9.attn.proj": {
       "shape": [
@@ -6268,7 +6268,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.310596290859394e-06
+      "wmse": 6.3105972003540955e-06
     },
     "backbone.model.model.visual.blocks.9.mlp.linear_fc1": {
       "shape": [
@@ -6286,7 +6286,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.429520570032764e-06
+      "wmse": 5.4295837799145374e-06
     },
     "backbone.model.model.visual.blocks.9.mlp.linear_fc2": {
       "shape": [
@@ -6304,7 +6304,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.862391506321728e-06
+      "wmse": 4.8626670832163654e-06
     },
     "backbone.model.model.visual.deepstack_merger_list.0.linear_fc1": {
       "shape": [
@@ -6322,7 +6322,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.7819472709088586e-06
+      "wmse": 3.782019803111325e-06
     },
     "backbone.model.model.visual.deepstack_merger_list.0.linear_fc2": {
       "shape": [
@@ -6340,7 +6340,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.422192094149068e-06
+      "wmse": 3.4222025533381384e-06
     },
     "backbone.model.model.visual.deepstack_merger_list.1.linear_fc1": {
       "shape": [
@@ -6358,7 +6358,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.113177965336945e-06
+      "wmse": 4.1131916077574715e-06
     },
     "backbone.model.model.visual.deepstack_merger_list.1.linear_fc2": {
       "shape": [
@@ -6376,7 +6376,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.7210702430456877e-06
+      "wmse": 3.7211821108940057e-06
     },
     "backbone.model.model.visual.deepstack_merger_list.2.linear_fc1": {
       "shape": [
@@ -6394,7 +6394,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.036461177747697e-06
+      "wmse": 4.03652938985033e-06
     },
     "backbone.model.model.visual.deepstack_merger_list.2.linear_fc2": {
       "shape": [
@@ -6412,7 +6412,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.4026807043119334e-06
+      "wmse": 3.403337586860289e-06
     },
     "backbone.model.model.visual.merger.linear_fc1": {
       "shape": [
@@ -6430,7 +6430,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.4140151658211835e-06
+      "wmse": 4.413931947055971e-06
     },
     "backbone.model.model.visual.merger.linear_fc2": {
       "shape": [
@@ -6448,7 +6448,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.4638937904674094e-06
+      "wmse": 3.464209157755249e-06
     },
     "backbone.model.model.visual.pos_embed": {
       "shape": [
@@ -6466,7 +6466,7 @@
       "method": "nvfp4_rtn",
       "actual_method": "nvfp4_rtn",
       "clip": 1.0,
-      "wmse": 0.002920060185715556
+      "wmse": 0.0029200599528849125
     },
     "action_head.model.proj_out_1": {
       "shape": [
@@ -6484,7 +6484,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.7809828679892235e-06
+      "wmse": 2.780967179205618e-06
     },
     "action_head.model.proj_out_2": {
       "shape": [
@@ -6502,7 +6502,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.66053097625263e-06
+      "wmse": 4.6660816224175505e-06
     },
     "action_head.model.transformer_blocks.19.ff.net.0.proj": {
       "shape": [
@@ -6520,7 +6520,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.289959401328815e-06
+      "wmse": 6.289972589001991e-06
     },
     "action_head.model.transformer_blocks.19.ff.net.2": {
       "shape": [
@@ -6538,7 +6538,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.926107072198647e-06
+      "wmse": 2.9263167107274057e-06
     },
     "action_head.model.transformer_blocks.20.attn1.to_k": {
       "shape": [
@@ -6556,7 +6556,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.324081823549932e-06
+      "wmse": 6.32401406619465e-06
     },
     "action_head.model.transformer_blocks.20.attn1.to_out.0": {
       "shape": [
@@ -6574,7 +6574,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.667998033866752e-06
+      "wmse": 7.667957106605172e-06
     },
     "action_head.model.transformer_blocks.20.attn1.to_q": {
       "shape": [
@@ -6592,7 +6592,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.009915629576426e-06
+      "wmse": 9.01023031474324e-06
     },
     "action_head.model.transformer_blocks.20.attn1.to_v": {
       "shape": [
@@ -6628,7 +6628,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.761621079931501e-06
+      "wmse": 6.7616242631629575e-06
     },
     "action_head.model.transformer_blocks.20.ff.net.2": {
       "shape": [
@@ -6646,7 +6646,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.2137643302121432e-06
+      "wmse": 3.210240947737475e-06
     },
     "action_head.model.transformer_blocks.20.norm1.linear": {
       "shape": [
@@ -6682,7 +6682,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.008721463032998e-06
+      "wmse": 9.008523193188012e-06
     },
     "action_head.model.transformer_blocks.21.attn1.to_out.0": {
       "shape": [
@@ -6700,7 +6700,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.857334821892437e-06
+      "wmse": 7.857282071199734e-06
     },
     "action_head.model.transformer_blocks.21.attn1.to_q": {
       "shape": [
@@ -6718,7 +6718,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.027398846228607e-06
+      "wmse": 9.027394298755098e-06
     },
     "action_head.model.transformer_blocks.21.attn1.to_v": {
       "shape": [
@@ -6736,7 +6736,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.850626959931105e-06
+      "wmse": 6.850083536846796e-06
     },
     "action_head.model.transformer_blocks.21.ff.net.0.proj": {
       "shape": [
@@ -6754,7 +6754,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.258940058818553e-06
+      "wmse": 7.258950518007623e-06
     },
     "action_head.model.transformer_blocks.21.ff.net.2": {
       "shape": [
@@ -6772,7 +6772,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.293410600235802e-06
+      "wmse": 3.2934724458755227e-06
     },
     "action_head.model.transformer_blocks.21.norm1.linear": {
       "shape": [
@@ -6808,7 +6808,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.38112533124513e-06
+      "wmse": 6.381125785992481e-06
     },
     "action_head.model.transformer_blocks.22.attn1.to_out.0": {
       "shape": [
@@ -6826,7 +6826,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.02654967122362e-05
+      "wmse": 1.0265899618389085e-05
     },
     "action_head.model.transformer_blocks.22.attn1.to_q": {
       "shape": [
@@ -6844,7 +6844,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.788018021732569e-06
+      "wmse": 8.788080776866991e-06
     },
     "action_head.model.transformer_blocks.22.attn1.to_v": {
       "shape": [
@@ -6880,7 +6880,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.997188731678762e-06
+      "wmse": 7.996894964890089e-06
     },
     "action_head.model.transformer_blocks.22.ff.net.2": {
       "shape": [
@@ -6898,7 +6898,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.6701806038763607e-06
+      "wmse": 3.669347051982186e-06
     },
     "action_head.model.transformer_blocks.22.norm1.linear": {
       "shape": [
@@ -6916,7 +6916,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.18070567320683e-06
+      "wmse": 4.180712949164445e-06
     },
     "action_head.model.transformer_blocks.23.attn1.to_k": {
       "shape": [
@@ -6934,7 +6934,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.092506843444426e-06
+      "wmse": 9.092676918953657e-06
     },
     "action_head.model.transformer_blocks.23.attn1.to_out.0": {
       "shape": [
@@ -6970,7 +6970,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.104818673222326e-06
+      "wmse": 9.105390745389741e-06
     },
     "action_head.model.transformer_blocks.23.attn1.to_v": {
       "shape": [
@@ -6988,7 +6988,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.112643288564868e-06
+      "wmse": 7.113389983715024e-06
     },
     "action_head.model.transformer_blocks.23.ff.net.0.proj": {
       "shape": [
@@ -7006,7 +7006,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.55651160236448e-06
+      "wmse": 8.556425200367812e-06
     },
     "action_head.model.transformer_blocks.23.ff.net.2": {
       "shape": [
@@ -7024,7 +7024,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.886679223796818e-06
+      "wmse": 3.886393642460462e-06
     },
     "action_head.model.transformer_blocks.23.norm1.linear": {
       "shape": [
@@ -7042,7 +7042,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.727635657924111e-06
+      "wmse": 3.7276170132827247e-06
     },
     "action_head.model.transformer_blocks.24.attn1.to_k": {
       "shape": [
@@ -7132,7 +7132,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.745496415940579e-06
+      "wmse": 8.745540981180966e-06
     },
     "action_head.model.transformer_blocks.24.ff.net.2": {
       "shape": [
@@ -7150,7 +7150,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.979411303589586e-06
+      "wmse": 3.979390385211445e-06
     },
     "action_head.model.transformer_blocks.24.norm1.linear": {
       "shape": [
@@ -7168,7 +7168,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.403768343763659e-06
+      "wmse": 4.403774710226571e-06
     },
     "action_head.model.transformer_blocks.25.attn1.to_k": {
       "shape": [
@@ -7204,7 +7204,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.948776667239144e-06
+      "wmse": 8.948731192504056e-06
     },
     "action_head.model.transformer_blocks.25.attn1.to_q": {
       "shape": [
@@ -7240,7 +7240,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.787253369111568e-06
+      "wmse": 6.787241090933094e-06
     },
     "action_head.model.transformer_blocks.25.ff.net.0.proj": {
       "shape": [
@@ -7258,7 +7258,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.903754860511981e-06
+      "wmse": 8.903717571229208e-06
     },
     "action_head.model.transformer_blocks.25.ff.net.2": {
       "shape": [
@@ -7276,7 +7276,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.940759143006289e-06
+      "wmse": 3.940745955333114e-06
     },
     "action_head.model.transformer_blocks.25.norm1.linear": {
       "shape": [
@@ -7294,7 +7294,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.494026032058173e-06
+      "wmse": 3.4940208024636377e-06
     },
     "action_head.model.transformer_blocks.26.attn1.to_k": {
       "shape": [
@@ -7312,7 +7312,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.326965376501903e-06
+      "wmse": 6.326966285996605e-06
     },
     "action_head.model.transformer_blocks.26.attn1.to_out.0": {
       "shape": [
@@ -7330,7 +7330,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.0965345609292854e-05
+      "wmse": 1.0962424312310759e-05
     },
     "action_head.model.transformer_blocks.26.attn1.to_q": {
       "shape": [
@@ -7348,7 +7348,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.63178775034612e-06
+      "wmse": 8.629050171293784e-06
     },
     "action_head.model.transformer_blocks.26.attn1.to_v": {
       "shape": [
@@ -7384,7 +7384,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.261592822440434e-06
+      "wmse": 9.261578270525206e-06
     },
     "action_head.model.transformer_blocks.26.ff.net.2": {
       "shape": [
@@ -7402,7 +7402,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.2882161324087065e-06
+      "wmse": 4.288529453333467e-06
     },
     "action_head.model.transformer_blocks.26.norm1.linear": {
       "shape": [
@@ -7420,7 +7420,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.748587232621503e-06
+      "wmse": 3.7485915527213365e-06
     },
     "action_head.model.transformer_blocks.27.attn1.to_k": {
       "shape": [
@@ -7438,7 +7438,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.577844710089266e-06
+      "wmse": 8.577848348068073e-06
     },
     "action_head.model.transformer_blocks.27.attn1.to_out.0": {
       "shape": [
@@ -7456,7 +7456,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.1109462320746388e-05
+      "wmse": 1.110867833631346e-05
     },
     "action_head.model.transformer_blocks.27.attn1.to_q": {
       "shape": [
@@ -7474,7 +7474,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.421866368735209e-06
+      "wmse": 8.421726306551136e-06
     },
     "action_head.model.transformer_blocks.27.attn1.to_v": {
       "shape": [
@@ -7492,7 +7492,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.433546215906972e-06
+      "wmse": 7.433723112626467e-06
     },
     "action_head.model.transformer_blocks.27.ff.net.0.proj": {
       "shape": [
@@ -7510,7 +7510,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.377308742841706e-06
+      "wmse": 9.377200512972195e-06
     },
     "action_head.model.transformer_blocks.27.ff.net.2": {
       "shape": [
@@ -7528,7 +7528,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.4538278416439425e-06
+      "wmse": 4.454727786651347e-06
     },
     "action_head.model.transformer_blocks.27.norm1.linear": {
       "shape": [
@@ -7546,7 +7546,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.582372755772667e-06
+      "wmse": 3.5823738926410442e-06
     },
     "action_head.model.transformer_blocks.28.attn1.to_k": {
       "shape": [
@@ -7582,7 +7582,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.702808034082409e-06
+      "wmse": 7.704806193942204e-06
     },
     "action_head.model.transformer_blocks.28.attn1.to_q": {
       "shape": [
@@ -7600,7 +7600,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.949778930400498e-06
+      "wmse": 8.950140909291804e-06
     },
     "action_head.model.transformer_blocks.28.attn1.to_v": {
       "shape": [
@@ -7618,7 +7618,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.830975285585737e-06
+      "wmse": 4.830975740333088e-06
     },
     "action_head.model.transformer_blocks.28.ff.net.0.proj": {
       "shape": [
@@ -7636,7 +7636,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 9.017420779855456e-06
+      "wmse": 9.017399861477315e-06
     },
     "action_head.model.transformer_blocks.28.ff.net.2": {
       "shape": [
@@ -7654,7 +7654,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.408552740642335e-06
+      "wmse": 4.407905180414673e-06
     },
     "action_head.model.transformer_blocks.28.norm1.linear": {
       "shape": [
@@ -7672,7 +7672,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.401435944600962e-06
+      "wmse": 4.401419118948979e-06
     },
     "action_head.model.transformer_blocks.29.attn1.to_k": {
       "shape": [
@@ -7690,7 +7690,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.75732405600138e-06
+      "wmse": 7.75490752857877e-06
     },
     "action_head.model.transformer_blocks.29.attn1.to_out.0": {
       "shape": [
@@ -7708,7 +7708,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.2019385394523852e-05
+      "wmse": 1.2019537280139048e-05
     },
     "action_head.model.transformer_blocks.29.attn1.to_q": {
       "shape": [
@@ -7726,7 +7726,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.725740033492912e-06
+      "wmse": 7.727639058430213e-06
     },
     "action_head.model.transformer_blocks.29.attn1.to_v": {
       "shape": [
@@ -7744,7 +7744,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.508096132369246e-06
+      "wmse": 7.505918347305851e-06
     },
     "action_head.model.transformer_blocks.29.ff.net.0.proj": {
       "shape": [
@@ -7780,7 +7780,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.348677975940518e-06
+      "wmse": 4.348148650024086e-06
     },
     "action_head.model.transformer_blocks.29.norm1.linear": {
       "shape": [
@@ -7798,7 +7798,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.4727136153378524e-06
+      "wmse": 3.4727188449323876e-06
     },
     "action_head.model.transformer_blocks.30.attn1.to_k": {
       "shape": [
@@ -7834,7 +7834,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.652586984680966e-06
+      "wmse": 8.65257879922865e-06
     },
     "action_head.model.transformer_blocks.30.attn1.to_q": {
       "shape": [
@@ -7852,7 +7852,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.549841368221678e-06
+      "wmse": 8.548182449885644e-06
     },
     "action_head.model.transformer_blocks.30.attn1.to_v": {
       "shape": [
@@ -7888,7 +7888,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.859161087253597e-06
+      "wmse": 7.859719517000485e-06
     },
     "action_head.model.transformer_blocks.30.ff.net.2": {
       "shape": [
@@ -7906,7 +7906,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.222515599394683e-06
+      "wmse": 4.221432391204871e-06
     },
     "action_head.model.transformer_blocks.30.norm1.linear": {
       "shape": [
@@ -7924,7 +7924,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.4759825666696997e-06
+      "wmse": 3.4759921163640684e-06
     },
     "action_head.model.transformer_blocks.31.attn1.to_k": {
       "shape": [
@@ -7942,7 +7942,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.426095296774292e-06
+      "wmse": 6.4260948420269415e-06
     },
     "action_head.model.transformer_blocks.31.attn1.to_out.0": {
       "shape": [
@@ -7960,7 +7960,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 1.180546223622514e-05
+      "wmse": 1.1803430425061379e-05
     },
     "action_head.model.transformer_blocks.31.attn1.to_q": {
       "shape": [
@@ -7978,7 +7978,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.27835288469214e-06
+      "wmse": 6.2780381995253265e-06
     },
     "action_head.model.transformer_blocks.31.attn1.to_v": {
       "shape": [
@@ -7996,7 +7996,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.789951385144377e-06
+      "wmse": 6.789910912630148e-06
     },
     "action_head.model.transformer_blocks.31.ff.net.0.proj": {
       "shape": [
@@ -8014,7 +8014,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.228151050891029e-06
+      "wmse": 6.228096481208922e-06
     },
     "action_head.model.transformer_blocks.31.ff.net.2": {
       "shape": [
@@ -8032,7 +8032,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.071471726594609e-06
+      "wmse": 2.070749360427726e-06
     },
     "action_head.model.transformer_blocks.31.norm1.linear": {
       "shape": [
@@ -8050,7 +8050,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.329364972159965e-06
+      "wmse": 3.3293667911493685e-06
     },
     "action_head.position_embedding": {
       "shape": [
@@ -8104,7 +8104,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.232217179378495e-06
+      "wmse": 4.232248102198355e-06
     },
     "action_head.vl_self_attention.transformer_blocks.0.attn1.to_q": {
       "shape": [
@@ -8122,7 +8122,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.898162842437159e-06
+      "wmse": 4.898207862424897e-06
     },
     "action_head.vl_self_attention.transformer_blocks.0.attn1.to_v": {
       "shape": [
@@ -8140,7 +8140,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.316942977311555e-06
+      "wmse": 4.316944796300959e-06
     },
     "action_head.vl_self_attention.transformer_blocks.0.ff.net.0.proj": {
       "shape": [
@@ -8158,7 +8158,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.458501047745813e-06
+      "wmse": 6.458530151576269e-06
     },
     "action_head.vl_self_attention.transformer_blocks.0.ff.net.2": {
       "shape": [
@@ -8176,7 +8176,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 2.5611418550397502e-06
+      "wmse": 2.5610938791942317e-06
     },
     "action_head.vl_self_attention.transformer_blocks.1.attn1.to_k": {
       "shape": [
@@ -8212,7 +8212,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.976018084969837e-06
+      "wmse": 6.976335498620756e-06
     },
     "action_head.vl_self_attention.transformer_blocks.1.attn1.to_q": {
       "shape": [
@@ -8248,7 +8248,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.118814442539588e-06
+      "wmse": 5.118811714055482e-06
     },
     "action_head.vl_self_attention.transformer_blocks.1.ff.net.0.proj": {
       "shape": [
@@ -8266,7 +8266,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.66944652039092e-06
+      "wmse": 6.6694501583697274e-06
     },
     "action_head.vl_self_attention.transformer_blocks.1.ff.net.2": {
       "shape": [
@@ -8284,7 +8284,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 3.7942281778668985e-06
+      "wmse": 3.794164285864099e-06
     },
     "action_head.vl_self_attention.transformer_blocks.2.attn1.to_k": {
       "shape": [
@@ -8320,7 +8320,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.299610271933489e-06
+      "wmse": 8.29962118586991e-06
     },
     "action_head.vl_self_attention.transformer_blocks.2.attn1.to_q": {
       "shape": [
@@ -8374,7 +8374,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.8314370764710475e-06
+      "wmse": 6.831442078691907e-06
     },
     "action_head.vl_self_attention.transformer_blocks.2.ff.net.2": {
       "shape": [
@@ -8392,7 +8392,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 4.425289262144361e-06
+      "wmse": 4.425019596965285e-06
     },
     "action_head.vl_self_attention.transformer_blocks.3.attn1.to_k": {
       "shape": [
@@ -8410,7 +8410,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.101064172980841e-06
+      "wmse": 6.101168310124194e-06
     },
     "action_head.vl_self_attention.transformer_blocks.3.attn1.to_out.0": {
       "shape": [
@@ -8428,7 +8428,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 8.923774657887407e-06
+      "wmse": 8.923829227569513e-06
     },
     "action_head.vl_self_attention.transformer_blocks.3.attn1.to_q": {
       "shape": [
@@ -8446,7 +8446,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 6.256248525460251e-06
+      "wmse": 6.256282176764216e-06
     },
     "action_head.vl_self_attention.transformer_blocks.3.attn1.to_v": {
       "shape": [
@@ -8482,7 +8482,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 7.185913091234397e-06
+      "wmse": 7.1859158197185025e-06
     },
     "action_head.vl_self_attention.transformer_blocks.3.ff.net.2": {
       "shape": [
@@ -8500,7 +8500,7 @@
       "method": "nvfp4_gptq",
       "actual_method": "nvfp4_gptq",
       "clip": 1.0,
-      "wmse": 5.133651939104311e-06
+      "wmse": 5.13361555931624e-06
     }
   },
   "excluded_tensors": {
@@ -14735,13 +14735,14 @@
     }
   },
   "calibration_mode": "required",
-  "calib": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/high_fp4_v3/calibration/calib.pt",
+  "calib": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20260929/calibration/calib.pt",
   "tied_weight_aliases": {
     "backbone.model.lm_head.weight": "backbone.model.model.language_model.embed_tokens.weight"
   },
   "tied_weight_note": "GR00T Qwen3VL embedding is canonical; physically duplicated lm_head receives identical output. Parameter/storage denominators count physical checkpoint tensors, including both copies.",
   "head_bf16": false,
   "gptq_damp": 0.01,
+  "rtn_clip": 1.0,
   "n_weights_edited": 472,
   "actual_method_tensor_counts": {
     "nvfp4_rtn": 4,

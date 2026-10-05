@@ -3,52 +3,52 @@
   "version": "category-k-axis-nvfp4-v1",
   "parent": {
     "parent": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq",
       "weights": {
         "model-00001-of-00002.safetensors": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/model-00001-of-00002.safetensors",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model-00001-of-00002.safetensors",
           "bytes": 4990519232,
           "sha256": "d56aee188feaa4275f780852a218a1998180556fe49c2032ac30f969c1b9f5c9"
         },
         "model-00002-of-00002.safetensors": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/model-00002-of-00002.safetensors",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model-00002-of-00002.safetensors",
           "bytes": 1919980184,
           "sha256": "ff8d3d38d7e05ffb21ac11762b2ba96e463e7c2a382e02defe906c753984713c"
         }
       },
       "metadata": {
         "config.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/config.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/config.json",
           "bytes": 2266,
           "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
         },
         "statistics.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/statistics.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/statistics.json",
           "bytes": 4298413,
           "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
         },
         "processor_config.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/processor_config.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/processor_config.json",
           "bytes": 26935,
           "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
         },
         "embodiment_id.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/embodiment_id.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/embodiment_id.json",
           "bytes": 2145,
           "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
         },
         "model.safetensors.index.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/model.safetensors.index.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model.safetensors.index.json",
           "bytes": 104985,
           "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
         },
         "ptq_recipe.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/ptq_recipe.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/ptq_recipe.json",
           "bytes": 468909,
           "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
         },
         "bake_manifest.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/bake_manifest.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/bake_manifest.json",
           "bytes": 1213,
           "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
         }
@@ -107,12 +107,12 @@
     }
   },
   "parent_recipe": {
-    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/ptq_recipe.json",
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/ptq_recipe.json",
     "bytes": 468909,
     "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
   },
   "parent_bake_manifest": {
-    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/bake_manifest.json",
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/bake_manifest.json",
     "bytes": 1213,
     "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
   },

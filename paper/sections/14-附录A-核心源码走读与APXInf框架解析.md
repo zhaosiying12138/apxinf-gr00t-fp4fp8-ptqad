@@ -161,7 +161,7 @@ residual = F.linear(F.linear(x, m.lora_A), m.lora_B)  # raw-BF16 input
 return base + (residual * (alpha / rank)).to(base.dtype)
 ```
 
-激活量化入口是 `quant/native_activation.py::native_activation_qdq_torch`：训练时使用 `ste=True` 传递直通梯度，服务时使用 `ste=False`，两者的前向量化值相同。$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，函数起点严格对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
+激活量化入口是 `quant/native_activation.py::native_activation_qdq_torch`：训练时使用 `ste=True` 传递直通梯度，服务时使用 `ste=False`；在相同输入和饱和开关下，STE 不改变前向量化值。初始 QAD 训练与正式评测的开关差异见 §3.2。$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，在相同激活设置下对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
 
 v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
 
@@ -260,7 +260,7 @@ W_export = (W_base.float() + delta).to(W_base.dtype)
 
 完整模型驻留策略服务器，LIBERO 客户端经 ZMQ 发送观测并执行动作；每次执行动作块前 8 步，每 episode 最多 720 步。`run_recovery_eval.py` 串行启动任务和服务器，以一环境对应一个 episode 计数流，保存逐集布尔结果、实际分母、进程退出码、重置记录和日志摘要。缺失或超时使该任务验收失败，结果按实际完成状态保存。
 
-环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、教师监督、学生 collection 与最终评测使用协议声明的分区。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。本文使用冻结的 `exp/recovery_protocol_v11_w4a4_category.json`：开发索引 4–8（seed 940000）、教师监督索引 20–23（seed 950000）、学生 collection 索引 20–23（seed 960000）、最终评测索引 9–19 与 24–28（seed 970000）。held-out 每任务 16 回合，共 160 回合/臂；smoke 使用 index=0、seed 980000，只验证接口。479 个 eligible 权重张量全部使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 走 W4A4 activation QDQ，3 个 embedding/position 张量仅权重量化。QAD/OPD 残差保留原始 BF16 输入。
+环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、教师监督、学生 collection 与最终评测使用协议声明的分区。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。本文使用冻结的 `exp/recovery_protocol_v11_w4a4_category.json`：开发索引 4–8（seed 940000）、教师监督索引 20–23（seed 950000）、学生 collection 索引 20–23（seed 960000）、最终评测索引 9–19 与 24–28（seed 970000）。held-out 每任务 16 回合，共 160 回合/臂。协议接口 smoke 使用 index=0、seed 980000；截图 smoke 复用开发分区的 index=4，并单独记录 `purpose=screenshot_smoke`。两者均不进入正式结果。479 个 eligible 权重张量全部使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 走 W4A4 activation QDQ，3 个 embedding/position 张量仅权重量化。QAD/OPD 残差保留原始 BF16 输入。
 
 `run_recovery_eval.py::validate_resets` 严格检查实际前 $N$ 个 episode 的索引、种子、三个状态或文件摘要和稳定步数。五分支汇总前，`compare_recovery.py::compare_round` 逐集比对这些摘要，并保存每任务结果、配对成功/失败的 $2\times2$ 表与探索性精确 McNemar 检验。该检验作为有限配对样本的探索性统计一并保存。
 
@@ -349,7 +349,7 @@ $$
 准备阶段包含分配、算法选择和图捕获，稳定 replay 只提交已经记录的设备操作。类型转换、scale 清零、在线激活量化与 GEMM 仍实际执行，必须共同计时。普通 eager 调用继续分配或复用输出缓冲。`ModelRunner.execution_mode` 只读取已有准备状态，不触发推理：π0.5 未准备时返回 `unprepared`，准备就绪后返回 `graph` 或 `eager`，另有 `invalidated`、`runtime-managed` 状态；GR00T 已捕获图时返回 `cuda-graph`，否则返回 `eager`。计时记录在 warmup 后及每个样本后保存模型实际返回的字符串。
 
 <!-- BEGIN NATIVE GRAPH VALIDATION -->
-本轮设备验收包含以下四项，原始记录位于冻结发布目录的 `results/native_graph_<run>/`。每项日志的退出状态与总任务 `exit_code.txt` 均为 0。
+独立引擎的设备验收包含以下四项，原始记录位于 `results/native_graph_20260929/`。每项日志的退出状态与总任务 `exit_code.txt` 均为 0。
 
 | 检查 | 实际覆盖 | 结果 |
 |---|---|---|
@@ -358,7 +358,7 @@ $$
 | 单层图复用 | 两个同形状投影使用不同块缩放缓冲及不同 `alpha`；arena 预先污染；改变同一输入地址的内容进行四次 replay，含全零输入 | 每次全部输出的精确相等断言通过 |
 | 完整 π0.5 图执行 | `nvfp4_static`，显式 `RequireGraph`；两种初始 latent 的 eager 参考，按 0、1、0 次序进行三次 graph replay | 输出均有限；每次 1600 元素，`max_abs=0` |
 
-完整模型用例中的 1600 元素对应后处理之前的内部 $50\times32$ 动作张量。参考与待测路径使用同一 NVFP4 模型，仅改变 eager 或 graph 执行方式，用来检验图捕获、输入更新和资源复用。
+完整模型用例中的 1600 元素对应后处理之前的内部 $50\times32$ 动作张量。参考与被验证路径使用同一 NVFP4 模型，仅改变 eager 或 graph 执行方式，用来检验图捕获、输入更新和资源复用。
 
 `input_sha256.txt` 固定此次 wheel、补丁、算子程序与完整模型测试程序的身份；`installed_extension.json` 记录实际安装扩展的 SHA-256，并确认只读 `execution_mode` getter 存在。独立文件核验确认已安装 `.so` 与该 wheel 内扩展字节相同。CPU 编译和容量测试属于准备阶段记录，上表四项 GPU 日志才是本轮数值与图执行的设备验收依据。
 <!-- END NATIVE GRAPH VALIDATION -->

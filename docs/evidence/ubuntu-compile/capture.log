@@ -1,0 +1,30 @@
++ set -euxo pipefail
++ PROJECT=/home/zhaosiying/codebase/fp4vla
++ BUILD=/home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3
++ ADAPTER=/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
++ test '!' -e /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3
++ mkdir /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3
++ cp /home/zhaosiying/codebase/fp4vla/spike/Makefile /home/zhaosiying/codebase/fp4vla/spike/fp4_gemm_bench.cu /home/zhaosiying/codebase/fp4vla/spike/fp4_opbench.cu /home/zhaosiying/codebase/fp4vla/spike/fp8_probe.cu /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/
++ /usr/local/cuda/bin/nvcc --version
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2026 NVIDIA Corporation
+Built on Tue_Jun_09_02:43:40_PM_PDT_2026
+Cuda compilation tools, release 13.3, V13.3.73
+Build cuda_13.3.r13.3/compiler.38244171_0
++ make -C /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3 -j1 ARCH=sm_120 APXINF_FP4_ADAPTER=/home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu fp4_gemm_bench fp4_opbench fp8_probe
+make: Entering directory '/home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3'
+/usr/local/cuda/bin/nvcc -O3 -std=c++17 -arch=sm_120 fp4_gemm_bench.cu -o fp4_gemm_bench -lcublasLt
+/usr/local/cuda/bin/nvcc -O3 -std=c++17 -arch=sm_120 fp4_opbench.cu /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu -o fp4_opbench -lcublasLt -Xcompiler -pthread
+/usr/local/cuda/bin/nvcc -O3 -std=c++17 -arch=sm_120 fp8_probe.cu -o fp8_probe -lcublasLt
+make: Leaving directory '/home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3'
++ sha256sum /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/Makefile /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_gemm_bench.cu /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_opbench.cu /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp8_probe.cu /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/fp4_plan_cache.cuh
+8085b41aa59c57a65bb9a1131dd51750fb9db90fd93fbb200f132434a1e1eb89  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/Makefile
+3240546f20c9bae73ef109a8412534379d034683de6e3fed05683a997e0bc1e4  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_gemm_bench.cu
+a80e32f8783ae92b26e37af8d195d57527deb831d644d8a7c85b251ff7ba431a  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_opbench.cu
+a529f0eb0d2b5b6350caabb9d301d0b56116eed0c96d28445e2353d26c44f0e7  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp8_probe.cu
+266b37eb1bfb3c265a991747b50689ba55399edb73a59db587b5c53b4ebed812  /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/cublaslt_fp4_adapter.cu
+8bc6d82e1fae144e80ca3186643a9de8b7ffe6a0ff45677465a4ea8723b1eda4  /home/zhaosiying/codebase/fp4vla/third_party/apxinf-robo/apxinf/crates/apxinf-cuda/adapters/fp4_plan_cache.cuh
++ sha256sum /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_gemm_bench /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_opbench /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp8_probe
+94207566d88323ea9c35f41d8510a8934f43b67808ddd0e8e5e6e6d83eabb58a  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_gemm_bench
+00b7ecc0816115490d44e56381fd068d72239274126280e8494134c62f2e9e5f  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp4_opbench
+253679481ab211998bb569887ca35e5d400a5aee1b27447b314547628a0864be  /home/zhaosiying/codebase/fp4vla/paper/_build/capture_compile_20261006/build_r3/fp8_probe

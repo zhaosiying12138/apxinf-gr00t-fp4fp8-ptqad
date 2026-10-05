@@ -1,0 +1,26 @@
+{
+  "format": "w4a4_paired_analysis_plan_v1",
+  "date": "2026-10-02",
+  "timing": "Specified while the first QAD candidate was training, before any v11 heldout evaluation. This supplements, and does not rewrite, the frozen experimental protocol.",
+  "estimand": "Equal-weight mean success-rate difference across the ten fixed LIBERO-10 tasks, treatment minus baseline",
+  "contrasts": {
+    "ptq_vs_bf16": ["bf16", "ptq"],
+    "qad_vs_ptq": ["ptq", "qad"],
+    "opd_vs_qad": ["qad", "qad_opd"],
+    "opd_vs_continued_qad": ["continued_qad", "qad_opd"]
+  },
+  "confidence_interval": {
+    "method": "paired percentile bootstrap, resampling episodes within each fixed task",
+    "level": 0.95,
+    "replicates": 20000,
+    "seed": 20261002,
+    "quantile": "linear interpolation, rank (B-1)*p"
+  },
+  "tests": {
+    "method": "exact two-sided McNemar on paired episode outcomes",
+    "null_and_assumptions": "Independent discordant signs, with baseline and treatment labels exchangeable within every task under the null (each sign has probability 0.5). Equality of the task-macro average alone is a weaker null and does not guarantee this exact binomial distribution. Holm inherits the component tests' assumptions.",
+    "multiplicity": "Holm correction across the four named contrasts",
+    "alpha": 0.05
+  },
+  "interpretation": "Intervals are pointwise, conditional on these ten tasks and one training seed; they do not establish generalization to unseen tasks. Inference assumes independently sampled episodes within each task. The official bank is finite and policies share task structure, so tests remain conditional evidence, not an unconditional significance guarantee. A zero-discordance empirical bootstrap can be degenerate and does not prove equivalence. Report all four contrasts regardless of sign; no automatic success gate or power guarantee."
+}

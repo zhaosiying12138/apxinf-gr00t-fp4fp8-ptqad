@@ -2,9 +2,9 @@
 
 主稿：**PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与 QAD/OPD 闭环恢复**。
 
-- `paper.html`：单文件离线阅读版，包含公式、字体、图表和 17 个截图环节；已完成截图可点击放大。
+- `paper.html`：单文件离线阅读版，包含公式、字体、图表和全部 17 个截图环节；截图可点击放大。
 - `zhihu/article.md`：与 HTML 共用正文的 Markdown 发表稿，代码块和 LaTeX 公式完整保留。
-- `zhihu/images/`：技术图、数据图与运行截图。`figures.json` 记录图位及更新状态；`evidence/captures.json` 与 `evidence/retained_captures.json` 记录来源和哈希，正式校验合并 15 张当前截图与 2 张经批准保留的 BF16 截图。
+- `zhihu/images/`：技术图、数据图与运行截图。`figures.json` 记录图位说明；`evidence/captures.json` 与 `evidence/retained_captures.json` 记录来源和哈希，正式校验合并 15 张当前截图与 2 张经批准保留的 BF16 截图，覆盖全部 17 个图位。
 - `sections/`：唯一正文源；修改正文后重建两种格式，避免手动修改生成文件。
 - `evidence/`：本文实验的结果数组、配置、运行日志、来源散列与截图清单。
 - `validation/`：发布完整性与浏览器排版校验报告。
@@ -29,7 +29,7 @@ uv run --with-requirements paper/requirements-build.txt python paper/validate_pu
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
-当前审阅稿使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成：展示 12 张已核对截图，另 5 个环节以文字占位等待本轮实拍；旧画面只在内部保留，红色 `xxx` 表示结果未完成。正式发布前须回填完整结果、实拍替换五图并解除对应的 `refresh_pending` 标记，再执行上述构建流程。`validate_publication.py` 会拒绝仍含占位的审阅稿。
+当前发布稿由 `build_html.py` 和 `export_zhihu.py` 生成，展示全部 17 个已登记图位。QAD、教师标注、OPD、策略服务和学生采集五个受 W4A4 实现影响的环节已按本轮命令重新实拍；其余环节沿用已核验来源。`validate_publication.py` 会核对最终结果、图位、截图哈希、代码块和离线资源，拒绝缺失证据的发布包。
 
 `make_figs.py` 从结果 JSON 读取图表数值，并验证缩放地址映射。截图文件不会由构建脚本改写。`validate_publication.py` 核对已审验截图的 SHA-256、全部图位、代码块、图像路径和离线资源完整性。
 

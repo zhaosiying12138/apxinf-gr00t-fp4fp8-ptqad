@@ -84,7 +84,11 @@ def main():
     # Control markers are editorial metadata, never reader-visible prose.
     md = re.sub(r'<!-- (?:BEGIN|END) [A-Z0-9 ]+ -->', '', md)
     md, maths, math_sources = math_and_code(md)
-    parser = MarkdownIt('commonmark', {'html': False, 'typographer': False}).enable('table')
+    # The manuscript uses a small, reviewed subset of inline HTML for result
+    # status markers (for example the red ``xxx`` placeholders in a review
+    # draft).  Passing HTML through keeps those markers semantic and styled;
+    # all prose and code still goes through MarkdownIt's normal escaping.
+    parser = MarkdownIt('commonmark', {'html': True, 'typographer': False}).enable('table')
     doc = parser.render(md)
     for i, result in enumerate(maths):
         token = f'FPVMATHTOKEN{i}END'

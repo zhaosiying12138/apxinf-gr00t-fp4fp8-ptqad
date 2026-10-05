@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "source": {
+    "kind": "local_skill_snapshot",
+    "skill": "wsl-ubuntu-screenshot",
+    "snapshot_date": "2026-10-06",
+    "copy_mode": "byte_for_byte",
+    "behavior_changes": false
+  },
+  "files": [
+    {
+      "path": "capture_session.ps1",
+      "source_path": "wsl-ubuntu-screenshot/scripts/capture_session.ps1",
+      "bytes": 4142,
+      "source_sha256": "4fa6664bbb8b6eb6699dd70e269702013ab3fe4f9a017c92b44be548b6451146",
+      "sha256": "4fa6664bbb8b6eb6699dd70e269702013ab3fe4f9a017c92b44be548b6451146"
+    },
+    {
+      "path": "capture_validation.ps1",
+      "source_path": "wsl-ubuntu-screenshot/scripts/capture_validation.ps1",
+      "bytes": 3286,
+      "source_sha256": "079c0145c959c5954eaf666d7605b390a2fadceac32dd6df6923479f7279bb4c",
+      "sha256": "079c0145c959c5954eaf666d7605b390a2fadceac32dd6df6923479f7279bb4c"
+    },
+    {
+      "path": "take_shot_full.ps1",
+      "source_path": "wsl-ubuntu-screenshot/scripts/take_shot_full.ps1",
+      "bytes": 16915,
+      "source_sha256": "9073f112c8f297e38bdcd6ca244b87adfde4ed46007b35f2336a22c03604b625",
+      "sha256": "9073f112c8f297e38bdcd6ca244b87adfde4ed46007b35f2336a22c03604b625"
+    },
+    {
+      "path": "wt_purple_on.ps1",
+      "source_path": "wsl-ubuntu-screenshot/scripts/wt_purple_on.ps1",
+      "bytes": 1147,
+      "source_sha256": "99f02793d36e4381cb9d7938a7b68a9f8620942b15caea2dba8a60a4201bad31",
+      "sha256": "99f02793d36e4381cb9d7938a7b68a9f8620942b15caea2dba8a60a4201bad31"
+    },
+    {
+      "path": "wt_purple_off.ps1",
+      "source_path": "wsl-ubuntu-screenshot/scripts/wt_purple_off.ps1",
+      "bytes": 405,
+      "source_sha256": "d8afe92cd9eda98c833b67a74326e1c553e6df8dbbf30f5492b9fadcf95f88ef",
+      "sha256": "d8afe92cd9eda98c833b67a74326e1c553e6df8dbbf30f5492b9fadcf95f88ef"
+    },
+    {
+      "path": "crop_taskbar.py",
+      "source_path": "wsl-ubuntu-screenshot/scripts/crop_taskbar.py",
+      "bytes": 3066,
+      "source_sha256": "21a07fc4b58cc2d98399755e2d2ab04b049af864f40e6039a887c944369e7bec",
+      "sha256": "21a07fc4b58cc2d98399755e2d2ab04b049af864f40e6039a887c944369e7bec"
+    },
+    {
+      "path": "run_raw.sh",
+      "source_path": "wsl-ubuntu-screenshot/scripts/run_raw.sh",
+      "bytes": 268,
+      "source_sha256": "ef28c36ec4cbc0d2194342a144778d51b5f5eed9cba3eaa590e6fa3afa8ace06",
+      "sha256": "ef28c36ec4cbc0d2194342a144778d51b5f5eed9cba3eaa590e6fa3afa8ace06"
+    }
+  ],
+  "excluded": [
+    "sh_common.sh"
+  ],
+  "note": "Original execution and capture helpers only. No experiment image or approved sample is included."
+}

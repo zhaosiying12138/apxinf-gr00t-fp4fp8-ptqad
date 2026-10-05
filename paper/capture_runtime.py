@@ -59,7 +59,8 @@ DEFAULT_SOURCE_FILES = (
     'paper/extract_final_evidence.py', 'paper/render_recovery_results.py',
     'paper/build_final_frontier.py', 'paper/build_recipe_inventory_v11.py',
     'paper/materialize_final_evidence.py', 'paper/collect_pairing_evidence.py',
-    'paper/collect_training_costs.py', 'exp/audit_recovery_release.py',
+    'paper/collect_training_costs.py', 'paper/collect_search_costs.py',
+    'exp/audit_recovery_release.py',
 )
 
 

@@ -1,0 +1,4 @@
+# Keep the audited source bytes on Windows and Linux checkouts alike.
+*.ps1 -text
+*.py -text
+*.sh -text

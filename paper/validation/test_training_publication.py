@@ -50,8 +50,18 @@ def fixture():
             # same selected QAD adapter and use the frozen additional budget.
             recovery={'trainable_parameters':residual['tensor_elements'],
                       **{key:residual[key] for key in ('rank','alpha','scope')},
-                      'w4a4_enabled':True,
+                      'w4a4_enabled':True,'protocol_sha256':validation.sha(protocol),
                       'init_adapter':None if arm=='qad' else runtime['checkpoints']['qad']['path']}
+            env={'QAD_W4A4':'1'}
+            if arm=='qad':
+                recovery['recovery_source_sha256']=dict(validation.LEGACY_STRICT_QAD_SOURCES)
+            else:
+                recovery.update(max_grad_norm=.25,f16_activation_saturation=True)
+                env.update(QAD_MAX_GRAD_NORM='0.25',FP4VLA_SATURATE_F16_ACTIVATIONS='1')
+            write('stages/'+arm+'/recovery_manifest.json',recovery,root/arm/'recovery_manifest.json')
+            write('stages/'+arm+'/orchestrator_training_request.json',
+                  {'protocol_sha256':validation.sha(protocol),'environment':env},
+                  root/arm/'orchestrator_training_request.json')
             merge={'output_weights':{'model.safetensors':{k:v for k,v in runtime['checkpoints'][arm]['files'][0].items() if k!='name'}},
                    'base_weights':{'model.safetensors':identity('b')},
                    'lora_pairs':residual['linear_modules'],'recovery_manifest':recovery}
@@ -69,6 +79,16 @@ def fixture():
         fake=SimpleNamespace(verify_published=lambda path:copy.deepcopy(costs))
         with patch.object(validation,'P',paper),patch.dict(sys.modules,{'collect_training_costs':fake}):
             yield runtime,folder,costs,fake
+
+
+def rewrite_record(folder, relative, change):
+    """Mutate a fixture while retaining a valid archive hash for semantic tests."""
+    path=folder/relative;value=json.loads(path.read_text());change(value)
+    path.write_text(json.dumps(value))
+    mapping=json.loads((folder/'evidence_manifest.json').read_text())
+    row=next(row for row in mapping['files'] if row['published_path']==relative)
+    row.update(bytes=path.stat().st_size,sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    (folder/'evidence_manifest.json').write_text(json.dumps(mapping))
 
 
 class TrainingPublicationTests(unittest.TestCase):
@@ -151,6 +171,45 @@ class TrainingPublicationTests(unittest.TestCase):
             protocol.write_text(json.dumps(data));costs['protocol_sha256']=validation.sha(protocol)
             with self.assertRaisesRegex(RuntimeError,'frozen v11 W4A4 category protocol'):
                 validation.check_training_costs(runtime,set())
+
+    def test_continuation_missing_numerical_request_rejected_without_summary(self):
+        for arm in ('continued_qad','qad_opd'):
+            with self.subTest(arm=arm),fixture() as (runtime,folder,_,_):
+                rewrite_record(folder,'stages/'+arm+'/orchestrator_training_request.json',
+                               lambda data:data['environment'].pop('QAD_MAX_GRAD_NORM'))
+                with self.assertRaisesRegex(RuntimeError,'numerical request differs'):
+                    validation.check_training_costs(runtime,set())
+
+    def test_conflicting_numerical_request_rejected(self):
+        for key,value in [('QAD_MAX_GRAD_NORM','1.0'),('FP4VLA_SATURATE_F16_ACTIVATIONS','0'),
+                          ('QAD_W4A4','0')]:
+            with self.subTest(key=key),fixture() as (runtime,folder,_,_):
+                rewrite_record(folder,'stages/qad_opd/orchestrator_training_request.json',
+                               lambda data:data['environment'].update({key:value}))
+                with self.assertRaisesRegex(RuntimeError,'numerical request'):
+                    validation.check_training_costs(runtime,set())
+
+    def test_legacy_qad_request_cannot_enable_unrecorded_numerical_setting(self):
+        with fixture() as (runtime,folder,_,_):
+            rewrite_record(folder,'stages/qad/orchestrator_training_request.json',
+                           lambda data:data['environment'].update(FP4VLA_SATURATE_F16_ACTIVATIONS='1'))
+            with self.assertRaisesRegex(RuntimeError,'Legacy QAD request conflicts'):
+                validation.check_training_costs(runtime,set())
+
+    def test_numerical_summary_must_agree_when_present(self):
+        for saturation in ('1','0'):
+            with self.subTest(saturation=saturation),fixture() as (runtime,folder,_,_):
+                summary={'variables':{'QAD_W4A4':'1','QAD_MAX_GRAD_NORM':'0.25',
+                                     'FP4VLA_SATURATE_F16_ACTIVATIONS':saturation}}
+                rewrite_record(folder,'stages/qad_opd/recovery_manifest.json',
+                               lambda data:data.update(environment_summary=summary))
+                rewrite_record(folder,'exports/qad_opd/merge_manifest.json',
+                               lambda data:data['recovery_manifest'].update(environment_summary=summary))
+                if saturation=='1':
+                    validation.check_training_costs(runtime,set())
+                else:
+                    with self.assertRaisesRegex(RuntimeError,'environment summary differs'):
+                        validation.check_training_costs(runtime,set())
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

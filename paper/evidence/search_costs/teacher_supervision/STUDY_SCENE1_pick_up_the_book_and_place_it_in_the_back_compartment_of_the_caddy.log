@@ -1,0 +1,38 @@
+[robosuite WARNING] No private macro file found! (__init__.py:7)
+[robosuite WARNING] It is recommended to use a private macro file (__init__.py:8)
+[robosuite WARNING] To setup, run: python /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/robosuite/scripts/setup_macros.py (__init__.py:9)
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[Warning]: datasets path /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/external_dependencies/LIBERO/libero/libero/../datasets does not exist!
+Running collecting 4 episodes for libero_sim/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy with 1 vec envs
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+[info] using task orders [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy", "episode_index": 0, "seed": 955000, "task_id": 5, "init_state_index": 20, "init_state_bank_size": 50, "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8", "restored_state_sha256": "b24f3f70bf76139e2ac2b1cbd7c9a49f90e99230c7b3bd88a203185505e171f3", "settle_steps": 10, "initial_state_sha256": "778e0a51d2ef425e75df063b9cad213bba65210e211fdda115517f836f3eee25"}
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `reset()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `reset()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/spaces/box.py:240: UserWarning: [33mWARN: Casting input x to numpy array.[0m
+  gym.logger.warn("Casting input x to numpy array.")
+Episodes:   0%|          | 0/4 [00:00<?, ?it/s]/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:159: UserWarning: [33mWARN: The obs returned by the `step()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:135: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting numpy array dtype to be float32, actual type: float64[0m
+  logger.warn(
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/lib/python3.12/site-packages/gymnasium/utils/passive_env_checker.py:131: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy", "episode_index": 1, "seed": 955001, "task_id": 5, "init_state_index": 21, "init_state_bank_size": 50, "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8", "restored_state_sha256": "9013f031f4c1a778fbb40b0634efc46638cc304496be66010feda196903a1bbe", "settle_steps": 10, "initial_state_sha256": "ee3c5211e52d2eda73e5d888d895d703f124cf68faf644afab8956b1ca11b8c3"}
+Episodes:  25%|██▌       | 1/4 [00:17<00:53, 17.79s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy", "episode_index": 2, "seed": 955002, "task_id": 5, "init_state_index": 22, "init_state_bank_size": 50, "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8", "restored_state_sha256": "3aa2c56f7ec59b999707f06a1c0e30518811d3f80b9acaac146240620abfdbf8", "settle_steps": 10, "initial_state_sha256": "61e8b31704581b92e4f5207e7865f3360b02042d6b66ec3ceb1aaead9e242796"}
+Episodes:  50%|█████     | 2/4 [00:34<00:34, 17.13s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy", "episode_index": 3, "seed": 955003, "task_id": 5, "init_state_index": 23, "init_state_bank_size": 50, "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8", "restored_state_sha256": "5840a65893922afe280fbbd0d513f4e0251579b5f591c08371cf0da0ce5e19df", "settle_steps": 10, "initial_state_sha256": "468d034f8a8ecdeb0790ce750d552de42059f570d798f45a9c22f6a00a3b0c77"}
+Episodes:  75%|███████▌  | 3/4 [00:48<00:15, 15.73s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy", "episode_index": 4, "seed": 955004, "task_id": 5, "init_state_index": 20, "init_state_bank_size": 50, "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8", "restored_state_sha256": "b24f3f70bf76139e2ac2b1cbd7c9a49f90e99230c7b3bd88a203185505e171f3", "settle_steps": 10, "initial_state_sha256": "778e0a51d2ef425e75df063b9cad213bba65210e211fdda115517f836f3eee25"}
+Episodes: 100%|██████████| 4/4 [01:03<00:00, 15.62s/it]FP4VLA_EPISODE_RESET {"event": "reset", "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy", "episode_index": 5, "seed": 955005, "task_id": 5, "init_state_index": 21, "init_state_bank_size": 50, "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8", "restored_state_sha256": "9013f031f4c1a778fbb40b0634efc46638cc304496be66010feda196903a1bbe", "settle_steps": 10, "initial_state_sha256": "ee3c5211e52d2eda73e5d888d895d703f124cf68faf644afab8956b1ca11b8c3"}
+Episodes: 100%|██████████| 4/4 [01:05<00:00, 16.38s/it]
+Collecting 4 episodes took 69.76540565490723 seconds
+Video saved to:  /home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_teacher_supervision/videos/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy
+results:  ('libero_sim/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy', [True, True, True, True], {'episode_lengths': [200, 194, 164, 183], 'episode_rewards': [1.0, 1.0, 1.0, 1.0]})
+success rate:  1.0

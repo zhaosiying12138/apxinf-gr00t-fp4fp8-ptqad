@@ -1,26 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="510" viewBox="0 0 1100 510" role="img" aria-label="闭环恢复：五臂对照" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="635" viewBox="0 0 1100 635" role="img" aria-label="同协议闭环结果：量化、演示恢复与后续蒸馏" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
 <rect width="100%" height="100%" fill="white"/>
-<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">闭环恢复：五臂对照</tspan></text>
-<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">结构审阅稿 · 红色 xxx% 等待独立评测；不预画收益高度。</tspan></text>
-<rect x="30" y="102" width="1040" height="52" fill="#f4f7f8" stroke="none" rx="5"/>
-<text x="48" y="134" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">BF16</tspan></text>
-<text x="250" y="134" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">原始模型参考</tspan></text>
-<text x="985" y="134" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
-<rect x="30" y="167" width="1040" height="52" fill="#f4f7f8" stroke="none" rx="5"/>
-<text x="48" y="199" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">PTQ</tspan></text>
-<text x="250" y="199" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">冻结 W4A4 配方</tspan></text>
-<text x="985" y="199" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
-<rect x="30" y="232" width="1040" height="52" fill="#f4f7f8" stroke="none" rx="5"/>
-<text x="48" y="264" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">QAD</tspan></text>
-<text x="250" y="264" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">量化基座＋演示恢复</tspan></text>
-<text x="985" y="264" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
-<rect x="30" y="297" width="1040" height="52" fill="#f4f7f8" stroke="none" rx="5"/>
-<text x="48" y="329" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">继续 QAD</tspan></text>
-<text x="250" y="329" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">从同一 QAD 检查点继续演示训练</tspan></text>
-<text x="985" y="329" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
-<rect x="30" y="362" width="1040" height="52" fill="#f4f7f8" stroke="none" rx="5"/>
-<text x="48" y="394" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">QAD + OPD</tspan></text>
-<text x="250" y="394" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">从同一 QAD 检查点加入教师监督</tspan></text>
-<text x="985" y="394" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx%</tspan></text>
-<text x="32" y="475" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">每臂 10 任务 × 16 回合（160 回合）；最终补齐逐任务计数与 OPD 的两项增量比较。</tspan></text>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">同协议闭环结果：量化、演示恢复与后续蒸馏</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">LIBERO-10 · 五臂逐集环境初态配对已验真 · 每行给出成功数 / 实际回合数</tspan></text>
+<path d="M235.0,101 L235.0,448" stroke="#d9e4e9" fill="none"/>
+<text x="235.0" y="475" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">0%</tspan></text>
+<path d="M388.75,101 L388.75,448" stroke="#d9e4e9" fill="none"/>
+<text x="388.75" y="475" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">25%</tspan></text>
+<path d="M542.5,101 L542.5,448" stroke="#d9e4e9" fill="none"/>
+<text x="542.5" y="475" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">50%</tspan></text>
+<path d="M696.25,101 L696.25,448" stroke="#d9e4e9" fill="none"/>
+<text x="696.25" y="475" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">75%</tspan></text>
+<path d="M850.0,101 L850.0,448" stroke="#d9e4e9" fill="none"/>
+<text x="850.0" y="475" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">100%</tspan></text>
+<text x="30" y="140" fill="#7e97a8" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">BF16</tspan></text>
+<rect x="235" y="118" width="557.34375" height="32" fill="#7e97a8" stroke="none" rx="5"/>
+<text x="802.34375" y="139" fill="#7e97a8" font-size="16" font-weight="600" text-anchor="start"><tspan dy="0" font-size="16">90.6%  (145/160)</tspan></text>
+<text x="30" y="205" fill="#b97824" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">PTQ</tspan></text>
+<rect x="235" y="183" width="557.34375" height="32" fill="#b97824" stroke="none" rx="5"/>
+<text x="802.34375" y="204" fill="#b97824" font-size="16" font-weight="600" text-anchor="start"><tspan dy="0" font-size="16">90.6%  (145/160)</tspan></text>
+<text x="30" y="270" fill="#2368a0" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">QAD</tspan></text>
+<rect x="235" y="248" width="553.5" height="32" fill="#2368a0" stroke="none" rx="5"/>
+<text x="798.5" y="269" fill="#2368a0" font-size="16" font-weight="600" text-anchor="start"><tspan dy="0" font-size="16">90.0%  (144/160)</tspan></text>
+<text x="30" y="335" fill="#6098bf" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">继续 QAD</tspan></text>
+<rect x="235" y="313" width="399.75" height="32" fill="#6098bf" stroke="none" rx="5"/>
+<text x="644.75" y="334" fill="#6098bf" font-size="16" font-weight="600" text-anchor="start"><tspan dy="0" font-size="16">65.0%  (104/160)</tspan></text>
+<text x="30" y="400" fill="#258577" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">QAD + OPD</tspan></text>
+<rect x="235" y="378" width="515.0625" height="32" fill="#258577" stroke="none" rx="5"/>
+<text x="760.0625" y="399" fill="#258577" font-size="16" font-weight="600" text-anchor="start"><tspan dy="0" font-size="16">83.8%  (134/160)</tspan></text>
+<rect x="30" y="503" width="1040" height="69" fill="#e8f2ee" stroke="none" rx="5"/>
+<text x="48" y="531" fill="#258577" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">OPD − QAD：-6.2 个百分点</tspan></text>
+<text x="553" y="531" fill="#258577" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">OPD − 继续 QAD：+18.8 个百分点</tspan></text>
+<text x="48" y="557" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">各任务回合数相等，总成功率等于任务宏平均；逐任务结果与配对差异见正文。</tspan></text>
+<text x="30" y="603" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">两条续训分支共享 QAD 起点与演示更新预算；OPD 另用学生访问数据、教师标签和探针计算。</tspan></text>
 </svg>

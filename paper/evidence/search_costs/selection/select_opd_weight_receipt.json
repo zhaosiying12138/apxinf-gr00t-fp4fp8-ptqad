@@ -1,0 +1,16 @@
+{
+  "stage": "select_opd_weight",
+  "status": "complete",
+  "completed_utc": "2026-10-04T17:27:52Z",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "selection_sha256": "d6ca9c938b9d296e81882965c20aed3f78c8e44c40bf979649f98fa99ccce299",
+  "orchestrator_source_sha256": "9d5888bf96dc81191142f9ae1a896047176a5791c5d9c48aa932186cd084f9e7",
+  "output": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/select_opd_weight",
+  "adopted": false,
+  "selection_identity": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/select_opd_weight/selection.json",
+    "bytes": 42532,
+    "sha256": "fe50bf234b55ce6b3206e341f43eb0c959dd31daa39b13ec5925d995e63d0a25"
+  }
+}

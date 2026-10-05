@@ -76,7 +76,7 @@
     "storage_note": "Target FP4 payload plus E4M3 scale/16 and FP32 scale per category; includes internal K padding. FP8 uses FP32 row scales. Excludes runtime alignment/activations/LoRA residuals. Checkpoint shards remain original dtype. Inactive categories do not contribute to LIBERO execution."
   },
   "source_recipe": "category_ptq_recipe.json",
-  "source_recipe_sha256": "2ad0a80552c0f6d89c7977f71567173ff0fb63f34eff48ae192501c9d56c49db",
+  "source_recipe_sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
   "weight_allocation": "nvfp4_only",
   "note": "Format fractions use the recorded eligible-element denominator; runtime storage and LoRA residuals are separate."
 }

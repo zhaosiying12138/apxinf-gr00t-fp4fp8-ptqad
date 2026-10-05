@@ -1,0 +1,32 @@
+{
+  "status": "completed",
+  "error": null,
+  "wall_seconds": 34317.012404267996,
+  "timing_scope": "script import through training and checkpoint serialization",
+  "global_steps": 2000,
+  "requested_optimizer_steps": 2000,
+  "cuda_peak_memory": [
+    {
+      "device_index": 0,
+      "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "max_memory_allocated_bytes": 15904500224,
+      "max_memory_reserved_bytes": 16160653312,
+      "memory_allocated_bytes_at_end": 13473286656,
+      "memory_reserved_bytes_at_end": 16160653312
+    }
+  ],
+  "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",
+  "parameter_storage_by_dtype": {
+    "float32": {
+      "tensors": 1966,
+      "parameters": 3217014912,
+      "bytes": 12868059648,
+      "trainable_parameters": 72998912
+    }
+  },
+  "compute_dtype": "bfloat16",
+  "micro_batch": 1,
+  "effective_global_batch": 16,
+  "gradient_accumulation_steps": 16,
+  "activation_checkpointing_enabled": true
+}

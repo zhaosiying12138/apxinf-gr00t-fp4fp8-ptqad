@@ -9,8 +9,9 @@
 | selected_recipe/ | v11 W4A4 的逐层配方、全 NVFP4 分配、尺度开销和 tied alias 去重口径 |
 | final_results.json | 从最终 manifest 提取的五臂摘要；每臂 10 个任务、每任务 16 个 episode |
 | paired_comparison.json | 五臂使用相同任务、初态身份和分母的逐任务配对比较 |
-| heldout_arm/ | BF16、全 NVFP4 W4A4 PTQ、QAD、continued-QAD、QAD+OPD 各自的 manifest、task results 和 summary |
+| heldout_arm/、heldout_raw_logs.json | 五臂各自的 manifest、task results、summary，以及全部 50 份 rollout 日志与 50 份 server 日志；校验器重放原始日志解析并核对结果与 reset 身份 |
 | training/ | QAD、continued-QAD、OPD 的训练请求、runtime metrics、合并清单和教师缓存来源 |
+| search_costs/ | 全部五个恢复候选的训练、开发评测和导出成本，以及演示采集、学生采集、教师标注与选择收据；独立校验不依赖作者磁盘上的模型与缓存 |
 | captures.json、retained_captures.json、captures/ | 真实 Ubuntu 执行截图及其 SHA-256、尺寸和 sidecar；正式校验合并 15 张当前截图与 2 张经批准保留的 BF16 截图，共 17 张 |
 | recipe_inventory.json | 从 v11 category recipe 计算的编码预算；不把预算当成实测文件大小或延迟 |
 
@@ -26,7 +27,7 @@ GR00T 闭环采用全 NVFP4 权重、NVFP4 激活 QDQ 的 W4A4 数值路径；AP
 
 最终证据生成后，在仓库根目录运行：
 
-    python3 paper/validate_publication.py
-    python3 paper/package_publication.py
+    uv run --with-requirements paper/requirements-build.txt python paper/validate_publication.py
+    uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 
 验证器会拒绝缺少五臂、分母不完整、配对身份不一致、占位符或截图哈希错误的发布包。

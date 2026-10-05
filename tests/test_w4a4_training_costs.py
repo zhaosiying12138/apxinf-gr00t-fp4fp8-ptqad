@@ -61,6 +61,52 @@ class W4A4TrainingCosts(unittest.TestCase):
         state={'implementation_sha256':cost.identity(ROOT/'exp/run_high_fp4_v3.py')['sha256']}
         self.assertEqual(cost.orchestrator_source(PROTOCOL,state),'exp/run_high_fp4_v3.py')
 
+    def test_initialization_resolution_ignores_later_driver_amendment(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'exp').mkdir()
+            initial=root/'exp/run_high_fp4_v3_producer.py';initial.write_text('initial synthetic source')
+            resumed=root/'exp/run_high_fp4_v3.py';resumed.write_text('resumed synthetic source')
+            state={'implementation_sha256':cost.identity(initial)['sha256'],
+                   'orchestrator_source_sha256':cost.identity(resumed)['sha256']}
+            before=copy.deepcopy(state)
+            self.assertEqual(cost.orchestrator_source(PROTOCOL,state,root),
+                             'exp/run_high_fp4_v3_producer.py')
+            self.assertEqual(state,before)
+            initial.unlink()
+            with self.assertRaisesRegex(ValueError,'no matching source bytes'):
+                cost.orchestrator_source(PROTOCOL,state,root)
+            initial.write_text('wrong initial bytes')
+            with self.assertRaisesRegex(ValueError,'no matching source bytes'):
+                cost.orchestrator_source(PROTOCOL,state,root)
+            del state['implementation_sha256']
+            with self.assertRaisesRegex(ValueError,'initialization implementation SHA'):
+                cost.orchestrator_source(PROTOCOL,state,root)
+
+    def test_explicit_initialization_path_must_match_its_own_digest(self):
+        state={'implementation_path':'exp/run_high_fp4_v3.py',
+               'implementation_sha256':cost.identity(ROOT/'exp/run_high_fp4_v3_producer.py')['sha256'],
+               'orchestrator_source_sha256':cost.identity(ROOT/'exp/run_high_fp4_v3.py')['sha256']}
+        with self.assertRaisesRegex(ValueError,'path differs from recorded SHA'):
+            cost.orchestrator_source(PROTOCOL,state)
+
+    def test_amended_orchestrator_keeps_initial_source_in_portable_package(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);run,private,protocol,cache=v3_run(root);out=root/'costs'
+            path=run/'run_manifest.json';state=read(path)
+            initial='exp/run_high_fp4_v3_producer.py'
+            state.update(implementation_sha256=cost.identity(ROOT/initial)['sha256'],
+                         orchestrator_source_sha256=cost.identity(ROOT/'exp/run_high_fp4_v3.py')['sha256'])
+            write(path,state);original=path.read_bytes()
+            with patch.dict(sys.modules,{'torch':types.SimpleNamespace(load=lambda *a,**kw:cache)}):
+                result=cost.collect(None,None,None,out,protocol,orchestrator_run=run)
+            self.assertEqual(path.read_bytes(),original)
+            self.assertEqual((out/'source'/initial).read_bytes(),(ROOT/initial).read_bytes())
+            self.assertEqual(result['recovery_provenance']['initialization_snapshot']['sha256'],
+                             state['implementation_sha256'])
+            self.assertEqual(result['recovery_provenance']['launch_snapshot_coverage'],'none')
+            shutil.rmtree(private)
+            self.assertEqual(cost.verify_published(out),result)
+
     def test_capture_tail_budget_and_epoch_are_bound(self):
         with tempfile.TemporaryDirectory() as directory:
             folder,manifest,protocol,sha=capture_stage(Path(directory))

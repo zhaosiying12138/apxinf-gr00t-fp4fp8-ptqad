@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "status": "passed",
+  "generated_utc": "2026-10-05T21:17:43.502272+00:00",
+  "scope": "All non-screenshot SVGs generated from the recorded current inputs in one successful run.",
+  "generator": {
+    "path": "paper/make_figs.py",
+    "sha256": "4475d5f0924b1eb25907bb4d3cc897f32fca2857eda53636cc36482f275d59e3",
+    "bytes": 46580
+  },
+  "inputs": [
+    {
+      "path": "paper/evidence/frontier_comparison.json",
+      "sha256": "e53bf3fbc682c979dcc0b0a6c6598b568c749b7a70b0e0f6a266614de9590aed",
+      "bytes": 14920
+    },
+    {
+      "path": "paper/evidence/paired_comparison.json",
+      "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392",
+      "bytes": 494565
+    },
+    {
+      "path": "paper/evidence/recipe_inventory.json",
+      "sha256": "45f7f5e34b83456965fcd1e110361f5982542e9b5a689e73b93deec16d8cd6b5",
+      "bytes": 6182
+    },
+    {
+      "path": "paper/evidence/selected_recipe/category_bake_manifest.json",
+      "sha256": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
+      "bytes": 13219
+    },
+    {
+      "path": "paper/evidence/selected_recipe/category_memory.json",
+      "sha256": "249cb167542779658462e34212719ce5af2d6acd4459831a6ceb25606a1f3c23",
+      "bytes": 2931
+    },
+    {
+      "path": "paper/evidence/selected_recipe/category_ptq_recipe.json",
+      "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+      "bytes": 337442
+    },
+    {
+      "path": "results/baselines/gr00t_pt_bf16_ptqad_20260929.json",
+      "sha256": "36f157fb7a764cb9aa27dab21baa1ea87785c004bab0c9b401e80decde1901ab",
+      "bytes": 4792
+    },
+    {
+      "path": "results/baselines/pi05_pt_bf16_ptqad_20260929.json",
+      "sha256": "c0446dfbd740b2056d4d4ddb37fa6ca10b8c1455f9cccac2a291745fe8a08aaa",
+      "bytes": 4154
+    },
+    {
+      "path": "results/engine/gr00t_bf16_ptqad_20260929.json",
+      "sha256": "6d980635fcf6d4cd75ebd15026df9dbac1f4bb7ecbcb1a33df5883487e7d437f",
+      "bytes": 36278
+    },
+    {
+      "path": "results/engine/pi05_bf16_ptqad_20260929.json",
+      "sha256": "7bbb2360704763d57ca9b6b1297debb8b8a16fc8001cc94d985dcccdf9532060",
+      "bytes": 38816
+    },
+    {
+      "path": "results/engine/pi05_nvfp4_ptqad_20260929.json",
+      "sha256": "4a476bb5a37e36695863410657394167c04f40f1da15e177e802cc50cd45c45e",
+      "bytes": 153336
+    }
+  ],
+  "svgs": [
+    {
+      "path": "paper/figs/budget_ladder.svg",
+      "sha256": "0e92fa7dac3489346c64589ff56ce630d06562d6668ca4b1bf0225b6743a006b",
+      "bytes": 6599
+    },
+    {
+      "path": "paper/figs/e1_latency.svg",
+      "sha256": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
+      "bytes": 5308
+    },
+    {
+      "path": "paper/figs/gptq_block.svg",
+      "sha256": "b76200e8d5f3018b454b672f8c2e8ffedf08ad302353bc2e9b1c3c80c70fae23",
+      "bytes": 8363
+    },
+    {
+      "path": "paper/figs/ladder.svg",
+      "sha256": "8bdc5a04ec9809557d7548bcaef056e910fde95263dfd263148e6cd617f99772",
+      "bytes": 4568
+    },
+    {
+      "path": "paper/figs/ptq_frontier.svg",
+      "sha256": "7c6ebef17639ba2cb651b901c75d998f9e76052f03940ce1e927bd9840797c77",
+      "bytes": 13501
+    },
+    {
+      "path": "paper/figs/recovery_protocol.svg",
+      "sha256": "1d0a1e46bd762745951d8321ad943f2399a16ff0f3acae7344060ee80c0b8f90",
+      "bytes": 7836
+    },
+    {
+      "path": "paper/figs/swizzle_layout.svg",
+      "sha256": "62da8e6496c030f0fa5e17486051d0fd3ccedbf125376c0e23666b2085c02ff9",
+      "bytes": 12588
+    }
+  ]
+}

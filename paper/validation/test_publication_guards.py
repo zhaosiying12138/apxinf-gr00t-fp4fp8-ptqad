@@ -55,6 +55,20 @@ class Gates(unittest.TestCase):
                 validation.check_finished(f'<!-- BEGIN {name} -->\n本轮结果将在验证后填入。\n<!-- END {name} -->')
         validation.check_finished('<!-- BEGIN NATIVE RESULTS -->\n本轮实际中位数为 1 ms。\n<!-- END NATIVE RESULTS -->')
 
+    def test_actual_html_and_plain_result_placeholders_rejected(self):
+        for value in ('<span style="color:#b42318">xxx/160（xxx%）</span>',
+                      '<span style="color:#b42318">xxx</span>',
+                      '<span style="color:#b42318">[xxx, xxx]</span>',
+                      '成功率为 XX/160。','成功率为 160/XX。','成功率为 xxx%。',
+                      '结果待回填。'):
+            with self.subTest(value=value),self.assertRaisesRegex(RuntimeError,'Incomplete review draft'):
+                validation.check_finished(value)
+
+    def test_missing_measurement_discussion_is_not_a_result_placeholder(self):
+        validation.check_finished('采集及导出显存峰值、恢复链功耗与能量未记录，保留为缺测。'
+                                  '缺测项不参与性能结论，不用独立原生基准的遥测补填。')
+        validation.check_finished('成功率为 149/160（93.125%），差值区间为 [-2.5, 5.0]。')
+
     def test_markdown_includes_complete_prose_and_caption(self):
         with tempfile.TemporaryDirectory() as raw:
             path=Path(raw)/'one.md';path.write_text('正文甲。\n\n{{fig:test}}\n')

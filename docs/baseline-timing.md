@@ -48,7 +48,7 @@ CUDA_VISIBLE_DEVICES= "$PI05_ENV/bin/python" -c \
   'from lerobot.policies.pi05 import PI05Policy; print(PI05Policy.__module__)'
 ```
 
-实查本机安装环境的 CPU package 导入和 checkpoint config 解析已通过；本轮未安装新环境、未在本任务内运行 GPU 基准。权重和 `paligemma_tokenizer.model` 由 `setup/03_download_weights.sh` 下载步骤准备。
+本机已有环境的 CPU package 导入和 checkpoint config 解析已通过，CUDA 基准记录见下文；上述安装命令尚未在空白环境中验证。权重和 `paligemma_tokenizer.model` 由 `setup/03_download_weights.sh` 下载步骤准备。
 
 ## 3. π0.5：显式配置 BF16 后运行
 
@@ -73,4 +73,4 @@ CUDA_VISIBLE_DEVICES= "$PI05_ENV/bin/python" -c \
 
 JSON `schema_version=2` 包含 `dtype_config`、`dtype_policy`、`parameter_dtype_elements`、`compute_dtype.linear_io_signatures`、`timing_scope`、输入/源码哈希、随机种子、warmup 和样本量。`lat_all_ms` 保留实际执行顺序和未取整毫秒数，p50/p99 使用 NumPy 的线性插值百分位算法。PyTorch 显存指标在 warmup 后重置峰值，包含模型常驻与被测调用的分配，不包括其他进程或桌面显存。当前脚本不把无法采集的功耗填写成零。
 
-本轮 CPU 校验覆盖 tuple/有限值拒收、dtype hook 清理、BF16 config 覆盖及严格加载错误传播。完整 CUDA 加载与实际性能仍以随后新生成的 JSON 和运行日志为准。
+CPU 校验覆盖 tuple/有限值拒收、dtype hook 清理、BF16 config 覆盖及严格加载错误传播。已保留的 CUDA 实测分别见 [GR00T JSON](../results/baselines/gr00t_pt_bf16_ptqad_20260929.json)、[GR00T 日志](../results/baselines/gr00t_pt_bf16_ptqad_20260929.log)、[π0.5 JSON](../results/baselines/pi05_pt_bf16_ptqad_20260929.json)和[π0.5 日志](../results/baselines/pi05_pt_bf16_ptqad_20260929.log)。它们的完整指标与原生引擎指标分别列于[论文附录 C](../paper/sections/15-附录C-执行基准与完整测量.md)，保留各自输入、dtype 和计时范围，不据此推算未对齐运行时之间的等价加速比。

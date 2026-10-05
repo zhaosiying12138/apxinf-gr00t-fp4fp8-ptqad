@@ -11,6 +11,37 @@ import collect_training_costs
 
 
 class RecoveryInvocationTest(unittest.TestCase):
+    def test_resumed_launch_keeps_its_own_source_separate_from_initialization(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for relative in collect_training_costs.INVOCATION_SOURCES:
+                path=root/relative;path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_text('synthetic resumed '+relative)
+            initial=root/'exp/run_high_fp4_v3_producer.py';initial.write_text('synthetic initial source')
+            run=root/'run/recovery';(run/'stages').mkdir(parents=True)
+            selection=root/'selection.json';selection.write_text('{}')
+            log=root/'recovery.log';log.write_text('RETURN_CODE 0\n')
+            protocol='a'*64
+            state={'protocol_sha256':protocol,'stages':{},'selection_file':str(selection),
+                   'selection_sha256':collect_training_costs.identity(selection)['sha256'],
+                   'implementation_sha256':collect_training_costs.identity(initial)['sha256'],
+                   'orchestrator_source_sha256':collect_training_costs.identity(root/'exp/run_high_fp4_v3.py')['sha256']}
+            relative=collect_training_costs.orchestrator_source({'id':'w4a4-recovery-v11-category'},state,root)
+            self.assertEqual(relative,'exp/run_high_fp4_v3_producer.py')
+            folder=recovery_invocation.begin(root,run,'mixed-recovery-attempt-0001',
+                                             ['python','--until','all'],protocol,selection)
+            recovery_invocation.finish(folder,root,run,log)
+            record=collect_training_costs.verify_recovery_invocation(folder,protocol,state,run_dir=run)
+            launch=json.loads((folder/'invocation.json').read_text())
+            resumed=launch['sources']['exp/run_high_fp4_v3.py']['sha256']
+            self.assertEqual(resumed,state['orchestrator_source_sha256'])
+            self.assertNotEqual(resumed,state['implementation_sha256'])
+            summary=collect_training_costs.recovery_provenance_summary(state,[record],relative)
+            self.assertEqual(summary['initialization_snapshot']['sha256'],state['implementation_sha256'])
+            (folder/'source/exp/run_high_fp4_v3.py').write_text(initial.read_text())
+            with self.assertRaisesRegex(ValueError,'Invocation source snapshot.*hash differs'):
+                collect_training_costs.verify_recovery_invocation(folder,protocol,state,run_dir=run)
+
     def test_provenance_summary_preserves_unrecorded_initial_stages(self):
         state = {
             "protocol_sha256": "p", "implementation_sha256": "a" * 64,

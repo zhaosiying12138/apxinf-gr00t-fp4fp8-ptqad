@@ -1,0 +1,285 @@
+{
+  "format": "w4a4_completed_search_costs_v1",
+  "scope": "Completed recovery search stages; no heldout results or end-to-end wall clock",
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "selected_stages": {
+    "qad": "train_qad_lr_0.0001",
+    "continued_qad": "train_continued_qad",
+    "qad_opd": "train_opd_025"
+  },
+  "candidates": {
+    "train_qad_lr_5e-05": {
+      "role": "qad",
+      "selected": false,
+      "learning_rate": 5e-05,
+      "opd_weight": 0.0,
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "logged_teacher_backward_passes": 0,
+      "scheduled_teacher_backward_passes": 0,
+      "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
+      "wall_seconds": 34476.101168778,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15879192064,
+          "max_memory_reserved_bytes": 16055795712,
+          "memory_allocated_bytes_at_end": 13471189504,
+          "memory_reserved_bytes_at_end": 16055795712
+        }
+      ],
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "development_wall_seconds": 4552.373344182968,
+      "development_episodes": 50,
+      "export_reported_seconds": 42.191280364990234,
+      "export_tensor_bytes": 6910361856,
+      "export_tensor_count": 1031
+    },
+    "train_qad_lr_0.0001": {
+      "role": "qad",
+      "selected": true,
+      "learning_rate": 0.0001,
+      "opd_weight": 0.0,
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "logged_teacher_backward_passes": 0,
+      "scheduled_teacher_backward_passes": 0,
+      "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
+      "wall_seconds": 34317.012404267996,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15904500224,
+          "max_memory_reserved_bytes": 16160653312,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16160653312
+        }
+      ],
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "development_wall_seconds": 4670.384633779526,
+      "development_episodes": 50,
+      "export_reported_seconds": 46.5563850402832,
+      "export_tensor_bytes": 6910361856,
+      "export_tensor_count": 1031
+    },
+    "train_continued_qad": {
+      "role": "continued_qad",
+      "selected": true,
+      "learning_rate": 0.0001,
+      "opd_weight": 0.0,
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "logged_teacher_backward_passes": 0,
+      "scheduled_teacher_backward_passes": 0,
+      "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
+      "wall_seconds": 36020.975146579,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15904500224,
+          "max_memory_reserved_bytes": 16160653312,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16160653312
+        }
+      ],
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "development_wall_seconds": 6520.182981014252,
+      "development_episodes": 50,
+      "export_reported_seconds": 57.058204650878906,
+      "export_tensor_bytes": 6910361856,
+      "export_tensor_count": 1031
+    },
+    "train_opd_025": {
+      "role": "qad_opd",
+      "selected": true,
+      "learning_rate": 0.0001,
+      "opd_weight": 0.25,
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "logged_teacher_backward_passes": 1600,
+      "scheduled_teacher_backward_passes": 6800,
+      "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
+      "wall_seconds": 44281.18965431501,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15904500736,
+          "max_memory_reserved_bytes": 16164847616,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16164847616
+        }
+      ],
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "development_wall_seconds": 4783.81122469902,
+      "development_episodes": 50,
+      "export_reported_seconds": 57.4845917224884,
+      "export_tensor_bytes": 6910361856,
+      "export_tensor_count": 1031
+    },
+    "train_opd_100": {
+      "role": "qad_opd",
+      "selected": false,
+      "learning_rate": 0.0001,
+      "opd_weight": 1.0,
+      "optimizer_steps": 2000,
+      "demonstration_window_draws": 29600,
+      "logged_teacher_backward_passes": 1600,
+      "scheduled_teacher_backward_passes": 6800,
+      "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
+      "wall_seconds": 44935.495960030006,
+      "timing_scope": "script import through training and checkpoint serialization",
+      "cuda_peak_memory": [
+        {
+          "device_index": 0,
+          "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "max_memory_allocated_bytes": 15904500736,
+          "max_memory_reserved_bytes": 16164847616,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16164847616
+        }
+      ],
+      "parameter_storage_by_dtype": {
+        "float32": {
+          "tensors": 1966,
+          "parameters": 3217014912,
+          "bytes": 12868059648,
+          "trainable_parameters": 72998912
+        }
+      },
+      "development_wall_seconds": 5557.346901655197,
+      "development_episodes": 50,
+      "export_reported_seconds": 65.33985161781311,
+      "export_tensor_bytes": 6910361856,
+      "export_tensor_count": 1031
+    }
+  },
+  "completed_search_totals_by_timing_scope": {
+    "optimizer_steps": 10000,
+    "demonstration_window_draws": 148000,
+    "scheduled_teacher_backward_passes": 13600,
+    "wall_seconds": 194030.77433397,
+    "development_wall_seconds": 26084.099085330963,
+    "development_episodes": 250,
+    "export_reported_seconds": 268.63031339645386
+  },
+  "selected_qad_opd_training": {
+    "optimizer_steps": 4000,
+    "demonstration_window_draws": 59200,
+    "scheduled_teacher_backward_passes": 6800,
+    "wall_seconds": 78598.202058583
+  },
+  "opd_over_continued_training_wall_ratio": 1.2293167931773912,
+  "teacher_supervision": {
+    "episodes": 40,
+    "successful_trajectories": 37,
+    "raw_captured_windows": 160,
+    "training_windows": 148,
+    "wall_seconds": 1616.3195326328278,
+    "cuda_peak_memory": null
+  },
+  "student_collection": {
+    "episodes": 40,
+    "captured_observations": 160,
+    "wall_seconds": 3673.78284907341,
+    "cuda_peak_memory": null
+  },
+  "teacher_labeling": {
+    "elapsed_seconds": 54.949952363967896,
+    "timing_scope": "checkpoint loading and teacher labeling, before cache serialization",
+    "model_dtype": "float32",
+    "autocast_dtype": "bfloat16",
+    "forward_calls": 160,
+    "backward_calls": 0,
+    "source_observations_per_task": {
+      "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": 16,
+      "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": 16,
+      "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": 16,
+      "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": 16,
+      "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": 16,
+      "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": 16,
+      "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": 16,
+      "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": 16,
+      "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": 16,
+      "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": 16
+    },
+    "cuda_peak_memory": [
+      {
+        "device_index": 0,
+        "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
+        "max_memory_allocated_bytes": 13327141376,
+        "max_memory_reserved_bytes": 13570670592,
+        "memory_allocated_bytes_at_end": 12587730944,
+        "memory_reserved_bytes_at_end": 13570670592
+      }
+    ]
+  },
+  "pressure_development": {
+    "bf16": {
+      "episodes": 50,
+      "wall_seconds": 1947.5772864818573
+    },
+    "all_nvfp4_gptq_category": {
+      "episodes": 50,
+      "wall_seconds": 4656.223735570908
+    }
+  },
+  "excluded": [
+    "calibration",
+    "PTQ baking",
+    "installation",
+    "smoke",
+    "failed retries",
+    "downtime",
+    "screenshots",
+    "heldout evaluation"
+  ],
+  "accounting_notes": [
+    "Training, collection and labeling retain their producer timing scopes; do not sum them as a measured end-to-end wall clock.",
+    "Teacher labeling elapsed includes checkpoint/input hashing, configuration and observation reading, model loading and labeling, but ends before cache serialization. Export elapsed is a producer field, not process end-to-end timing.",
+    "Training timing includes checkpoint saving; the three arms can have different save counts. This is measured stage cost, not a pure per-update compute benchmark.",
+    "Allocator peaks are process-local PyTorch measurements; collection peaks were not recorded and are null.",
+    "Training and teacher producer-attested hashes are matched to per-stage archived bytes; matching a later content-addressed snapshot does not prove launch-time import identity. Collection records protocol SHA but not its own source SHA; archived wrapper source is a collector-time snapshot.",
+    "For bound capture replay, demonstration draws are source-derived from sample count, epoch tail batches and completed updates and checked against Trainer epoch; otherwise only the configured full-batch budget is available. Neither is an independent draw counter or a count of distinct samples.",
+    "Teacher backward fields count student backward passes against cached teacher velocity targets; the BF16 teacher labels under no_grad and is never updated.",
+    "Search totals sum only completed stages of each timing scope; selected QAD training is counted once.",
+    "Teacher supervision is training-data collection, not a heldout success-rate estimate.",
+    "Model weight identities are retained from producer receipts, not rehashed by this collector. Observation and teacher-cache hashes are checked; tensor bytes are omitted.",
+    "Missing collection/export allocator peaks, recovery power/energy, separate adapter preparation and end-to-end elapsed are not imputed."
+  ]
+}

@@ -119,8 +119,8 @@
     },
     {
       "path": "build_html.py",
-      "bytes": 11885,
-      "sha256": "dee0e2ac7b732abe168d3bd1011d5f00c763b294d7f24663d757f3c572f9323e"
+      "bytes": 12187,
+      "sha256": "39ef5004f9f5a56efd19c424e9054897ff25706b50c9f06d36f6dd7cd90f2909"
     },
     {
       "path": "figs/budget_ladder.svg",
@@ -139,13 +139,13 @@
     },
     {
       "path": "figs/ladder.svg",
-      "bytes": 3488,
-      "sha256": "37186724447ccc2b870fc536d00515caa2ab22751f6b5aa4c47de15b41b317b8"
+      "bytes": 4568,
+      "sha256": "8bdc5a04ec9809557d7548bcaef056e910fde95263dfd263148e6cd617f99772"
     },
     {
       "path": "figs/ptq_frontier.svg",
-      "bytes": 3751,
-      "sha256": "86d5def34ce6c24f9ecd682ad3d908119710189bd5c8a19eab5fa65c62d8468b"
+      "bytes": 13501,
+      "sha256": "7c6ebef17639ba2cb651b901c75d998f9e76052f03940ce1e927bd9840797c77"
     },
     {
       "path": "figs/recovery_protocol.svg",
@@ -164,8 +164,8 @@
     },
     {
       "path": "figs/shot_evalserver.png",
-      "bytes": 278598,
-      "sha256": "6abdefb260ee5998383ae1575e14cf4d413e635ed05b866af08eabc3b4e16acf"
+      "bytes": 369219,
+      "sha256": "c7216f57759a356ee30ed664324582683e7e79cac4b99735f0d1761fd4b08eaa"
     },
     {
       "path": "figs/shot_fp8probe.png",
@@ -194,13 +194,13 @@
     },
     {
       "path": "figs/shot_opd.png",
-      "bytes": 382536,
-      "sha256": "7d7f75b47555f54c494e46f3a67c5d91dfe9c59be10a46ec8887ecd3c17cd194"
+      "bytes": 398026,
+      "sha256": "a85c70a35bc250baa0eda3cc936b0d2456c2108fc76fca349ff5a9aa6ed955d2"
     },
     {
       "path": "figs/shot_opdcache.png",
-      "bytes": 309583,
-      "sha256": "374863fe8f805cf3027863847555a2958efc3d58285399fc379bc901c0e50ba0"
+      "bytes": 334590,
+      "sha256": "f48495d60f6879e55eab34a304dcfe8e53c035c0e45bbd32db86e98776b5d9ee"
     },
     {
       "path": "figs/shot_packed.png",
@@ -219,8 +219,8 @@
     },
     {
       "path": "figs/shot_qad.png",
-      "bytes": 423906,
-      "sha256": "44f777bc427216caeb42ab8ecce99f47ddc0554dec75ad7c90e9dac7349c8346"
+      "bytes": 404673,
+      "sha256": "79c31dc291179e59c21d7ffa136d818c75e3b529a5132a356f93446700f57cf5"
     },
     {
       "path": "figs/shot_qat.png",
@@ -229,8 +229,8 @@
     },
     {
       "path": "figs/shot_rollout.png",
-      "bytes": 445539,
-      "sha256": "094b399f071486e57ca8d14df1f68642362de340835cf51c3dba4e3202153170"
+      "bytes": 378142,
+      "sha256": "6cd772a693a525e0d33019c8ea866299f73f73d8b13ed7e80b718ba51c9cd6a8"
     },
     {
       "path": "figs/shot_verify.png",
@@ -244,13 +244,13 @@
     },
     {
       "path": "figures.json",
-      "bytes": 8039,
-      "sha256": "76ddbb1e62de8dccda0e5aa91b1f40ba28b9e8d6500fe8169aa4fa783686f0a4"
+      "bytes": 7845,
+      "sha256": "a3c1f2d48f4b3f14ec3e6096f2eb3daaef20962af8cd44dc47131423911f12a6"
     },
     {
       "path": "meta.json",
-      "bytes": 319,
-      "sha256": "624b2568e5e673b721189321d3155cbbb18d65b801175ab7db9335275e7d9364"
+      "bytes": 262,
+      "sha256": "107c6fe2b6019c601d264eef223675322fd982f97ca4edfe559b6cd58a5c7b17"
     },
     {
       "path": "publication_guard.py",
@@ -264,43 +264,43 @@
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "bytes": 5694,
-      "sha256": "d65aeb6e8f222f93c20d1001c925647689057709ee86a554a9f47b0b34ad4619"
+      "bytes": 6177,
+      "sha256": "231b9292fbf21b615f3d81d7c83bf866d5220af01bfbae0812ab6bf4dc0f3d1e"
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "bytes": 13317,
-      "sha256": "f97cda2ec497c1761830c5be7816c75d2b0f5e1893c4296b92f0a04c8b8c9bca"
+      "bytes": 13384,
+      "sha256": "0f101947def94640d628130a454473b89a86222e2ab80cbe7c2ce458cff2d300"
     },
     {
       "path": "sections/03-方法.md",
-      "bytes": 10145,
-      "sha256": "1c30ed8b3acaeaa67ad9df6a075b2316bd4c081d307a150a97a35b17fdb95dbc"
+      "bytes": 10314,
+      "sha256": "1cce1e834cae0d17c9be151e862cec1faaf5d001bb4cb9d829ad447ab2e57303"
     },
     {
       "path": "sections/04-实验.md",
-      "bytes": 7560,
-      "sha256": "c1b7da1e41713afce5f228ad00977966ca1ddc55591b17226bb9fd4d47372b3c"
+      "bytes": 12570,
+      "sha256": "0d0175918daacbeaa35fa6ae916c4c32891ce9aa7c29096c8224bce376c78d40"
     },
     {
       "path": "sections/05-讨论与结论.md",
-      "bytes": 1503,
-      "sha256": "7b99d8e56c915dd8ff15ade3dc6ef9bbaedadf3ab1d06bd7d229da13c5fc71e0"
+      "bytes": 1796,
+      "sha256": "eb722c636ddad4433ae420a7579a1ab380795ba0bed2f6e58df033a9a251001e"
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
-      "bytes": 46339,
-      "sha256": "96037c34381c7b65500f96c2cab96fe4fc3c0510cb38b37de3c41160fbc65822"
+      "bytes": 46550,
+      "sha256": "735eb8b3e65ebaa24e1772835a48e9316e4b5c3fdc90a8a3501808fa6317c05a"
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "bytes": 21693,
-      "sha256": "d94ce7a2333ea51d5bf27ff6b315bea408306b5c4f2b2ab2a5375c9c75177c40"
+      "bytes": 22197,
+      "sha256": "b54651d0bda507cd3c74f407aa25422779fbaef3cbccf23c4ca0e05f237d65bd"
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
-      "bytes": 12707,
-      "sha256": "3ac146a753abbfae0c9c01407479096b257e6a5daabdc02dffda2321fdc7ba6d"
+      "bytes": 12695,
+      "sha256": "c3c3d8286526b55d0ef021a8618557ecd390a6b9d3c458a64a54d7f426df9edc"
     },
     {
       "path": "sections/16-参考文献.md",
@@ -310,18 +310,12 @@
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 5660182,
-    "sha256": "2ea8fc6978de0e62d9b892e4a1f321341e524b1b2bbc987c6eb601a462348116"
+    "bytes": 8196148,
+    "sha256": "c829dae84910821a9771e52df732ab968bc58cdb589a134990f5602030816343"
   },
-  "math_expressions": 272,
+  "math_expressions": 274,
   "figures": 24,
   "screenshot_slots": 17,
-  "screenshots": 12,
-  "screenshot_refresh_pending": [
-    "shot_evalserver",
-    "shot_opd",
-    "shot_opdcache",
-    "shot_qad",
-    "shot_rollout"
-  ]
+  "screenshots": 17,
+  "screenshot_refresh_pending": []
 }

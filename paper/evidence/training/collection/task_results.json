@@ -1,0 +1,827 @@
+{
+  "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+    "results": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "successes": 4,
+    "episodes": 4,
+    "success_rate": 1.0,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+        "episode_index": 0,
+        "seed": 960000,
+        "task_id": 0,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+        "restored_state_sha256": "31cf655f31ddf3a02ee0f767cf1240387c2749ebcfdbbf29b22989bd606ffd96",
+        "settle_steps": 10,
+        "initial_state_sha256": "fe646ef9e220107b2c7ed6b3c4c2c46162cf705e34d84ee3ad2c3eda1c20f3d9"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+        "episode_index": 1,
+        "seed": 960001,
+        "task_id": 0,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+        "restored_state_sha256": "745c4dc1054445e2618f028670b26b5435dd4394046b7a856285920a2f7b7610",
+        "settle_steps": 10,
+        "initial_state_sha256": "e4b411eb3dce0eab2b4c90d5adfbaf149cf592927c51d4d4df67242aa78c20fa"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+        "episode_index": 2,
+        "seed": 960002,
+        "task_id": 0,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+        "restored_state_sha256": "84f995c0b55083edc3737d57fad688490204ae3844ec8795cd73f6cc413fe3aa",
+        "settle_steps": 10,
+        "initial_state_sha256": "a573afdfc5c5a031ffec92c63081cdcc49fabe2934aec6f95ccd0e8a48807003"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+        "episode_index": 3,
+        "seed": 960003,
+        "task_id": 0,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+        "restored_state_sha256": "b7905a2a29009d4296fa262ec5a1cb1d01351e50eccee52bc232cf1583dd93a8",
+        "settle_steps": 10,
+        "initial_state_sha256": "f533752a66b4af8da1cd32c11f792ff1d22ac7d6af7df5c016b75c6e96a347ca"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "279f47a219e801163a993afe89780a8ce93a75f0c7d06f95d836dc248b174215",
+    "returncode": 0,
+    "seed": 960000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 16,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 0,
+      "successful_episode_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+    "results": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "successes": 4,
+    "episodes": 4,
+    "success_rate": 1.0,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+        "episode_index": 0,
+        "seed": 961000,
+        "task_id": 1,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+        "restored_state_sha256": "1ddc6259e18ba32580516a16db9991698898aa83e150f096c5403b06f74cbe29",
+        "settle_steps": 10,
+        "initial_state_sha256": "a1ec914fc687abbd5bd9760c108aa6b97beaa07f370f98951427df4be86d3316"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+        "episode_index": 1,
+        "seed": 961001,
+        "task_id": 1,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+        "restored_state_sha256": "73f30734a195d8fb9c51e30d6c2bc3af8073a3cfce4ab902b32f22ee1e533309",
+        "settle_steps": 10,
+        "initial_state_sha256": "41d961631e6765946790368ed9f93c8e930bcce9855a8b09eb2855b9c80fe7b1"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+        "episode_index": 2,
+        "seed": 961002,
+        "task_id": 1,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+        "restored_state_sha256": "532200c92d74b65c8986ca5b3f668d9e79da78fa9313362e644d8dfc60a2fa2b",
+        "settle_steps": 10,
+        "initial_state_sha256": "57a0da4ff65a51a2f142a9da802caeedf98adabf301ff980f96a8ad536544b57"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+        "episode_index": 3,
+        "seed": 961003,
+        "task_id": 1,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+        "restored_state_sha256": "2bf1ff9b2d1c706dd3a1944c03c8b0dbbc29879ea27a7fcfd0ae260a5134073c",
+        "settle_steps": 10,
+        "initial_state_sha256": "a270842a154666d9782c5f524c347b6f88f9f3eb6fef1eac5fd6da355cfca56b"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "11c87dfcb4bc447631d70544db4e04408ea355db54b8049d115bd59824b16591",
+    "returncode": 0,
+    "seed": 961000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 16,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 0,
+      "successful_episode_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+    "results": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "successes": 4,
+    "episodes": 4,
+    "success_rate": 1.0,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+        "episode_index": 0,
+        "seed": 962000,
+        "task_id": 2,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+        "restored_state_sha256": "3749f7901c3630f1a76f47a09ce013cd38e0b2572ccdb7d67cf25e5b2af59ecb",
+        "settle_steps": 10,
+        "initial_state_sha256": "5fe0c8880b6448b8b503b61e0aa1612b3067000e8e8e5536a06bfbaf8060762d"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+        "episode_index": 1,
+        "seed": 962001,
+        "task_id": 2,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+        "restored_state_sha256": "0a432c6b4c3bf59ef66b34dbe149237e636badcbb681e2fdefa35a27ffdcdd58",
+        "settle_steps": 10,
+        "initial_state_sha256": "25903c0b777a66a9831f1e0108383cd2bcb37d24bdbf82e7d302d2bc71859840"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+        "episode_index": 2,
+        "seed": 962002,
+        "task_id": 2,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+        "restored_state_sha256": "0d2ba0b763de5eea7401c0a3b8f5c378ad9346b7421ed1a15865eb450c359292",
+        "settle_steps": 10,
+        "initial_state_sha256": "1b52b367c985fdd2baf724687a4597f93e4d696b446524d62db50a13548e7f9e"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+        "episode_index": 3,
+        "seed": 962003,
+        "task_id": 2,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+        "restored_state_sha256": "e45e025dd28ee6adfd77950a8b5ecd576f65ecd76a41e2ddc64bb8535026bff5",
+        "settle_steps": 10,
+        "initial_state_sha256": "37687422acab1995b9212c311652dfef0b45ffd30f0ad53cef12e3535bfb15a4"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "ca5e2e6c97c7a9012781cd19487d30e7b2c8f599b18a07f4417b8298ba56832f",
+    "returncode": 0,
+    "seed": 962000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 16,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 0,
+      "successful_episode_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+    "results": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "successes": 4,
+    "episodes": 4,
+    "success_rate": 1.0,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+        "episode_index": 0,
+        "seed": 963000,
+        "task_id": 3,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+        "restored_state_sha256": "8279cae772a53a172f0d2acca43c6df390f9f465647a2c9c0e929873ba16c51c",
+        "settle_steps": 10,
+        "initial_state_sha256": "43295e035b6be257bdb7712912ee23c65da227c0623bee285849ff4af5fa5e06"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+        "episode_index": 1,
+        "seed": 963001,
+        "task_id": 3,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+        "restored_state_sha256": "f14cdc0ad1b9feb6a20bd20639b0e5250c43c94b55249305b8d534a33dcbcb63",
+        "settle_steps": 10,
+        "initial_state_sha256": "356d3c3c1db28516b66cc04d0ff6037441053f88dacab30352bf032143e425e6"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+        "episode_index": 2,
+        "seed": 963002,
+        "task_id": 3,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+        "restored_state_sha256": "3e5394eee2533db272230ee2baadeeb2af83e8aed726b72eb8d7bee36d44bfa8",
+        "settle_steps": 10,
+        "initial_state_sha256": "de6e63a6046ae74137701de274f27389b575368c623efda07c5d7ecbf60d3900"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+        "episode_index": 3,
+        "seed": 963003,
+        "task_id": 3,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+        "restored_state_sha256": "893714958d4cc11a8eb60cfaddeb11dc75a4c7b2700d06f5b33445d02c39244a",
+        "settle_steps": 10,
+        "initial_state_sha256": "370e2ada6eb9fdbd0a544ed75a40234d0c4639e931ab7a09c47296c3422bf01d"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "56a98cae6201cdcf6965be3b0ce9a74d9cc8c33ca350065f386d05ba1523faea",
+    "returncode": 0,
+    "seed": 963000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 16,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 0,
+      "successful_episode_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+    "results": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "successes": 4,
+    "episodes": 4,
+    "success_rate": 1.0,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+        "episode_index": 0,
+        "seed": 964000,
+        "task_id": 4,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+        "restored_state_sha256": "5d6df4d9f5acd6ef9fdcb7a64d0234fe8620d34f2194d7b675bd0e455fdce0f3",
+        "settle_steps": 10,
+        "initial_state_sha256": "6b90ad2fe4e753ddb52ecff007c8c1799cf547b48fbe33d570cf1d167adf2c59"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+        "episode_index": 1,
+        "seed": 964001,
+        "task_id": 4,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+        "restored_state_sha256": "4e442647eba43ee5ba0ad5e831186ee6b59cb4675b752d63be4575af85726ab4",
+        "settle_steps": 10,
+        "initial_state_sha256": "615a89fde01261f0516b26430570cf78d00d957151b5a80e61c6b8db3ce1a506"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+        "episode_index": 2,
+        "seed": 964002,
+        "task_id": 4,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+        "restored_state_sha256": "055cb786edcb7faad227beb588a8433767a75c1d0e6b7c6e10e85bbed328793a",
+        "settle_steps": 10,
+        "initial_state_sha256": "51198848a71082aa62d7efc16612fa68ca36f88552d9b454277e6a38cf9adbd1"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+        "episode_index": 3,
+        "seed": 964003,
+        "task_id": 4,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+        "restored_state_sha256": "cd6e3afa56ae5ea41b0215caca93c24c8e06b499234a24ea6df89001a0f24fbd",
+        "settle_steps": 10,
+        "initial_state_sha256": "72455a254ce600cf01ba4a627b51ed8e340b3cbf84ba369f02b142a4a6221a46"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "56e780c24cc8e2a492b83dab698b0d303a99747044f08e70c09e8e6b34247cb8",
+    "returncode": 0,
+    "seed": 964000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 16,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 0,
+      "successful_episode_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+    "results": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "successes": 4,
+    "episodes": 4,
+    "success_rate": 1.0,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+        "episode_index": 0,
+        "seed": 965000,
+        "task_id": 5,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+        "restored_state_sha256": "b24f3f70bf76139e2ac2b1cbd7c9a49f90e99230c7b3bd88a203185505e171f3",
+        "settle_steps": 10,
+        "initial_state_sha256": "778e0a51d2ef425e75df063b9cad213bba65210e211fdda115517f836f3eee25"
+      },
+      {
+        "event": "reset",
+        "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+        "episode_index": 1,
+        "seed": 965001,
+        "task_id": 5,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+        "restored_state_sha256": "9013f031f4c1a778fbb40b0634efc46638cc304496be66010feda196903a1bbe",
+        "settle_steps": 10,
+        "initial_state_sha256": "ee3c5211e52d2eda73e5d888d895d703f124cf68faf644afab8956b1ca11b8c3"
+      },
+      {
+        "event": "reset",
+        "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+        "episode_index": 2,
+        "seed": 965002,
+        "task_id": 5,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+        "restored_state_sha256": "3aa2c56f7ec59b999707f06a1c0e30518811d3f80b9acaac146240620abfdbf8",
+        "settle_steps": 10,
+        "initial_state_sha256": "61e8b31704581b92e4f5207e7865f3360b02042d6b66ec3ceb1aaead9e242796"
+      },
+      {
+        "event": "reset",
+        "task_name": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+        "episode_index": 3,
+        "seed": 965003,
+        "task_id": 5,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+        "restored_state_sha256": "5840a65893922afe280fbbd0d513f4e0251579b5f591c08371cf0da0ce5e19df",
+        "settle_steps": 10,
+        "initial_state_sha256": "468d034f8a8ecdeb0790ce750d552de42059f570d798f45a9c22f6a00a3b0c77"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "6397885337242f88d5ded0d7bafc786a5ebade90e6d236a2ef225312ea4fae4b",
+    "returncode": 0,
+    "seed": 965000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 16,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 0,
+      "successful_episode_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+    "results": [
+      true,
+      true,
+      true,
+      false
+    ],
+    "successes": 3,
+    "episodes": 4,
+    "success_rate": 0.75,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+        "episode_index": 0,
+        "seed": 966000,
+        "task_id": 6,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+        "restored_state_sha256": "4f63fc206bad261b4721178ee1859e47c3111c119b2ef428e8d296ae7c0069e3",
+        "settle_steps": 10,
+        "initial_state_sha256": "d597141d7de137f82b55099ad3129dc1b0da06f0b423c27f6314f9ab1ff263ef"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+        "episode_index": 1,
+        "seed": 966001,
+        "task_id": 6,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+        "restored_state_sha256": "091f68d964eba6b4d1ea033b6a7db46cde077c9c6565d51b9844fd285d05ba84",
+        "settle_steps": 10,
+        "initial_state_sha256": "2a97999ca7e60e0d8f39b7dda02be45abb2c38b1bff5dcfafdc451793b4c587d"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+        "episode_index": 2,
+        "seed": 966002,
+        "task_id": 6,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+        "restored_state_sha256": "0d32e8814e1830444ba07a9e23333f520acb40ed5946bcd74dd15dbb960c53c0",
+        "settle_steps": 10,
+        "initial_state_sha256": "d555d36a9eb9a235344e3ded53dcb89498e7699b19ed98b0c07ca7801678b1ce"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+        "episode_index": 3,
+        "seed": 966003,
+        "task_id": 6,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+        "restored_state_sha256": "c87b2c9c311c9b8bdc0839034d6206f784f9651c28f824ef14687c3e67755000",
+        "settle_steps": 10,
+        "initial_state_sha256": "9ee3dcb5e6e2b98fa5fc752eda5852bf4716465205ad1654ef5e11d1db79829f"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "26d91a2487c1494ef65a52076de2d1b8e9c7517667dec83cadbbb5b4ba697f94",
+    "returncode": 0,
+    "seed": 966000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 12,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 4,
+      "successful_episode_indices": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+    "results": [
+      true,
+      true,
+      false,
+      true
+    ],
+    "successes": 3,
+    "episodes": 4,
+    "success_rate": 0.75,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+        "episode_index": 0,
+        "seed": 967000,
+        "task_id": 7,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+        "restored_state_sha256": "f7bc0934e7e293a6a0766c7b475340ee7491ec8854b986d8498320aadd6f5369",
+        "settle_steps": 10,
+        "initial_state_sha256": "c8c3e2c1d80fc56ea45c44f5050a9613800557bfc3698ee645af13e92ce7b6a8"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+        "episode_index": 1,
+        "seed": 967001,
+        "task_id": 7,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+        "restored_state_sha256": "f074e7906fa9e43a51a8b324f3d3fe7e16ff19d95f4046d8559b45542ca69e5a",
+        "settle_steps": 10,
+        "initial_state_sha256": "a6d773f16d37d84a201fd2b07e40682628deb1b7587ee54cd541e1f8945d350f"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+        "episode_index": 2,
+        "seed": 967002,
+        "task_id": 7,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+        "restored_state_sha256": "a869a3c7b9d7169ffa58bfa187852119396ea72609de1983e02670a0e4831e79",
+        "settle_steps": 10,
+        "initial_state_sha256": "2c0ed401b18b2f416612bf175980229a97664572507ef9f05eddaed52d1ad1aa"
+      },
+      {
+        "event": "reset",
+        "task_name": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+        "episode_index": 3,
+        "seed": 967003,
+        "task_id": 7,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+        "restored_state_sha256": "422ddef14dd0806036dab04781ec0afb4f2c91aaf893842140936ecbb479bba7",
+        "settle_steps": 10,
+        "initial_state_sha256": "03c4105ecd55b26fbe28797d41c53b8ec1dc8fdf5c4ce305c9d0c60eb36c19c3"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "3985667713e6036bfbebd7dc91935e9be0c4b8d80499d39dd6e989dc69221b7f",
+    "returncode": 0,
+    "seed": 967000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 12,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 4,
+      "successful_episode_indices": [
+        0,
+        1,
+        3
+      ]
+    }
+  },
+  "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+    "results": [
+      true,
+      false,
+      true,
+      false
+    ],
+    "successes": 2,
+    "episodes": 4,
+    "success_rate": 0.5,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+        "episode_index": 0,
+        "seed": 968000,
+        "task_id": 8,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+        "restored_state_sha256": "206564f7b57f4b31ddeb3067174fdd1cdcb3c4ee0f43b71eba06a5516b0867c5",
+        "settle_steps": 10,
+        "initial_state_sha256": "3ab4217c4fe7a308e64e5a54927ae13999694fcd48b1363dd0e6ce8e0de48f3e"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+        "episode_index": 1,
+        "seed": 968001,
+        "task_id": 8,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+        "restored_state_sha256": "9e42025b1cce5338ad9ea19dc8b5748cf4677ad65e951914b3dd9991b3055b63",
+        "settle_steps": 10,
+        "initial_state_sha256": "286f1780b19401205c4a025cd62f85b4b6f2b8bc13e960de13a6e151aea031c7"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+        "episode_index": 2,
+        "seed": 968002,
+        "task_id": 8,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+        "restored_state_sha256": "409c40056cad5fd3ab1b32c4f971335c2f8c53017606dbd586a5ce682ca5b3e2",
+        "settle_steps": 10,
+        "initial_state_sha256": "6647ccfa128d1c09952fe8da0681a8ef9a53fda586433a0ebae497cdc7c1a541"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+        "episode_index": 3,
+        "seed": 968003,
+        "task_id": 8,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+        "restored_state_sha256": "e6ead249c5a193c21aa299640062e679254d6e38c5abe30ff339b12d482e4c21",
+        "settle_steps": 10,
+        "initial_state_sha256": "7a9fe8e5c42af636fd67fef39569bb5d11a9db0d2cba835f21aeb4232449f6dc"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "041d7e02f0ba8e525ebca56ebda4c4bac677fe654a3c486fab6a507d71484f43",
+    "returncode": 0,
+    "seed": 968000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 8,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 8,
+      "successful_episode_indices": [
+        0,
+        2
+      ]
+    }
+  },
+  "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+    "results": [
+      true,
+      true,
+      true,
+      false
+    ],
+    "successes": 3,
+    "episodes": 4,
+    "success_rate": 0.75,
+    "resets": [
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+        "episode_index": 0,
+        "seed": 969000,
+        "task_id": 9,
+        "init_state_index": 20,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+        "restored_state_sha256": "07c1d0f78d645f621670c4de2bb8e95be0c57311808ca399b89e92407878b522",
+        "settle_steps": 10,
+        "initial_state_sha256": "8695d3f19631868913424e7a346b9820472b00aebe3c984670e0dec5f6ea7715"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+        "episode_index": 1,
+        "seed": 969001,
+        "task_id": 9,
+        "init_state_index": 21,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+        "restored_state_sha256": "f564897bb0bdf4d1d07ff7745fc235e24ef2e372afa393c6c848c414e0533d07",
+        "settle_steps": 10,
+        "initial_state_sha256": "fa584b58d1fcd82fcc29e80bb7ee9fbf171f90635a80c6a15c8e27820b05e015"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+        "episode_index": 2,
+        "seed": 969002,
+        "task_id": 9,
+        "init_state_index": 22,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+        "restored_state_sha256": "111b367bc268be780035b3baceba410ed851cc6124afd67cf835c32f698bda09",
+        "settle_steps": 10,
+        "initial_state_sha256": "130c3c04d4faaafdfa8c0d495b63ac4eeeb35a645773657561904fca35c211f5"
+      },
+      {
+        "event": "reset",
+        "task_name": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+        "episode_index": 3,
+        "seed": 969003,
+        "task_id": 9,
+        "init_state_index": 23,
+        "init_state_bank_size": 50,
+        "init_state_bank_sha256": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+        "restored_state_sha256": "494b392a78e0744efa6dce54534c95a91db93ea0d1bd05c4214502728bebb4ba",
+        "settle_steps": 10,
+        "initial_state_sha256": "0601856a54c5b3ae62e962114614d753396533dc8f1c3b032d26b309550f8dbb"
+      }
+    ],
+    "raw_reset_count": 6,
+    "scored_reset_count": 4,
+    "ignored_auto_reset_count": 2,
+    "log_sha256": "c4c8bb5554938c490b97181b6a2cbcde9f82b1d2409b281c3846ee896c78f780",
+    "returncode": 0,
+    "seed": 969000,
+    "capture": {
+      "total_samples": 16,
+      "accepted_samples": 12,
+      "rejected_samples": 0,
+      "unsuccessful_samples": 4,
+      "successful_episode_indices": [
+        0,
+        1,
+        2
+      ]
+    }
+  }
+}

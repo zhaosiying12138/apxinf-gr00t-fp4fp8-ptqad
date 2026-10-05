@@ -1,0 +1,50 @@
+{
+  "scope": "CUDA standalone probe compilation only; no GPU execution or performance measurement",
+  "captured_at": "2026-10-05T18:08:49.9733889Z",
+  "exit_status": 0,
+  "dimensions": [
+    3840,
+    2280
+  ],
+  "visually_verified": true,
+  "approved_sample_sha256": "416dda8f6bc6db8142815f37ab816a88b7c173a1d2dcc66b08b169fb9bb31c18",
+  "targets": [
+    "fp4_gemm_bench",
+    "fp4_opbench",
+    "fp8_probe"
+  ],
+  "compiler": "CUDA 13.3, nvcc V13.3.73",
+  "arch": "sm_120",
+  "files": [
+    {
+      "path": "docs/images/ubuntu-compile.png",
+      "bytes": 399296,
+      "sha256": "d792fc370d8e112f2343c7c2d5a4712d0130ac8c5d1ded79bebcb6489ddda5b2"
+    },
+    {
+      "path": "docs/evidence/ubuntu-compile/run.sh",
+      "bytes": 713,
+      "sha256": "97d1572c78d2cb4cfb1864baae823dec6285e4e7a0f9e438a23d08932fa83377"
+    },
+    {
+      "path": "docs/evidence/ubuntu-compile/capture.log",
+      "bytes": 4292,
+      "sha256": "dda28c7ccf2d17087d39c782bdef6fea22d56fdf591cbe87724ad1cbc5fa2480"
+    },
+    {
+      "path": "docs/evidence/ubuntu-compile/capture.json",
+      "bytes": 1464,
+      "sha256": "375c017adabbdd8e3aae6f36313d8616523283b0338b0905cfdf8b52b845c42f"
+    },
+    {
+      "path": "docs/evidence/ubuntu-compile/capture.crop.json",
+      "bytes": 365,
+      "sha256": "613063307620dd903e55a74523f15210252eed880c034a55d35651972b0f4dfb"
+    },
+    {
+      "path": "docs/evidence/ubuntu-compile/capture.png.window-binding.json",
+      "bytes": 9708,
+      "sha256": "0151c2dab57cd4a9a271239f9b9f9d44093cbabca73c32d97e3928e15e941639"
+    }
+  ]
+}

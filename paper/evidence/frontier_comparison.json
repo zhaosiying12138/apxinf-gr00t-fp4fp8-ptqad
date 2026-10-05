@@ -1,0 +1,433 @@
+{
+  "version": 1,
+  "status": "complete",
+  "environment_pairing_verified": true,
+  "protocol_consistency_verified": true,
+  "source_accounting_verified": true,
+  "selected_recipe": "all_nvfp4_gptq_category",
+  "reference_order": [],
+  "references": {},
+  "points": [
+    {
+      "name": "bf16",
+      "role": "bf16",
+      "recipe": "bf16",
+      "count": 160,
+      "successes": 145,
+      "macro_success_rate": 0.90625,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        }
+      },
+      "encoding_budget": {
+        "physical": {
+          "source_bytes": 6910361856,
+          "base_bytes": 6910361856,
+          "residual_bytes": 0,
+          "total_bytes": 6910361856,
+          "compression_x": 1.0
+        },
+        "known_alias_deduplicated": {
+          "source_bytes": 6288032000,
+          "base_bytes": 6288032000,
+          "residual_bytes": 0,
+          "total_bytes": 6288032000,
+          "compression_x": 1.0
+        }
+      }
+    },
+    {
+      "name": "ptq",
+      "role": "ptq",
+      "recipe": "all_nvfp4_gptq_category",
+      "count": 160,
+      "successes": 145,
+      "macro_success_rate": 0.90625,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        }
+      },
+      "encoding_budget": {
+        "physical": {
+          "source_bytes": 6910361856,
+          "base_bytes": 1948322784,
+          "residual_bytes": 0,
+          "total_bytes": 1948322784,
+          "compression_x": 3.5468259739860435
+        },
+        "known_alias_deduplicated": {
+          "source_bytes": 6288032000,
+          "base_bytes": 1773292508,
+          "residual_bytes": 0,
+          "total_bytes": 1773292508,
+          "compression_x": 3.545964341264786
+        }
+      }
+    },
+    {
+      "name": "qad",
+      "role": "recovery",
+      "recipe": "all_nvfp4_gptq_category",
+      "count": 160,
+      "successes": 144,
+      "macro_success_rate": 0.9,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        }
+      },
+      "encoding_budget": {
+        "physical": {
+          "source_bytes": 6910361856,
+          "base_bytes": 1948322784,
+          "residual_bytes": 145997824,
+          "total_bytes": 2094320608,
+          "compression_x": 3.299572104482677
+        },
+        "known_alias_deduplicated": {
+          "source_bytes": 6288032000,
+          "base_bytes": 1773292508,
+          "residual_bytes": 145997824,
+          "total_bytes": 1919290332,
+          "compression_x": 3.2762276218249613
+        }
+      }
+    },
+    {
+      "name": "continued_qad",
+      "role": "recovery",
+      "recipe": "all_nvfp4_gptq_category",
+      "count": 160,
+      "successes": 104,
+      "macro_success_rate": 0.65,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 2,
+          "episodes": 16,
+          "success_rate": 0.125
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 2,
+          "episodes": 16,
+          "success_rate": 0.125
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 10,
+          "episodes": 16,
+          "success_rate": 0.625
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 11,
+          "episodes": 16,
+          "success_rate": 0.6875
+        }
+      },
+      "encoding_budget": {
+        "physical": {
+          "source_bytes": 6910361856,
+          "base_bytes": 1948322784,
+          "residual_bytes": 145997824,
+          "total_bytes": 2094320608,
+          "compression_x": 3.299572104482677
+        },
+        "known_alias_deduplicated": {
+          "source_bytes": 6288032000,
+          "base_bytes": 1773292508,
+          "residual_bytes": 145997824,
+          "total_bytes": 1919290332,
+          "compression_x": 3.2762276218249613
+        }
+      }
+    },
+    {
+      "name": "qad_opd",
+      "role": "recovery",
+      "recipe": "all_nvfp4_gptq_category",
+      "count": 160,
+      "successes": 134,
+      "macro_success_rate": 0.8375,
+      "per_task": {
+        "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "successes": 16,
+          "episodes": 16,
+          "success_rate": 1.0
+        },
+        "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "successes": 15,
+          "episodes": 16,
+          "success_rate": 0.9375
+        },
+        "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "successes": 13,
+          "episodes": 16,
+          "success_rate": 0.8125
+        },
+        "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "successes": 14,
+          "episodes": 16,
+          "success_rate": 0.875
+        },
+        "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "successes": 10,
+          "episodes": 16,
+          "success_rate": 0.625
+        },
+        "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "successes": 12,
+          "episodes": 16,
+          "success_rate": 0.75
+        }
+      },
+      "encoding_budget": {
+        "physical": {
+          "source_bytes": 6910361856,
+          "base_bytes": 1948322784,
+          "residual_bytes": 145997824,
+          "total_bytes": 2094320608,
+          "compression_x": 3.299572104482677
+        },
+        "known_alias_deduplicated": {
+          "source_bytes": 6288032000,
+          "base_bytes": 1773292508,
+          "residual_bytes": 145997824,
+          "total_bytes": 1919290332,
+          "compression_x": 3.2762276218249613
+        }
+      }
+    }
+  ],
+  "observed_nondominated_points": {
+    "physical": [
+      "ptq"
+    ],
+    "known_alias_deduplicated": [
+      "ptq"
+    ]
+  },
+  "source": {
+    "final_results": {
+      "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/final_results.json",
+      "bytes": 15240,
+      "sha256": "d4b9243a61524fbf3ee5b6ed018c826087627f7858d875dbad2a0a416f4a406d"
+    },
+    "paired_comparison": {
+      "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/paired_comparison.json",
+      "bytes": 494565,
+      "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392"
+    },
+    "recipe_inventory": {
+      "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/recipe_inventory.json",
+      "bytes": 6182,
+      "sha256": "45f7f5e34b83456965fcd1e110361f5982542e9b5a689e73b93deec16d8cd6b5"
+    },
+    "selected_category_memory": {
+      "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/selected_recipe/category_memory.json",
+      "bytes": 2931,
+      "sha256": "249cb167542779658462e34212719ce5af2d6acd4459831a6ceb25606a1f3c23"
+    },
+    "selected_category_recipe": {
+      "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/selected_recipe/category_ptq_recipe.json",
+      "bytes": 337442,
+      "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122"
+    },
+    "selected_category_bake_manifest": {
+      "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/selected_recipe/category_bake_manifest.json",
+      "bytes": 13219,
+      "sha256": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912"
+    }
+  },
+  "scope": "v11 heldout-only BF16, selected W4A4 all-NVFP4 PTQ, QAD, continued-QAD control and QAD+OPD"
+}

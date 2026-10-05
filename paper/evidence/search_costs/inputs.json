@@ -1,0 +1,34 @@
+{
+  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "run_manifest_locator": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/run_manifest.json",
+    "bytes": 244884,
+    "sha256": "3c549d11941fc4f072f19eb0b370cecd80bb30fe20b1018c39c622d4572d51d3"
+  },
+  "candidates": {
+    "train_qad_lr_5e-05": {
+      "role": "qad"
+    },
+    "train_qad_lr_0.0001": {
+      "role": "qad"
+    },
+    "train_continued_qad": {
+      "role": "continued_qad"
+    },
+    "train_opd_025": {
+      "role": "qad_opd"
+    },
+    "train_opd_100": {
+      "role": "qad_opd"
+    }
+  },
+  "selected": {
+    "qad": "train_qad_lr_0.0001",
+    "continued_qad": "train_continued_qad",
+    "qad_opd": "train_opd_025"
+  },
+  "pressure_arms": [
+    "bf16",
+    "all_nvfp4_gptq_category"
+  ]
+}
