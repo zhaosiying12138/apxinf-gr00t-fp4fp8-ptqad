@@ -180,7 +180,7 @@ QAD 与两个追加分支均使用 rank=32、alpha=64 的 LoRA。QAD 训练 2,00
 
 NVFP4 的数据为 E2M1 四位格点；连续 16 个输入元素共享一个 E4M3 块尺度，张量再共享 FP32 二级尺度。对块 $w_b$，先计算
 
-$$s_b=R_{\mathrm{E4M3}}(\max_j|w_{b,j}|/6),\qquad \hat w_{b,j}=R_{\mathrm{E2M1}}(w_{b,j}/s_b)s_b.$$ 
+$$s_b=R_{\\mathrm{E4M3}}(\\max_j|w_{b,j}|/6),\\qquad \\hat w_{b,j}=R_{\\mathrm{E2M1}}(w_{b,j}/s_b)s_b.$$ 
 
 二级尺度固定为 1；零块只在除法中使用安全除数，反量化仍严格为零。激活沿最后一维按同样的 16 元素规则量化。线性层因此同时满足 W4 与 A4，服务日志会报告 469/469 ordinary 和 7/7 category 的 W4A4 安装结果。
 
