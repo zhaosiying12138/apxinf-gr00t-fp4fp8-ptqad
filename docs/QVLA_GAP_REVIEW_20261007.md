@@ -16,6 +16,10 @@
 
 ## P0：终稿必须补齐
 
+### 0. 固定论文与公开代码的复现边界
+
+二次读取作者代码快照 `26cc4821a3be4c003d09d3c7997b38db2a347982` 后发现，论文方法描述与代码职责需要分开写。`qvla/sensitivity_hessian_proxy.py` 先累积每层输入协方差，计算带阻尼的逆 Cholesky 对角项，再按输出行生成 `proxy_b`；论文正文的理论段落则把它概括为 Jacobian 增益与量化噪声的一阶乘积。`qvla/inject_fake_w.py` 明确实现的是 weight-only fake quant：对目标 Linear/Conv2d 的权重行做对称舍入，projector、action_head 和 `language_model.lm_head` 被排除，脚本内没有 activation QDQ 或 A4 kernel。因而论文表格中的 W4A4 运行时结果不能仅凭这个脚本复现；终稿应把“文献报告的 W4A4”与“公开代码可直接执行的 weight-only 注入”分开，避免把实现缺口误写成本文基线结果。
+
 ### 1. 在相关工作中给出 QVLA 的真实机制
 
 当前稿提到了 QVLA，但还应明确写出其核心计算。对第 `l` 层第 `c` 个输出通道，QVLA 分别试验 `b∈{0,2,4,8,16}`，用 teacher-forcing 下的单步动作误差
