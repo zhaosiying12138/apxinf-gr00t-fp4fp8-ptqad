@@ -78,5 +78,20 @@ class SearchCostPublicationTests(unittest.TestCase):
         self.assertIn('paper/collect_search_costs.py',capture_runtime.DEFAULT_SOURCE_FILES)
         self.assertIn('paper/collect_search_costs.py',capture_runtime.resolve_source_files(P.parent))
 
+    def test_v12_requires_binding_to_the_final_training_selection(self):
+        with fixture() as (paper,folder,protocol,report,_,_):
+            protocol.write_text('{"version":12,"w4a4":true}')
+            report['protocol_sha256']=validation.sha(protocol)
+            dependencies={paper/'search_cost_binding.py',paper/'evidence/final_manifest.json'}
+            with patch('search_cost_binding.verify_search_cost_binding',return_value=dependencies) as bind:
+                inputs=set()
+                validation.check_search_costs(inputs,protocol)
+                bind.assert_called_once_with(folder,paper/'evidence/training',paper/'evidence/final_manifest.json')
+                self.assertTrue(dependencies<=inputs)
+            with patch('search_cost_binding.verify_search_cost_binding',
+                       side_effect=RuntimeError('selected archive mismatch')):
+                with self.assertRaisesRegex(RuntimeError,'selected archive mismatch'):
+                    validation.check_search_costs(set(),protocol)
+
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -147,7 +147,7 @@ def quant_lora_tables(root: Path, protocol: dict[str, Any], inventory: dict[str,
     qrows = ["| 项目 | 数值 |", "|---|---:|"]
     for label, value in (
         ("eligible 权重张量", recipe.get("eligible_tensor_count", scope.get("eligible_tensor_count", "—"))),
-        ("ordinary Linear（权重）", scope.get("ordinary_linear_eligible", "—")),
+        ("ordinary 配方权重张量（含 embedding/position）", scope.get("ordinary_linear_eligible", "—")),
         ("ordinary Linear（激活 QDQ）", scope.get("ordinary_linear_operators", "—")),
         ("CategorySpecificLinear", scope.get("category_linear_layers", "—")),
         ("激活量化 Linear 总数", scope.get("activation_linear_count", "—")),

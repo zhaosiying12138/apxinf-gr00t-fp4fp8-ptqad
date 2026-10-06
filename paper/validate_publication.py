@@ -427,6 +427,10 @@ def check_search_costs(package_inputs, protocol_file, folder=None):
     for row in manifest['files']:
         package_inputs.add(check_record({'path': row['published_path'],
                                          'bytes': row['bytes'], 'sha256': row['sha256']}, folder))
+    if int(load(protocol_file).get('version', 0)) >= 12:
+        from search_cost_binding import verify_search_cost_binding
+        package_inputs.update(verify_search_cost_binding(
+            folder, P / 'evidence/training', P / 'evidence/final_manifest.json'))
     package_inputs.update((manifest_path, P / 'collect_search_costs.py', P / 'collect_training_costs.py'))
     return report
 
@@ -523,6 +527,14 @@ def check_heldout_raw_logs(package_inputs, protocol_file):
         package_inputs.add(check_record({'path': relative, **record}, folder))
     require(audit_heldout_raw_logs(folder) == records,
             'Published raw heldout logs do not reproduce the task receipts')
+    protocol = load(protocol_file)
+    if int(protocol.get('version', 0)) >= 12:
+        from activation_evidence import validate_activation_log
+        for arm in ('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd'):
+            for task in TASKS:
+                validate_activation_log(folder / ('heldout_' + arm) / (task + '.server.log'),
+                                        protocol, quantized=arm != 'bf16')
+        package_inputs.add(P / 'activation_evidence.py')
     package_inputs.add(manifest_path)
 
 
