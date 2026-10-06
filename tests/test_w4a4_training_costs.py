@@ -43,6 +43,24 @@ def capture_stage(root):
 
 
 class W4A4TrainingCosts(unittest.TestCase):
+    def test_v12_cost_gate_binds_format_recipe_and_frozen_protocol_sha(self):
+        protocol_path = ROOT / 'exp/recovery_protocol_v12_rtn_w4a4.json'
+        protocol = read(protocol_path)
+        sha = cost.identity(protocol_path)['sha256']
+        final = {'format': 'w4a4_recovery_v12_final_manifest',
+                 'protocol_sha256': sha, 'selected_pressure_recipe': 'rtn_w4a4_category'}
+        self.assertTrue(cost.final_format_matches(final, protocol, sha))
+        self.assertFalse(cost.final_format_matches(final, protocol, '0' * 64))
+        self.assertFalse(cost.final_format_matches({**final, 'protocol_sha256': '0' * 64}, protocol, sha))
+        self.assertFalse(cost.final_format_matches({**final, 'selected_pressure_recipe': 'all_nvfp4_gptq_category'}, protocol, sha))
+        for value in ('w4a4_recovery_v11_final_manifest', 'high_fp4_v3_final_manifest'):
+            self.assertFalse(cost.final_format_matches({**final, 'format': value}, protocol, sha))
+        self.assertFalse(cost.final_format_matches(final, {**protocol, 'version': 13}, sha))
+        self.assertEqual(cost.partition_budget(protocol, 'heldout'), (10, 16))
+        settings = cost.normalized_protocol(protocol, {'selected_qad_learning_rate': .00005,
+                                                        'selected_opd_weight': .25})
+        self.assertEqual(settings['continuation']['probe_every_optimizer_steps'], 1)
+
     def test_exact_v11_format_and_160_episode_contract(self):
         final={'format':'w4a4_recovery_v11_final_manifest',
                'required_arms':['bf16','ptq','qad','continued_qad','qad_opd']}

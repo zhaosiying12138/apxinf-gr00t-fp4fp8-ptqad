@@ -17,13 +17,13 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
-def complete_v11_fixture(test):
+def complete_v12_fixture(test):
     """Real comparison/extractor interfaces over explicitly synthetic files."""
-    tmp = tempfile.TemporaryDirectory(prefix="explicit-synthetic-v11-render-")
+    tmp = tempfile.TemporaryDirectory(prefix="explicit-synthetic-v12-render-")
     test.addCleanup(tmp.cleanup)
     run = Path(tmp.name)
-    protocol = run / "recovery_protocol_v11_w4a4_category.json"
-    protocol.write_bytes((ROOT / "exp/recovery_protocol_v11_w4a4_category.json").read_bytes())
+    protocol = run / "recovery_protocol_v12_rtn_w4a4.json"
+    protocol.write_bytes((ROOT / "exp" / protocol.name).read_bytes())
     spec = json.loads(protocol.read_text())
     part = spec["partitions"]["heldout"]
     indices, seed = part["init_state_indices"], part["seed"]
@@ -59,9 +59,9 @@ def complete_v11_fixture(test):
     comparison = module.collect_pairing_evidence.compare_round(round_dir)
     write_json(pair_path, comparison)
     write_json(run / "final_manifest.json", {
-        "fixture_only": True, "format": "w4a4_recovery_v11_final_manifest",
+        "fixture_only": True, "format": "w4a4_recovery_v12_final_manifest",
         "protocol_file": str(protocol), "protocol_sha256": module.file_identity(protocol)["sha256"],
-        "selection_uses_heldout": False, "selected_pressure_recipe": "all_nvfp4_gptq_category",
+        "selection_uses_heldout": False, "selected_pressure_recipe": "rtn_w4a4_category",
         "selected_ptq_checkpoint": str(run / "synthetic_checkpoint_identity"),
         "heldout_round": str(round_dir), "heldout_comparison": module.file_identity(pair_path),
         "required_arms": list(module.LABELS), "selected_qad_learning_rate": 5e-5,
@@ -92,8 +92,8 @@ def fixture():
 
 
 class RenderResultsTests(unittest.TestCase):
-    def test_complete_v11_extract_pairing_and_render_without_mock_validators(self):
-        run, final_path = complete_v11_fixture(self)
+    def test_complete_v12_extract_pairing_and_render_without_mock_validators(self):
+        run, final_path = complete_v12_fixture(self)
         output = run / "explicit_synthetic_inserts"
         report = module.build(final_path, output)
         self.assertEqual(set(report["files"]), {"main_table.md", "paired_effects.md", "per_task.md", "summary.md"})
@@ -101,12 +101,13 @@ class RenderResultsTests(unittest.TestCase):
         self.assertIn("96/160", (output / "main_table.md").read_text())
         self.assertIn("-2.50", (output / "paired_effects.md").read_text())
         manifest = json.loads((output / "render_manifest.json").read_text())
+        self.assertEqual(manifest["format"], "v12_recovery_result_inserts_v1")
         sources = {Path(row["path"]).name for row in manifest["sources"]}
         self.assertTrue({"extract_final_evidence.py", "collect_pairing_evidence.py"} <= sources)
         self.assertTrue(all(module.file_identity(row["path"]) == row for row in manifest["sources"]))
 
     def test_source_change_during_real_pairing_verification_creates_no_output(self):
-        run, final_path = complete_v11_fixture(self)
+        run, final_path = complete_v12_fixture(self)
         output = run / "rejected_inserts"
         source = run / "artifacts/heldout_round/heldout_qad/task_results.json"
         original_audit = module.collect_pairing_evidence.audit
@@ -125,9 +126,23 @@ class RenderResultsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="explicit-synthetic-render-recipe-") as temp:
             path = Path(temp) / "final.json"
             write_json(path, {"format": "publication_final_results_v1", "status": "complete",
+                              "source": {"protocol": {
+                                  "path": module.v12_publication_contract.PROTOCOL_NAME,
+                                  "sha256": module.v12_publication_contract.PROTOCOL_SHA256}},
                               "selected_recipe": "mixed"})
-            with self.assertRaisesRegex(ValueError, "unique all_nvfp4_gptq_category"):
+            with self.assertRaisesRegex(ValueError, "v12 RTN W4A4 selection"):
                 module.load_verified(path)
+
+    def test_renderer_rejects_v11_evidence_without_creating_inserts(self):
+        run, final_path = complete_v12_fixture(self)
+        final = json.loads(final_path.read_text())
+        final["source"]["protocol"]["path"] = "recovery_protocol_v11_w4a4_category.json"
+        final["selected_recipe"] = "all_nvfp4_gptq_category"
+        write_json(final_path, final)
+        output = run / "rejected_legacy_inserts"
+        with self.assertRaisesRegex(ValueError, "frozen v12 protocol"):
+            module.build(final_path, output)
+        self.assertFalse(output.exists())
 
     def test_reports_negative_opd_effect_and_ptq_improvement_without_selecting(self):
         texts = module.render(fixture())

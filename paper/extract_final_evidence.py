@@ -20,8 +20,10 @@ from typing import Any
 
 try:
     from .paired_uncertainty import analyze
+    from .v12_publication_contract import PROTOCOL_NAME, PROTOCOL_SHA256
 except ImportError:  # direct CLI invocation
     from paired_uncertainty import analyze
+    from v12_publication_contract import PROTOCOL_NAME, PROTOCOL_SHA256
 
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 PUBLIC_ARMS = ("bf16", "ptq", "qad", "qad_opd")
@@ -123,9 +125,8 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
              f"unsupported or incomplete final manifest format: {final.get('format')!r}")
     _require(final.get("selection_uses_heldout") is False,
              "final selection must be independent of heldout results")
-    _require(final.get("selected_pressure_recipe") in
-             {"rtn_all", "rtn_w4a4_category"},
-             "publication requires a recorded full-coverage W4A4 pressure recipe")
+    _require(final.get("selected_pressure_recipe") == "rtn_w4a4_category",
+             "publication requires the frozen rtn_w4a4_category pressure recipe")
     _require(set(final.get("required_arms", [])) == set(ARMS),
              "final manifest does not declare the complete five-arm comparison")
 
@@ -135,9 +136,10 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
     _require(isinstance(protocol_sha, str) and protocol_sha == _sha256(protocol_file),
              "final protocol SHA-256 disagrees with final manifest")
     protocol = _read(protocol_file)
-    _require(isinstance(protocol.get("version"), int) and protocol.get("version") >= 12 and
-             protocol.get("w4a4") is True,
-             "the publication requires a versioned W4A4 protocol")
+    _require(protocol.get("version") == 12 and protocol.get("id") == "w4a4-recovery-v12-rtn" and
+             protocol.get("w4a4") is True and protocol_file.name == PROTOCOL_NAME and
+             protocol_sha == PROTOCOL_SHA256,
+             "the publication requires the exact frozen v12 RTN W4A4 protocol")
 
     round_dir = Path(final.get("heldout_round", ""))
     comparison_path = round_dir / "paired_comparison.json"

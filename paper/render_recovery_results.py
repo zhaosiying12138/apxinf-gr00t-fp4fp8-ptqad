@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare Chinese result inserts from a completed, reverified v11 run.
+"""Prepare Chinese result inserts from a completed, reverified v12 RTN run.
 
 Writes new reviewable Markdown files only. It never selects an experimental
 arm, fills absent measurements, or overwrites the manuscript or run evidence.
@@ -17,6 +17,7 @@ PAPER = Path(__file__).resolve().parent
 sys.path.insert(0, str(PAPER))
 import collect_pairing_evidence
 import extract_final_evidence
+import v12_publication_contract
 
 LABELS = {"bf16": "BF16", "ptq": "W4A4 PTQ", "qad": "PTQ + QAD",
           "continued_qad": "PTQ + continued-QAD", "qad_opd": "PTQ + QAD + OPD"}
@@ -41,21 +42,21 @@ def load_verified(path):
     final = json.loads(path.read_text(encoding="utf-8"))
     require(final.get("format") == "publication_final_results_v1" and final.get("status") == "complete",
             "final results are not complete publication evidence")
-    require(final.get("selected_recipe") == "all_nvfp4_gptq_category",
-            "v11 result inserts require the unique all_nvfp4_gptq_category recipe")
+    v12_publication_contract.validate_v12_results(final, root=PAPER.parent)
     run = Path(final["source"]["run_dir"])
     pair_path = Path(final["source"]["heldout_comparison"]["path"])
     protocol = final["source"]["protocol"]["path"]
     files = [path, run / "final_manifest.json", pair_path, Path(protocol),
              PAPER / "analysis_plan_w4a4.json", PAPER / "paired_uncertainty.py", Path(__file__),
-             Path(extract_final_evidence.__file__), Path(collect_pairing_evidence.__file__)]
+             Path(extract_final_evidence.__file__), Path(collect_pairing_evidence.__file__),
+             Path(v12_publication_contract.__file__)]
     files += [pair_path.parent / name for name in collect_pairing_evidence.NAMES[1:]]
     # Snapshot before the expensive verification, not after it. The first
     # identity also binds the bytes from which dependency paths were parsed.
     identities = [file_identity(p) for p in files]
     require(identities[0] == first_identity, "final results changed while reading dependencies")
     require(final == extract_final_evidence.extract(run),
-            "final results differ from freshly verified v11 evidence")
+            "final results differ from freshly verified v12 evidence")
     paired = json.loads(pair_path.read_text(encoding="utf-8"))
     # Recompute pairing and accounting from all original five-arm JSON files.
     # This does not claim to replace the release audit of raw task logs.
@@ -121,7 +122,7 @@ def build(final_results, out):
             (stage / name).write_text(text, encoding="utf-8")
         require(all(file_identity(row["path"]) == row for row in sources),
                 "result sources changed during rendering")
-        manifest = {"format": "v11_recovery_result_inserts_v1", "sources": sources,
+        manifest = {"format": "v12_recovery_result_inserts_v1", "sources": sources,
                     "scope": "Verified numerical inserts for editorial review; raw-log, training, storage, screenshots and final publication validation remain separate requirements.",
                     "outputs": {name: hashlib.sha256((stage / name).read_bytes()).hexdigest()
                                 for name in fragments}}

@@ -15,7 +15,10 @@ import json
 from pathlib import Path
 import re
 
-import collect_training_costs as costs
+try:
+    from . import collect_training_costs as costs
+except ImportError:  # direct CLI invocation
+    import collect_training_costs as costs
 
 ROOT = Path(__file__).resolve().parents[1]
 FORMAT = "w4a4_completed_search_costs_v1"
@@ -87,6 +90,12 @@ def copy_evaluation(evidence, folder, target, protocol, purpose, evaluation, pro
 def summarize(root):
     """Recompute every displayed cost from copied raw files, without private paths."""
     index = read(root / "inputs.json")
+    protocol_path = root / "protocol/recovery_protocol.json"
+    protocol = read(protocol_path)
+    protocol_sha = costs.identity(protocol_path)["sha256"]
+    need(index.get("protocol_sha256") == protocol_sha and
+         costs.frozen_w4a4_protocol_matches(protocol, protocol_sha),
+         "Search costs do not match a supported frozen W4A4 protocol")
     rows = {}
     for name, spec in index["candidates"].items():
         base = root / "candidates" / name
@@ -203,8 +212,12 @@ def collect(run_dir, out):
     state = json.loads(state_bytes)
     protocol = evidence.json(state["protocol_file"], "protocol/recovery_protocol.json")
     protocol_sha = costs.identity(state["protocol_file"])["sha256"]
-    need(state["protocol_sha256"] == protocol_sha and protocol.get("id") == "w4a4-recovery-v11-category",
-         "Only the frozen v11 W4A4 protocol is supported")
+    need(state["protocol_sha256"] == protocol_sha and
+         costs.frozen_w4a4_protocol_matches(protocol, protocol_sha),
+         "Search costs require the archived v11 or frozen v12 W4A4 protocol")
+    if protocol.get("version") == 12:
+        need(state.get("selected_recipe") == "rtn_w4a4_category",
+             "v12 search costs require the selected RTN W4A4 recipe")
     evaluation = costs.evaluation_helpers(ROOT / "eval/run_recovery_eval.py")
     for relative in ("paper/collect_training_costs.py", "paper/collect_search_costs.py", "eval/run_recovery_eval.py"):
         evidence.add(ROOT / relative, "source/" + relative, "collector_time_source")

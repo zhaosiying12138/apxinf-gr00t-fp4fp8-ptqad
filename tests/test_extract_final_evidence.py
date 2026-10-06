@@ -8,6 +8,7 @@ from paper.extract_final_evidence import extract
 
 
 TASKS = [f"task_{i}" for i in range(10)]
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _arm(successes):
@@ -29,8 +30,8 @@ class FinalEvidenceAdapterTests(unittest.TestCase):
     def _fixture(self):
         tmp = tempfile.TemporaryDirectory()
         root = Path(tmp.name)
-        protocol = root / "recovery_protocol_v11_w4a4_category.json"
-        protocol.write_text("{\"version\":11,\"w4a4\":true}\n", encoding="utf-8")
+        protocol = root / "recovery_protocol_v12_rtn_w4a4.json"
+        protocol.write_bytes((ROOT / "exp" / protocol.name).read_bytes())
         round_dir = root / "artifacts" / "heldout_round"
         round_dir.mkdir(parents=True)
         comparison = {
@@ -44,11 +45,11 @@ class FinalEvidenceAdapterTests(unittest.TestCase):
         comparison_path = round_dir / "paired_comparison.json"
         comparison_path.write_text(json.dumps(comparison), encoding="utf-8")
         final = {
-            "format": "w4a4_recovery_v11_final_manifest",
+            "format": "w4a4_recovery_v12_final_manifest",
             "protocol_file": str(protocol),
             "protocol_sha256": hashlib.sha256(protocol.read_bytes()).hexdigest(),
             "selection_uses_heldout": False,
-            "selected_pressure_recipe": "all_nvfp4_gptq_category",
+            "selected_pressure_recipe": "rtn_w4a4_category",
             "selected_ptq_checkpoint": str(root / "selected_checkpoint"),
             "heldout_round": str(round_dir),
             "heldout_comparison": {"path": str(comparison_path), "bytes": comparison_path.stat().st_size,
@@ -81,17 +82,39 @@ class FinalEvidenceAdapterTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "independent"):
             extract(root)
 
-    def test_rejects_other_recipes_even_with_v11_protocol(self):
+    def test_rejects_other_recipes_even_with_v12_protocol(self):
         tmp, root = self._fixture()
         self.addCleanup(tmp.cleanup)
         path = root / "final_manifest.json"
         final = json.loads(path.read_text())
-        for recipe in (None, "mixed", "calib_category", "all_linear_nvfp4_gptq"):
+        for recipe in (None, "mixed", "calib_category", "all_nvfp4_gptq_category", "rtn_all"):
             with self.subTest(recipe=recipe):
                 final["selected_pressure_recipe"] = recipe
                 path.write_text(json.dumps(final))
-                with self.assertRaisesRegex(ValueError, "unique all_nvfp4_gptq_category"):
+                with self.assertRaisesRegex(ValueError, "frozen rtn_w4a4_category"):
                     extract(root)
+
+    def test_rejects_changed_protocol_even_when_manifest_hash_is_updated(self):
+        tmp, root = self._fixture()
+        self.addCleanup(tmp.cleanup)
+        path = root / "final_manifest.json"
+        final = json.loads(path.read_text())
+        protocol = Path(final["protocol_file"])
+        protocol.write_bytes(protocol.read_bytes() + b"\n")
+        final["protocol_sha256"] = hashlib.sha256(protocol.read_bytes()).hexdigest()
+        path.write_text(json.dumps(final))
+        with self.assertRaisesRegex(ValueError, "exact frozen v12"):
+            extract(root)
+
+    def test_rejects_legacy_final_manifest_before_reading_its_protocol(self):
+        tmp, root = self._fixture()
+        self.addCleanup(tmp.cleanup)
+        path = root / "final_manifest.json"
+        final = json.loads(path.read_text())
+        final["format"] = "w4a4_recovery_v11_final_manifest"
+        path.write_text(json.dumps(final))
+        with self.assertRaisesRegex(ValueError, "unsupported"):
+            extract(root)
 
     def test_rejects_incomplete_comparison(self):
         tmp, root = self._fixture()
