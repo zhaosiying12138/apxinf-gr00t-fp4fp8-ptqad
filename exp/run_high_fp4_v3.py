@@ -68,10 +68,60 @@ ENV_SUMMARY_KEYS = (
     "PTQAD_ZMQ_TIMEOUT_MS",
 )
 
+# These launch-only values were added to receipts after the numerical keys.
+# A missing optional key and an explicit null both mean "not recorded".
+# Numerical keys are deliberately excluded: even a missing null-valued
+# QAD_MAX_GRAD_NORM must fail rather than silently changing the contract.
+OPTIONAL_LAUNCH_ENV_KEYS = frozenset((
+    "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "PTQAD_ZMQ_TIMEOUT_MS",
+))
+
+# Exact driver versions audited for the v12 live run.  The first version
+# launched its training; the second only added the request timeout and source
+# migration history.  This compatibility repair changes receipt validation,
+# not weights, data, optimizer settings or evaluation partitions.
+AUDITED_RESUME_SOURCE_SHA256 = {
+    "9d5888bf96dc81191142f9ae1a896047176a5791c5d9c48aa932186cd084f9e7":
+        "c44f65a: v12 initialization and initial QAD producer",
+    "1ab2ccd257b8b5bca65a1cf8e4bb094c3c2b1c68dc212c90f226fedb3e3b0a93":
+        "602d2a0: timeout defaults and source history only",
+}
+
 
 def environment_summary(env: dict[str, str]) -> dict[str, Any]:
     """Return a secret-free, JSON-stable summary of numerical env switches."""
     return {"variables": {key: env.get(key) for key in ENV_SUMMARY_KEYS}}
+
+
+def normalized_training_environment(summary: Any) -> dict[str, Any]:
+    """Compare immutable receipts without weakening numerical provenance."""
+    if not isinstance(summary, dict) or set(summary) != {"variables"}:
+        raise OrchestrationError("training environment summary is missing or malformed")
+    values = summary["variables"]
+    if not isinstance(values, dict):
+        raise OrchestrationError("training environment variables are malformed")
+    required = set(ENV_SUMMARY_KEYS) - OPTIONAL_LAUNCH_ENV_KEYS
+    missing = required - set(values)
+    if missing:
+        raise OrchestrationError("training environment lacks numerical keys: " + ", ".join(sorted(missing)))
+    return {key: value for key, value in values.items()
+            if key not in OPTIONAL_LAUNCH_ENV_KEYS or value is not None}
+
+
+def validate_training_environment(request: dict[str, Any], recovery: dict[str, Any]) -> dict[str, Any]:
+    request_env = normalized_training_environment(request.get("environment_summary"))
+    if request_env != normalized_training_environment(environment_summary(request.get("environment", {}))):
+        raise OrchestrationError("training request environment summary is unstable")
+    if normalized_training_environment(recovery.get("environment_summary")) != request_env:
+        raise OrchestrationError("recovery manifest environment differs from training request")
+    return request_env
+
+
+def verify_resume_source(state: dict[str, Any], current_source_sha256: str) -> None:
+    """Permit only reviewed source migrations; never bless an unknown hash."""
+    recorded = state.get("orchestrator_source_sha256", state.get("implementation_sha256"))
+    if recorded != current_source_sha256 and recorded not in AUDITED_RESUME_SOURCE_SHA256:
+        raise OrchestrationError("resume source has not been audited: " + str(recorded))
 
 
 def is_v11(protocol: dict[str, Any]) -> bool:
@@ -527,6 +577,7 @@ class Driver:
             state=jread(man)
             migrated_source = False
             current_source_sha256 = sha(Path(__file__))
+            verify_resume_source(state, current_source_sha256)
             if "orchestrator_source_sha256" not in state:
                 # Existing r4 runs were created before stage-level provenance
                 # was added.  Preserve their launch hash as legacy history and
@@ -784,19 +835,12 @@ class Driver:
         # environment summary as the recovery manifest.  Older v3 fixtures do
         # not have this field and remain readable for CPU regression tests.
         if is_v11(self.protocol):
-            request_env = request.get("environment_summary")
-            if isinstance(request_env, dict):
-                if request_env != environment_summary(request.get("environment", {})):
-                    raise OrchestrationError("training request environment summary is unstable")
-                recorded_env = rec.get("environment_summary")
-                if recorded_env != request_env:
-                    raise OrchestrationError("recovery manifest environment differs from training request")
-                expected_sat = bool(initial is not None and self.w4a4)
-                expected_w4 = "1" if self.w4a4 else "0"
-                vars_ = request_env.get("variables", {})
-                if (vars_.get("FP4VLA_W4A4") != expected_w4 or
-                        vars_.get("FP4VLA_SATURATE_F16_ACTIVATIONS") != ("1" if expected_sat else "0")):
-                    raise OrchestrationError("training request W4A4 environment differs from protocol")
+            vars_ = validate_training_environment(request, rec)
+            expected_sat = bool(initial is not None and self.w4a4)
+            expected_w4 = "1" if self.w4a4 else "0"
+            if (vars_.get("FP4VLA_W4A4") != expected_w4 or
+                    vars_.get("FP4VLA_SATURATE_F16_ACTIVATIONS") != ("1" if expected_sat else "0")):
+                raise OrchestrationError("training request W4A4 environment differs from protocol")
         if (request.get("protocol_sha256")!=self.protocol["sha256"] or
                 request.get("environment",{}).get("QAD_OUT")!=str(p) or
                 float(request.get("environment",{}).get("QAD_LR",-1))!=lr or
