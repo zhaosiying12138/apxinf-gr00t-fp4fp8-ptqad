@@ -436,6 +436,8 @@ export PTQAD_ZMQ_TIMEOUT_MS=120000
 python3 exp/high_fp4_status.py --development-root "$SELECTION" --recovery-root "$RECOVERY"
 ```
 
+完整动作块的固定观测诊断入口见 [动作诊断说明](docs/ACTION_CHUNK_DIAGNOSTICS.md)。它复用正式加载器，从最终清单解析五臂，验证实际初始噪声后比较有效动作区域；训练分区观测只用于拟合分析，不作为独立泛化证据。诊断须在训练和正式评测结束、GPU 空闲后串行执行，验证范围与运行状态以该文档为准。
+
 ### 4. 证据、图表、HTML 和知乎稿
 
 只有冻结 v12 发布运行的 `final_manifest.json` complete 且五臂各 160 回合时才材料化；命令不会把超时或半成品写进正文。上一步独立复现使用了 `$RUN/recovery_protocol_v12_rtn_w4a4.local.json`，其 SHA 与仓库冻结协议不同；它可以用于验证方法，但不能直接喂给正式发布工具。正式发布必须切换到本次冻结 v12 运行目录，并令 `PROTOCOL="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"`。
