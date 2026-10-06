@@ -13,6 +13,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+import readme_v12_metrics
+
 ROOT = Path(__file__).resolve().parents[1]
 PAPER = ROOT / "paper"
 EVIDENCE = PAPER / "evidence"
@@ -105,15 +107,11 @@ def verify() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
     required = {key for _, key in ARMS}
     present = set(final.get("public_arms", {})) | set(final.get("control", {}))
     require(required <= present, "all five final arms are required")
-    captures = read(EVIDENCE / "captures.json")
-    retained = read(EVIDENCE / "retained_captures.json")
-    names = {x.get("figure") for x in captures.get("screenshots", [])}
-    names |= {x.get("figure") for x in retained.get("screenshots", [])}
-    require(names == set(CAPTURE_ORDER), "capture manifest does not cover exactly 17 figures")
-    for name in CAPTURE_ORDER:
-        image = PAPER / "figs" / f"{name}.png"
-        require(image.is_file(), f"missing screenshot {image}")
-        require(png_size(image) == (3840, 2280), f"screenshot {image} is not 3840x2280")
+    try:
+        from readme_v12_provenance import validate_capture_provenance
+        validate_capture_provenance(ROOT)
+    except (ImportError, OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
+        fail(f"screenshot provenance rejected: {exc}")
     inventory = read(EVIDENCE / "recipe_inventory.json")
     recipe_name = inventory.get("recipe")
     recipe = inventory.get("recipes", {}).get(recipe_name)
@@ -124,10 +122,11 @@ def verify() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
 
 
 def result_tables(final: dict[str, Any]) -> tuple[str, str, str]:
-    rows = ["| 配置 | 成功回合 | 成功率 |", "|---|---:|---:|"]
+    rows = ["| 配置 | 成功回合 | macro_success_rate |", "|---|---:|---:|"]
     for label, key in ARMS:
         item = arm(final, key)
-        rows.append(f"| {label} | {item['successes']}/{item['episodes']} | {item['success_rate'] * 100:.2f}% |")
+        macro = item.get("macro_success_rate", item["success_rate"])
+        rows.append(f"| {label} | {item['successes']}/{item['episodes']} | {macro * 100:.2f}% |")
     uncertainty = final.get("uncertainty", {}).get("contrasts", {})
     paired = ["| 比较 | 点差 / pp | 95% 配对 CI / pp | 不一致回合 | 精确 McNemar p | Holm p |",
               "|---|---:|---:|---:|---:|---:|"]
@@ -175,6 +174,15 @@ def training_table(protocol_sha: str) -> str:
 
 
 def capture_table() -> str:
+    # A direct call is a release entry point too: do not render old screenshots
+    # merely because the caller bypassed verify(). Recheck hashes, not a cache.
+    try:
+        from readme_v12_provenance import validate_capture_provenance
+        provenance = validate_capture_provenance(ROOT)
+    except (ImportError, OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
+        fail(f"screenshot provenance rejected: {exc}")
+    require(set(provenance["capture_rows"]) == set(CAPTURE_ORDER),
+            "verified screenshot registry differs from README order")
     labels = {
         "shot_bake": "RTN 配方与编码预算", "shot_collect": "BF16 教师轨迹采集",
         "shot_packed": "π0.5 NVFP4 打包", "shot_probe": "探针和尾批梯度",
@@ -238,6 +246,7 @@ def legacy_engine_section() -> str:
 
 def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[str, Any], protocol_sha: str) -> str:
     summary, paired, tasks = result_tables(final)
+    details = readme_v12_metrics.render_all(ROOT, final, protocol, inventory)
     recipe = inventory["recipes"][inventory["recipe"]]
     residual = inventory["recovery_residual"]["target_bytes"]
     source = recipe["source_tensor_bytes"]
@@ -275,6 +284,18 @@ APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
 
 CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNemar 检验并做 Holm 校正。OPD 的独立作用由 `OPD − continued-QAD` 读取，同时报告 `OPD − QAD`，不把两者混成一个结论。
 
+### 配对 2×2 计数与不确定性参数
+
+{details['paired']}
+
+表中“前者/后者”沿用比较标题顺序：例如 `OPD − continued-QAD` 的“仅前者成功”是 OPD 成功而 continued-QAD 失败。
+
+{details['uncertainty']}
+
+### Held-out 运行收据
+
+{details['heldout']}
+
 ### 逐任务结果
 
 {tasks}
@@ -283,11 +304,27 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 
 目标编码账本覆盖 **{eligible} 个 eligible 张量，NVFP4 占 {fp4_fraction:.2f}%**。源 BF16 权重为 **{source:,} B**，NVFP4 主分支为 **{packed:,} B**，BF16 LoRA 恢复旁路为 **{residual:,} B**，部署合计 **{net:,} B**，净压缩比 **{source / net:.3f}×**。这是 shape-derived 目标预算；checkpoint 文件本身仍可能以原始 dtype 保存。完整逐层账本见 [`paper/evidence/recipe_inventory.json`](paper/evidence/recipe_inventory.json)。
 
+#### 物理张量与 tied alias 去重口径
+
+{details['compression']}
+
+#### 量化覆盖与 LoRA 旁路细账
+
+{details['quantization']}
+
+{details['lora']}
+
 ### 训练成本
 
 {training_table(protocol_sha)}
 
 训练计时包含模型准备和 checkpoint 序列化；显存为进程级 PyTorch allocator 峰值。训练成本与 held-out 成功率分开记账，完整来源见 [`paper/evidence/training/costs.json`](paper/evidence/training/costs.json)。
+
+#### 训练参数、显存与数据准备成本
+
+{details['training_detail']}
+
+{details['collection_search']}
 
 ## 独立 APXInf 执行基准
 

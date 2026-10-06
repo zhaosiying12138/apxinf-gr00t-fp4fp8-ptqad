@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare, but never run, the five v12 W4A4 screenshot commands.
+"""Prepare, but never run, the seven v12 W4A4 screenshot commands.
 
 The generated shell entry points call the repository's existing QAD, teacher
 cache, recovery server, and LIBERO rollout programs.  This CPU-only step
@@ -310,6 +310,57 @@ PY
                     f"QAD_LORA_SCOPE={q(scope)} QAD_LR={q(lr)} QAD_W4A4=1 "
                     "FP4VLA_QUANT=0 FP4VLA_W4A4=1 FP4VLA_SATURATE_F16_ACTIVATIONS=")
     scripts = {
+        "shot_bake": '''#!/usr/bin/env bash
+set -euxo pipefail
+source "$(dirname "$0")/@COMMON_SCRIPT@"
+OUT="$(prepare_scratch shot_bake)"; assert_no_compute_apps
+QAD_RECOVERY="$QAD_ADAPTER/recovery_manifest.json"; test -f "$QAD_RECOVERY"
+cd "$PROJECT"
+"$PTQAD_PYTHON" -u "$PROJECT/paper/build_recipe_inventory_v11.py" \
+  --checkpoint "$PTQ_BASE" \
+  --recovery-manifest "$QAD_RECOVERY" \
+  --out "$OUT/recipe_inventory.json" 2>&1 | tee "$OUT/recipe_inventory.raw.log"
+"$PTQAD_PYTHON" - "$OUT/recipe_inventory.json" "$PROTOCOL_FILE" "$PTQ_BASE" <<'PY'
+import json, sys
+inventory, protocol, base = map(lambda p: json.load(open(p)), sys.argv[1:])
+recipe_name = inventory.get("recipe")
+recipe = inventory.get("recipes", {}).get(recipe_name, {})
+scope = protocol.get("quantization_scope", {})
+assert protocol.get("version") == 12 and protocol.get("w4a4") is True
+assert recipe_name and recipe.get("nvfp4_params") == recipe.get("linear_params")
+assert recipe.get("fp8_params", 0) == 0 and recipe.get("bf16_params", 0) == 0
+print(json.dumps({
+    "protocol": protocol.get("id"),
+    "calibration_mode": scope.get("calibration_mode"),
+    "weight_format": scope.get("weight_format"),
+    "eligible_tensors": scope.get("eligible_tensor_count"),
+    "recipe": recipe_name,
+    "nvfp4_params": recipe.get("nvfp4_params"),
+    "linear_params": recipe.get("linear_params"),
+    "residual_bytes": inventory.get("recovery_residual", {}).get("target_bytes"),
+    "ptq_base": base,
+}, ensure_ascii=False))
+PY
+sha256sum "$PROTOCOL_FILE" "$PTQ_BASE/category_ptq_recipe.json" "$PTQ_BASE/category_bake_manifest.json" "$QAD_RECOVERY"
+printf '%s\\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
+''',
+        "shot_collect": '''#!/usr/bin/env bash
+set -euxo pipefail
+source "$(dirname "$0")/@COMMON_SCRIPT@"
+OUT="$(prepare_scratch shot_collect)"; assert_no_compute_apps
+test -f "$CAPTURE_DATASET/eval_manifest.json"
+test -d "$CAPTURE_DATASET/observations"
+cd "$PROJECT"
+"$PTQAD_PYTHON" -u "$PROJECT/exp/verify_teacher_replay.py" \
+  --root "$CAPTURE_DATASET" \
+  --protocol-file "$PROTOCOL_FILE" \
+  --teacher "$BF16_TEACHER" \
+  --minimum-episodes 2 2>&1 | tee "$OUT/teacher_replay_audit.raw.log"
+SAMPLES="$(find "$CAPTURE_DATASET/observations" -name 'sample_*.pt' -type f | wc -l)"
+TASKS="$(find "$CAPTURE_DATASET/observations" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+printf '%s\\n' "teacher_replay_verified=1 samples=$SAMPLES tasks=$TASKS" | tee "$OUT/teacher_replay_summary.txt"
+printf '%s\\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
+''',
         "shot_qad": '''#!/usr/bin/env bash
 set -euxo pipefail
 source "$(dirname "$0")/@COMMON_SCRIPT@"
@@ -349,6 +400,12 @@ test -f "$OUT/opd/checkpoint-4/recovery_manifest.json"
 printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 ''',
     }
+    # The v11 CPU fixtures still exercise the renderer with a minimal bundle.
+    # Only a validated v12 bundle receives the two new provenance-only stages;
+    # production v12 plans therefore always contain all seven entrypoints.
+    if common_script != COMMON_SCRIPT:
+        scripts.pop("shot_bake")
+        scripts.pop("shot_collect")
     for name, text in scripts.items():
         text = text.replace("@COMMON_SCRIPT@", common_script)
         text = text.replace("@SEED@", q(values["state_seed"])).replace("@COMMON_TRAIN@", common_train)
@@ -433,13 +490,15 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
             "inference_contracts": inference,
             "script_files": script_files,
             "script_dependencies": {"all_entrypoints": [common_script],
-                                    "publication": f"Retain {common_script} and plan.json beside all five entrypoints; publishing entrypoints alone is incomplete."},
-            "stages": {"shot_qad": "two optimizer steps from selected W4A4 PTQ base; path smoke only",
+                                    "publication": f"Retain {common_script} and plan.json beside all seven v12 entrypoints; publishing entrypoints alone is incomplete."},
+            "stages": {"shot_bake": "CPU-only recipe, residual-budget and protocol identity audit",
+                        "shot_collect": "CPU-only verification of the hash-bound successful BF16 teacher replay archive",
+                        "shot_qad": "two optimizer steps from selected W4A4 PTQ base; path smoke only",
                         "shot_rollout": "one LIBERO task and one episode using selected QAD model and hash-verified heldout inference switches; exactly two student observations",
                         "shot_opdcache": "labels those two observations with the BF16 teacher",
                         "shot_opd": "four optimizer steps from selected QAD adapter with selected OPD weight",
                         "shot_evalserver": "loads selected OPD W4A4 adapter with hash-verified heldout inference switches and calls health ping only"},
-            "execution_order": ["shot_qad", "shot_rollout", "shot_opdcache", "shot_opd", "shot_evalserver"],
+            "execution_order": ["shot_bake", "shot_collect", "shot_qad", "shot_rollout", "shot_opdcache", "shot_opd", "shot_evalserver"],
             "rollout_model": "selected_qad_model_identity",
             "rollout_activation_saturation": inference["qad"]["environment"]["FP4VLA_SATURATE_F16_ACTIVATIONS"],
             "note": "Short smoke output is not formal 2000-step training or held-out success evidence. Every script refuses an existing scratch stage and checks GPU idleness."}
@@ -447,17 +506,19 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
     (out / "README.md").write_text(f"""# v12 W4A4 screenshot command set
 
 Generated from the completed v12 `final_manifest.json`. This directory contains
-five real shell commands and does not execute training, evaluation, or desktop
+seven real shell commands and does not execute training, evaluation, or desktop
 capture. Run each script through the approved Ubuntu screenshot skill wrapper.
-Retain `{common_script}` and `plan.json` beside all five entrypoints when archiving
+Retain `{common_script}` and `plan.json` beside all seven entrypoints when archiving
 or publishing this command set. Every entrypoint sources that common file;
-`plan.json` records all six shell-file hashes and the evaluation manifest
+`plan.json` records all eight shell-file hashes and the evaluation manifest
 identities used to select inference switches. Entry scripts alone are incomplete.
 The scripts write only below `scratch/`, refuse existing stage directories,
 check `nvidia-smi` before starting, and preserve raw command output with `set -x`
 and `tee`.
 
-`shot_qad.sh` and `shot_opd.sh` are short path checks (2 and 4 optimizer steps);
+`shot_bake.sh` and `shot_collect.sh` are CPU-only provenance checks. They do not
+re-bake weights or recollect trajectories. `shot_qad.sh` and `shot_opd.sh` are
+short path checks (2 and 4 optimizer steps);
 their output cannot be reported as the formal 2000-step recovery result. Run
 `shot_rollout.sh` before `shot_opdcache.sh`, then `shot_opd.sh`. The server
 health screenshot reports only a `ping` RPC and is not a closed-loop score.
@@ -485,7 +546,7 @@ def main(argv=None):
     values = validate_inputs(bundle)
     plan = render_scripts(args.out.resolve(), bundle, values)
     print(json.dumps({"status": "prepared", "out": str(args.out.resolve()),
-                      "gpu_executed": plan["gpu_executed"], "scripts": 5}, ensure_ascii=False))
+                      "gpu_executed": plan["gpu_executed"], "scripts": 7}, ensure_ascii=False))
     return 0
 
 
