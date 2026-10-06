@@ -58,7 +58,7 @@ PY
 
 ## 串行校准与量化（待执行）
 
-只有在 GPU 空闲后才执行本节。`set -e` 使任一步失败时停止后续步骤；旧校准产物不得混入新输出。普通层用 `calib` 配方请求所有 eligible 普通权重的 NVFP4 GPTQ，别名和非 Linear 项按实际记录回退。category 的活动 LIBERO bank 使用 GPTQ，其余 bank 使用 RTN。
+只有在 GPU 空闲后才执行本节。`set -e` 使任一步失败时停止后续步骤；旧校准产物不得混入新输出。普通层用 `calib` 配方请求所有 eligible 普通权重的 NVFP4 GPTQ，别名和非 Linear 项按实际记录回退。category 的活动 LIBERO bank 比较 GPTQ 与 RTN 的校准误差，误差相同保留 RTN，其余 bank 使用 RTN；最终报告实际选择，不能预先写成七个活动 bank 都采用 GPTQ。
 
 ```bash
 set -e
@@ -86,13 +86,12 @@ OMP_NUM_THREADS=4 "$PTQAD_PY" "$PTQAD_ROOT/quant/ptq/bake.py" \
     --capture-manifest "$PTQAD_CAL/inputs.json" \
     --windows 148 --batch 1 --seed 2026100601 --device cuda --cpu-threads 4
 )
-OMP_NUM_THREADS=4 "$PTQAD_PY" "$PTQAD_ROOT/quant/ptq/bake_category.py" \
-  --parent "$PTQAD_GPTQ/ordinary_parent" --calib "$PTQAD_GPTQ/category_h" \
-  --out "$PTQAD_GPTQ/w4a4_category" --expected-windows 148 \
-  --method gptq_active --gptq-damp 0.01
+"$PTQAD_PY" "$PTQAD_ROOT/exp/bake_gptq_reference_category.py"
 ```
 
-保留两份 `calib_meta.json`、缓存、量化 recipe、bake manifest、源码版本及完整日志。新增 `captured_input_provenance` 位于校准元数据顶层，不改变既有 category parent 身份合同。原 `verify_calibration.py` 检查 Hessian 数值与源权重；它的 PASS 本身不等于重新审计捕获分区。来源审计由适配器执行，并随元数据保存。
+最后一步通过薄包装调用原 `bake_category.py`，参数固定为 `--expected-windows 148 --method gptq_active --gptq-damp 0.01`，路径来自已冻结补充协议。可先加 `--print-command` 查看实际命令而不执行。原 category 产物不记录 damp 参数，因此包装另存完整 argv、退出码及日志 SHA；比较入口必须验收这份 `category_bake_invocation.json`，不能仅凭 producer 默认值推断实际参数。
+
+保留两份 `calib_meta.json`、缓存、量化 recipe、bake manifest、调用记录、源码版本及完整日志。新增 `captured_input_provenance` 位于校准元数据顶层，不改变既有 category parent 身份合同。原 `verify_calibration.py` 检查 Hessian 数值与源权重；它的 PASS 本身不等于重新审计捕获分区。来源审计由适配器执行，并随元数据保存。
 
 ## 补充评测及统计规则（已冻结，待执行）
 
@@ -123,7 +122,19 @@ test -s "$PTQAD_RUN/recovery_v12/artifacts/collection_qad/eval_manifest.json"
 
 以上媒体环境路径对应本机；新安装按 `setup/06_install_recovery.sh` 生成的环境配置填写。`--collection-manifest` 必须指向已完成的学生 collection，不能替换成教师监督清单。基础设施失败保留失败记录和成本，用相同模型、协议及种子在新目录重试；成功率本身不是重跑理由。
 
-后续比较复用 `run_high_fp4_v3.eval_audit` 核对原始日志、实际激活安装及逐回合 reset，再用 `require_pairing` 对齐六臂。统计复用 `paired_uncertainty.paired_effect` 与 `holm_adjust`；现有 `compare_round` 和 `analyze` 固定为主实验五臂与四项比较，不修改其全局定义以加入第六臂。补充比较适配及真实结果仍待完成。
+比较入口 `eval/compare_gptq_reference.py` 复用 `run_high_fp4_v3.eval_audit` 核对原始日志、实际激活安装及逐回合 reset，再用 `require_pairing` 对齐六臂。统计复用 `paired_uncertainty.paired_effect` 与 `holm_adjust`；现有 `compare_round` 和 `analyze` 保持主实验五臂与四项比较。只有全部模型、校准、配对和结果检查通过才生成独立补充报告，不覆盖主实验结果。
+
+```bash
+cd "$PTQAD_ROOT"
+# 此项只检查已冻结的协议、捕获清单和源码，不要求实验完成。
+python3 eval/compare_gptq_reference.py --preflight-only
+# 以下仅在主五臂与新 GPTQ 评测全部完成后执行，CPU 读取实际产物。
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
+  eval/compare_gptq_reference.py \
+  --out "$PTQAD_GPTQ/paired_supplement.json"
+```
+
+当前尚无真实补充评测结果。CPU 测试与预检通过不代表六臂比较已验收，也不代表原生部署性能。
 
 ## CPU 测试
 
@@ -131,6 +142,10 @@ test -s "$PTQAD_RUN/recovery_v12/artifacts/collection_qad/eval_manifest.json"
 cd "$PTQAD_ROOT"
 CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
   -m unittest discover -s tests -p test_captured_calibration.py -v
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
+  -m unittest discover -s tests -p test_gptq_reference_evidence.py -v
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
+  -m unittest discover -s tests -p test_compare_gptq_reference.py -v
 ```
 
-测试验证输入轴和单次遍历、JSON 冻结往返、文件变更、元数据与权重身份拒绝，以及原有 H 累积。它不替代真实 GR00T 模型加载和校准验收。
+测试分别验证捕获输入与原有 H 累积、校准到最终权重的证据链，以及六臂配对统计。证据链测试使用小型真实 safetensors 文件，覆盖合法 RTN 回退、参数及文件篡改拒绝；统计测试覆盖负向结果保留、固定比较方向与多重检验。它们不替代真实 GR00T 模型加载和校准验收。
