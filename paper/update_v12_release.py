@@ -11,6 +11,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from v12_publication_contract import validate_v12_results
+
 ROOT = Path(__file__).resolve().parents[1]
 PAPER = ROOT / "paper"
 SECTIONS = PAPER / "sections"
@@ -87,7 +89,7 @@ def rewrite_main(final: dict) -> None:
     compression = f"{source_bytes / net_bytes:.3f}×"
     intro = f'''# 摘要与引言
 
-视觉—语言—动作模型（Vision–Language–Action model，VLA）把相机观测、语言指令和机器人状态映射为动作。对这类模型，低位宽量化的目标不仅是减少权重占用，还要保持动作反馈到环境之后的任务成功率。本文围绕 **APXInf 推理生态、GR00T N1.7、NVFP4、W4A4 训练后量化（PTQ），以及量化基座上的 QAD/OPD 恢复**，给出一条从数值表示、校准、恢复训练到 LIBERO 闭环评测的可复现链条。
+视觉—语言—动作模型（Vision–Language–Action model，VLA）把相机观测、语言指令和机器人状态映射为动作。对这类模型，低位宽量化的目标不仅是减少权重占用，还要保持动作反馈到环境之后的任务成功率。本文围绕 **APXInf 推理生态、GR00T N1.7、NVFP4、W4A4 训练后量化（PTQ），以及量化基座上的 QAD/OPD 恢复**，给出一条从数值表示、量化、恢复训练到 LIBERO 闭环评测的可复现链条。
 
 本文把 479 个可量化权重张量全部压到 NVFP4，并让 469 个普通 Linear 与 7 个 CategorySpecificLinear 同时采用 NVFP4 激活 QDQ，形成严格的 W4A4 压力基座。PTQ 不更新模型；QAD 在冻结基座上用成功演示训练低秩修正；OPD 再用 QAD 学生真正访问到的状态，请 BF16 教师提供动作生成速度监督。三个阶段回答三个不同问题：低位宽压力是否真实、演示是否能恢复行为、同等追加演示预算之外教师监督是否有独立价值。
 
@@ -105,7 +107,7 @@ PTQ 相对 BF16 的变化为 **{(ptq['success_rate'] - bf['success_rate']) * 100
 
 ## 1.2 从 PTQ 到 QAD，再到 OPD
 
-PTQ 使用已有权重和校准输入确定格式、尺度和舍入结果，不进行恢复训练。本轮为了制造可恢复的 W4A4 压力，冻结的主结果使用全覆盖 NVFP4 RTN 配方；代码同时保留面向块缩放的 GPTQ 接口，但最终结果只采用协议声明的 RTN 基座。
+PTQ（训练后量化）在已有权重上确定格式、尺度和舍入结果，不进行恢复训练；其中 RTN 直接舍入，GPTQ 还使用校准输入估计误差。本文采用全覆盖 NVFP4 RTN 配方作为 W4A4 PTQ 基线；代码同时保留面向块缩放的 GPTQ 接口，但最终结果只采用协议声明的 RTN 基座。
 
 **QAD**（项目中的量化后演示适配）冻结 PTQ 权重，只更新低秩 A/B 参数，使量化模型重新拟合成功演示的动作速度场。**OPD**（学生访问状态上的教师监督）先让 QAD 学生执行闭环，再在这些观测上缓存 BF16 教师速度标签。教师标签固定、学生输入和噪声固定，追加训练时同时使用演示损失和探针损失。
 
@@ -132,7 +134,7 @@ W4A4 只描述线性主分支的权重和激活；3 个 embedding/position 张�
 
 QAD 教师监督来自十个任务的 BF16 成功轨迹。每个窗口保留图像、语言、状态、动作端点和有效 mask；OPD 的 160 个学生访问窗口由选定 QAD 学生采集，再由冻结教师在相同噪声和时间步上标注。开发集只用于选择学习率与 OPD 权重，held-out 结果不回流调参。
 
-{{fig:recovery_protocol}}
+{{{{fig:recovery_protocol}}}}
 
 ## 4.2 五臂对照
 
@@ -156,15 +158,15 @@ QAD 与两个追加分支均使用 rank=32、alpha=64 的 LoRA。QAD 训练 2,00
 
 只有 OPD−continued-QAD 直接回答教师监督是否超过同预算演示续训；OPD−QAD 还包含额外 2,000 次更新，不能单独解释为教师项的纯增益。区间和检验只描述这十个任务、一个训练种子的条件证据，不外推到未见任务。
 
-{{fig:ladder}}
+{{{{fig:ladder}}}}
 
 ## 4.4 编码预算与执行边界
 
 479 个 eligible 张量全部为 NVFP4，普通与类别线性算子为 W4A4；压缩比按去别名 BF16 权重分母、NVFP4 数据、E4M3 块尺度、FP32 二级尺度、未量化张量和 BF16 LoRA 旁路共同计算。本轮 full-checkpoint 主分支为 **{packed_bytes:,} B**，LoRA 旁路为 **{residual_bytes:,} B**，净压缩比为 **{compression}**。完整字节账目由 `paper/evidence/recipe_inventory.json` 生成，不能用稠密 checkpoint 文件大小替代。APXInf 的 NVFP4/FP8 kernel、图重放和 π0.5 计时单独报告；GR00T W4A4 闭环当前是 Torch QDQ 数值参考路径。
 
-{{fig:budget_ladder}}
+{{{{fig:budget_ladder}}}}
 
-{{fig:ptq_frontier}}
+{{{{fig:ptq_frontier}}}}
 
 ## 4.5 训练成本与复现
 
@@ -172,7 +174,7 @@ QAD 与两个追加分支均使用 rank=32、alpha=64 的 LoRA。QAD 训练 2,00
 '''
     (SECTIONS / "04-实验.md").write_text(experiment, encoding="utf-8")
 
-    method = '''# 3. 方法
+    method = r'''# 3. 方法
 
 本文把低位宽主分支与高精度恢复旁路分开定义。这样读者可以先复现 W4A4 PTQ，再复现 QAD，最后复现 OPD，而不会把 LoRA 残差误看成四位主分支的一部分。
 
@@ -180,7 +182,7 @@ QAD 与两个追加分支均使用 rank=32、alpha=64 的 LoRA。QAD 训练 2,00
 
 NVFP4 的数据为 E2M1 四位格点；连续 16 个输入元素共享一个 E4M3 块尺度，张量再共享 FP32 二级尺度。对块 $w_b$，先计算
 
-$$s_b=R_{\\mathrm{E4M3}}(\\max_j|w_{b,j}|/6),\\qquad \\hat w_{b,j}=R_{\\mathrm{E2M1}}(w_{b,j}/s_b)s_b.$$ 
+$$s_b=R_{\mathrm{E4M3}}(\max_j|w_{b,j}|/6),\qquad \hat w_{b,j}=R_{\mathrm{E2M1}}(w_{b,j}/s_b)s_b.$$
 
 二级尺度固定为 1；零块只在除法中使用安全除数，反量化仍严格为零。激活沿最后一维按同样的 16 元素规则量化。线性层因此同时满足 W4 与 A4，服务日志会报告 469/469 ordinary 和 7/7 category 的 W4A4 安装结果。
 
@@ -218,7 +220,7 @@ PTQ−BF16 衡量全覆盖 W4A4 压力，QAD−PTQ 衡量成功演示能否恢�
 
 ## 5.2 复现边界
 
-实验固定 LIBERO-10 十个任务和一个训练种子；未见任务、多种子和实机验证需要另行开展。GR00T 闭环是 Torch W4A4 QDQ 参考路径，APXInf 原生执行是独立基准。QAD/OPD 只覆盖 ordinary Linear，7 个 category 层保持 W4A4 冻结；这保证了 W4A4 压力没有被恢复旁路偷偷改成 BF16。
+实验固定 LIBERO-10 十个任务和一个训练种子；未见任务、多种子和实机验证需要另行开展。GR00T 闭环是 Torch W4A4 QDQ 参考路径，APXInf 原生执行是独立基准。QAD/OPD 只覆盖 ordinary Linear，7 个 category 层保持 W4A4 冻结；量化主分支保持 W4A4，BF16 低秩旁路的参数占用计入净压缩比。
 
 ## 5.3 结论
 
@@ -252,8 +254,7 @@ def rewrite_other_sources() -> None:
 
 def main() -> None:
     final = load("final_results.json")
-    if final.get("status") != "complete":
-        raise SystemExit("final_results.json is incomplete")
+    validate_v12_results(final, root=ROOT)
     meta_path = PAPER / "meta.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     meta["status"] = "v12 RTN W4A4 完整五臂评测与发布证据已核验"

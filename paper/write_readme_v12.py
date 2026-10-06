@@ -1,241 +1,450 @@
 #!/usr/bin/env python3
-"""Generate the concise, evidence-bound project README for the v12 release."""
+"""Write v12 project and paper README files from verified evidence.
+
+The writer is fail-closed: it refuses to render while the published evidence
+still points at an old protocol, has a partial arm, or lacks one of the 17
+registered terminal captures. It never starts an experiment.
+"""
 from __future__ import annotations
+
+import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 PAPER = ROOT / "paper"
+EVIDENCE = PAPER / "evidence"
+EXPECTED_PROTOCOL_ID = "w4a4-recovery-v12-rtn"
+EXPECTED_VERSION = 12
+ARMS = [("BF16", "bf16"), ("W4A4 PTQ", "ptq"), ("PTQ + QAD", "qad"),
+        ("continued-QAD", "continued_qad"), ("PTQ + QAD + OPD", "qad_opd")]
+CONTRASTS = [("PTQ − BF16", "ptq_vs_bf16"), ("QAD − PTQ", "qad_vs_ptq"),
+             ("OPD − QAD", "opd_vs_qad"),
+             ("OPD − continued-QAD", "opd_vs_continued_qad")]
+CAPTURE_ORDER = ["shot_bake", "shot_collect", "shot_evalserver", "shot_fp8probe",
+                 "shot_gemm", "shot_gr00t", "shot_nvfp4", "shot_opbench", "shot_opd",
+                 "shot_opdcache", "shot_packed", "shot_pi05", "shot_probe", "shot_qad",
+                 "shot_qat", "shot_rollout", "shot_verify"]
 
 
-def read(path: str):
-    return json.loads((PAPER / "evidence" / path).read_text(encoding="utf-8"))
+def fail(message: str) -> None:
+    raise SystemExit("write_readme_v12: " + message)
 
 
-def row(final, name):
-    return final["public_arms"].get(name) or final["control"][name]
+def read(path: Path) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        fail(f"missing evidence file: {path}")
+    except json.JSONDecodeError as exc:
+        fail(f"invalid JSON {path}: {exc}")
 
 
-def main() -> None:
-    final = read("final_results.json")
-    protocol = json.loads((PAPER / "evidence" / "protocol" / "recovery_protocol_v12_rtn_w4a4.json").read_text())
-    inventory = read("recipe_inventory.json")
-    recipe = inventory["recipe"]
-    recipe_budget = inventory["recipes"][recipe]
-    residual_bytes = inventory["recovery_residual"]["target_bytes"]
-    source_bytes = recipe_budget["source_tensor_bytes"]
-    packed_bytes = recipe_budget["target_full_checkpoint_bytes"]
-    net_bytes = packed_bytes + residual_bytes
-    net_compression = source_bytes / net_bytes
-    engine_specs = [("GR00T BF16（Torch 基线）", "results/engine/gr00t_bf16_ptqad_20260929.json"),
-                    ("π0.5 BF16", "results/engine/pi05_bf16_ptqad_20260929.json"),
-                    ("π0.5 NVFP4（APXInf 独立路径）", "results/engine/pi05_nvfp4_ptqad_20260929.json")]
-    engine_rows = []
-    for label, rel in engine_specs:
+def sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        fail(message)
+
+
+def arm(final: dict[str, Any], key: str) -> dict[str, Any]:
+    item = final.get("public_arms", {}).get(key)
+    if item is None:
+        item = final.get("control", {}).get(key)
+    require(isinstance(item, dict), f"final_results is missing arm {key}")
+    return item
+
+
+def png_size(path: Path) -> tuple[int, int]:
+    raw = path.read_bytes()
+    require(raw[:8] == b"\x89PNG\r\n\x1a\n", f"not a PNG: {path}")
+    require(raw[12:16] == b"IHDR" and len(raw) >= 24, f"missing PNG IHDR: {path}")
+    return int.from_bytes(raw[16:20], "big"), int.from_bytes(raw[20:24], "big")
+
+
+def verify() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
+    final = read(EVIDENCE / "final_results.json")
+    # The shared release contract binds the repository protocol SHA, selected
+    # RTN recipe and all five arm/task counters.  Keep this call here even
+    # though the checks below also validate publication-local files: it makes
+    # the writer and validate_publication.py agree on the same root protocol.
+    try:
+        from v12_publication_contract import validate_v12_results
+        validate_v12_results(final, root=ROOT)
+    except ImportError:
+        fail("paper/v12_publication_contract.py is missing")
+    except ValueError as exc:
+        fail(str(exc))
+    protocol_path = EVIDENCE / "protocol" / "recovery_protocol_v12_rtn_w4a4.json"
+    protocol = read(protocol_path)
+    manifest = read(EVIDENCE / "final_manifest.json")
+    require(final.get("format") == "publication_final_results_v1", "final_results is not publication format")
+    require(final.get("status") == "complete", "final_results is not complete")
+    require(protocol.get("id") == EXPECTED_PROTOCOL_ID and protocol.get("version") == EXPECTED_VERSION,
+            "published protocol is not v12 RTN")
+    require(protocol.get("w4a4") is True, "published protocol is not W4A4")
+    protocol_sha = sha(protocol_path)
+    require(final.get("source", {}).get("protocol", {}).get("sha256") == protocol_sha,
+            "final_results protocol SHA differs from evidence protocol")
+    require(manifest.get("protocol_sha256") == protocol_sha,
+            "final_manifest protocol SHA differs from evidence protocol")
+    require(str(manifest.get("format", "")).startswith("w4a4_recovery_v12_final_manifest"),
+            "final_manifest is not the v12 release manifest")
+    for _, key in ARMS:
+        row = arm(final, key)
+        require(row.get("episodes") == 160, f"{key} must contain 160 held-out episodes")
+        require(isinstance(row.get("episodes"), int), f"{key} episode count is invalid")
+        require("per_task" in row and len(row["per_task"]) == 10,
+                f"{key} must contain ten per-task rows")
+        require(sum(x.get("episodes", 0) for x in row["per_task"].values()) == 160,
+                f"{key} per-task episodes do not sum to 160")
+    required = {key for _, key in ARMS}
+    present = set(final.get("public_arms", {})) | set(final.get("control", {}))
+    require(required <= present, "all five final arms are required")
+    captures = read(EVIDENCE / "captures.json")
+    retained = read(EVIDENCE / "retained_captures.json")
+    names = {x.get("figure") for x in captures.get("screenshots", [])}
+    names |= {x.get("figure") for x in retained.get("screenshots", [])}
+    require(names == set(CAPTURE_ORDER), "capture manifest does not cover exactly 17 figures")
+    for name in CAPTURE_ORDER:
+        image = PAPER / "figs" / f"{name}.png"
+        require(image.is_file(), f"missing screenshot {image}")
+        require(png_size(image) == (3840, 2280), f"screenshot {image} is not 3840x2280")
+    inventory = read(EVIDENCE / "recipe_inventory.json")
+    recipe_name = inventory.get("recipe")
+    recipe = inventory.get("recipes", {}).get(recipe_name)
+    require(isinstance(recipe, dict), "recipe inventory lacks selected recipe")
+    residual = inventory.get("recovery_residual", {})
+    require(isinstance(residual.get("target_bytes"), int), "recipe inventory lacks adapter bytes")
+    return final, protocol, inventory, protocol_sha
+
+
+def result_tables(final: dict[str, Any]) -> tuple[str, str, str]:
+    rows = ["| 配置 | 成功回合 | 成功率 |", "|---|---:|---:|"]
+    for label, key in ARMS:
+        item = arm(final, key)
+        rows.append(f"| {label} | {item['successes']}/{item['episodes']} | {item['success_rate'] * 100:.2f}% |")
+    uncertainty = final.get("uncertainty", {}).get("contrasts", {})
+    paired = ["| 比较 | 点差 / pp | 95% 配对 CI / pp | 不一致回合 | 精确 McNemar p | Holm p |",
+              "|---|---:|---:|---:|---:|---:|"]
+    for label, key in CONTRASTS:
+        item = uncertainty.get(key)
+        require(isinstance(item, dict), f"missing paired contrast {key}")
+        lo, hi = item["pointwise_ci_pp"]
+        paired.append(f"| {label} | {item['difference_pp']:+.2f} | [{lo:+.2f}, {hi:+.2f}] | "
+                      f"{item['discordant_episodes']} | {item['exact_mcnemar_two_sided_p']:.4g} | "
+                      f"{item['holm_adjusted_p']:.4g} |")
+    tasks = list(arm(final, "bf16")["per_task"])
+    task_rows = ["| 任务 | " + " | ".join(x[0] for x in ARMS) + " |",
+                 "|---|" + "---:|" * len(ARMS)]
+    for task in tasks:
+        cells = [f"{arm(final, key)['per_task'][task]['successes']}/{arm(final, key)['per_task'][task]['episodes']}"
+                 for _, key in ARMS]
+        task_rows.append("| `" + task + "` | " + " | ".join(cells) + " |")
+    return "\n".join(rows), "\n".join(paired), "\n".join(task_rows)
+
+
+def training_table() -> str:
+    path = EVIDENCE / "training" / "costs.json"
+    if not path.is_file():
+        return "|（训练成本尚未材料化）|—|—|—|—|"
+    data = read(path)
+    rows = ["| 阶段 | 更新数 | 演示窗口读取 | 探针学生反传 | 阶段耗时 / h | 显存峰值 / GiB |",
+            "|---|---:|---:|---:|---:|---:|"]
+    for key, label in (("qad", "QAD"), ("continued_qad", "continued-QAD"), ("qad_opd", "QAD + OPD")):
+        item = data.get("training", {}).get(key)
+        if not item:
+            continue
+        peak = max((x.get("max_memory_reserved_bytes", 0) for x in item.get("cuda_peak_memory", [])), default=0) / 2**30
+        rows.append(f"| {label} | {item.get('optimizer_steps', '—')} | {item.get('demonstration_window_draws', '—')} | "
+                    f"{item.get('scheduled_teacher_backward_passes', 0)} | {item.get('wall_seconds', 0)/3600:.3f} | {peak:.2f} |")
+    return "\n".join(rows)
+
+
+def capture_table() -> str:
+    labels = {
+        "shot_bake": "RTN 配方与编码预算", "shot_collect": "完整模型校准",
+        "shot_packed": "π0.5 NVFP4 打包", "shot_probe": "探针和尾批梯度",
+        "shot_qad": "W4A4 QAD 训练", "shot_opdcache": "学生状态教师缓存",
+        "shot_opd": "QAD→OPD 续训", "shot_qat": "激活重算与 LoRA 梯度",
+        "shot_evalserver": "W4A4 服务健康 RPC", "shot_rollout": "LIBERO 闭环",
+        "shot_verify": "量化格点和 checkpoint 校验", "shot_fp8probe": "FP8 描述符探针",
+        "shot_gemm": "9 种 GEMM 形状", "shot_opbench": "18 个实际层形状",
+        "shot_gr00t": "GR00T BF16 执行", "shot_pi05": "π0.5 BF16 执行",
+        "shot_nvfp4": "π0.5 NVFP4 完整路径",
+    }
+    return "\n".join(f"| {i:02d} | {labels[name]} | [查看](paper/figs/{name}.png) |"
+                     for i, name in enumerate(CAPTURE_ORDER, 1))
+
+
+def engine_table() -> str:
+    rows = ["| 路径 | model p50 / ms | total p50 / ms | p50 Hz | 原始记录 |",
+            "|---|---:|---:|---:|---|"]
+    for label, rel in (("GR00T BF16（APXInf 独立路径）", "results/engine/gr00t_bf16_ptqad_20260929.json"),
+                       ("π0.5 BF16（APXInf）", "results/engine/pi05_bf16_ptqad_20260929.json"),
+                       ("π0.5 NVFP4（APXInf）", "results/engine/pi05_nvfp4_ptqad_20260929.json")):
         path = ROOT / rel
-        if path.is_file():
-            data = json.loads(path.read_text(encoding="utf-8"))
-            engine_rows.append(f"| {label} | {data['model_ms_p50']:.2f} | {data['total_ms_p50']:.2f} | {data['hz_p50']:.2f} | `{rel}` |")
-    engine_table = "\n".join(engine_rows) or "| （无已登记的独立基准） | — | — | — | — |"
-    arm_rows = [("BF16", "bf16"), ("W4A4 PTQ", "ptq"), ("PTQ + QAD", "qad"),
-                ("continued-QAD", "continued_qad"), ("PTQ + QAD + OPD", "qad_opd")]
-    metrics = "\n".join(f"| {label} | {row(final, key)['successes']}/{row(final, key)['episodes']} | {row(final, key)['success_rate']*100:.2f}% |"
-                         for label, key in arm_rows)
-    shots = sorted(p.stem for p in (PAPER / "figs").glob("shot_*.png"))
-    shot_table = "\n".join(f"| `{name}` | [查看截图](paper/figs/{name}.png) |" for name in shots)
-    tasks = list(row(final, "bf16")["per_task"])
-    task_table = "\n".join("| `" + task + "` | " + " | ".join(
-        f"{row(final, key)['per_task'][task]['successes']}/{row(final, key)['per_task'][task]['episodes']}" for _, key in arm_rows) + " |"
-        for task in tasks)
-    root = f'''# apxinf-gr00t-fp4fp8-ptqad
+        if not path.is_file():
+            continue
+        data = read(path)
+        rows.append(f"| {label} | {data['model_ms_p50']:.3f} | {data['total_ms_p50']:.3f} | {data['hz_p50']:.3f} | [`{rel}`]({rel}) |")
+    if len(rows) == 2:
+        rows.append("|（未登记独立 APXInf 基准）|—|—|—|—|")
+    return "\n".join(rows)
 
-APXInf × GR00T：**全 NVFP4 W4A4 PTQ + QAD/OPD 量化域恢复**。本项目把视觉—语言—动作模型的权重与激活压到四位，冻结量化基座，用成功演示训练低秩修正，再在学生访问状态上加入 BF16 教师速度监督，并以 LIBERO-10 闭环成功率验收。
 
-## 项目意义
+def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[str, Any], protocol_sha: str) -> str:
+    summary, paired, tasks = result_tables(final)
+    recipe = inventory["recipes"][inventory["recipe"]]
+    residual = inventory["recovery_residual"]["target_bytes"]
+    source = recipe["source_tensor_bytes"]
+    packed = recipe["target_full_checkpoint_bytes"]
+    net = packed + residual
+    eligible = recipe.get("eligible_tensor_count", "—")
+    fp4_fraction = recipe.get("fraction_of_eligible_params", {}).get("nvfp4", 1.0) * 100
+    shots = capture_table()
+    return f'''# apxinf-gr00t-fp4fp8-ptqad
 
-低位宽推理的难点不在于把张量写成四位，而在于量化误差会经过闭环反馈改变下一次观测。项目提供一条可审计链：NVFP4 数值规则 → W4A4 PTQ → QAD 演示恢复 → OPD 学生状态监督 → 逐回合配对评测。GR00T 的行为结果来自 Torch W4A4 QDQ 参考路径；APXInf 原生 NVFP4/FP8 kernel 与图执行是独立的延迟基准，不能混写成 GR00T 已经接入原生 kernel。
+APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
+本项目把 GR00T N1.7 视觉—语言—动作模型的可量化权重和激活压到四位，冻结 W4A4 基座，用成功演示训练低秩 QAD 修正，再在学生访问状态上加入 OPD 教师速度监督，并以 LIBERO-10 的逐回合闭环成功率验收。APXInf 原生 NVFP4/FP8 kernel 与图执行另列为独立算子基准；GR00T 闭环的主结果使用 Torch W4A4 QDQ 参考路径。
+
+## 项目意义与贡献
+
+量化 VLA 的难点是误差会经过动作反馈改变下一次观测。本文固定数值格式、校准和配对初态，完整记录 **RTN W4A4 PTQ → QAD 演示恢复 → OPD 学生状态蒸馏 → 五臂闭环**，使压缩比例、恢复效果、训练预算和复现命令可以逐项核查。
+
+1. 全部 479 个 eligible 张量使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 使用 W4A4 激活 QDQ。
+2. QAD/OPD 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 BF16 LoRA；`continued-QAD` 以同一追加更新预算作为控制臂。
+3. BF16、PTQ、QAD、continued-QAD 和 QAD+OPD 使用同一 LIBERO-10 held-out 初态、任务顺序和 episode 种子；成功率、配对区间和检验只从最终 manifest 读取。
+4. APXInf 的 NVFP4/FP8 编译、缩放、padding、图重放、GEMM 和完整 π0.5 路径独立验收，不把独立 kernel 延迟冒充 GR00T 闭环速度。
 
 ## v12 最终指标
 
-协议：`{protocol['id']}`，SHA-256：`{final['source']['protocol']['sha256']}`。479 个 eligible 权重张量全部使用 NVFP4，469 个 ordinary Linear 和 7 个 CategorySpecificLinear 使用 W4A4 激活；QAD/OPD 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 BF16 LoRA。
+协议 `{protocol['id']}`（version {protocol['version']}，W4A4=true），SHA-256 `{protocol_sha}`。每臂 10 个任务 × 16 回合，共 160 回合。
 
-| 配置 | 成功回合 | 成功率 |
-|---|---:|---:|
-{metrics}
+{summary}
 
-每个任务的原始分子/分母如下（五臂使用同一任务顺序与官方初态）：
+### 配对统计
 
-| 任务 | BF16 | W4A4 PTQ | QAD | continued-QAD | QAD+OPD |
-|---|---:|---:|---:|---:|---:|
-{task_table}
+{paired}
 
-配对差值、bootstrap 区间、McNemar 检验和 Holm 校正见 [`paper/evidence/final_results.json`](paper/evidence/final_results.json) 与 [`paper/evidence/paired_comparison.json`](paper/evidence/paired_comparison.json)。编码预算见 [`paper/evidence/recipe_inventory.json`](paper/evidence/recipe_inventory.json)：物理键口径和去共享别名口径均包含 NVFP4 数据、E4M3 块尺度、FP32 二级尺度、未量化张量和恢复旁路。
+CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNemar 检验并做 Holm 校正。OPD 的独立作用由 `OPD − continued-QAD` 读取，同时报告 `OPD − QAD`，不把两者混成一个结论。
 
-按 shape-derived 字节账本，NVFP4 主分支为 **{packed_bytes:,} B**，BF16 LoRA 恢复旁路为 **{residual_bytes:,} B**，合计 **{net_bytes:,} B**；相对同一口径 BF16 权重 **{source_bytes:,} B**，净压缩比为 **{net_compression:.3f}×**。原始 JSON 同时给出 eligible-only、full-checkpoint 和去共享别名三种口径。
+### 逐任务结果
 
-## 环境需求
+{tasks}
 
-- Ubuntu 22.04/24.04（WSL2 可用）、NVIDIA 驱动、CUDA、可用的 24 GB 以上 GPU。
-- Python 3.12；训练环境由 `setup/06_install_recovery.sh` 创建，APXInf 构建环境由 `setup/01_install_dev_tools.sh` 和 `setup/02_build_engine.sh` 管理。
-- GR00T N1.7 权重、LIBERO-10 官方初态 bank、演示数据；默认路径可在命令中覆盖。
-- 评测依赖独立的 GR00T 服务 Python 和 LIBERO rollout Python。`ffmpeg` 必须可执行；脚本会设置 `HF_HUB_OFFLINE=1` 和 `NO_ALBUMENTATIONS_UPDATE=1`，避免评测时触网。
+### 编码预算
 
-## 安装
+目标编码账本覆盖 **{eligible} 个 eligible 张量，NVFP4 占 {fp4_fraction:.2f}%**。源 BF16 权重为 **{source:,} B**，NVFP4 主分支为 **{packed:,} B**，BF16 LoRA 恢复旁路为 **{residual:,} B**，部署合计 **{net:,} B**，净压缩比 **{source / net:.3f}×**。这是 shape-derived 目标预算；checkpoint 文件本身仍可能以原始 dtype 保存。完整逐层账本见 [`paper/evidence/recipe_inventory.json`](paper/evidence/recipe_inventory.json)。
+
+### 训练成本
+
+{training_table()}
+
+训练计时包含模型准备和 checkpoint 序列化；显存为进程级 PyTorch allocator 峰值。训练成本与 held-out 成功率分开记账，完整来源见 [`paper/evidence/training/costs.json`](paper/evidence/training/costs.json)。
+
+## 独立 APXInf 执行基准
+
+下表只报告独立 APXInf 路径的策略前向延迟，不能替代 GR00T W4A4 的 LIBERO 闭环成功率。GR00T W4A4 当前闭环使用 Torch QDQ；GEMM、18 个实际层形状、数值验收和 graph replay 的完整 CSV/日志见 [`results/engine/`](results/engine/) 与 [`results/native_graph_20260929/`](results/native_graph_20260929/)。
+
+{engine_table()}
+
+## 环境、依赖与安装
+
+目标平台是 WSL2 Ubuntu 22.04/24.04、支持 `sm_120` 的 NVIDIA 驱动和 24 GB 以上 Blackwell GPU。训练服务、LIBERO rollout 和 APXInf 原生引擎使用相互独立的 Python 环境；不要把它们混装。
+
+| 用途 | 主要依赖 |
+|---|---|
+| 训练与服务 | Python 3.12、PyTorch/CUDA、transformers、accelerate、peft、safetensors、numpy、msgpack、pyzmq、ffmpeg、GR00T |
+| LIBERO | 独立 Python 3.12、robosuite、MuJoCo、gym、EGL/OpenGL |
+| APXInf（可选） | CUDA toolkit/cuBLASLt、`nvcc`、Rust/Cargo、C++、Make |
+| 论文构建 | Python 3、uv、Node.js ≥18、Playwright、CairoSVG/Pillow、Noto Sans CJK |
+
+依赖精确版本、源码 revision、权重来源和哈希见 [`setup/locks/manifest.json`](setup/locks/manifest.json)。
 
 ```bash
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl git git-lfs bzip2 unzip python3 python3-venv python3-dev \\
+  build-essential pkg-config cmake ninja-build libssl-dev libegl1 libgl1 libglx0 libglvnd0 \\
+  libosmesa6 libglfw3 libx11-6 libxext6 libxrender1 nodejs npm libcairo2 fontconfig fonts-noto-cjk
+git lfs install
 git clone git@github.com:zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad.git
 cd apxinf-gr00t-fp4fp8-ptqad
-bash setup/00_env_report.sh
 bash setup/01_install_dev_tools.sh
-bash setup/04_install_libero.sh
-bash setup/05_restore_all.sh
-bash setup/06_install_recovery.sh
-# 需要 APXInf 原生算子时再执行：
-bash setup/02_build_engine.sh
-bash setup/03_download_weights.sh
+export PATH="$HOME/.local/bin:$PATH"
+bash setup/03_download_weights.sh --core-only
+CONDA_EXE="${{CONDA_EXE:-$HOME/miniforge3/bin/conda}}" bash setup/06_install_recovery.sh
+source setup/recovery-env.sh
+python3 setup/verify_weights.py --models gr00t cosmos
 ```
 
-训练与评测环境由脚本锁定并安装以下运行时组件：PyTorch/CUDA、`transformers`、`accelerate`、`peft`、`safetensors`、`numpy`、`msgpack`/`msgpack-numpy`、`pyzmq`、`mujoco`、LIBERO、OpenCV、`ffmpeg` 和 GR00T；APXInf 原生构建还需要 Rust/Cargo、`uv`、`maturin`、CUDA toolkit 与对应 GPU 架构。具体版本以 `setup/locks/manifest.json`、各环境的 `pip freeze` 和运行时 manifest 为准，避免用系统 Python 混装。
+需要 APXInf 原生算子时，确认 `nvcc`、`rustc`、`cargo`、`make` 和 `sm_120` 后运行 `bash setup/05_restore_all.sh --with-engine`。只复现 GR00T Torch W4A4 闭环时不需要编译 APXInf。
 
-安装完成后先做静态检查：
+## 从编译到执行
 
-```bash
-python3 -m py_compile eval/rollout_seeded.py eval/run_recovery_eval.py exp/run_w4a4_recovery.py
-python3 paper/run_cpu_checks.py
-```
-
-## 从 PTQ 到闭环评测
-
-以下命令就是本次 v12 的执行入口。路径必须使用新的运行目录；不要把旧运行目录中的数字复制到正文。
+以下命令均来自仓库实际脚本；大模型、校准缓存、训练 checkpoint 和教师张量不进入 Git。先定义新运行目录，避免把旧实验混入证据：
 
 ```bash
-export PROJECT=$PWD
-export PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
+export PROJECT="$PWD"
+source setup/recovery-env.sh
+export PY="$PTQAD_PYTHON" GR00T="$GR00T_REPO" LIBERO_PY="$LIBERO_PYTHON"
+export BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
+export DATASET="$GR00T/demo_data/libero_demo"
+export RUN="$PROJECT/results/reruns/rtn_w4a4_release_$(date -u +%Y%m%dT%H%M%SZ)"
+export PROTOCOL="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"
 export PTQAD_ZMQ_TIMEOUT_MS=120000
-export PYTHON=/home/zhaosiying/miniforge3/envs/triton-dev/bin/python
-export GR00T=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
-export GR00T_PY=$GR00T/.venv/bin/python
-export LIBERO_PY=$GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python
-export DATASET=$GR00T/demo_data/libero_demo
-export RUN=$PROJECT/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12
-export SELECTION=$PROJECT/results/reruns/rtn_w4a4_release_20261006_01/selection_final/selection.json
-export PROTOCOL=$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json
-
-# 开发集：BF16 46/50，RTN 全覆盖 W4A4 PTQ 41/50；随后运行恢复驱动。
-$PYTHON exp/run_w4a4_recovery.py \\
-  --run-dir $RUN --protocol-file $PROTOCOL --ptq-selection $SELECTION \\
-  --base $PROJECT/weights/GR00T-N1.7-LIBERO/libero_10 \\
-  --gr00t-repo $GR00T --python $GR00T_PY --rollout-python $LIBERO_PY \\
-  --dataset $DATASET --port-base 6920 \\
-  --capture-dataset $PROJECT/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean \\
-  --allow-opd-nonimprovement \\
-  --until all
+mkdir -p "$RUN"
 ```
 
-驱动按顺序完成两个 QAD 学习率、QAD 选择、学生采集、教师缓存、continued-QAD、两个 OPD 权重、开发选择和最终五臂 held-out。任何阶段中断后，使用相同命令和 `--until qad_dev|qad_selection|recovery_dev|opd_selection|all` 续跑；只有对应 `stage.json` 和 `runtime_metrics.json` 均为 complete 才允许继续。
-
-评测请求的 ZeroMQ 超时由 `PTQAD_ZMQ_TIMEOUT_MS=120000` 控制。上游 GR00T 默认 15 秒，首次 W4A4/DIT 请求可能超过该值；`eval/rollout_seeded.py` 在本地 rollout 进程中注入同一值，并把它写入每个 `eval_manifest.json`。这修复了旧运行中出现的 `zmq.error.Again: Resource temporarily unavailable`，不改变 episode 的重试语义。
-
-## 证据、论文和验证
+### 0. CPU 契约和源码静态检查
 
 ```bash
-# 从完成的 final_manifest 生成发布结果（只读取 held-out，拒绝不完整运行）
-rm -f paper/evidence/final_results.json paper/evidence/recipe_inventory.json paper/evidence/frontier_comparison.json
-python3 paper/extract_final_evidence.py \\
-  --run-dir $RUN --out /tmp/v12_final_results.json
+"$PY" paper/run_cpu_checks.py --out "$PROJECT/paper/_build/cpu-checks-$(date -u +%Y%m%dT%H%M%SZ)"
+"$PY" -m py_compile quant/ptq/bake.py quant/ptq/bake_category.py \\
+  eval/run_recovery_eval.py exp/run_w4a4_recovery.py exp/make_w4a4_selection.py
+```
 
-# 生成 shape-derived 编码预算（临时路径，安装证据包时复制进去）
-python3 paper/build_recipe_inventory_v11.py \\
-  --checkpoint results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category \\
-  --recovery-manifest $RUN/artifacts/merge_opd_025/recovery_manifest.json \\
-  --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
+### 0.1 APXInf 原生编译与算子验收（可选）
 
-# 将完成的 final_manifest、逐回合日志、协议和训练成本材料化并安装到发布证据目录
-python3 paper/materialize_final_evidence.py \\
-  --final-manifest $RUN/final_manifest.json \\
-  --recipe-inventory /tmp/v12_recipe_inventory.json \\
-  --out paper/_build/final_bundle_v12 \\
-  --orchestrator-run $RUN
-python3 paper/install_final_evidence.py \\
-  --bundle paper/_build/final_bundle_v12 \\
-  --archive paper/evidence.v11.archive
-# 完成审计后可删除替换前的归档，发布包只保留 v12 证据
-rm -rf paper/evidence.v11.archive
+原生路径必须与训练服务串行运行，避免 GPU 抢占。下面的目标来自仓库 `spike/Makefile`；运行结果只计入独立 APXInf 基准。
 
-# 安装完成后写入 frontier 的发布路径
-python3 paper/build_final_frontier.py \\
-  --final-results paper/evidence/final_results.json \\
-  --paired-comparison paper/evidence/paired_comparison.json \\
-  --inventory paper/evidence/recipe_inventory.json \\
-  --out paper/evidence/frontier_comparison.json
+```bash
+export APX="$PROJECT/third_party/apxinf-robo/apxinf"
+export APX_RUN="$PROJECT/results/native_graph_v12"
+export APXINF_CUDA_ARCH=sm_120 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=target/wheel
+export PATH="$HOME/.cargo/bin:$HOME/.local/bin:/usr/local/cuda/bin:$PATH"
+(cd "$APX" && maturin build --release --features cuda --auditwheel skip -m crates/apxinf-py/Cargo.toml)
+(cd "$APX" && cargo build --release -p apxinf-model --features cuda --example pi05_fp4_graph_smoke)
+make -C "$PROJECT/spike" fp4_gemm_bench fp8_probe fp4_opbench
+PTQAD_GPU_EXCLUSIVE=1 bash exp/run_native_graph_gates.sh "$APX_RUN"
+./spike/fp8_probe > "$APX_RUN/fp8_probe.log" 2>&1
+./spike/fp4_gemm_bench --verify --slayout=hw > "$APX_RUN/gemm_verify.stdout" 2> "$APX_RUN/gemm_verify.log"
+./spike/fp4_gemm_bench --slayout=hw --iters=50 > "$APX_RUN/gemm.csv" 2> "$APX_RUN/gemm.log"
+./spike/fp4_opbench --verify-only > "$APX_RUN/opbench_verify.csv" 2> "$APX_RUN/opbench_verify.log"
+./spike/fp4_opbench --warmup=10 --samples=30 > "$APX_RUN/opbench.csv" 2> "$APX_RUN/opbench.log"
+```
 
-# 用 v12 结果重写正文和 README，再构建离线发布包
+### 1. W4A4 RTN PTQ 与 CategorySpecificLinear
+
+`quant/ptq/bake.py` 的 `rtn` 配方不读取 Hessian，直接生成全 NVFP4 普通层；`bake_category.py --method rtn_all` 补齐七个 category bank。
+
+```bash
+export PURE_RTN="$RUN/pure_rtn" CATEGORY_CALIB="$RUN/category_calibration" CATEGORY_OUT="$RUN/rtn_category"
+"$PY" quant/ptq/bake.py --base "$BASE" --out "$PURE_RTN" --recipe rtn --calibration-mode none
+"$PY" quant/ptq/collector_category.py --parent "$PURE_RTN" --out "$CATEGORY_CALIB" \\
+  --dataset "$DATASET" --windows 128 --batch 1 --seed 20261006 --device cuda
+"$PY" quant/ptq/bake_category.py --parent "$PURE_RTN" --calib "$CATEGORY_CALIB" \\
+  --out "$CATEGORY_OUT" --expected-windows 128 --gptq-damp 0.01 --method rtn_all
+```
+
+### 2. development、教师轨迹和选择文件
+
+冻结协议只允许 development 选择压力臂；教师轨迹和学生 collection 只用于训练，held-out 不得参与选择。
+
+```bash
+export DEV="$RUN/development" TEACHER="$RUN/teacher_supervision_v12_clean" COLLECTION="$RUN/collection" SELECTION="$RUN/selection_final"
+mkdir -p "$DEV" "$TEACHER" "$COLLECTION" "$SELECTION"
+# PROTOCOL is frozen and its SHA-256 is part of the release contract. The
+# checked-in v12 file already names the pressure checkpoint layout.
+FP4VLA_QUANT=0 FP4VLA_W4A4=0 "$PY" eval/run_recovery_eval.py --checkpoint "$BASE" --out "$DEV/bf16" --purpose development --seed 940000 --episodes 5 --gr00t "$GR00T" --server-python "$PY" --rollout-python "$LIBERO_PY" --port 6920 --protocol-file "$PROTOCOL"
+FP4VLA_QUANT=0 FP4VLA_W4A4=1 "$PY" eval/run_recovery_eval.py --checkpoint "$CATEGORY_OUT" --out "$DEV/rtn_w4a4_category" --purpose development --seed 940000 --episodes 5 --gr00t "$GR00T" --server-python "$PY" --rollout-python "$LIBERO_PY" --port 6921 --protocol-file "$PROTOCOL"
+python3 exp/make_w4a4_selection.py --protocol-file "$PROTOCOL" --bf16 "$DEV/bf16" --candidate rtn_w4a4_category --candidate-output "$DEV/rtn_w4a4_category" --out "$SELECTION"
+FP4VLA_QUANT=0 FP4VLA_W4A4=0 "$PY" eval/run_recovery_eval.py --checkpoint "$BASE" --out "$TEACHER" --purpose teacher_supervision --seed 950000 --episodes 4 --gr00t "$GR00T" --server-python "$PY" --rollout-python "$LIBERO_PY" --port 6922 --protocol-file "$PROTOCOL"
+python3 exp/verify_teacher_replay.py --root "$TEACHER" --protocol-file "$PROTOCOL" --teacher "$BASE"
+```
+
+### 3. QAD、continued-QAD、OPD 与五臂 held-out
+
+恢复驱动会依次执行两个 QAD 学习率、QAD 选择、学生状态 collection、教师缓存、continued-QAD、两个 OPD 权重和最终五臂评测。网络或 ZeroMQ 超时后保持同一 `RUN`，按 `--until` 续跑；不要编辑 JSON 分数。
+
+```bash
+export PTQAD_ZMQ_TIMEOUT_MS=120000
+"$PY" exp/run_w4a4_recovery.py --run-dir "$RUN" --protocol-file "$PROTOCOL" \\
+  --ptq-selection "$SELECTION/selection.json" --base "$BASE" --gr00t-repo "$GR00T" \\
+  --python "$PY" --rollout-python "$LIBERO_PY" --dataset "$DATASET" \\
+  --capture-dataset "$TEACHER" --port-base 6920 --validate-only
+"$PY" exp/run_w4a4_recovery.py --run-dir "$RUN" --protocol-file "$PROTOCOL" \\
+  --ptq-selection "$SELECTION/selection.json" --base "$BASE" --gr00t-repo "$GR00T" \\
+  --python "$PY" --rollout-python "$LIBERO_PY" --dataset "$DATASET" \\
+  --capture-dataset "$TEACHER" --port-base 6920 --until all --allow-opd-nonimprovement
+```
+
+### 4. 证据、图表、HTML 和知乎稿
+
+只有 `final_manifest.json` complete 且五臂各 160 回合时才材料化；命令不会把超时或半成品写进正文。
+
+```bash
+python3 paper/extract_final_evidence.py --run-dir "$RUN" --out /tmp/v12_final_results.json
+python3 paper/build_recipe_inventory_v11.py --checkpoint "$CATEGORY_OUT" --recovery-manifest "$RUN/artifacts/merge_opd_025/recovery_manifest.json" --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
+python3 paper/materialize_final_evidence.py --final-manifest "$RUN/final_manifest.json" --recipe-inventory /tmp/v12_recipe_inventory.json --out paper/_build/final_bundle_v12 --orchestrator-run "$RUN"
+python3 paper/install_final_evidence.py --bundle paper/_build/final_bundle_v12 --archive paper/evidence.v12.previous
+python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
 python3 paper/update_v12_release.py
 python3 paper/write_readme_v12.py
-python3 paper/make_figs.py
-python3 paper/build_html.py
-python3 paper/export_zhihu.py
+python3 paper/make_figs.py && bash paper/figs/render_pngs.sh
+python3 paper/build_html.py && python3 paper/export_zhihu.py
+PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/qa_browser.cjs
 python3 paper/validate_publication.py
 python3 paper/package_publication.py --check
-PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/qa_browser.cjs
-git diff --check
 ```
 
-`paper/paper.html` 是内嵌 KaTeX、SVG、PNG 的离线论文；`paper/zhihu/article.md` 是同一正文的知乎发布稿。`paper/evidence/` 保存协议副本、逐臂 manifest、逐任务 JSON、原始 rollout/server 日志、训练成本和哈希清单。
+### 5. 截图登记
+
+最终五臂完成后先生成本轮受控脚本，再用仓库内的 Windows/WSL 采集工具逐张运行；训练和评测进程必须退出，GPU 必须空闲。
+
+```bash
+CAPTURE_ROOT="$RUN/captures/w4a4_final"
+python3 paper/prepare_w4a4_captures.py --final-manifest "$RUN/final_manifest.json" --out "$CAPTURE_ROOT"
+```
+
+请按 [`setup/windows_capture/README.md`](setup/windows_capture/README.md) 执行每个 `$CAPTURE_ROOT/shot_*.sh`，保留原始 `.log`、`.json`、`.window-binding.json` 和 `.crop.json`，再以 `paper/record_capture.py --figure ... --visually-verified` 登记。登记后 `write_readme_v12.py` 会检查 17 个 PNG 均为 3840×2280。
 
 ## Ubuntu 执行截图
 
-所有图均来自真实 WSL Ubuntu 紫色主题终端，尺寸为 3840×2280（去除 taskbar）。截图只证明命令确实执行；数值以 JSON/日志为准。
+发布包保留 17 张真实 WSL Ubuntu 紫色终端截图，去除 taskbar 后均为 3840×2280。截图是命令执行凭证，最终数字仍以 JSON 和日志为准。
 
-| 环节 | 截图 |
-|---|---|
-{shot_table}
+| 编号 | 环节 | 图片 |
+|---:|---|---|
+{shots}
 
-重新拍摄截图时使用 `wsl-ubuntu-screenshot` skill 的 managed wrapper：命令必须写入 WSL 脚本并原样执行，输出 PNG 保存在 Windows 本地盘后再裁剪 taskbar、安装到 `paper/figs/` 并用 `paper/record_capture.py` 登记哈希。训练和评测截图不能与其他 GPU 作业并行。
+受 W4A4 实现影响的截图必须在 GPU 空闲时按 `setup/windows_capture/README.md` 的 managed wrapper 重拍；每张图同时登记 `.sh`、`.log`、sidecar、裁剪记录和 SHA-256。
 
-## 目录说明
+## 目录与复现边界
 
 ```text
-exp/                 冻结协议、恢复驱动和编排
-quant/ rl/           NVFP4 PTQ、W4A4 QDQ、QAD/OPD 训练实现
-eval/                服务、配对重置、闭环评测与统计
-paper/               HTML、知乎 Markdown、图表、截图和证据包
-setup/               环境、权重、引擎和恢复依赖安装脚本
-patches/             APXInf/GR00T 集成补丁
+quant/       NVFP4 格式、校准、RTN/PTQ 配方与写盘
+rl/          QAD、学生状态、教师缓存、OPD 与 LoRA 导出
+eval/        GR00T 服务、LIBERO 配对闭环和逐回合日志
+exp/         v12 冻结协议、选择和恢复驱动
+setup/       环境、权重、APXInf 构建和锁文件
+paper/       HTML、知乎 Markdown、图表、截图和证据包
+docs/        复现与原生引擎说明
 ```
 
-## 复现边界
-
-结果针对固定的 LIBERO-10 任务、官方初态 bank 和一个训练 seed；它不声称未见任务、多 seed 或实机泛化。APXInf 的原生 NVFP4/FP8 延迟属于独立工程基准，当前 GR00T 闭环使用 Torch 数值 QDQ。QAD/OPD 的 BF16 LoRA 旁路必须计入净压缩比，不能把“479 个张量全部 NVFP4”写成整个 checkpoint 每个字节都是四位。
-
-## 独立执行基准
-
-下表只报告模型前向和端到端 wrapper 延迟，不替代 LIBERO 闭环成功率，也不把 APXInf π0.5 路径写成 GR00T 已接入原生 kernel。
-
-| 路径 | model p50 (ms) | total p50 (ms) | p50 Hz | 原始 JSON |
-|---|---:|---:|---:|---|
-{engine_table}
+结果只针对固定 LIBERO-10 任务、官方初态 bank 和本协议训练 seed；不声称未见任务、多 seed 或实机泛化。QAD/OPD 的 BF16 LoRA 旁路已计入净压缩比。APXInf 原生延迟是独立工程基准，不能直接换算为 GR00T W4A4 闭环速度。
 
 ## 许可证与引用
 
-代码和补丁按仓库许可证发布；GR00T、APXInf、LIBERO、MuJoCo 和相关模型权重遵循各自上游许可证。引用方法时请同时引用 [`paper/paper.html`](paper/paper.html)、协议 [`exp/recovery_protocol_v12_rtn_w4a4.json`](exp/recovery_protocol_v12_rtn_w4a4.json) 和最终证据 [`paper/evidence/final_results.json`](paper/evidence/final_results.json)。
+本仓库当前没有项目自有 `LICENSE` 文件；代码、补丁、GR00T、APXInf、LIBERO、MuJoCo、模型权重和数据均遵循各自上游许可。引用时请同时保留 [`paper/paper.html`](paper/paper.html)、协议 [`exp/recovery_protocol_v12_rtn_w4a4.json`](exp/recovery_protocol_v12_rtn_w4a4.json) 和最终证据 [`paper/evidence/final_results.json`](paper/evidence/final_results.json)。
 '''
+
+
+def main() -> None:
+    final, protocol, inventory, protocol_sha = verify()
+    root = build_root(final, protocol, inventory, protocol_sha)
+    paper = "# v12 W4A4 论文与证据包\n\n"
+    paper += "这里保存离线论文 [`paper.html`](paper.html)、知乎稿 [`zhihu/article.md`](zhihu/article.md)、17 张 Ubuntu 执行截图、v12 RTN W4A4 协议和逐回合证据。工程安装、编译、PTQ、QAD、OPD、闭环评测和发布命令以仓库根目录 [`README.md`](../README.md) 为准。\n\n"
+    paper += "| 配置 | 闭环成功率 |\n|---|---:|\n"
+    for label, key in ARMS:
+        item = arm(final, key)
+        paper += f"| {label} | {item['successes']}/{item['episodes']}（{item['success_rate'] * 100:.2f}%） |\n"
+    paper += "\n数字唯一来源是 `final_results.json`、`paired_comparison.json`、`final_manifest.json` 和每个 held-out 臂的原始 rollout/server 日志。`validate_publication.py` 会拒绝缺失五臂、旧协议 SHA、非 3840×2280 截图或未完成状态。\n\n"
+    paper += "截图登记见 [`evidence/captures.json`](evidence/captures.json) 与 [`evidence/retained_captures.json`](evidence/retained_captures.json)；图表和 HTML/知乎稿必须由根 README 的命令重建，不手工改生成文件。\n"
     (ROOT / "README.md").write_text(root, encoding="utf-8")
-    paper_readme = f'''# v12 W4A4 论文与证据包
-
-这里保存离线论文 [`paper.html`](paper.html)、知乎稿 [`zhihu/article.md`](zhihu/article.md)、17 张 Ubuntu 执行截图、协议副本和逐回合证据。正文只使用 v12 RTN 全覆盖 W4A4 实验；工程安装、训练、评测和发布命令以根目录 [`README.md`](../README.md) 为准。
-
-| 配置 | 闭环成功率 |
-|---|---:|
-| BF16 | {row(final, 'bf16')['successes']}/{row(final, 'bf16')['episodes']}（{row(final, 'bf16')['success_rate']*100:.2f}%） |
-| W4A4 PTQ | {row(final, 'ptq')['successes']}/{row(final, 'ptq')['episodes']}（{row(final, 'ptq')['success_rate']*100:.2f}%） |
-| PTQ + QAD | {row(final, 'qad')['successes']}/{row(final, 'qad')['episodes']}（{row(final, 'qad')['success_rate']*100:.2f}%） |
-| continued-QAD | {row(final, 'continued_qad')['successes']}/{row(final, 'continued_qad')['episodes']}（{row(final, 'continued_qad')['success_rate']*100:.2f}%） |
-| PTQ + QAD + OPD | {row(final, 'qad_opd')['successes']}/{row(final, 'qad_opd')['episodes']}（{row(final, 'qad_opd')['success_rate']*100:.2f}%） |
-
-`final_results.json`、`paired_comparison.json` 和每个 held-out 臂的原始 rollout/server 日志构成唯一数字来源；截图是命令执行凭证，不替代 JSON 统计。
-'''
-    (PAPER / "README.md").write_text(paper_readme, encoding="utf-8")
+    (PAPER / "README.md").write_text(paper, encoding="utf-8")
 
 
 if __name__ == "__main__":
