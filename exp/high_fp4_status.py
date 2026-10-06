@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Read-only progress for the frozen v11 W4A4 recovery study."""
+"""Read-only progress for the current frozen W4A4 recovery study.
+
+Log counters describe recorded work, not process liveness or final evidence.
+Explicit root arguments can still inspect another run without modifying it.
+"""
 import argparse
 import json
 from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_RUN = ROOT / "results/reruns/rtn_w4a4_release_20261006_01"
 
 
 def load(path):
@@ -51,30 +56,27 @@ def evaluation(folder):
 
 
 def status(development, recovery):
-    # v11 keeps the development arms in named run directories and the frozen
-    # selection one level below them.  Accept either the parent directory or
-    # the selection directory so this read-only helper remains convenient.
+    # Current selections carry each audited development arm beside selection.json.
+    # Retain explicit inspection of the older layout without choosing it by default.
     selection_path = development / "selection.json"
     if not selection_path.is_file() and (development / "v11_selection" / "selection.json").is_file():
         selection_path = development / "v11_selection" / "selection.json"
-        development = development
     selection = load(selection_path)
     candidates = (selection or {}).get("arms", {})
     if not candidates:
-        candidates = ("bf16", "all_nvfp4_gptq_category")
-    candidate_dirs = {
-        "bf16": development / "w4a4_dev_bf16_v11",
-        "all_nvfp4_gptq_category": development / "w4a4_dev_full_category",
-    }
-    if development.name == "v11_selection":
-        candidate_dirs = {
-            "bf16": development.parent / "w4a4_dev_bf16_v11",
-            "all_nvfp4_gptq_category": development.parent / "w4a4_dev_full_category",
-        }
+        candidates = ("bf16", "rtn_w4a4_category")
+    legacy_parent = development.parent if development.name == "v11_selection" else development
+    legacy_names = {"bf16": "w4a4_dev_bf16_v11",
+                    "all_nvfp4_gptq_category": "w4a4_dev_full_category"}
+    candidate_dirs = {}
+    for arm in candidates:
+        direct = selection_path.parent / arm
+        legacy = legacy_parent / legacy_names.get(arm, arm)
+        candidate_dirs[arm] = direct if direct.is_dir() or not legacy.is_dir() else legacy
     result = {"scope": "progress_only_not_final_results",
               "note": "Incomplete records do not prove that a process is currently running.",
               "paths": {"development": str(development), "recovery": str(recovery)},
-              "development": {arm: evaluation(candidate_dirs.get(arm, development / arm))
+              "development": {arm: evaluation(candidate_dirs[arm])
                               for arm in candidates}}
     if selection is not None:
         result["ptq_selection"] = {key: selection.get(key) for key in
@@ -118,8 +120,8 @@ def status(development, recovery):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    base = ROOT / "results/ptqad_20261003/v11_recovery_r4"
-    default_development = ROOT / "results/ptqad_20261003/v11_selection"
+    base = DEFAULT_RUN / "recovery_v12"
+    default_development = DEFAULT_RUN / "selection_final"
     parser.add_argument("--development-root", type=Path,
                         default=default_development)
     parser.add_argument("--recovery-root", type=Path, default=base)

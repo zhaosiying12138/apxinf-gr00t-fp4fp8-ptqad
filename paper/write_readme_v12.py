@@ -430,6 +430,12 @@ export PTQAD_ZMQ_TIMEOUT_MS=120000
   --capture-dataset "$TEACHER" --port-base 6920 --until all --allow-opd-nonimprovement
 ```
 
+运行期间，可在已设置同一组路径变量的另一个终端查看记录进度。该命令只读日志与阶段收据；未完成记录本身不能证明进程仍在运行，日志步数也不是最终成功率。
+
+```bash
+python3 exp/high_fp4_status.py --development-root "$SELECTION" --recovery-root "$RECOVERY"
+```
+
 ### 4. 证据、图表、HTML 和知乎稿
 
 只有冻结 v12 发布运行的 `final_manifest.json` complete 且五臂各 160 回合时才材料化；命令不会把超时或半成品写进正文。上一步独立复现使用了 `$RUN/recovery_protocol_v12_rtn_w4a4.local.json`，其 SHA 与仓库冻结协议不同；它可以用于验证方法，但不能直接喂给正式发布工具。正式发布必须切换到本次冻结 v12 运行目录，并令 `PROTOCOL="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"`。
