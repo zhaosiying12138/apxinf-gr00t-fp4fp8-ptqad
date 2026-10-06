@@ -1,0 +1,5 @@
+# CPU metric replay on Ubuntu x86_64; CPython 3.12 matches the recovery runtime.
+# Official CPU wheel URL/hash avoids uv run ignoring requirements index options.
+-r requirements-build.txt
+torch @ https://download-r2.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl#sha256=28f6eb31b08180a5c5e98d5bc14eef6909c9f5a1dbff9632c3e02a8773449349
+numpy==1.26.4

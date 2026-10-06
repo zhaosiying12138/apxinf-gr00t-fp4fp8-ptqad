@@ -247,10 +247,15 @@ def legacy_engine_section() -> str:
 def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[str, Any], protocol_sha: str) -> str:
     summary, paired, tasks = result_tables(final)
     details = readme_v12_metrics.render_all(ROOT, final, protocol, inventory)
+    from action_diagnostics_publication import load_verified, render
+    action_diagnostics = render(load_verified(PAPER), detailed=True)
+    from gptq_reference_publication import load_verified as load_gptq, render as render_gptq
+    gptq_reference = render_gptq(load_gptq(PAPER), detailed=True)
     recipe = inventory["recipes"][inventory["recipe"]]
     residual = inventory["recovery_residual"]["target_bytes"]
-    source = recipe["source_tensor_bytes"]
-    packed = recipe["target_full_checkpoint_bytes"]
+    deduplicated = recipe["known_tied_alias_deduplicated"]
+    source = deduplicated["source_tensor_bytes"]
+    packed = deduplicated["target_full_bytes"]
     net = packed + residual
     eligible = recipe.get("eligible_tensor_count", "—")
     fp4_fraction = recipe.get("fraction_of_eligible_params", {}).get("nvfp4", 1.0) * 100
@@ -259,6 +264,7 @@ def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[
     installation = (PAPER / "readme_v12_installation.md").read_text(encoding="utf-8").strip()
     engine_commands = (PAPER / "readme_v12_engine_commands.md").read_text(encoding="utf-8").strip()
     capture_commands = (PAPER / "readme_v12_capture_commands.md").read_text(encoding="utf-8").strip()
+    supplement_commands = (PAPER / "readme_v12_supplement_commands.md").read_text(encoding="utf-8").strip()
     return f'''# apxinf-gr00t-fp4fp8-ptqad
 
 APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
@@ -301,9 +307,17 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 
 {tasks}
 
+### 固定观测上的完整动作诊断
+
+{action_diagnostics}
+
+### 同覆盖的校准 GPTQ 参考
+
+{gptq_reference}
+
 ### 编码预算
 
-目标编码账本覆盖 **{eligible} 个 eligible 张量，NVFP4 占 {fp4_fraction:.2f}%**。源 BF16 权重为 **{source:,} B**，NVFP4 主分支为 **{packed:,} B**，BF16 LoRA 恢复旁路为 **{residual:,} B**，部署合计 **{net:,} B**，净压缩比 **{source / net:.3f}×**。这是 shape-derived 目标预算；checkpoint 文件本身仍可能以原始 dtype 保存。完整逐层账本见 [`paper/evidence/recipe_inventory.json`](paper/evidence/recipe_inventory.json)。
+目标编码账本覆盖 **{eligible} 个 eligible 张量，NVFP4 占 {fp4_fraction:.2f}%**。对已知共享权重别名去重后，源 BF16 权重为 **{source:,} B**，NVFP4 主分支为 **{packed:,} B**，BF16 LoRA 恢复旁路为 **{residual:,} B**，部署合计 **{net:,} B**，净压缩比 **{source / net:.3f}×**。这是 shape-derived 目标预算；checkpoint 文件本身仍可能以原始 dtype 保存。完整逐层账本见 [`paper/evidence/recipe_inventory.json`](paper/evidence/recipe_inventory.json)。
 
 #### 物理张量与 tied alias 去重口径
 
@@ -488,6 +502,8 @@ subprocess.run(command, check=True)
 PY
 ```
 
+{supplement_commands}
+
 ### 5. 截图登记
 
 最终五臂完成后先生成本轮受控脚本，再用仓库内的 Windows/WSL 采集工具逐张运行；训练和评测进程必须退出，GPU 必须空闲。
@@ -502,8 +518,8 @@ python3 paper/prepare_w4a4_captures.py --final-manifest "$RECOVERY/final_manifes
 截图登记完毕后，再从同一套证据生成文稿与发布包。先前的输出目录或临时文件若已存在，工具会拒绝覆盖；复跑时使用新的 staging 名称并保留来源记录。
 
 ```bash
-python3 paper/update_v12_release.py
-python3 paper/write_readme_v12.py
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/update_v12_release.py
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/write_readme_v12.py
 sudo apt-get install -y libcairo2 fontconfig fonts-noto-cjk
 node --version  # Node.js >=18; install from https://nodejs.org/ if absent.
 npm install --prefix paper/_build/renderer --save-exact playwright@1.58.2
@@ -512,9 +528,9 @@ python3 paper/make_figs.py && bash paper/figs/render_pngs.sh
 uv run --with-requirements paper/requirements-build.txt python paper/build_html.py
 python3 paper/export_zhihu.py
 node paper/qa_browser.cjs
-uv run --with-requirements paper/requirements-build.txt python paper/validate_publication.py
-uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py --check
-uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/validate_publication.py
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/package_publication.py --check
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/package_publication.py
 ```
 
 {engine_commands}
@@ -562,7 +578,7 @@ def main() -> None:
     for label, key in ARMS:
         item = arm(final, key)
         paper += f"| {label} | {item['successes']}/{item['episodes']}（{item['success_rate'] * 100:.2f}%） |\n"
-    paper += "\n数字唯一来源是 `final_results.json`、`paired_comparison.json`、`final_manifest.json` 和每个 held-out 臂的原始 rollout/server 日志。`validate_publication.py` 会拒绝缺失五臂、旧协议 SHA、非 3840×2280 截图或未完成状态。\n\n"
+    paper += "\n主结果来自 `final_results.json`、`paired_comparison.json`、`final_manifest.json` 和每个 held-out 臂的原始 rollout/server 日志。`evidence/action_diagnostics/` 保存可复算的完整动作诊断，`evidence/gptq_reference/` 保存校准 GPTQ 参考的原始日志与独立配对统计。`validate_publication.py` 会拒绝缺失五臂或补充证据、旧协议 SHA、非 3840×2280 截图以及未完成状态。\n\n"
     paper += "截图登记见 [`evidence/captures.json`](evidence/captures.json) 与 [`evidence/retained_captures.json`](evidence/retained_captures.json)；图表和 HTML/知乎稿必须由根 README 的命令重建，不手工改生成文件。\n"
     (ROOT / "README.md").write_text(root, encoding="utf-8")
     (PAPER / "README.md").write_text(paper, encoding="utf-8")

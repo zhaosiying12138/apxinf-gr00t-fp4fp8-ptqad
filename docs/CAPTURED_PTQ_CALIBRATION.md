@@ -136,6 +136,22 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
 
 当前尚无真实补充评测结果。CPU 测试与预检通过不代表六臂比较已验收，也不代表原生部署性能。
 
+## 可搬移发布证据
+
+补充评测及比较完成后，保留源权重和 Hessian 直到归档通过。归档器重新运行源端比较验收，再保存原始 JSON、日志、配方、校准元数据及源码。主五臂证据必须先安装到 `paper/evidence/`；补充目录不覆盖五臂核心结果。
+
+```bash
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
+  paper/collect_gptq_reference.py \
+  --report "$PTQAD_GPTQ/paired_supplement.json" \
+  --main-evidence paper/evidence --out paper/evidence/gptq_reference
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
+  python paper/collect_gptq_reference.py \
+  --verify paper/evidence/gptq_reference --main-evidence paper/evidence
+```
+
+公开复验从已归档的原始日志重建六臂逐回合结果和预先固定的配对统计，不访问原电脑的绝对路径。权重、相机输入与 Hessian 不进入发布包；其张量验收来自源端收据，公开复验不会把记录哈希说成已重新读取这些张量。论文和 README 只有在补充证据通过复验后才生成相应表格。
+
 ## CPU 测试
 
 ```bash
@@ -146,6 +162,8 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
   -m unittest discover -s tests -p test_gptq_reference_evidence.py -v
 CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
   -m unittest discover -s tests -p test_compare_gptq_reference.py -v
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
+  -m unittest discover -s tests -p test_collect_gptq_reference.py -v
 ```
 
 测试分别验证捕获输入与原有 H 累积、校准到最终权重的证据链，以及六臂配对统计。证据链测试使用小型真实 safetensors 文件，覆盖合法 RTN 回退、参数及文件篡改拒绝；统计测试覆盖负向结果保留、固定比较方向与多重检验。它们不替代真实 GR00T 模型加载和校准验收。

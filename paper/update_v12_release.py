@@ -78,7 +78,7 @@ def paired_table(final: dict) -> str:
     return "\n".join(rows)
 
 
-def rewrite_main(final: dict) -> None:
+def rewrite_main(final: dict, diagnostic_text: str, gptq_text: str) -> None:
     bf = arm_row(final, "bf16"); ptq = arm_row(final, "ptq"); qad = arm_row(final, "qad")
     cont = arm_row(final, "continued_qad"); opd = arm_row(final, "qad_opd")
     inventory = load("recipe_inventory.json")
@@ -109,7 +109,7 @@ PTQ 相对 BF16 的变化为 **{(ptq['success_rate'] - bf['success_rate']) * 100
 
 ## 1.2 从 PTQ 到 QAD，再到 OPD
 
-PTQ（训练后量化）在已有权重上确定格式、尺度和舍入结果，不进行恢复训练；其中 RTN 直接舍入，GPTQ 还使用校准输入估计误差。本文采用全覆盖 NVFP4 RTN 配方作为 W4A4 PTQ 基线；代码同时保留面向块缩放的 GPTQ 接口，但最终结果只采用协议声明的 RTN 基座。
+PTQ（训练后量化）在已有权重上确定格式、尺度和舍入结果，不进行恢复训练；其中 RTN 直接舍入，GPTQ 还使用校准输入估计误差。主五臂采用全覆盖 NVFP4 RTN 基座，并另设同覆盖的校准 GPTQ 参考，检验恢复模型相对于校准 PTQ 的效果。
 
 **QAD**（项目中的量化后演示适配）冻结 PTQ 权重，只更新低秩适配（LoRA）的 A/B 参数，使量化模型重新拟合成功演示的动作速度场。**OPD**（学生访问状态上的教师监督）先让 QAD 学生执行闭环，再在这些观测上缓存 BF16 教师速度标签。缓存固定输入、教师标签和随机种子，追加训练时重放相同噪声与时间，同时使用演示损失和探针损失。
 
@@ -175,6 +175,14 @@ APXInf 的 NVFP4/FP8 kernel、图重放和 π0.5 计时单独报告；GR00T W4A4
 ## 4.5 训练成本与复现
 
 运行目录中的每个阶段都有 `recovery_manifest.json`、训练日志、checkpoint identity 和协议 SHA。继续 QAD 与 OPD 使用相同演示读取数和优化器更新数；OPD 另有学生探针前向/反传，因此耗时不等同。完整命令、环境安装、五臂评测、截图和逐文件哈希见根目录 `README.md` 及附录 B。
+
+## 4.6 固定观测上的完整动作诊断
+
+{diagnostic_text}
+
+## 4.7 同覆盖的校准 GPTQ 参考
+
+{gptq_text}
 '''
     (SECTIONS / "04-实验.md").write_text(experiment, encoding="utf-8")
 
@@ -500,11 +508,15 @@ development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合
 def main() -> None:
     final = load("final_results.json")
     validate_v12_results(final, root=ROOT)
+    from action_diagnostics_publication import load_verified, render
+    diagnostic_text = render(load_verified(PAPER))
+    from gptq_reference_publication import load_verified as load_gptq, render as render_gptq
+    gptq_text = render_gptq(load_gptq(PAPER))
     meta_path = PAPER / "meta.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     meta["status"] = "v12 RTN W4A4 完整五臂评测与发布证据已核验"
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    rewrite_main(final)
+    rewrite_main(final, diagnostic_text, gptq_text)
     rewrite_other_sources()
 
 

@@ -64,11 +64,33 @@ done
 
 每臂保留 `actions.pt`、`manifest.json` 和原始日志。完成真实运行后，需要检查实际噪声配对、覆盖记录、反归一化范围及数值结果，再决定哪些表格纳入论文。这里只测固定观测上的完整动作块，尚未测量独立状态上的速度场误差或短程闭环末端偏移；这两项不能由本工具的 MSE 替代。
 
+## 可搬移发布证据
+
+真实五臂诊断完成后，在原检查点和捕获数据仍可读取时导出。工具重新验证选中模型字节、输入分区、源码及五臂完成状态，再把完整噪声、动作和反归一化输出无损转换为 JSON。输出已存在时拒绝覆盖；这一环节只用 CPU，不执行策略。
+
+```bash
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
+  paper/collect_action_diagnostics.py collect \
+  --source-root "$PTQAD_DIAG" \
+  --final-manifest "$PTQAD_RUN/recovery_v12/final_manifest.json" \
+  --out paper/evidence/action_diagnostics
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
+  python paper/collect_action_diagnostics.py verify \
+  --folder paper/evidence/action_diagnostics \
+  --final-manifest paper/evidence/final_manifest.json
+```
+
+最后一个命令要求主五臂证据已安装。独立搬移归档时可省略 `--final-manifest`，用包内最终清单核验。公开归档保存原始清单、日志、源码以及有限数值张量的 dtype、shape、数值和字节摘要，可以离开原机器重算四项动作比较。模型和相机输入仅保存身份，不声称归档本身足以重新运行推理。正式论文及 README 从复验后的结果生成表格，缺失该证据时拒绝生成终稿。
+
+当前仅已实现和测试归档工具；尚未运行真实 GPU 诊断或导出真实发布证据。
+
 ## CPU 验证
 
 ```bash
 CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
   -m unittest discover -s tests -p test_action_chunk_diagnostics.py -v
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
+  -m unittest discover -s tests -p test_collect_action_diagnostics.py -v
 ```
 
 测试覆盖完整积分入口与 RTC 排除、随机状态和模型模式恢复、实际噪声配对、padding 排除、完整 16 步计量、夹爪中性点、分区隔离、最终模型身份与适配器字节变化，以及不同源码版本之间的比较拒绝。CPU 测试不证明真实 GPU 推理或部署性能。

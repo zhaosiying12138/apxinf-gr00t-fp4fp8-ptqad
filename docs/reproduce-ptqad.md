@@ -321,16 +321,18 @@ subprocess.run(command, check=True)
 PY
 ```
 
-审阅并安装新的 `runtime/manifest.json` 到 `paper/evidence/runtime/manifest.json`。删除正文中已完成项目的红色占位并将元信息改为正式稿后，依次生成图、两种正文、浏览器检查及发布包：
+审阅并安装新的 `runtime/manifest.json` 到 `paper/evidence/runtime/manifest.json`。随后完成[动作诊断](ACTION_CHUNK_DIAGNOSTICS.md)和[校准 GPTQ 参考](CAPTURED_PTQ_CALIBRATION.md)，按各自命令归档到 `paper/evidence/action_diagnostics/` 与 `paper/evidence/gptq_reference/`。这两项补充不改动主五臂结果；正式发布会从动作输出和原始评测日志重新计算指标。全部证据就绪后，由生成器填入真实数字，再生成图、两种正文、浏览器检查及发布包：
 
 ```bash
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/update_v12_release.py
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/write_readme_v12.py
 "$PTQAD_PYTHON" paper/make_figs.py
 bash paper/figs/render_pngs.sh
 uv run --with-requirements paper/requirements-build.txt python paper/build_html.py
 uv run --with-requirements paper/requirements-build.txt python paper/export_zhihu.py
 PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/qa_browser.cjs
-uv run --with-requirements paper/requirements-build.txt python paper/validate_publication.py
-uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/validate_publication.py
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt python paper/package_publication.py
 ```
 
 结果未完成时，只使用 `uv run --with-requirements paper/requirements-build.txt python paper/build_review.py` 生成审阅包。它保留17个截图环节：已完成截图正常显示，待重拍环节使用文字占位，其未更新图片不进入 HTML、知乎稿或审阅 ZIP。未完成结果保留红色 `xxx`，正式发布校验会拒绝它。最终ZIP必须补齐17张实拍，并通过截图身份、逐回合配对、统计分析、训练成本、图位及离线资源检查；不能复用改稿前的浏览器验收报告。

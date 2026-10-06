@@ -607,6 +607,35 @@ def check_uncertainty(final, paired, package_inputs):
     package_inputs.update((plan, P / 'paired_uncertainty.py'))
 
 
+def check_action_diagnostics(package_inputs):
+    from action_diagnostics_publication import load_verified, render
+    diagnostic = load_verified(P)
+    require(render(diagnostic) in (P / 'sections/04-实验.md').read_text(),
+            'Article action diagnostic table is absent or stale')
+    require(render(diagnostic, detailed=True) in (P.parent / 'README.md').read_text(),
+            'README action diagnostic tables are absent or stale')
+    package_inputs.update(diagnostic['files'])
+    package_inputs.update((P / 'collect_action_diagnostics.py',
+                           P / 'action_diagnostics_publication.py',
+                           P / 'requirements-evidence.txt', P.parent / 'README.md',
+                           P / 'readme_v12_supplement_commands.md',
+                           P.parent / 'docs/ACTION_CHUNK_DIAGNOSTICS.md'))
+    return diagnostic
+
+
+def check_gptq_reference(package_inputs):
+    from gptq_reference_publication import load_verified, render
+    supplement = load_verified(P)
+    require(render(supplement) in (P / 'sections/04-实验.md').read_text(),
+            'Article GPTQ reference tables are absent or stale')
+    require(render(supplement, detailed=True) in (P.parent / 'README.md').read_text(),
+            'README GPTQ reference tables are absent or stale')
+    package_inputs.update(supplement['files'])
+    package_inputs.update((P / 'collect_gptq_reference.py', P / 'gptq_reference_publication.py',
+                           P.parent / 'docs/CAPTURED_PTQ_CALIBRATION.md'))
+    return supplement
+
+
 def validate(write_report=True,protocol_file=None):
     sections=sorted((P/'sections').glob('*.md'))
     require({path.name for path in sections}=={
@@ -674,6 +703,8 @@ def validate(write_report=True,protocol_file=None):
     from compare_recovery import compare_round
     require(compare_round(P/'evidence',protocol_paths)==paired, 'Copied heldout evidence does not reproduce the reported comparison')
     check_heldout_raw_logs(package_inputs, protocol_file)
+    action_diagnostics = check_action_diagnostics(package_inputs)
+    gptq_reference = check_gptq_reference(package_inputs)
     # v12 publishes one selected W4A4 checkpoint; rebuild that frontier from
     # its heldout-only source instead of accepting the retired PTQ ladder
     # validator and its reference runs.
@@ -734,6 +765,11 @@ def validate(write_report=True,protocol_file=None):
     training_costs=check_training_costs(runtime,package_inputs,protocol_file)
     search_costs=check_search_costs(package_inputs,protocol_file)
     report={'passed':True,'source_sections':len(sections),'figures':len(figures),'required_figure_references':len(required),
+            'action_diagnostics_recomputed': True,
+            'action_diagnostic_comparisons': list(action_diagnostics['comparisons']),
+            'gptq_reference_raw_logs_replayed': gptq_reference['raw_logs_replayed'],
+            'gptq_reference_statistics_recomputed': gptq_reference['paired_statistics_recomputed'],
+            'gptq_tensor_contents_reverified_offline': gptq_reference['tensor_contents_reverified_offline'],
             'verified_screenshots':len(checks),'code_blocks_preserved':len(code(source)),'offline_html':True,
             'table_of_contents_links':len(page.anchors),'screenshots':checks,'training_cost_evidence_verified':True,
             'teacher_backward_accounting':{

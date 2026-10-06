@@ -44,7 +44,7 @@ def publication_files():
             'Unexpected or missing Zhihu image; remove stale exports before packaging')
     require({p.name for p in (P/'figs').iterdir() if p.is_file()} == expected_figs,
             'Unexpected or missing figure asset; no unregistered figures may enter publication')
-    files = [P/name for name in ('paper.html','README.md','meta.json','figures.json','requirements-build.txt',
+    files = [P/name for name in ('paper.html','README.md','meta.json','figures.json','requirements-build.txt','requirements-evidence.txt',
                                 'analysis_plan_w4a4.json')]
     files.extend((P/'sections').glob('*.md'))
     for folder in ('zhihu','figs','evidence','assets'):
