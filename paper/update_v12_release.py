@@ -254,6 +254,10 @@ def main() -> None:
     final = load("final_results.json")
     if final.get("status") != "complete":
         raise SystemExit("final_results.json is incomplete")
+    meta_path = PAPER / "meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    meta["status"] = "v12 RTN W4A4 完整五臂评测与发布证据已核验"
+    meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     rewrite_main(final)
     rewrite_other_sources()
 
