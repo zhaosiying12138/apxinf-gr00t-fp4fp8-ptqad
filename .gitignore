@@ -15,6 +15,9 @@ results/**/observations/
 # paper/evidence/; never commit the raw checkpoints or live run directory.
 results/ptqad_20261003/
 results/archive/
+# Full W4A4 recovery reruns are local evidence sources.  The publication keeps
+# compact manifests, hashes and selected logs under paper/evidence/.
+results/reruns/
 
 # Local acceptance attempts are retained on disk, outside the formal evidence.
 results/ptqad_20260929/bank_bf16_smoke*
