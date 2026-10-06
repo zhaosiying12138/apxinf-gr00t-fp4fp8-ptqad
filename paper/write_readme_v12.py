@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -149,16 +150,22 @@ def result_tables(final: dict[str, Any]) -> tuple[str, str, str]:
 
 def training_table() -> str:
     path = EVIDENCE / "training" / "costs.json"
-    if not path.is_file():
-        return "|（训练成本尚未材料化）|—|—|—|—|"
+    require(path.is_file(), "paper/evidence/training/costs.json is required; refusing zero/placeholder costs")
     data = read(path)
+    require(data.get("status") == "complete", "training cost evidence is incomplete")
+    require(set(data.get("training", {})) == {"qad", "continued_qad", "qad_opd"},
+            "training cost evidence must contain QAD, continued-QAD and QAD+OPD")
     rows = ["| 阶段 | 更新数 | 演示窗口读取 | 探针学生反传 | 阶段耗时 / h | 显存峰值 / GiB |",
             "|---|---:|---:|---:|---:|---:|"]
     for key, label in (("qad", "QAD"), ("continued_qad", "continued-QAD"), ("qad_opd", "QAD + OPD")):
         item = data.get("training", {}).get(key)
-        if not item:
-            continue
+        require(isinstance(item, dict), f"missing training cost stage {key}")
+        require(int(item.get("optimizer_steps", 0)) > 0 and int(item.get("demonstration_window_draws", 0)) > 0,
+                f"training cost stage {key} has zero/unknown update or draw count")
+        require(float(item.get("wall_seconds", 0)) > 0, f"training cost stage {key} has no measured wall time")
+        require(item.get("cuda_peak_memory"), f"training cost stage {key} has no allocator peak")
         peak = max((x.get("max_memory_reserved_bytes", 0) for x in item.get("cuda_peak_memory", [])), default=0) / 2**30
+        require(peak > 0, f"training cost stage {key} has zero allocator peak")
         rows.append(f"| {label} | {item.get('optimizer_steps', '—')} | {item.get('demonstration_window_draws', '—')} | "
                     f"{item.get('scheduled_teacher_backward_passes', 0)} | {item.get('wall_seconds', 0)/3600:.3f} | {peak:.2f} |")
     return "\n".join(rows)
@@ -166,7 +173,7 @@ def training_table() -> str:
 
 def capture_table() -> str:
     labels = {
-        "shot_bake": "RTN 配方与编码预算", "shot_collect": "完整模型校准",
+        "shot_bake": "RTN 配方与编码预算", "shot_collect": "BF16 教师轨迹采集",
         "shot_packed": "π0.5 NVFP4 打包", "shot_probe": "探针和尾批梯度",
         "shot_qad": "W4A4 QAD 训练", "shot_opdcache": "学生状态教师缓存",
         "shot_opd": "QAD→OPD 续训", "shot_qat": "激活重算与 LoRA 梯度",
@@ -176,7 +183,7 @@ def capture_table() -> str:
         "shot_gr00t": "GR00T BF16 执行", "shot_pi05": "π0.5 BF16 执行",
         "shot_nvfp4": "π0.5 NVFP4 完整路径",
     }
-    return "\n".join(f"| {i:02d} | {labels[name]} | [查看](paper/figs/{name}.png) |"
+    return "\n".join(f"| {i:02d} | {labels[name]} | ![{labels[name]}](paper/figs/{name}.png) |"
                      for i, name in enumerate(CAPTURE_ORDER, 1))
 
 
@@ -196,6 +203,36 @@ def engine_table() -> str:
     return "\n".join(rows)
 
 
+def legacy_engine_section() -> str:
+    """Retain the full, already-reviewed APXInf metric section.
+
+    The old section contains independent 2026-09-29 engine/GEMM/graph data,
+    not the superseded closed-loop arm results.  Read it from the current
+    checkout when available and fall back to HEAD so rerunning the writer does
+    not progressively delete the detailed tables.
+    """
+    template = PAPER / "readme_v12_legacy_engine.md"
+    source = ROOT / "README.md"
+    text = template.read_text(encoding="utf-8") if template.is_file() else (source.read_text(encoding="utf-8") if source.is_file() else "")
+    if template.is_file():
+        return text.replace("## 独立执行基准", "### 完整独立 APXInf、GEMM 与图执行记录", 1).strip()
+    start, end = text.find("## 独立执行基准"), text.find("## 运行环境")
+    if not (start >= 0 and end > start):
+        try:
+            text = subprocess.run(["git", "show", "HEAD:README.md"], cwd=ROOT,
+                                  check=True, capture_output=True, text=True).stdout
+        except (OSError, subprocess.CalledProcessError):
+            return ""
+        start, end = text.find("## 独立执行基准"), text.find("## 运行环境")
+    if not (start >= 0 and end > start):
+        return ""
+    section = text[start:end].strip()
+    # It is nested below the v12 summary and contains no v11 closed-loop
+    # numbers. Keep all tables/details while avoiding a duplicate top-level
+    # heading in the generated README.
+    return section.replace("## 独立执行基准", "### 完整独立 APXInf、GEMM 与图执行记录", 1)
+
+
 def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[str, Any], protocol_sha: str) -> str:
     summary, paired, tasks = result_tables(final)
     recipe = inventory["recipes"][inventory["recipe"]]
@@ -206,6 +243,9 @@ def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[
     eligible = recipe.get("eligible_tensor_count", "—")
     fp4_fraction = recipe.get("fraction_of_eligible_params", {}).get("nvfp4", 1.0) * 100
     shots = capture_table()
+    legacy_engine = legacy_engine_section()
+    installation = (PAPER / "readme_v12_installation.md").read_text(encoding="utf-8").strip()
+    engine_commands = (PAPER / "readme_v12_engine_commands.md").read_text(encoding="utf-8").strip()
     return f'''# apxinf-gr00t-fp4fp8-ptqad
 
 APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
@@ -252,6 +292,8 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 
 {engine_table()}
 
+{legacy_engine}
+
 ## 环境、依赖与安装
 
 目标平台是 WSL2 Ubuntu 22.04/24.04、支持 `sm_120` 的 NVIDIA 驱动和 24 GB 以上 Blackwell GPU。训练服务、LIBERO rollout 和 APXInf 原生引擎使用相互独立的 Python 环境；不要把它们混装。
@@ -265,23 +307,7 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 
 依赖精确版本、源码 revision、权重来源和哈希见 [`setup/locks/manifest.json`](setup/locks/manifest.json)。
 
-```bash
-sudo apt-get update
-sudo apt-get install -y ca-certificates curl git git-lfs bzip2 unzip python3 python3-venv python3-dev \\
-  build-essential pkg-config cmake ninja-build libssl-dev libegl1 libgl1 libglx0 libglvnd0 \\
-  libosmesa6 libglfw3 libx11-6 libxext6 libxrender1 nodejs npm libcairo2 fontconfig fonts-noto-cjk
-git lfs install
-git clone git@github.com:zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad.git
-cd apxinf-gr00t-fp4fp8-ptqad
-bash setup/01_install_dev_tools.sh
-export PATH="$HOME/.local/bin:$PATH"
-bash setup/03_download_weights.sh --core-only
-CONDA_EXE="${{CONDA_EXE:-$HOME/miniforge3/bin/conda}}" bash setup/06_install_recovery.sh
-source setup/recovery-env.sh
-python3 setup/verify_weights.py --models gr00t cosmos
-```
-
-需要 APXInf 原生算子时，确认 `nvcc`、`rustc`、`cargo`、`make` 和 `sm_120` 后运行 `bash setup/05_restore_all.sh --with-engine`。只复现 GR00T Torch W4A4 闭环时不需要编译 APXInf。
+{installation}
 
 ## 从编译到执行
 
@@ -294,7 +320,9 @@ export PY="$PTQAD_PYTHON" GR00T="$GR00T_REPO" LIBERO_PY="$LIBERO_PYTHON"
 export BASE="$PROJECT/weights/GR00T-N1.7-LIBERO/libero_10"
 export DATASET="$GR00T/demo_data/libero_demo"
 export RUN="$PROJECT/results/reruns/rtn_w4a4_release_$(date -u +%Y%m%dT%H%M%SZ)"
-export PROTOCOL="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"
+export PROTOCOL_SRC="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"
+export PROTOCOL="$PROTOCOL_SRC"
+export RECOVERY="$RUN/recovery_v12"
 export PTQAD_ZMQ_TIMEOUT_MS=120000
 mkdir -p "$RUN"
 ```
@@ -305,26 +333,6 @@ mkdir -p "$RUN"
 "$PY" paper/run_cpu_checks.py --out "$PROJECT/paper/_build/cpu-checks-$(date -u +%Y%m%dT%H%M%SZ)"
 "$PY" -m py_compile quant/ptq/bake.py quant/ptq/bake_category.py \\
   eval/run_recovery_eval.py exp/run_w4a4_recovery.py exp/make_w4a4_selection.py
-```
-
-### 0.1 APXInf 原生编译与算子验收（可选）
-
-原生路径必须与训练服务串行运行，避免 GPU 抢占。下面的目标来自仓库 `spike/Makefile`；运行结果只计入独立 APXInf 基准。
-
-```bash
-export APX="$PROJECT/third_party/apxinf-robo/apxinf"
-export APX_RUN="$PROJECT/results/native_graph_v12"
-export APXINF_CUDA_ARCH=sm_120 CARGO_BUILD_JOBS=1 CARGO_TARGET_DIR=target/wheel
-export PATH="$HOME/.cargo/bin:$HOME/.local/bin:/usr/local/cuda/bin:$PATH"
-(cd "$APX" && maturin build --release --features cuda --auditwheel skip -m crates/apxinf-py/Cargo.toml)
-(cd "$APX" && cargo build --release -p apxinf-model --features cuda --example pi05_fp4_graph_smoke)
-make -C "$PROJECT/spike" fp4_gemm_bench fp8_probe fp4_opbench
-PTQAD_GPU_EXCLUSIVE=1 bash exp/run_native_graph_gates.sh "$APX_RUN"
-./spike/fp8_probe > "$APX_RUN/fp8_probe.log" 2>&1
-./spike/fp4_gemm_bench --verify --slayout=hw > "$APX_RUN/gemm_verify.stdout" 2> "$APX_RUN/gemm_verify.log"
-./spike/fp4_gemm_bench --slayout=hw --iters=50 > "$APX_RUN/gemm.csv" 2> "$APX_RUN/gemm.log"
-./spike/fp4_opbench --verify-only > "$APX_RUN/opbench_verify.csv" 2> "$APX_RUN/opbench_verify.log"
-./spike/fp4_opbench --warmup=10 --samples=30 > "$APX_RUN/opbench.csv" 2> "$APX_RUN/opbench.log"
 ```
 
 ### 1. W4A4 RTN PTQ 与 CategorySpecificLinear
@@ -346,9 +354,20 @@ export PURE_RTN="$RUN/pure_rtn" CATEGORY_CALIB="$RUN/category_calibration" CATEG
 
 ```bash
 export DEV="$RUN/development" TEACHER="$RUN/teacher_supervision_v12_clean" COLLECTION="$RUN/collection" SELECTION="$RUN/selection_final"
-mkdir -p "$DEV" "$TEACHER" "$COLLECTION" "$SELECTION"
-# PROTOCOL is frozen and its SHA-256 is part of the release contract. The
-# checked-in v12 file already names the pressure checkpoint layout.
+mkdir -p "$DEV" "$COLLECTION" "$SELECTION"
+# A new bake lives under RUN, so standalone reproduction uses a local protocol
+# copy whose pressure checkpoint path and SHA are bound to this run. The
+# checked-in PROTOCOL_SRC remains immutable and is the only input accepted by
+# the formal publication writer.
+cp "$PROTOCOL_SRC" "$RUN/recovery_protocol_v12_rtn_w4a4.local.json"
+export PROTOCOL="$RUN/recovery_protocol_v12_rtn_w4a4.local.json"
+"$PY" - "$PROTOCOL" "$CATEGORY_OUT" <<'PY'
+import hashlib, json, pathlib, sys
+p = pathlib.Path(sys.argv[1]); d = json.loads(p.read_text())
+d["selection"]["pressure_candidate_checkpoints"]["rtn_w4a4_category"] = str(pathlib.Path(sys.argv[2]).resolve())
+p.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\\n")
+print("standalone protocol sha256:", hashlib.sha256(p.read_bytes()).hexdigest())
+PY
 FP4VLA_QUANT=0 FP4VLA_W4A4=0 "$PY" eval/run_recovery_eval.py --checkpoint "$BASE" --out "$DEV/bf16" --purpose development --seed 940000 --episodes 5 --gr00t "$GR00T" --server-python "$PY" --rollout-python "$LIBERO_PY" --port 6920 --protocol-file "$PROTOCOL"
 FP4VLA_QUANT=0 FP4VLA_W4A4=1 "$PY" eval/run_recovery_eval.py --checkpoint "$CATEGORY_OUT" --out "$DEV/rtn_w4a4_category" --purpose development --seed 940000 --episodes 5 --gr00t "$GR00T" --server-python "$PY" --rollout-python "$LIBERO_PY" --port 6921 --protocol-file "$PROTOCOL"
 python3 exp/make_w4a4_selection.py --protocol-file "$PROTOCOL" --bf16 "$DEV/bf16" --candidate rtn_w4a4_category --candidate-output "$DEV/rtn_w4a4_category" --out "$SELECTION"
@@ -358,15 +377,15 @@ python3 exp/verify_teacher_replay.py --root "$TEACHER" --protocol-file "$PROTOCO
 
 ### 3. QAD、continued-QAD、OPD 与五臂 held-out
 
-恢复驱动会依次执行两个 QAD 学习率、QAD 选择、学生状态 collection、教师缓存、continued-QAD、两个 OPD 权重和最终五臂评测。网络或 ZeroMQ 超时后保持同一 `RUN`，按 `--until` 续跑；不要编辑 JSON 分数。
+恢复驱动会依次执行两个 QAD 学习率、QAD 选择、学生状态 collection、教师缓存、continued-QAD、两个 OPD 权重和最终五臂评测。完整且身份匹配的阶段可复用；半途失败的评测必须保留故障记录并改用新输出目录。当前训练 checkpoint 不含优化器与调度器状态，不能把重启训练称为无损续跑；详见 [故障恢复规则](docs/reproduce-ptqad.md)。
 
 ```bash
 export PTQAD_ZMQ_TIMEOUT_MS=120000
-"$PY" exp/run_w4a4_recovery.py --run-dir "$RUN" --protocol-file "$PROTOCOL" \\
+"$PY" exp/run_w4a4_recovery.py --run-dir "$RECOVERY" --protocol-file "$PROTOCOL" \\
   --ptq-selection "$SELECTION/selection.json" --base "$BASE" --gr00t-repo "$GR00T" \\
   --python "$PY" --rollout-python "$LIBERO_PY" --dataset "$DATASET" \\
   --capture-dataset "$TEACHER" --port-base 6920 --validate-only
-"$PY" exp/run_w4a4_recovery.py --run-dir "$RUN" --protocol-file "$PROTOCOL" \\
+"$PY" exp/run_w4a4_recovery.py --run-dir "$RECOVERY" --protocol-file "$PROTOCOL" \\
   --ptq-selection "$SELECTION/selection.json" --base "$BASE" --gr00t-repo "$GR00T" \\
   --python "$PY" --rollout-python "$LIBERO_PY" --dataset "$DATASET" \\
   --capture-dataset "$TEACHER" --port-base 6920 --until all --allow-opd-nonimprovement
@@ -374,21 +393,36 @@ export PTQAD_ZMQ_TIMEOUT_MS=120000
 
 ### 4. 证据、图表、HTML 和知乎稿
 
-只有 `final_manifest.json` complete 且五臂各 160 回合时才材料化；命令不会把超时或半成品写进正文。
+只有冻结 v12 发布运行的 `final_manifest.json` complete 且五臂各 160 回合时才材料化；命令不会把超时或半成品写进正文。上一步独立复现使用了 `$RUN/recovery_protocol_v12_rtn_w4a4.local.json`，其 SHA 与仓库冻结协议不同；它可以用于验证方法，但不能直接喂给正式发布工具。正式发布必须切换到本次冻结 v12 运行目录，并令 `PROTOCOL="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"`。
 
 ```bash
-python3 paper/extract_final_evidence.py --run-dir "$RUN" --out /tmp/v12_final_results.json
-python3 paper/build_recipe_inventory_v11.py --checkpoint "$CATEGORY_OUT" --recovery-manifest "$RUN/artifacts/merge_opd_025/recovery_manifest.json" --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
-python3 paper/materialize_final_evidence.py --final-manifest "$RUN/final_manifest.json" --recipe-inventory /tmp/v12_recipe_inventory.json --out paper/_build/final_bundle_v12 --orchestrator-run "$RUN"
+python3 paper/extract_final_evidence.py --run-dir "$RECOVERY" --out /tmp/v12_final_results.json
+export OPD_MERGE="$("$PY" - "$RECOVERY/final_manifest.json" <<'PY'
+import json, pathlib, sys
+m = json.loads(pathlib.Path(sys.argv[1]).read_text())
+p = m.get("selected_opd_model_identity", {{}}).get("path")
+if not p:
+    raise SystemExit("selected_opd_model_identity.path is missing")
+print(pathlib.Path(p).resolve())
+PY
+)"
+python3 paper/build_recipe_inventory_v11.py --checkpoint "$CATEGORY_OUT" --recovery-manifest "$OPD_MERGE/recovery_manifest.json" --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
+python3 paper/materialize_final_evidence.py --final-manifest "$RECOVERY/final_manifest.json" --recipe-inventory /tmp/v12_recipe_inventory.json --out paper/_build/final_bundle_v12 --orchestrator-run "$RECOVERY"
 python3 paper/install_final_evidence.py --bundle paper/_build/final_bundle_v12 --archive paper/evidence.v12.previous
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
 python3 paper/update_v12_release.py
 python3 paper/write_readme_v12.py
+sudo apt-get install -y libcairo2 fontconfig fonts-noto-cjk
+node --version  # Node.js >=18; install from https://nodejs.org/ if absent.
+npm install --prefix paper/_build/renderer --save-exact playwright@1.58.2
+PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/_build/renderer/node_modules/playwright/cli.js install chromium
 python3 paper/make_figs.py && bash paper/figs/render_pngs.sh
-python3 paper/build_html.py && python3 paper/export_zhihu.py
+uv run --with-requirements paper/requirements-build.txt python paper/build_html.py
+python3 paper/export_zhihu.py
 PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/qa_browser.cjs
-python3 paper/validate_publication.py
-python3 paper/package_publication.py --check
+uv run --with-requirements paper/requirements-build.txt python paper/validate_publication.py
+uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py --check
+uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
 
 ### 5. 截图登记
@@ -397,14 +431,20 @@ python3 paper/package_publication.py --check
 
 ```bash
 CAPTURE_ROOT="$RUN/captures/w4a4_final"
-python3 paper/prepare_w4a4_captures.py --final-manifest "$RUN/final_manifest.json" --out "$CAPTURE_ROOT"
+python3 paper/prepare_w4a4_captures.py --final-manifest "$RECOVERY/final_manifest.json" --out "$CAPTURE_ROOT"
 ```
 
 请按 [`setup/windows_capture/README.md`](setup/windows_capture/README.md) 执行每个 `$CAPTURE_ROOT/shot_*.sh`，保留原始 `.log`、`.json`、`.window-binding.json` 和 `.crop.json`，再以 `paper/record_capture.py --figure ... --visually-verified` 登记。登记后 `write_readme_v12.py` 会检查 17 个 PNG 均为 3840×2280。
 
+{engine_commands}
+
 ## Ubuntu 执行截图
 
 发布包保留 17 张真实 WSL Ubuntu 紫色终端截图，去除 taskbar 后均为 3840×2280。截图是命令执行凭证，最终数字仍以 JSON 和日志为准。
+
+以下为论文 17 图之外的编译补充图；命令、日志和哈希见 [`docs/evidence/ubuntu-compile/manifest.json`](docs/evidence/ubuntu-compile/manifest.json)。
+
+![Ubuntu：三个 CUDA 程序的真实编译输出](docs/images/ubuntu-compile.png)
 
 | 编号 | 环节 | 图片 |
 |---:|---|---|
