@@ -3,19 +3,19 @@
   "status": "complete",
   "scope": "heldout-only; development scores and candidate logs excluded",
   "source": {
-    "run_dir": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4",
+    "run_dir": "/home/zhaosiying/codebase/fp4vla/results/reruns/v11_release_ptq_rerun_20261006_01",
     "final_manifest": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/final_manifest.json",
-      "sha256": "b15cf775201a3c18a157de7e8e62663af70bad8bdbcfedc03ed36fea32e41f5e",
-      "bytes": 83861
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/v11_release_ptq_rerun_20261006_01/final_manifest.json",
+      "sha256": "34b083e5751ea13f4e550b9a586f5a9757787767588e07b17df3d8a7fe2920fc",
+      "bytes": 84385
     },
     "protocol": {
       "path": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
       "sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb"
     },
     "heldout_comparison": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/paired_comparison.json",
-      "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392",
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/v11_release_ptq_rerun_20261006_01/artifacts/heldout_round/paired_comparison.json",
+      "sha256": "7461f5308e5523f4d5af991ca9a912c9c225b2fbd0ac0a4a71461a5bd40d53de",
       "bytes": 494565
     }
   },

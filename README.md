@@ -25,6 +25,39 @@ APXInf × GR00T：NVFP4 W4A4 与 QAD/OPD 量化域恢复
 
 编码预算、闭环成功率和配对统计均由冻结 v11 协议对应的 `final_manifest.json` 与 `paired_comparison.json` 回填，并在发布校验中复核。
 
+### 2026-10-06 W4A4 PTQ 完整重评
+
+此前 PTQ 目录在 KITCHEN_SCENE8 的单任务 1,800 秒限制下只留下了部分日志。本发布稿只采用重新完成的 10 任务 × 16 回合结果；旧的部分运行不进入 `paper/evidence/`。重评前先确认媒体工具可用，再用独立前台进程、端口 `6891` 和 3,600 秒单任务上限运行：
+
+```bash
+cd /home/zhaosiying/codebase/fp4vla
+ffmpeg -version | head -1
+PTQ_RERUN=results/reruns/ptq_w4a4_heldout_20261006_01/heldout_ptq
+FP4VLA_QUANT=0 FP4VLA_W4A4=1 FP4VLA_W4A4_ADAPTER=0 \
+  /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python \
+  eval/run_recovery_eval.py \
+  --checkpoint /home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category \
+  --out "$PTQ_RERUN" --purpose heldout --seed 970000 --episodes 16 \
+  --gr00t /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T \
+  --server-python /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python \
+  --rollout-python /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python \
+  --port 6891 --timeout 3600 \
+  --protocol-file exp/recovery_protocol_v11_w4a4_category.json \
+  --collection-manifest results/ptqad_20261003/v11_recovery_r4/artifacts/collection_qad/eval_manifest.json
+```
+
+重评生成 `summary.json`、`task_results.json`、10 个 rollout 日志和 10 个 server 日志；随后将它与 BF16、QAD、continued-QAD、QAD+OPD 的完整日志组成新的配对轮次，并执行：
+
+```bash
+python3 eval/compare_recovery.py \
+  --round results/reruns/v11_release_ptq_rerun_20261006_01/artifacts/heldout_round
+python3 paper/extract_final_evidence.py \
+  --run-dir results/reruns/v11_release_ptq_rerun_20261006_01 \
+  --out paper/_build/rerun_extract_20261006/final_results.json
+```
+
+门禁结果为 PTQ `145/160 = 90.625%`，10 个任务分子依次为 `14, 16, 14, 15, 15, 15, 15, 16, 12, 13`；每个任务的 16 个 episode 结果、seed、官方初态索引、`initial_state_sha256`、`restored_state_sha256` 和 bank SHA 均与完整配对协议一致。最终发布证据的唯一来源是 `paper/evidence/final_manifest.json`、`final_results.json`、`paired_comparison.json` 和 `frontier_comparison.json`；它们绑定上述重评目录及协议 SHA `158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb`。完整五臂指标、配对区间、逐任务表、墙钟、压缩比和训练成本见下方表格。
+
 | 配置 | 目标编码压缩比（去别名） | FP4／去别名可量化元素 | LIBERO-10 闭环成功率 | 备注 |
 |---|---:|---:|---:|---|
 | BF16 基线 | 1.0000× | 0% | 145/160（90.62%） | 同一 v11 bank、同一 episode 协议 |

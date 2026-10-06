@@ -7,5 +7,5 @@
   "score_definition": "macro_success_rate=unweighted mean of ten task rates; micro_success_rate=total successes/episodes",
   "purpose": "heldout",
   "seed": 970000,
-  "wall_seconds_including_server_loads": 13522.57526087761
+  "wall_seconds_including_server_loads": 12942.107269525528
 }

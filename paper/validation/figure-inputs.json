@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "passed",
-  "generated_utc": "2026-10-05T21:17:43.502272+00:00",
+  "generated_utc": "2026-10-06T01:40:59.037730+00:00",
   "scope": "All non-screenshot SVGs generated from the recorded current inputs in one successful run.",
   "generator": {
     "path": "paper/make_figs.py",
@@ -11,12 +11,12 @@
   "inputs": [
     {
       "path": "paper/evidence/frontier_comparison.json",
-      "sha256": "e53bf3fbc682c979dcc0b0a6c6598b568c749b7a70b0e0f6a266614de9590aed",
+      "sha256": "5ed611d4300762d54b248739b15b88cbfcdb6aed199979ab6a8c30c59f01b121",
       "bytes": 14920
     },
     {
       "path": "paper/evidence/paired_comparison.json",
-      "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392",
+      "sha256": "7461f5308e5523f4d5af991ca9a912c9c225b2fbd0ac0a4a71461a5bd40d53de",
       "bytes": 494565
     },
     {

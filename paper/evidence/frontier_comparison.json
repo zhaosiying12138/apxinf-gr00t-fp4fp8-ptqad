@@ -400,13 +400,13 @@
   "source": {
     "final_results": {
       "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/final_results.json",
-      "bytes": 15240,
-      "sha256": "d4b9243a61524fbf3ee5b6ed018c826087627f7858d875dbad2a0a416f4a406d"
+      "bytes": 15270,
+      "sha256": "8943d726dec8ad8b0aba956b9aadf5c898238c25ebee2f6a1b40bf7ad758d2e2"
     },
     "paired_comparison": {
       "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/paired_comparison.json",
       "bytes": 494565,
-      "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392"
+      "sha256": "7461f5308e5523f4d5af991ca9a912c9c225b2fbd0ac0a4a71461a5bd40d53de"
     },
     "recipe_inventory": {
       "path": "/home/zhaosiying/codebase/fp4vla/paper/evidence/recipe_inventory.json",

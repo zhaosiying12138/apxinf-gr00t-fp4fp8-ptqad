@@ -1,6 +1,6 @@
 {
   "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
-  "out": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/heldout_ptq",
+  "out": "/home/zhaosiying/codebase/fp4vla/results/reruns/ptq_w4a4_heldout_20261006_01/heldout_ptq",
   "seed": 970000,
   "purpose": "heldout",
   "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
@@ -24,7 +24,7 @@
     27,
     28
   ],
-  "port": 6791,
+  "port": 6891,
   "gr00t": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T",
   "server_python": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
   "rollout_python": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python",
@@ -52,7 +52,7 @@
   "settle_steps": 10,
   "ffmpeg_executable": "/home/zhaosiying/miniforge3/envs/media7/bin/ffmpeg",
   "media_library_dir": "/home/zhaosiying/miniforge3/envs/media7/lib",
-  "video_root": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/heldout_ptq/videos",
+  "video_root": "/home/zhaosiying/codebase/fp4vla/results/reruns/ptq_w4a4_heldout_20261006_01/heldout_ptq/videos",
   "paired_scope": "environment initial states; policy noise is seeded per task",
   "environment_summary": {
     "variables": {

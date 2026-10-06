@@ -724,23 +724,23 @@
     },
     {
       "path": "paper/evidence/evidence_manifest.json",
-      "bytes": 155289,
-      "sha256": "9192b3fd51be81f9173b06cc924ac7c32f84598ff0a859c43178e5a46e2978cf"
+      "bytes": 148523,
+      "sha256": "53e99a5c1ad2ff67e16c65325a3ae1727ee138e2d5972c7f7447415b669b979d"
     },
     {
       "path": "paper/evidence/final_manifest.json",
-      "bytes": 83861,
-      "sha256": "b15cf775201a3c18a157de7e8e62663af70bad8bdbcfedc03ed36fea32e41f5e"
+      "bytes": 84385,
+      "sha256": "34b083e5751ea13f4e550b9a586f5a9757787767588e07b17df3d8a7fe2920fc"
     },
     {
       "path": "paper/evidence/final_results.json",
-      "bytes": 15240,
-      "sha256": "d4b9243a61524fbf3ee5b6ed018c826087627f7858d875dbad2a0a416f4a406d"
+      "bytes": 15270,
+      "sha256": "8943d726dec8ad8b0aba956b9aadf5c898238c25ebee2f6a1b40bf7ad758d2e2"
     },
     {
       "path": "paper/evidence/frontier_comparison.json",
       "bytes": 14920,
-      "sha256": "e53bf3fbc682c979dcc0b0a6c6598b568c749b7a70b0e0f6a266614de9590aed"
+      "sha256": "5ed611d4300762d54b248739b15b88cbfcdb6aed199979ab6a8c30c59f01b121"
     },
     {
       "path": "paper/evidence/heldout_bf16/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
@@ -974,118 +974,118 @@
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
-      "bytes": 14618,
-      "sha256": "e78248e998758e0ab3de2c6b72918fc95e34963d4a3381a0090b65da502838c4"
+      "bytes": 14598,
+      "sha256": "9ad1ced955a5d801dc8230f957606a70b21bac5ef9f3c978fed721ea4be78abd"
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log",
       "bytes": 51290,
-      "sha256": "9cd197b3c9c819b85134be5b3b621786c1a6928dae31eb940a808c30c1550698"
+      "sha256": "b27f007f1c81d4a026b34203ed369f675e63afdc2ee4750371da0c6596b9a873"
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log",
-      "bytes": 15094,
-      "sha256": "6b86dc4b290e442b595a2e0b1f1af55cfefc4ddeac5962b67c29c72a37eaa8b9"
+      "bytes": 15075,
+      "sha256": "457daa3147249dc3983c0a867ba2561d95e491b91bf1c8b9ca5b9007856e01d0"
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log",
       "bytes": 51290,
-      "sha256": "200ee013b5b73f2bf4012599a470ef19af3923135ead6a1f31a8f68dfcbd8ec8"
+      "sha256": "c2564c2c0077a9319e3197a3ec860071885fabe6f818632bece2d7dd8ee72311"
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log",
-      "bytes": 14913,
-      "sha256": "6bacbb77e0292e1deb4ccbc9d56a621585d8b72f4e485e931c64d37a486ddf26"
+      "bytes": 14892,
+      "sha256": "e128338a6bc4a1582ea45907e54c5a8f1feda4d43838b03fce9b33c7096307eb"
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log",
       "bytes": 51290,
-      "sha256": "f889ba54b0104533c5685fff7f4ff3c09805b575e028281d444ae06b22391cdd"
+      "sha256": "8eee0b4b5b7ca47a59e2a2b5e14a12d59dcaf40c09cf2134fe151ceb7c16ddf9"
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log",
-      "bytes": 14354,
-      "sha256": "af6ad3c20c68bb4b0feaef65cc678e1cec4a28eac5858ef51c043c684784276a"
+      "bytes": 14334,
+      "sha256": "4b068414106c20f2b199a0b4acaf5ebab9415374b1753260204d9b41218bd562"
     },
     {
       "path": "paper/evidence/heldout_ptq/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log",
       "bytes": 51290,
-      "sha256": "d25b4631e8d93e61ce30fe18b55b4844476c743d52577ab515196e35f4a8286b"
+      "sha256": "7a5c7073ee2565cf73ae3239b9b83e372e63bfe6d30b383bc3231264375494df"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log",
-      "bytes": 15132,
-      "sha256": "97a43115045812d08183e1d9a936ee851c651996549cb1d33876afc25c618fbf"
+      "bytes": 15112,
+      "sha256": "39cb8cab887274da58c36d016a7c82582f8954637522f5039e93ca848df78ddd"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log",
       "bytes": 51290,
-      "sha256": "98c886fc31d8eead555b9f807321171e80877fa7defd2ac56763b4824e68b49c"
+      "sha256": "aae0fc5bdc04ee2370ebd1915a45f22e8b5e5828d0457c829667dd49056287d9"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log",
-      "bytes": 15060,
-      "sha256": "0ac319a0daeada46d75df7dad5f485b06a56f5cac1f70ea6dd35dde724334c91"
+      "bytes": 15039,
+      "sha256": "bd3d91578cd9fd39e721d11a4d17c4f30af289319574c6b021a701759e56a51c"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log",
       "bytes": 51290,
-      "sha256": "e94ad4165f4aa6ecf8681b2986178a94a8d24a2ab5505e8cda576ffa5c0b2aa6"
+      "sha256": "df3d120f600524d542c19628410232c87cd0c47eaf828980435ec24058cb86a7"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log",
-      "bytes": 14983,
-      "sha256": "92ae451aa8089ae4471471e00a269b77aa39036fdb1512bd624e966957582f5a"
+      "bytes": 14964,
+      "sha256": "662a9abf2512bf0a064eb24215e87353e961e98950ac8f664f3dca8fabf9c065"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log",
       "bytes": 51290,
-      "sha256": "8577a5c0f5fdc386fde67430626f4572486f5735f15615c3b62ee3243d63af8f"
+      "sha256": "f6bf017c482e732e1b27934726c2f9f49918152bd3989ebf8f4e25b6b0bafc7e"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log",
-      "bytes": 15596,
-      "sha256": "20cc9a58a764bb75de48490ba5a4365f27e913ebc16a522ddae557b5e134615a"
+      "bytes": 15577,
+      "sha256": "95f74d59b0a03285f168c4d2d87f1571d78d1574b6bd6fb9e04d556bd84a4831"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log",
       "bytes": 51290,
-      "sha256": "050f7ebcad6a185e23e745bbd1b541ee21fda979be509c04bc611a9a06a0672e"
+      "sha256": "903e96e895aa75a4ffc8762e0bc1cf9411069f9d2f2bbc2806a2f37f581db255"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log",
-      "bytes": 15576,
-      "sha256": "411b982c833f31433832f87e865f76bf44622adc7b46a0b81fa6feffcbd19d42"
+      "bytes": 15555,
+      "sha256": "3433077897717c237fb5f93a898b6f0c79ccee86dc9fbbeeb9f7721bede5bd17"
     },
     {
       "path": "paper/evidence/heldout_ptq/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log",
       "bytes": 51290,
-      "sha256": "e2b44e3178eb470c5669600774d91c0457d7453c696c80f218be912540e4a220"
+      "sha256": "4602d27dea2a711ab3be89204b7b4190e3a26bbd4ac5e40ad7e6d3d00fe26916"
     },
     {
       "path": "paper/evidence/heldout_ptq/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log",
-      "bytes": 15028,
-      "sha256": "b7e3ad5f631f5011b52ca33dda3147803f76cc3af5e77168005e16f0477f3c90"
+      "bytes": 15009,
+      "sha256": "d788b376afbb156fd90d074b2f4b45f3f1c9e1e4148bd51e4e3c3bba42634eea"
     },
     {
       "path": "paper/evidence/heldout_ptq/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log",
       "bytes": 51290,
-      "sha256": "3002424c03951fb5165e4c918de21f74b396ec5b9ade77fbb841da9aae23d3a7"
+      "sha256": "f37bfea0c04f27bac328de7813baabcc8eb17700853ac1e13c4c695e74de3615"
     },
     {
       "path": "paper/evidence/heldout_ptq/eval_manifest.json",
-      "bytes": 2867,
-      "sha256": "521d7873ef7a5f7239be5b7303cca7bf0da8c255a1cbaf798946918ccdf8024e"
+      "bytes": 2829,
+      "sha256": "1ea8699f679a88e956786a4190f0b2bde9609c73a30ab52cf7f6a80b6eb51011"
     },
     {
       "path": "paper/evidence/heldout_ptq/summary.json",
-      "bytes": 369,
-      "sha256": "bb08f5439c51a755989302e10abc96a3773adf933eb1e300a8954f615120c0ac"
+      "bytes": 370,
+      "sha256": "ddaad1607e3a2735206156f53b6860b466e2e64285c5c681a43d8663320b097b"
     },
     {
       "path": "paper/evidence/heldout_ptq/task_results.json",
       "bytes": 105275,
-      "sha256": "11ce4a786ba5c8e8177b3b1483caa1946b775a53be4e24437af08b649838d2f7"
+      "sha256": "e5aaec801979fd73833c0e00fd59369bdf70a01f855dfe1b8af2bf89726e1c65"
     },
     {
       "path": "paper/evidence/heldout_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
@@ -1319,13 +1319,13 @@
     },
     {
       "path": "paper/evidence/heldout_raw_logs.json",
-      "bytes": 23086,
-      "sha256": "ce66ea7306e4944a881828415675b740d41cde66eabc6716d728cd2f8b6c3ac2"
+      "bytes": 23096,
+      "sha256": "3b876d22e0e2081af0f44a428e15ce294e9f5302fac8e2d1e4cb030ba4ae7212"
     },
     {
       "path": "paper/evidence/paired_comparison.json",
       "bytes": 494565,
-      "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392"
+      "sha256": "7461f5308e5523f4d5af991ca9a912c9c225b2fbd0ac0a4a71461a5bd40d53de"
     },
     {
       "path": "paper/evidence/protocol/analysis_plan_w4a4.json",
@@ -3469,8 +3469,8 @@
     },
     {
       "path": "paper/evidence/source_bundle_manifest.json",
-      "bytes": 156673,
-      "sha256": "41121113e941191840e0c1433a56379488dc8c9ee24acfdd81387cc2ae06f4fe"
+      "bytes": 149847,
+      "sha256": "b45d78a8d898793e531d2dfb3612e410af6ad868603fe2faf77523c79484db3c"
     },
     {
       "path": "paper/evidence/training/base/config.json",

@@ -1162,11 +1162,11 @@
   "selected_pressure_recipe": "all_nvfp4_gptq_category",
   "selected_pressure_checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
   "selected_ptq_checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
-  "heldout_round": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round",
+  "heldout_round": "/home/zhaosiying/codebase/fp4vla/results/reruns/v11_release_ptq_rerun_20261006_01/artifacts/heldout_round",
   "heldout_comparison": {
-    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/paired_comparison.json",
+    "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/v11_release_ptq_rerun_20261006_01/artifacts/heldout_round/paired_comparison.json",
     "bytes": 494565,
-    "sha256": "1ba70cb1f4eda5c80b44f4c47773902e5e53e2966397bc309b949d2b0b569392"
+    "sha256": "7461f5308e5523f4d5af991ca9a912c9c225b2fbd0ac0a4a71461a5bd40d53de"
   },
   "selected_qad_learning_rate": 0.0001,
   "selected_qad_checkpoint_identity": {
@@ -1280,5 +1280,15 @@
     "qad",
     "continued_qad",
     "qad_opd"
-  ]
+  ],
+  "ptq_rerun_manifest": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/ptq_w4a4_heldout_20261006_01/heldout_ptq/eval_manifest.json",
+    "bytes": 2829,
+    "sha256": "1ea8699f679a88e956786a4190f0b2bde9609c73a30ab52cf7f6a80b6eb51011"
+  },
+  "release_parent_final_manifest": {
+    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/final_manifest.json",
+    "bytes": 83861,
+    "sha256": "b15cf775201a3c18a157de7e8e62663af70bad8bdbcfedc03ed36fea32e41f5e"
+  }
 }

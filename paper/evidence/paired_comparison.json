@@ -7515,16 +7515,16 @@
       "sha256": "12f3ff6ad9a8ce85afbade7eb3060e35e22ec14167fb03571ebd3c826d4d2b9c"
     },
     "heldout_ptq/eval_manifest.json": {
-      "bytes": 2867,
-      "sha256": "521d7873ef7a5f7239be5b7303cca7bf0da8c255a1cbaf798946918ccdf8024e"
+      "bytes": 2829,
+      "sha256": "1ea8699f679a88e956786a4190f0b2bde9609c73a30ab52cf7f6a80b6eb51011"
     },
     "heldout_ptq/task_results.json": {
       "bytes": 105275,
-      "sha256": "11ce4a786ba5c8e8177b3b1483caa1946b775a53be4e24437af08b649838d2f7"
+      "sha256": "e5aaec801979fd73833c0e00fd59369bdf70a01f855dfe1b8af2bf89726e1c65"
     },
     "heldout_ptq/summary.json": {
-      "bytes": 369,
-      "sha256": "bb08f5439c51a755989302e10abc96a3773adf933eb1e300a8954f615120c0ac"
+      "bytes": 370,
+      "sha256": "ddaad1607e3a2735206156f53b6860b466e2e64285c5c681a43d8663320b097b"
     },
     "heldout_qad/eval_manifest.json": {
       "bytes": 2893,
