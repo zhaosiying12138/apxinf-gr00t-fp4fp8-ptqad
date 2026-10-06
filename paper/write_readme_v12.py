@@ -346,7 +346,7 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 | APXInf（可选） | CUDA toolkit/cuBLASLt、`nvcc`、Rust/Cargo、C++、Make |
 | 论文构建 | Python 3、uv、Node.js ≥18、Playwright、CairoSVG/Pillow、Noto Sans CJK |
 
-依赖精确版本、源码 revision、权重来源和哈希见 [`setup/locks/manifest.json`](setup/locks/manifest.json)。
+恢复、仿真和媒体环境的精确依赖版本，以及源码 revision、权重来源和哈希，见 [`setup/locks/manifest.json`](setup/locks/manifest.json)。原生 APXInf 构建的部分 Python 工具未锁定版本，复现时需保留安装日志；本文不将其称为完全锁定的构建环境。
 
 {installation}
 
@@ -411,7 +411,7 @@ FP4VLA_QUANT=0 FP4VLA_W4A4=0 "$PY" eval/run_recovery_eval.py --checkpoint "$BASE
 FP4VLA_QUANT=0 FP4VLA_W4A4=1 "$PY" eval/run_recovery_eval.py --checkpoint "$CATEGORY_OUT" --out "$DEV/rtn_w4a4_category" --purpose development --seed 940000 --episodes 5 --gr00t "$GR00T" --server-python "$PY" --rollout-python "$LIBERO_PY" --port 6921 --protocol-file "$PROTOCOL"
 python3 exp/make_w4a4_selection.py --protocol-file "$PROTOCOL" --bf16 "$DEV/bf16" --candidate rtn_w4a4_category --candidate-output "$DEV/rtn_w4a4_category" --out "$SELECTION"
 FP4VLA_QUANT=0 FP4VLA_W4A4=0 "$PY" eval/run_recovery_eval.py --checkpoint "$BASE" --out "$TEACHER" --purpose teacher_supervision --seed 950000 --episodes 4 --gr00t "$GR00T" --server-python "$PY" --rollout-python "$LIBERO_PY" --port 6922 --protocol-file "$PROTOCOL"
-python3 exp/verify_teacher_replay.py --root "$TEACHER" --protocol-file "$PROTOCOL" --teacher "$BASE"
+"$PY" exp/verify_teacher_replay.py --root "$TEACHER" --protocol-file "$PROTOCOL" --teacher "$BASE"
 ```
 
 ### 3. QAD、continued-QAD、OPD 与五臂 held-out
@@ -455,8 +455,29 @@ PY
 )"
 python3 paper/build_recipe_inventory_v12.py --checkpoint "$CATEGORY_OUT" --recovery-manifest "$OPD_MERGE/recovery_manifest.json" --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
 python3 paper/materialize_final_evidence.py --final-manifest "$RECOVERY/final_manifest.json" --recipe-inventory /tmp/v12_recipe_inventory.json --out paper/_build/final_bundle_v12 --orchestrator-run "$RECOVERY"
-python3 paper/install_final_evidence.py --bundle paper/_build/final_bundle_v12 --archive paper/evidence.v12.previous
+python3 paper/install_final_evidence.py --bundle paper/_build/final_bundle_v12 --archive paper/_build/evidence_archive_v12_previous
+python3 paper/install_final_evidence.py --verify paper/evidence
+python3 paper/collect_search_costs.py --run-dir "$RECOVERY" --out paper/evidence/search_costs
+python3 paper/collect_search_costs.py --verify paper/evidence/search_costs
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
+```
+
+安装器只迁移本轮科学证据和截图登记；上面的命令重新归档完整搜索成本。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
+
+```bash
+"$PY" - "$RECOVERY" "$GR00T" "$PY" "$LIBERO_PY" <<'PY'
+import json, pathlib, subprocess, sys
+run, groot, server_python, rollout_python = sys.argv[1:]
+final = json.loads((pathlib.Path(run) / "final_manifest.json").read_text())
+round_dir = pathlib.Path(final["heldout_round"])
+command = [sys.executable, "paper/capture_runtime.py", "--run-dir", run,
+           "--out", "paper/evidence/runtime", "--gr00t", groot,
+           "--server-python", server_python, "--rollout-python", rollout_python]
+for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd"):
+    record = json.loads((round_dir / f"heldout_{{arm}}" / "eval_manifest.json").read_text())
+    command += ["--checkpoint", f"{{arm}}={{record['checkpoint']}}"]
+subprocess.run(command, check=True)
+PY
 ```
 
 ### 5. 截图登记
@@ -478,11 +499,11 @@ python3 paper/write_readme_v12.py
 sudo apt-get install -y libcairo2 fontconfig fonts-noto-cjk
 node --version  # Node.js >=18; install from https://nodejs.org/ if absent.
 npm install --prefix paper/_build/renderer --save-exact playwright@1.58.2
-PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/_build/renderer/node_modules/playwright/cli.js install chromium
+node paper/_build/renderer/node_modules/playwright/cli.js install --with-deps chromium
 python3 paper/make_figs.py && bash paper/figs/render_pngs.sh
 uv run --with-requirements paper/requirements-build.txt python paper/build_html.py
 python3 paper/export_zhihu.py
-PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 node paper/qa_browser.cjs
+node paper/qa_browser.cjs
 uv run --with-requirements paper/requirements-build.txt python paper/validate_publication.py
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py --check
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py

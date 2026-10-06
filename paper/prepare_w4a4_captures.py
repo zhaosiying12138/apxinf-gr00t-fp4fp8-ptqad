@@ -316,13 +316,17 @@ source "$(dirname "$0")/@COMMON_SCRIPT@"
 OUT="$(prepare_scratch shot_bake)"; assert_no_compute_apps
 QAD_RECOVERY="$QAD_ADAPTER/recovery_manifest.json"; test -f "$QAD_RECOVERY"
 cd "$PROJECT"
-"$PTQAD_PYTHON" -u "$PROJECT/paper/build_recipe_inventory_v11.py" \
+"$PTQAD_PYTHON" -u "$PROJECT/paper/build_recipe_inventory_v12.py" \
   --checkpoint "$PTQ_BASE" \
   --recovery-manifest "$QAD_RECOVERY" \
   --out "$OUT/recipe_inventory.json" 2>&1 | tee "$OUT/recipe_inventory.raw.log"
 "$PTQAD_PYTHON" - "$OUT/recipe_inventory.json" "$PROTOCOL_FILE" "$PTQ_BASE" <<'PY'
 import json, sys
-inventory, protocol, base = map(lambda p: json.load(open(p)), sys.argv[1:])
+with open(sys.argv[1]) as stream:
+    inventory = json.load(stream)
+with open(sys.argv[2]) as stream:
+    protocol = json.load(stream)
+base = sys.argv[3]
 recipe_name = inventory.get("recipe")
 recipe = inventory.get("recipes", {}).get(recipe_name, {})
 scope = protocol.get("quantization_scope", {})

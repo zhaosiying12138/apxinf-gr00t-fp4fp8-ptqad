@@ -18,7 +18,7 @@ import validate_publication as validation
 def fixture():
     with tempfile.TemporaryDirectory() as raw:
         root=Path(raw);paper=root/'paper';paper.mkdir()
-        protocol=root/'protocol.json';protocol.write_text(json.dumps({'version':11}))
+        protocol=root/'protocol.json';protocol.write_text(json.dumps({'version':12}))
         runtime={'checkpoints':{}};records=[]
         archive=paper/'evidence/training';archive.mkdir(parents=True)
         for arm in ('bf16','ptq','qad','continued_qad','qad_opd'):
@@ -47,7 +47,8 @@ def fixture():
                 'environment_summary':{'variables':{
                     'FP4VLA_QUANT':'0','FP4VLA_W4A4':'1' if quant else '0',
                     'FP4VLA_W4A4_ADAPTER':'1' if recovery else '0',
-                    'FP4VLA_SATURATE_F16_ACTIVATIONS':'1' if quant else '0'}},
+                    'FP4VLA_SATURATE_F16_ACTIVATIONS':'1' if quant else '0',
+                    'PTQAD_ZMQ_TIMEOUT_MS':'120000'}},
                 'recovery_contract':contract}))
         (archive/'evidence_manifest.json').write_text(json.dumps({'status':'complete','files':records}))
         with patch.object(validation,'P',paper):

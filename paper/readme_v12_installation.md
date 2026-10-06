@@ -7,7 +7,7 @@
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-  ca-certificates curl git git-lfs bzip2 unzip \
+  ca-certificates curl git git-lfs bzip2 unzip time \
   python3 python3-venv python3-dev \
   build-essential pkg-config cmake ninja-build libssl-dev \
   libegl1 libgl1 libglx0 libglvnd0 libosmesa6 libglfw3 \

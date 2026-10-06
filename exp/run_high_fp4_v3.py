@@ -1223,15 +1223,18 @@ class Driver:
                 },
                 "continued_qad_control_score": float(control_score),
                 "selected_opd_score": float(selected_score),
-                "opd_not_below_control": True,
+                "opd_not_below_control": selected_score >= control_score,
                 "opd_beats_continued_qad": selected_score > control_score,
                 "opd_gate_override": bool(self.allow_opd_fallback),
             })
-            if qad_reference is not None and not self.allow_opd_fallback:
-                d["opd_selection_gate"].update({
-                    "require_opd_strictly_above_control": True,
-                    "require_opd_strictly_above_qad": True,
-                })
+            if qad_reference is not None:
+                if not self.allow_opd_fallback:
+                    d["opd_selection_gate"].update({
+                        "require_opd_strictly_above_control": True,
+                        "require_opd_strictly_above_qad": True,
+                    })
+                # An explicit gate override allows completing the comparison;
+                # it must not omit the baseline or turn a loss into a gain.
                 d.update({
                     "qad_selection_identity": identity(qad_selection_file),
                     "selected_qad_learning_rate": selected_lr,
@@ -1256,7 +1259,7 @@ class Driver:
                 "require_opd_not_below_control": True,
                 "metric": expected_metric,
             }
-            override = bool(d.get("opd_gate_override", False))
+            override = d.get("opd_gate_override", False)
             if int(self.protocol["data"].get("version", 0)) >= 8 and not override:
                 expected_gate.update({
                     "require_opd_strictly_above_control": True,
@@ -1264,8 +1267,13 @@ class Driver:
                 })
             if (d.get("control_arm") != expected_control or
                     d.get("opd_selection_gate") != expected_gate or
-                    not d.get("opd_not_below_control") or
+                    type(override) is not bool or
+                    type(d.get("opd_not_below_control")) is not bool or
+                    type(d.get("opd_beats_continued_qad")) is not bool or
+                    (not override and not d.get("opd_not_below_control")) or
                     (override != self.allow_opd_fallback) or
+                    (int(self.protocol["data"].get("version", 0)) >= 8 and
+                     type(d.get("opd_beats_qad")) is not bool) or
                     (int(self.protocol["data"].get("version", 0)) >= 8 and not override and
                      not d.get("opd_beats_qad"))):
                 raise OrchestrationError("OPD selection is missing the continued-QAD control gate")

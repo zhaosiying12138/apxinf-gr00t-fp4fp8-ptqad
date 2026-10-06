@@ -62,6 +62,12 @@ LEGACY_STRICT_QAD_SOURCES = {
     'rl/lora_qad.py': 'aa755bd3809b44abad97dd373417851addbd7ffdbbf7bbc69eb30c9cada2be2c',
     'quant/native_activation.py': '8606b36e9ef2d4a4e194bcf2ab7ae6fc70d800cfc5cbb13f8552d1d4f842c8d3',
 }
+# Initial-QAD receipts from this audited producer record the effective Trainer
+# max_grad_norm as 1.0 with no request override. The producer bytes alone do not
+# determine the upstream default; require the actual receipt and observed env.
+DEFAULT_QAD_MAX_GRAD_NORM_PRODUCERS = {
+    '6259e854207a30db9ead07088f36de2524c784dc7ac7cfc58850ed44faa69d57': 1.0,
+}
 
 
 def recovery_numerical_contract(recovery, arm, protocol_sha):
@@ -84,7 +90,7 @@ def recovery_numerical_contract(recovery, arm, protocol_sha):
     return {key: recovery.get(key) for key in ('max_grad_norm', 'f16_activation_saturation')}, legacy
 
 
-def check_training_numerical_environment(recovery, request, arm, protocol_sha):
+def check_training_numerical_environment(recovery, request, arm, protocol_sha, *, producer_source=None):
     """Cross-check archived launch request and receipt without filling old fields."""
     contract, legacy = recovery_numerical_contract(recovery, arm, protocol_sha)
     env = request.get('environment')
@@ -96,10 +102,27 @@ def check_training_numerical_environment(recovery, request, arm, protocol_sha):
                 'Legacy QAD request conflicts with strict producer numerical schema')
     else:
         raw_norm = env.get('QAD_MAX_GRAD_NORM')
-        try:
-            norm = float(raw_norm) if isinstance(raw_norm, str) else None
-        except ValueError:
-            norm = None
+        if 'QAD_MAX_GRAD_NORM' not in env and arm == 'qad':
+            require('initial_adapter' in recovery and recovery['initial_adapter'] is None and
+                    recovery.get('init_adapter') is None and
+                    'initial_adapter_identity' in request and request['initial_adapter_identity'] is None and
+                    'QAD_INIT_ADAPTER' not in env,
+                    f'Training default max_grad_norm requires explicit initial-QAD identity: {arm}')
+            producer_sha = recovery.get('recovery_source_sha256', {}).get('rl/lora_qad.py')
+            expected = DEFAULT_QAD_MAX_GRAD_NORM_PRODUCERS.get(producer_sha)
+            source = Path(producer_source) if producer_source is not None else None
+            variables = (recovery.get('environment_summary') or {}).get('variables')
+            require(expected is not None and source is not None and source.is_file() and
+                    not source.is_symlink() and sha(source) == producer_sha and
+                    isinstance(variables, dict) and 'QAD_MAX_GRAD_NORM' in variables and
+                    variables['QAD_MAX_GRAD_NORM'] is None and contract['max_grad_norm'] == expected,
+                    f'Training default max_grad_norm lacks verified producer/receipt provenance: {arm}')
+            norm = expected
+        else:
+            try:
+                norm = float(raw_norm) if isinstance(raw_norm, str) else None
+            except ValueError:
+                norm = None
         require(norm is not None and math.isfinite(norm) and norm == contract['max_grad_norm'] and
                 env.get('FP4VLA_SATURATE_F16_ACTIVATIONS') ==
                 ('1' if contract['f16_activation_saturation'] else '0'),
@@ -377,7 +400,10 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
         require(load(resolve_inside(folder, stage_relative)) == recovery,
                 f'Recovery export differs from archived training receipt: {arm}')
         request = load(resolve_inside(folder, request_relative))
-        check_training_numerical_environment(recovery, request, arm, costs['protocol_sha256'])
+        producer_relative = 'stages/' + arm + '/source/rl/lora_qad.py'
+        producer_source = resolve_inside(folder, producer_relative) if producer_relative in records else None
+        check_training_numerical_environment(recovery, request, arm, costs['protocol_sha256'],
+                                             producer_source=producer_source)
     collection=load(folder/'collection/eval_manifest.json')
     require(Path(collection['checkpoint']).resolve()==Path(runtime['checkpoints']['qad']['path']).resolve(),
             'Collection student identity differs from evaluated QAD')

@@ -55,12 +55,12 @@ def task_table(final: dict) -> str:
 
 
 def headline_table(final: dict) -> str:
-    rows = ["| 配置 | 闭环成功率 | 相对 BF16 | 量化覆盖 |",
+    rows = ["| 配置 | 闭环成功率 | 相对 BF16 | eligible 权重的 NVFP4 覆盖率 |",
             "|---|---:|---:|---:|"]
     bf = arm_row(final, "bf16")["success_rate"]
     for name in ARMS:
         row = arm_row(final, name)
-        coverage = "0%" if name == "bf16" else "100% NVFP4（479 个 eligible 张量）"
+        coverage = "0/479（0%）" if name == "bf16" else "479/479（100%）"
         rows.append(f"| {LABELS[name]} | {row['successes']}/{row['episodes']}（{pct(row['success_rate'])}） | {(row['success_rate'] - bf) * 100:+.2f} pp | {coverage} |")
     return "\n".join(rows)
 
@@ -93,7 +93,7 @@ def rewrite_main(final: dict) -> None:
 
 视觉—语言—动作模型（Vision–Language–Action model，VLA）把相机观测、语言指令和机器人状态映射为动作。对这类模型，低位宽量化的目标不仅是减少权重占用，还要保持动作反馈到环境之后的任务成功率。本文围绕 **APXInf 推理生态、GR00T N1.7、NVFP4、W4A4 训练后量化（PTQ），以及量化基座上的 QAD/OPD 恢复**，给出一条从数值表示、量化、恢复训练到 LIBERO 闭环评测的可复现链条。
 
-本文把 479 个可量化权重张量全部压到 NVFP4，并让 469 个普通 Linear 与 7 个 CategorySpecificLinear 同时采用 NVFP4 激活 QDQ，形成 W4A4 压力基座。PTQ 只量化权重，不进行恢复训练；QAD 在冻结基座上用成功演示训练低秩修正；OPD 再用 QAD 学生真正访问到的状态，请 BF16 教师提供动作流的速度场标签。三个阶段回答三个不同问题：低位宽压力是否真实、演示是否能恢复行为、同等追加演示预算之外教师监督是否有独立价值。
+本文把 479 个可量化权重张量全部压到 NVFP4，并为 469 个普通线性层（Linear）与 7 个按机器人类别选择权重的线性层（CategorySpecificLinear）安装激活量化。W4A4 表示主分支权重与激活均为四位；本文用量化后再反量化（QDQ）模拟其数值。PTQ 离线量化权重，在每次前向中量化激活，不进行恢复训练；QAD 在冻结基座上用成功演示训练低秩修正；OPD 再用 QAD 学生真正访问到的状态，请 BF16 教师提供动作流的速度场标签。三个阶段回答三个不同问题：低位宽压力是否真实、演示是否能恢复行为、同等追加演示预算之外教师监督是否有独立价值。
 
 最终五臂评测使用十个 LIBERO-10 任务、每臂 160 个配对回合。结果由冻结的 v12 协议和逐回合日志直接计算：
 
@@ -111,20 +111,20 @@ PTQ 相对 BF16 的变化为 **{(ptq['success_rate'] - bf['success_rate']) * 100
 
 PTQ（训练后量化）在已有权重上确定格式、尺度和舍入结果，不进行恢复训练；其中 RTN 直接舍入，GPTQ 还使用校准输入估计误差。本文采用全覆盖 NVFP4 RTN 配方作为 W4A4 PTQ 基线；代码同时保留面向块缩放的 GPTQ 接口，但最终结果只采用协议声明的 RTN 基座。
 
-**QAD**（项目中的量化后演示适配）冻结 PTQ 权重，只更新低秩 A/B 参数，使量化模型重新拟合成功演示的动作速度场。**OPD**（学生访问状态上的教师监督）先让 QAD 学生执行闭环，再在这些观测上缓存 BF16 教师速度标签。教师标签固定、学生输入和噪声固定，追加训练时同时使用演示损失和探针损失。
+**QAD**（项目中的量化后演示适配）冻结 PTQ 权重，只更新低秩适配（LoRA）的 A/B 参数，使量化模型重新拟合成功演示的动作速度场。**OPD**（学生访问状态上的教师监督）先让 QAD 学生执行闭环，再在这些观测上缓存 BF16 教师速度标签。缓存固定输入、教师标签和随机种子，追加训练时重放相同噪声与时间，同时使用演示损失和探针损失。
 
 为隔离“多训练一段时间”与教师监督，设置 **continued-QAD**：从同一个 QAD 检查点出发，追加相同次数的演示更新，但不使用学生状态教师标签。OPD−continued-QAD 是教师监督的主要对照；OPD−QAD 还包含追加训练本身。
 
 ## 1.3 本文贡献
 
 1. **完整 W4A4 压力。** 479 个 eligible 权重张量全部使用 NVFP4，476 个线性算子同时量化激活，明确记录 ordinary/category 层的覆盖和 padding。
-2. **量化域恢复。** QAD 保持 W4A4 基座不变，只训练 468 个普通动作前向 Linear 的 BF16 LoRA 残差；OPD 在学生真实访问分布上提供教师速度监督。
+2. **量化域恢复。** QAD 保持 W4A4 基座不变，只训练 468 个参与动作前向的普通 Linear 的低秩残差；OPD 在学生真实访问分布上提供教师速度监督。
 3. **配对闭环证据。** BF16、PTQ、QAD、continued-QAD 和 QAD+OPD 使用同一任务顺序、官方初态和随机种子，逐回合保存 reset 哈希、服务日志和成功标记。
 4. **工程边界清楚。** GR00T 行为结果来自 Torch W4A4 QDQ；APXInf 原生 kernel 与图执行作为独立延迟基准，二者不混写。
 
 ## 1.4 读者需要先知道的三个口径
 
-W4A4 只描述线性主分支的权重和激活；3 个 embedding/position 张量只做权重量化。QAD/OPD 残差读取原始 BF16 输入，因此净压缩比必须把 LoRA 参数单独计入。最后，本文的成功率是闭环环境指标，不是动作 MSE，也不是原生 kernel 延迟。
+“100%”的分母是配方清单中的 479 个可量化（eligible）权重张量，不包括偏置、归一化参数或新增 LoRA。W4A4 只描述线性主分支；3 个 embedding/position 张量只量化权重。QAD/OPD 残差读取原始 BF16 输入，部署参数按 BF16 计入净压缩比。本文的成功率是闭环环境指标，不是动作均方误差（MSE）或原生 kernel 延迟。
 '''
     (SECTIONS / "01-摘要与引言.md").write_text(intro, encoding="utf-8")
 
@@ -134,7 +134,7 @@ W4A4 只描述线性主分支的权重和激活；3 个 embedding/position 张�
 
 实验使用 GR00T N1.7 LIBERO-10，在 WSL2 Ubuntu、RTX 5090 Laptop 24 GB 上运行。开发集使用官方初态索引 4–8（50 回合）选择恢复超参数；教师监督和学生采集使用训练索引 20–23；最终 held-out 使用索引 9–19 与 24–28，共 10 个任务×16 个回合。所有任务先恢复官方初态，再执行 10 个零动作稳定步；策略每次产生 16 步动作，环境执行前 8 步，单回合最多 720 步。
 
-QAD 教师监督来自十个任务的 BF16 成功轨迹。每个窗口保留图像、语言、状态、动作端点和有效 mask；OPD 的 160 个学生访问窗口由选定 QAD 学生采集，再由冻结教师在相同噪声和时间步上标注。开发集只用于选择学习率与 OPD 权重，held-out 结果不回流调参。
+QAD 的演示来自十个任务的 BF16 成功轨迹。每个窗口保留图像、语言、状态、动作端点和有效 mask；OPD 的 160 个学生访问窗口由选定 QAD 学生采集，再由冻结教师按固定随机种子标注速度场。开发集只用于选择学习率与 OPD 权重，held-out 结果不回流调参。
 
 {{{{fig:recovery_protocol}}}}
 
@@ -164,7 +164,9 @@ QAD 与两个追加分支均使用 rank=32、alpha=64 的 LoRA。QAD 训练 2,00
 
 ## 4.4 编码预算与执行边界
 
-479 个 eligible 张量全部为 NVFP4，普通与类别线性算子为 W4A4；压缩比按去别名 BF16 权重分母、NVFP4 数据、E4M3 块尺度、FP32 二级尺度、未量化张量和 BF16 LoRA 旁路共同计算。本轮 full-checkpoint 主分支为 **{packed_bytes:,} B**，LoRA 旁路为 **{residual_bytes:,} B**，净压缩比为 **{compression}**。完整字节账目由 `paper/evidence/recipe_inventory.json` 生成，不能用稠密 checkpoint 文件大小替代。APXInf 的 NVFP4/FP8 kernel、图重放和 π0.5 计时单独报告；GR00T W4A4 闭环当前是 Torch QDQ 数值参考路径。
+479/479 表示 eligible 张量覆盖率，不是全部模型参数的元素占比。编码预算先对已知共享别名去重；源 BF16 参数为 **{source_bytes:,} B**，主分支包含 NVFP4 数据、E4M3 块尺度、FP32 二级尺度和未量化参数，共 **{packed_bytes:,} B**；BF16 LoRA 另占 **{residual_bytes:,} B**。净压缩比按“去别名 BF16 源参数字节数 ÷（去别名主分支字节数＋LoRA 字节数）”计算，为 **{compression}**。物理张量、去别名张量及元素占比的完整账目由 `paper/evidence/recipe_inventory.json` 生成；目标编码预算不同于当前稠密 checkpoint 的文件大小。
+
+APXInf 的 NVFP4/FP8 kernel、图重放和 π0.5 计时单独报告；GR00T W4A4 闭环当前是 Torch QDQ 数值参考路径。
 
 {{{{fig:budget_ladder}}}}
 
@@ -198,19 +200,29 @@ v12 的主结果使用 `rtn_w4a4_category`：不使用校准数据，把 472 个
 
 ## 3.2 QAD：冻结基座上的低秩恢复
 
-对一个 $K\rightarrow N$ 线性层，冻结量化权重 $W_q$，增加 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$：
+沿用 §2.2 的行向量约定，对一个 $K\rightarrow N$ 线性层，冻结量化权重 $W_q$ 与原偏置 $b$，增加不带偏置的低秩矩阵 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$：
 
-$$y=\operatorname{Linear}(Q_A(x),W_q)+\frac{\alpha}{r}\operatorname{Linear}(\operatorname{Linear}(x,A),B).$$
+$$y=Q_A(x)W_q^\top+b+\frac{\alpha}{r}(xA^\top)B^\top.$$
 
-主分支接收 NVFP4 激活；残差分支读取量化前的 BF16 输入。v12 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 A/B，量化权重和类别层保持冻结。训练样本来自 BF16 成功演示，动作损失只在有效动作 mask 上计算；QDQ 反向使用 STE。
+主分支接收 NVFP4 激活，残差分支读取量化前的 BF16 输入。469 个 ordinary Linear 中，语言输出投影 `lm_head` 不参与动作前向，因此只在其余 468 个模块上训练 rank=32、alpha=64 的 A/B；类别层保持冻结。训练参数以 FP32 保存，前向使用 BF16 autocast；部署旁路以 BF16 执行，按 BF16 参数载荷计账。QDQ 使用直通估计器（STE）：前向执行量化，反向把量化映射对输入的导数近似为 1。
+
+对来自 BF16 成功轨迹的演示窗口，沿用 §2.1 的观测 $o$、动作端点 $a$、噪声 $z$ 和插值 $a_t=(1-t)z+ta$。令二值掩码 $m_{h,d}$ 标记有效时间步 $h$ 与控制维度 $d$，演示损失为
+
+$$\ell_{\mathrm{demo}}=\frac{\sum_{h,d}m_{h,d}\left[v_\theta(o,a_t,t)_{h,d}-(a-z)_{h,d}\right]^2}{\sum_{h,d}m_{h,d}+10^{-6}}.$$
+
+这里可训练参数 $\theta$ 仅包含 A/B。QAD 对实际微批的演示损失求平均后更新；填充区域不贡献损失。
 
 ## 3.3 OPD：学生访问状态上的教师速度监督
 
-先固定 QAD 学生并运行训练分区，保存其观测、动作端点、噪声、时间步和有效 mask。BF16 教师在完全相同的输入上计算速度标签 $v^T$，缓存后不再刷新。OPD 的探针损失为
+先固定 QAD 学生并运行训练分区，保存其观测 $o_i$、预测动作端点 $a_i^S$ 与有效掩码 $m_i$。教师标注阶段为每个窗口固定随机种子，重建噪声 $z_i$ 与时间 $t_i$，形成探针输入 $P_i=(o_i,(1-t_i)z_i+t_i a_i^S,t_i)$。缓存保存原输入、种子和 BF16 教师速度 $v_T(P_i)$；学生重放同一随机上下文，因此比较发生在同一个插值点。
 
-$$\ell_{\mathrm{probe}}=\frac{\sum m\odot(v_\theta-v^T)^2}{\sum m+10^{-6}}.$$
+$$\ell_{\mathrm{probe},i}=\frac{\sum_{h,d}m_{i,h,d}\left[v_\theta(P_i)_{h,d}-v_T(P_i)_{h,d}\right]^2}{\sum_{h,d}m_{i,h,d}}.$$
 
-训练目标是演示损失与按协议权重加入的探针损失之和。continued-QAD 使用同一 QAD 起点、同一演示读取数和同一更新数，但不读取教师缓存；因此 OPD−continued-QAD 是教师监督的独立对照。
+探针实现先拒绝空掩码，因此分母无需稳定项；教师标签固定且不求梯度。每次更新实际累积 $n$ 个微批时，联合目标为
+
+$$\mathcal L_{\mathrm{OPD}}=\frac1n\sum_{j=1}^{n}\ell_{\mathrm{demo},j}+\lambda\frac1n\sum_{j=1}^{n}\ell_{\mathrm{probe},j}.$$
+
+本轮每次优化器更新都加入教师项（`opd_every=1`），$\lambda$ 由开发集在协议候选中选择。缓存只采集一轮，追加训练期间不刷新。continued-QAD 使用同一 QAD 起点、演示顺序、实际读取数和更新数，只保留上式的演示项；OPD−continued-QAD 因而衡量额外教师监督的作用。
 
 ## 3.4 部署与闭环评测
 

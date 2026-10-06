@@ -1,10 +1,11 @@
-"""CPU checks for the v11 screenshot command preparer."""
+"""CPU checks for the W4A4 screenshot command preparer; no real GPU runs."""
 import importlib.util
 import json
 import os
 from pathlib import Path
 import stat
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -146,7 +147,10 @@ class PrepareW4A4Captures(unittest.TestCase):
     def test_readme_protocol_copy_under_results_uses_generator_repository(self):
         self._check_rollout_capture_environment(local_protocol=True)
 
-    def _check_rollout_capture_environment(self, local_protocol):
+    def test_v12_bake_audit_reads_checkpoint_as_directory_not_json(self):
+        self._check_rollout_capture_environment(local_protocol=False, version=12)
+
+    def _check_rollout_capture_environment(self, local_protocol, version=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             project, protocol_path, paths, fake_python = fake_values(root, local_protocol)
@@ -163,6 +167,9 @@ class PrepareW4A4Captures(unittest.TestCase):
             bundle = {"final_path": project / "results/run/final_manifest.json", "protocol_path": protocol_path,
                       "final": {"selected_qad_learning_rate": .0001, "selected_opd_weight": .25},
                       "protocol": {"selection": {"opd_every": 4}}}
+            if version == 12:
+                bundle["protocol"].update(version=12, w4a4=True, id="synthetic-v12")
+                protocol_path.write_text(json.dumps(bundle["protocol"]))
             out = root / "prepared"
             final_path = project / "results/run/final_manifest.json"
             final_path.parent.mkdir(parents=True)
@@ -175,7 +182,8 @@ class PrepareW4A4Captures(unittest.TestCase):
             with patch.object(prepare, "ROOT", project):
                 prepare.render_scripts(out, bundle, values)
             self.assertEqual(protocol_path.read_bytes(), protocol_before)
-            common = (out / "common_v11.sh").read_text()
+            common_name = "common_v12.sh" if version == 12 else "common_v11.sh"
+            common = (out / common_name).read_text()
             self.assertIn(f"PROJECT={prepare.q(project)}\n", common)
             self.assertIn(f"PROTOCOL_FILE={prepare.q(protocol_path)}\n", common)
             if local_protocol:
@@ -206,10 +214,25 @@ class PrepareW4A4Captures(unittest.TestCase):
             self.assertEqual(plan["training_activation_saturation"], {"qad": "0", "qad_opd": "1"})
             self.assertEqual(plan["rollout_activation_saturation"], "1")
             self.assertEqual(plan["inference_contracts"], values["inference"])
-            self.assertEqual(len(plan["script_files"]), 6)
-            self.assertEqual(plan["script_files"]["common_v11.sh"]["sha256"], prepare.digest(out / "common_v11.sh"))
-            self.assertIn("common_v11.sh", plan["script_dependencies"]["all_entrypoints"])
-            self.assertIn("Retain `common_v11.sh` and `plan.json`", (out / "README.md").read_text())
+            self.assertEqual(len(plan["script_files"]), 8 if version == 12 else 6)
+            self.assertEqual(plan["script_files"][common_name]["sha256"], prepare.digest(out / common_name))
+            self.assertIn(common_name, plan["script_dependencies"]["all_entrypoints"])
+            self.assertIn(f"Retain `{common_name}` and `plan.json`", (out / "README.md").read_text())
+            if version == 12:
+                bake = (out / "shot_bake.sh").read_text()
+                inventory = root / "synthetic-inventory.json"
+                inventory.write_text(json.dumps({"recipe": "rtn_all", "recipes": {"rtn_all": {
+                    "nvfp4_params": 64, "linear_params": 64, "fp8_params": 0, "bf16_params": 0}},
+                    "recovery_residual": {"target_bytes": 32}}))
+                # Run the actual generated Python audit against a directory.
+                # No quantization, model execution or terminal capture occurs.
+                code = bake.split("<<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
+                audit = subprocess.run([sys.executable, "-", str(inventory), str(protocol_path),
+                                        str(paths["pressure"])], input=code, text=True,
+                                       capture_output=True, timeout=10)
+                self.assertEqual(audit.returncode, 0, audit.stderr)
+                self.assertEqual(json.loads(audit.stdout)["ptq_base"], str(paths["pressure"]))
+                self.assertEqual(json.loads(audit.stdout)["nvfp4_params"], 64)
             for script_path in out.glob("*.sh"):
                 syntax = subprocess.run(["bash", "-n", str(script_path)], text=True, capture_output=True)
                 self.assertEqual(syntax.returncode, 0, syntax.stderr)
