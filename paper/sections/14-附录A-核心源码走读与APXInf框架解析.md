@@ -1,6 +1,6 @@
 # 附录 A. 一份量化权重如何成为可评测的策略
 
-源码走读围绕一份模型的生命周期展开。首先定义量化数值，再用真实输入校准，随后在量化基座上训练低秩残差，最后导出并进行闭环评测。原生 APXInf 章节单独解释 packed 权重如何进入 CUDA 算子。
+源码走读围绕一份模型的生命周期展开。首先定义量化数值，按固定 RTN 规则生成基座，随后训练低秩残差，最后导出并进行闭环评测。原生 APXInf 章节单独解释 packed 权重如何进入 CUDA 算子。
 
 建议阅读时同时打开 `quant/ptq/collector.py`、`quant/ptq/bake.py`、`rl/lora_qad.py` 和 `eval/run_recovery_eval.py`。它们分别对应统计采集、权重生成、恢复训练和环境评测四个阶段。函数名与张量形状用于定位实现，源码摘要见 `paper/validation/source_refs.json`。
 
@@ -15,7 +15,7 @@
 | W4A4 基座与独立适配器 | 冻结的 $W_{\mathrm{baked}}$ 与单独保存的 A/B | 基座接收 activation QDQ，低秩分支接收原始输入 | 正式 GR00T 恢复评测 |
 | 恢复后的稠密权重 | $W_{\mathrm{baked}}+(\alpha/r)BA$ 再转回源 dtype | PyTorch 浮点线性层 | 残差合并诊断与完整 checkpoint 序列化验收 |
 
-接下来先走完 GR00T 的 PyTorch 数值路径：源 checkpoint → 校准统计 → 全 NVFP4 PTQ 基座 → W4A4 activation QDQ → QAD/OPD adapter → LIBERO 评测。A.8 再展开 APXInf 的 packed 权重路径，其中原生算子也会在线量化激活。dense merge 仅用于诊断，不进入主结果。两条路径的测量范围统一列在 A.10。
+接下来先走完 GR00T 的 PyTorch 数值路径：源 checkpoint → 全 NVFP4 RTN PTQ 基座 → W4A4 activation QDQ → QAD/OPD adapter → LIBERO 评测。A.8 再展开 APXInf 的 packed 权重路径，其中原生算子也会在线量化激活。dense merge 仅用于诊断，不进入主结果。两条路径的测量范围统一列在 A.10。
 
 ## A.2 把浮点权重映射到低精度格点
 
@@ -62,83 +62,44 @@ return dequant + (W - W.detach())
 
 混合配方中的 FP8 使用 `fp8_e4m3_dequant`：每个输出行独立取 FP32 缩放 $s_r=\max_k|W_{r,k}|/448$，将 $W_{r,k}/s_r$ 舍入为 E4M3，再乘回 $s_r$。零行和极小尺度同样显式处理。它是逐行缩放的 weight-only FP8 量化器，与每 16 个元素共享一个缩放的 NVFP4 格式不同。
 
-## A.3 用真实输入选择量化参数并生成 PTQ 基座
+## A.3 从固定格式生成 RTN PTQ 基座
 
-单看权重误差会忽略输入通道的使用频率。校准器先收集模型实际前向的输入统计，量化器据此选择裁剪和误差补偿，写盘程序最后将各层结果组成一份可加载的完整 checkpoint。
+这一阶段按协议指定的 RTN 舍入规则把源权重写成可加载的完整 checkpoint。配方在评测前冻结，不依赖校准数据；输入统计和尺度搜索接口是单独的研究工具。
 
-### A.3.1 完整模型的输入统计
+### A.3.1 采集器接口与 v12 主路径
 
-`quant/ptq/collector.py` 从源 checkpoint 读取模型配置，通过 `training.start_from_checkpoint` 加载权重，并检查 16 层语言栈、32 个 DiT 块和 4 层 VL 模块。`gr00t_runtime.py::restore_checkpoint_model_config` 保留 checkpoint 的结构参数，仅合并显式训练开关；`configure_libero_data` 使用源 LIBERO 模态定义构造数据覆盖，不引入其他机器人更长的动作窗口。归一化检查读取实际 `state_action_processor.statistics`，并保留完整源处理器元数据。校准针对完整模型中真正被执行的线性层，不凭文件键推断某层必然存在或执行。
+`quant/ptq/collector.py` 仍提供完整模型的输入统计接口，便于源码测试和后续实验定位真实执行的 Linear 层。它把输入展平为形状为 `[R,K]` 的矩阵，检查模块调用次数、输入行数和 checkpoint 身份，并把统计摘要写入 manifest。这个接口解释了工程如何确认模型结构，但 v12 的正式 `rtn_w4a4_category` 配方使用 `calibration-mode=none`，不会把 Hessian、裁剪搜索或校准样本用于 PTQ 决策。
 
-对一层输入 $x$，pre-hook 将除最后一维外的轴展平，得到 $X\in\mathbb R^{R\times K}$。`accumulate` 计算
+因此 v12 的可复现依赖只有源 checkpoint、固定格式合同和 bake manifest：读者不需要重新采集统计，也不能用 held-out 成功率反向选择量化参数。若运行者调用 collector 进行诊断，产物必须与 RTN bake 分开登记，不能写入五臂主结果。共享词嵌入仍按 tied alias 规则只保留一个规范来源；非 Linear 目标和未执行 bank 也会在清单中显式标注。
 
-$$
-H\mathrel{+}=X^\top X,\qquad
-u_k\mathrel{+}=\sum_r|X_{r,k}|,\qquad
-n\mathrel{+}=R.
-$$
+### A.3.2 v12 的无校准 RTN 舍入
 
-模型前向采用 BF16；每个外积显式升至 FP32、关闭 autocast 和 TF32，随后转移到 CPU 累加。这样，显存中不必同时保留所有层的 $K\times K$ 统计矩阵。`H` 是未归一化的经验二阶矩，$u/n$ 是输入通道绝对均值，`calls` 与 `n` 分别记录层执行次数和实际输入行数。
-
-对固定的已采集输入，若权重误差为 $\Delta W$，则
-
-$$
-\|X\Delta W^\top\|_F^2
-=\operatorname{tr}(\Delta W H\Delta W^\top).
-$$
-
-`layer_mse_tr` 直接实现右式。该恒等式使搜索不必保存全部激活，这里的 H 描述有限校准样本上的局部线性目标。将 $H$ 除以行数会改变误差的尺度而不改变同层裁剪候选的排序；阻尼也同比缩放时，GPTQ 的补偿比例保持一致。
-
-`calib_meta.json` 记录完整结构、源 shard 摘要、配置和统计文件摘要、实际窗口数、各层行数、缓存摘要及非 Linear 目标。完成前检查所有已挂钩层均被执行；迭代数据集中的窗口可能重复，因此“消费了多少窗口”与“唯一训练样本数”分别表述。共享的输出词投影不独立采集 Hessian，其量化值由规范词嵌入决定。
-
-### A.3.2 固定张量缩放下的 GPTQ
-
-`rtnc_best_clip` 先在 `{1.0,0.95,0.9,0.85,0.8,0.7,0.6,0.5}` 中，以 RTN 候选和迹公式选择裁剪系数。随后 `gptq_nvfp4` 仅对选中的系数运行一次补偿；这与“为每个系数完整运行 GPTQ 再择优”的计算预算不同。
-
-GPTQ 先根据原始权重确定全张量 $\tau$，再处理校准输入恒零的通道，并为 $H$ 加入 $0.01\operatorname{mean}(\operatorname{diag}H)I$ 阻尼。对逆矩阵做上三角 Cholesky 分解，得到 $H^{-1}=U^\top U$。进入一个新的 16 列块时，依据已经接受前面误差反馈的权重，重新选择该块每行的 E4M3 缩放；$\tau$ 始终不变。
-
-核心更新可写成如下伪代码，变量名对应实现中的 `ts`、`scales`、`Hi`：
+v12 的正式压力基座使用 `calibration-mode=none` 的 RTN（round-to-nearest）路径。它不读取 Hessian、激活统计或 held-out 成功率，因而量化结果可以从源 checkpoint、固定的 NVFP4 格式和协议直接重建。对每个二维权重张量，先按全张量最大幅值确定一次 FP32 二级尺度，再按连续 16 个输入元素计算 E4M3 块尺度，最后将块内值舍入到 E2M1 格点。激活沿同一输入轴执行 NVFP4 QDQ，形成真正的 W4A4 数值压力。
 
 ```python
-tau = tensor_scale(original_W, clip)  # 整个矩阵唯一
-for i in range(K):
-    if i % 16 == 0:
-        scale = block_scale(compensated_W[:, i:i+16], tau, clip)
-    q = round_E2M1(compensated_W[:, i] / (scale * tau)) * scale * tau
-    error = (compensated_W[:, i] - q) / U[i, i]
-    compensated_W[:, i+1:] -= error[:, None] * U[i, i+1:][None, :]
-    compensated_W[:, i] = q
+tau = tensor_scale(original_weight)       # one frozen tensor scale
+for block in blocks_of_16(original_weight):
+    scale = round_e4m3(max_abs(block) / 6 / tau)
+    divisor = where(scale > 0, scale * tau, 1)
+    code = round_e2m1(block / divisor)
+    dequant_block = code * scale * tau
 ```
 
-`U[i,j]/U[i,i]` 的依据是逐步消元：固定一列后，用 Schur 补得到剩余子问题的逆矩阵；其结果可由对应的尾部 Cholesky 因子表达。下一步使用消元后的子问题，而非原逆矩阵未经处理的尾部主子阵。
+零块保留零块尺度；除法只使用安全分母来选择编码，不能把零块改成非零值。`quant/ptq/quantizers.py::nvfp4_dequant` 按整个权重矩阵固定二级尺度；`quant/native_activation.py::native_activation_qdq_torch` 将激活先转为 F16，激活二级尺度固定为 1。二者沿输入维度使用相同的 16 元素块边界，但不能把两种二级尺度混为一谈。服务日志记录请求格式、实际格式、padding 和未量化张量。
 
-固定 $\tau$ 的作用是确保所有输出块仍属于同一个可表示的 NVFP4 张量。`return_metadata=True` 可同时返回 $\tau$ 和每块解码后的 E4M3 缩放，用于重新编码和检查可表示性。GPTQ 默认返回反量化矩阵，供 BF16 checkpoint 写盘；packed 导出是后续独立转换步骤。全局逐列补偿也有计算开销，量化墙钟时间须按实际执行记录。
+### A.3.3 可选尺度搜索接口
 
-### A.3.3 AWQ 搜索的有效误差与可折叠条件
-
-`quant/ptq/awq.py::search_site` 依据输入绝对均值 $a_k$ 搜索 $s_k\propto\max(a_k,10^{-12})^\alpha$，再将 $s$ 归一化为均值一。候选指数为 `0,0.05,0.1,0.15,0.2,0.25,0.3,0.4,0.5,0.75,1.0`。正的尺度保证补偿变换可逆；$\alpha=0$ 对应恒等变换。
-
-若把输入改成 $xs$、权重改成 $W/s$，未量化网络保持不变。量化后的有效误差必须在原输入坐标中计算：
-
-$$
-\Delta W_{\mathrm{eff}}=Q(W/s)s-W.
-$$
-
-对于 producer–consumer 对，消费者使用同样的有效误差；生产者另计算 $Q(W_ps)-W_ps$ 的局部输出误差。两者之和是局部搜索代理，不是这两个量化算子串联后的精确端到端误差。CPU 测试将这些表达式与显式矩阵输出比较。
-
-`folds.py` 决定缩放能放在哪些位置。RMSNorm 的增益、LayerNorm 的增益和偏置可吸收输入通道缩放；门控 MLP 的 up 分支是线性支路，故 down 输入缩放可折入 up 的输出通道。语言使用 gated SiLU，π0.5 则有 GeGLU，二者的非线性形式分别处理。普通视觉 MLP 的非线性不允许任意缩放直接穿过激活；共享给多个消费者的归一化参数也不能只为单个消费者修改。
-
-注意力输出投影可沿 V 分支补偿，但 GQA 中一份 KV 通道被多个查询头共享。实现用 `head_dim=128` 和 `gqa_groups=2` 建立消费者通道到生产者通道的映射，在共享组内取绝对均值的最大值，再把同一尺度广播回各消费者。视觉 fused-QKV 则只修改 V 对应的输出行切片。是否采用搜索得到的折叠由该次产物明确记录，不由局部代理误差直接推断闭环收益。
+源码还包含 AWQ 风格的输入尺度搜索与折叠规则，用于独立的算子研究。它要求逐个核对归一化、门控非线性和 GQA 共享通道，不能把局部代理误差直接当作闭环结论。v12 的正式压力基座不启用该搜索；所有层均按 A.3.2 的固定 RTN 规则写盘，避免读者把备用研究入口误认为第二套发布配方。
 
 ### A.3.4 精度配方、共享别名与完整索引
 
 `quant/ptq/bake.py::inventory` 根据 safetensors 文件头建立物理键清单，并核对索引与实际 shard。二维路径的量化谓词为键以 `.weight` 结尾、形状为二维且 $K\bmod16=0$，共得到 472 个候选。动作头的 7 个 `CategorySpecificLinear` 权重由 `quant/ptq/category_fp4.py` 单独识别，源形状为 $[32,K,N]$，因此最终账本是 472+7=479 个候选张量。清单外张量按源 dtype 保持原值。
 
-`bake.py::alloc` 是显式模块规则，而不是根据 held-out 成功率事后调参。v11 的最终 parent 统一采用 `all_nvfp4_gptq_category`：479 个 eligible 权重张量全部写入 NVFP4，普通 Linear 使用校准后的 GPTQ 块补偿，7 个 CategorySpecificLinear 使用独立 category 配方。每个层的请求方法、校准覆盖和实际编码都写入 `ptq_recipe.json` 与 `category_ptq_recipe.json`；主结果统一采用这一全 NVFP4 配方。
+`bake.py::alloc` 是显式模块规则，不根据 held-out 成功率事后修改层范围。v12 的唯一正式配方是 `rtn_w4a4_category`：472 个 ordinary recipe 张量与 7 个 CategorySpecificLinear 张量全部写入 NVFP4；运行时安装报告覆盖 469 个 ordinary Linear 与 7 个 category bank 的 W4A4 activation QDQ。请求方法、实际编码、padding、尺度和 tied alias 都写入 `ptq_recipe.json` 与 `category_ptq_recipe.json`，这些 manifest 是最终配方的唯一来源。
 
-`category_fp4.py` 再沿真实输入轴处理 7 个类别权重。对每个 bank，代码把 `[K,N]` 转成量化器使用的 `[N,K]`，将 $K$ 补齐到 $16\lceil K/16\rceil$，并为该 bank 单独保存 tensor scale 和每 16 个输入值的 block scale。v11 的 category manifest 记录每个活动 bank 的实际格式、padding 和来源；运行时只安装模型真正调用的 7 个 CategorySpecificLinear，其他未执行 bank 不参与 LIBERO 前向，也不被误计为额外的激活算子。
+`category_fp4.py` 再沿真实输入轴处理 7 个类别权重。对每个 bank，代码把 `[K,N]` 转成量化器使用的 `[N,K]`，将 $K$ 补齐到 $16\lceil K/16\rceil$，并为该 bank 单独保存 tensor scale 和每 16 个输入值的 block scale。v12 的 category manifest 记录每个活动 bank 的实际格式、padding 和来源；运行时只安装模型真正调用的 7 个 CategorySpecificLinear，其他未执行 bank 不参与 LIBERO 前向，也不被误计为额外的激活算子。
 
-实际量化方法由模块规则、校准模式和张量类型共同决定。`calibration-mode=none` 显式使用 RTN；`required` 校验完整结构、源配置、统计与缓存身份，并拒绝真正线性层缺失 Hessian 的情形；非 Linear 的二维嵌入记录规则指定的 RTN。类别路径对 bank 2 使用 `required` 的 128 窗口统计，对其余 bank 记录“未被 LIBERO 校准观察”并显式回退 RTN。每个二维层和每个类别 bank 的请求方法、实际方法、裁剪值、尺度与回退原因都写入 `ptq_recipe.json` 或 `category_ptq_recipe.json`。
+v12 的实际编码由模块类型和固定 RTN 规则共同决定：ordinary 与 category 权重均使用 NVFP4，普通与类别 Linear 均安装 W4A4 activation QDQ；3 个 embedding/position 张量只做权重量化。每个二维层和每个类别 bank 的请求格式、实际编码、裁剪值、尺度、padding 与回退原因写入 `ptq_recipe.json` 或 `category_ptq_recipe.json`。这些记录用于验证实现是否兑现协议，不用于按结果改写层范围。
 
 共享权重必须先于逐键写盘处理。该 checkpoint 的 `embed_tokens.weight` 与 `lm_head.weight` 在文件中各保存一份，运行时却共享同一参数。`tied_aliases` 将词嵌入定义为规范来源：先确认源文件两个张量相同，只量化规范张量，再把结果复制给别名；即使输出投影存在独立 Hessian，也不允许给同一个运行时参数产生另一份量化值。这样，加载顺序不会决定最终模型取到哪一份权重。
 
@@ -161,9 +122,9 @@ residual = F.linear(F.linear(x, m.lora_A), m.lora_B)  # raw-BF16 input
 return base + (residual * (alpha / rank)).to(base.dtype)
 ```
 
-激活量化入口是 `quant/native_activation.py::native_activation_qdq_torch`：训练时使用 `ste=True` 传递直通梯度，服务时使用 `ste=False`；在相同输入和饱和开关下，STE 不改变前向量化值。初始 QAD 训练与正式评测的开关差异见 §3.2。$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，在相同激活设置下对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
+激活量化入口是 `quant/native_activation.py::native_activation_qdq_torch`：训练时使用 `ste=True` 传递直通梯度，服务时使用 `ste=False`；在相同输入和饱和开关下，STE 不改变前向量化值。F16 转换与饱和开关由训练和评测 manifest 分别记录，具体合同见 §3.1。$m.weight$ 是冻结的 NVFP4 权重；激活 QDQ 只作用于 base 分支，残差分支保留原始 BF16 输入。设 $r=32,\alpha=64$，$A$ 采用 Kaiming 均匀初始化，$B=0$，所以初始残差为零，在相同激活设置下对应 W4A4 PTQ 基座。第一步通常是 $B$ 获得非零梯度、$A$ 的梯度为零；当 $B$ 离开零点后，二者均可更新。
 
-v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
+v12 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 个 CategorySpecificLinear 与 3 个 embedding/position 张量属于量化账本，但不在该 adapter scope 内。rank=32、alpha=64，训练参数量和逐模块清单由最终 `recovery_manifest.json` 固定。这样“479 个 eligible 权重张量”与“468 个 LoRA 模块”分别指量化覆盖和恢复范围。
 
 只有 A/B 的 `requires_grad` 为真，冻结基座仍向输入传递梯度。`eval` 控制 dropout 等模块行为，`no_grad` 控制自动求导；因此语言栈保持 eval 时，低秩分支仍可接收动作损失的梯度。首个反向传播后，`install_gradient_audit` 检查动作头与所选语言范围的 B 梯度是否存在、有限且非零。B 零初始化使 A 的首步梯度为零，这是预期行为。
 
@@ -173,9 +134,9 @@ v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 �
 
 参数存储使用 FP32，前向在 BF16 autocast 下计算。`recovery_batch.py::resolve_batch` 区分微批量 $B_\mu$ 与配置累积数 $G$；$B_\mu G$ 是完整更新的名义批量，数据遍历末尾可能不足此数。上游 CLI 的 `global-batch-size` 实际传递累积前的批量，因此入口将其设为 $B_\mu$，再核对 Trainer 的批量设置。
 
-本轮教师监督缓存包含 148 个演示窗口，采用有限长度、按文件名排序的数据集；上游 DataLoader 顺序读取，不打乱、不丢弃尾批。配置 $B_\mu=1,G=16$ 时，每轮产生 9 次完整更新和 1 次仅含 4 个微批的更新，即 $148=9\times16+4$。Trainer 按该次更新实际含有的微批数 $n$ 平均损失：完整更新除以 16，尾批除以 4。因此，完整完成 2,000 次优化器更新对应 200 轮、29,600 次演示窗口读取，平均每次更新 14.8 个窗口；不能按 $2{,}000\times16=32{,}000$ 报告。29,600 是重复读取次数，唯一缓存窗口数仍为 148。
+本轮演示窗口的实际数量、文件顺序和尾批大小由 `recovery_manifest.json` 固定并随发布包提供；上游 DataLoader 顺序读取，不打乱、不丢弃尾批。配置 $B_\mu=1,G=16$ 时，Trainer 按本次更新实际含有的微批数 $n$ 归一化损失，尾批不能按配置上限补齐。因而训练预算应报告 manifest 中的实际窗口读取次数，不能仅用“更新数×名义 batch”推断。
 
-顺序读取也意味着同一组 4 个窗口每轮都处于尾批，在该次平均损失中的单样本系数为 $1/4$，其余更新为 $1/16$。这是实际采样与归一化方式；continued-QAD 和 OPD 必须沿用同一数据顺序与尾批规则，才能比较相同演示预算下的附加教师监督。
+顺序读取会使末尾微批具有不同的归一化分母；continued-QAD 与 OPD 沿用同一数据顺序、尾批规则和优化器更新数，才能比较相同演示预算下的附加教师监督。
 
 `recovery_manifest.json` 记录基座、配方、rank、alpha、范围、批量、累积数、随机种子、训练参数量和归一化来源。`QAD_INIT_ADAPTER` 从同一冻结基座加载已有 A/B，检查形状与元数据；续训对照两支都重建优化器，使用同样的演示预算和优化器更新数。梯度检查与 manifest 共同确认实际训练的是哪一组参数。
 
@@ -218,9 +179,9 @@ $$
 +\lambda\frac1n\sum_{j=1}^n\mathcal L_{\mathrm{probe},j}.
 $$
 
-尾批的 $n=4$，不能使用配置上限 $G=16$ 代替。若 `Accelerator.backward` 自身还会除以累积数 $a_{\mathrm{acc}}$，钩子传入 $\lambda a_{\mathrm{acc}}\mathcal L_{\mathrm{probe}}/n$，抵消这一步自动缩放；返回给日志的仍是 $\lambda\mathcal L_{\mathrm{probe}}/n$。当前 Transformers 4.57.3 与 Accelerate 1.13.0 由 Trainer 管理累积，$a_{\mathrm{acc}}=1$。CPU 回归同时检查 $a_{\mathrm{acc}}=1,16$、$n=1,4,16$ 的实际 A/B 梯度，并用真实 Trainer 验证 148 个样本在第 20 次更新遇到探针尾批时可继续执行。
+尾批使用实际微批数 $n$，不能使用配置上限 $G=16$ 代替。若 `Accelerator.backward` 自身还会除以累积数 $a_{\mathrm{acc}}$，钩子传入 $\lambda a_{\mathrm{acc}}\mathcal L_{\mathrm{probe}}/n$，抵消这一步自动缩放；返回给日志的仍是 $\lambda\mathcal L_{\mathrm{probe}}/n$。当前 Transformers 4.57.3 与 Accelerate 1.13.0 由 Trainer 管理累积，$a_{\mathrm{acc}}=1$。CPU 回归同时检查 $a_{\mathrm{acc}}=1,16$、$n=1,4,16$ 的实际 A/B 梯度，并用真实 Trainer 验证探针尾批可继续执行。
 
-以每 4 次优化器更新添加一次为例，其余 3 次只有演示损失。更新数上的平均权重为 $\lambda/4$，但具有状态的优化器对不同调度会产生不同更新，因此运行记录同时保存权重与频率。按本轮 148 窗口的读取方式，完整完成 2,000 次更新时共有 500 次探针更新，其中 400 次含 16 个微批、100 次含 4 个微批，合计 6,800 次探针反向。缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。
+v12 的 `opd_every=1`，每次优化器更新都加入教师项。探针更新次数、实际缓存读取数和尾批归一化分母由 OPD 的 `recovery_manifest.json` 记录；缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。
 
 `QAD_ACTIVATION_CHECKPOINTING=1` 可进一步启用逐语言、DiT 和 VL 块的非重入激活重算。实现只包装含可训练参数的块，保留随机状态，在学生 `eval` 模式但梯度开启时仍然有效；冻结教师的 `no_grad` 前向直接绕过重算。训练不使用生成缓存，故该模式关闭 KV cache，并在恢复 manifest 中记录设置；参数 dtype、损失和演示批量均不改变。
 
@@ -256,11 +217,11 @@ W_export = (W_base.float() + delta).to(W_base.dtype)
 
 输入是一份经过导出核验的 checkpoint 和固定的环境初态，输出是逐集成功布尔值、初态身份及日志。这里的主角从单次前向变成策略与环境的反复交互。
 
-`eval/serve_recovery.py` 加载准备好的 PTQ 或 adapter checkpoint。W4A4 基座服务设置 `FP4VLA_W4A4=1`，adapter 服务再设置 `FP4VLA_W4A4_ADAPTER=1`；`FP4VLA_QUANT=0` 只用于关闭原始权重的一次性替换，不能关闭 activation QDQ。`rl/scoped_quant.py::mark_scope` 提供另一个独立入口：从原始浮点模型出发，加载时将指定 Linear 的权重替换一次，随后恢复原线性层前向。对固定权重和固定 weight-only 量化器，量化一次与每次重复量化产生相同权重值；二者仅执行开销不同。v11 的 W4A4 部署回到冻结 base，再加载 A/B adapter，避免把合并矩阵再次量化。
+`eval/serve_recovery.py` 加载准备好的 PTQ 或 adapter checkpoint。W4A4 基座服务设置 `FP4VLA_W4A4=1`，adapter 服务再设置 `FP4VLA_W4A4_ADAPTER=1`；`FP4VLA_QUANT=0` 只用于关闭原始权重的一次性替换，不能关闭 activation QDQ。`rl/scoped_quant.py::mark_scope` 提供另一个独立入口：从原始浮点模型出发，加载时将指定 Linear 的权重替换一次，随后恢复原线性层前向。对固定权重和固定 weight-only 量化器，量化一次与每次重复量化产生相同权重值；二者仅执行开销不同。v12 的 W4A4 部署回到冻结 base，再加载 A/B adapter，避免把合并矩阵再次量化。
 
 完整模型驻留策略服务器，LIBERO 客户端经 ZMQ 发送观测并执行动作；每次执行动作块前 8 步，每 episode 最多 720 步。`run_recovery_eval.py` 串行启动任务和服务器，以一环境对应一个 episode 计数流，保存逐集布尔结果、实际分母、进程退出码、重置记录和日志摘要。缺失或超时使该任务验收失败，结果按实际完成状态保存。
 
-环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、教师监督、学生 collection 与最终评测使用协议声明的分区。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。本文使用冻结的 `exp/recovery_protocol_v11_w4a4_category.json`：开发索引 4–8（seed 940000）、教师监督索引 20–23（seed 950000）、学生 collection 索引 20–23（seed 960000）、最终评测索引 9–19 与 24–28（seed 970000）。held-out 每任务 16 回合，共 160 回合/臂。协议接口 smoke 使用 index=0、seed 980000；截图 smoke 复用开发分区的 index=4，并单独记录 `purpose=screenshot_smoke`。两者均不进入正式结果。479 个 eligible 权重张量全部使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 走 W4A4 activation QDQ，3 个 embedding/position 张量仅权重量化。QAD/OPD 残差保留原始 BF16 输入。
+环境配对由相同任务、初态索引和初始化后的模拟器状态摘要定义，开发、教师监督、学生 collection 与最终评测使用协议声明的分区。`rollout_seeded.py::install_bank_resets` 加载官方初态表，先恢复指定状态，再直接向模拟器执行 10 个全零动作稳定步骤，避免通过归一化夹爪转换改变这些零动作；同时记录 bank 文件、恢复状态和稳定后状态的摘要。本文使用冻结的 `exp/recovery_protocol_v12_rtn_w4a4.json`：开发索引 4–8（seed 940000）、教师监督索引 20–23（seed 950000）、学生 collection 索引 20–23（seed 960000）、最终评测索引 9–19 与 24–28（seed 970000）。held-out 每任务 16 回合，共 160 回合/臂。协议接口 smoke 使用 index=0、seed 980000；截图 smoke 复用开发分区的 index=4，并单独记录 `purpose=screenshot_smoke`。两者均不进入正式结果。479 个 eligible 权重张量全部使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 走 W4A4 activation QDQ，3 个 embedding/position 张量仅权重量化。QAD/OPD 残差保留原始 BF16 输入。
 
 `run_recovery_eval.py::validate_resets` 严格检查实际前 $N$ 个 episode 的索引、种子、三个状态或文件摘要和稳定步数。五分支汇总前，`compare_recovery.py::compare_round` 逐集比对这些摘要，并保存每任务结果、配对成功/失败的 $2\times2$ 表与探索性精确 McNemar 检验。该检验作为有限配对样本的探索性统计一并保存。
 
@@ -375,7 +336,7 @@ Python 的 `AutoPolicy.from_pretrained` 对 π0.5 使用 `model_variant=`，对 
 
 `quant/ptq/verify_calibration.py` 提供独立的校准产物验收：通过内存映射和逐矩阵行块读取真实缓存，检查源 shard、配置、统计文件与缓存摘要，核对完整结构、窗口数、目标层覆盖和逐层行数，再验证二阶矩阵的形状、有限性、非负对角与对称性。验收只读，不重新运行采集，也不加载模型或初始化 CUDA。
 
-数值测试、序列化测试和闭环评测分别回答不同问题。CPU 测试包括：完整 E2M1/E4M3 边界及独立编码参考；零与极小尺度；STE 前向值和梯度；GPTQ 固定尺度、可表示性及矩阵目标；AWQ 有效误差与 GQA 映射；LoRA 梯度和累积缩放；单环境输入采集；跨 shard 残差合并；共享别名和完整 checkpoint 索引。发布时的完整测试清单、实际数量与结果记录在 `paper/validation/cpu-tests.json` 和相邻日志中，其中包括填充位置不贡献损失或梯度、官方初态恢复流程及重置账本的严格检查。完整模型的行为由闭环评测记录。
+数值测试、序列化测试和闭环评测分别回答不同问题。CPU 测试包括：完整 E2M1/E4M3 边界及独立编码参考；零与极小尺度；STE 前向值和梯度；RTN 固定尺度与可表示性；可选校准器的矩阵目标；AWQ 有效误差与 GQA 映射；LoRA 梯度和累积缩放；单环境输入采集；跨 shard 残差合并；共享别名和完整 checkpoint 索引。发布时的完整测试清单、实际数量与结果记录在 `paper/validation/cpu-tests.json` 和相邻日志中，其中包括填充位置不贡献损失或梯度、官方初态恢复流程及重置账本的严格检查。完整模型的行为由闭环评测记录。
 
 独立的小模型集成检查还直接使用已安装的 HF Trainer 与 Accelerator，在累积数 $G=1,2,16$ 下比较实际钩子梯度与手工有效维度参考：A/B 梯度最大绝对差均为 0，冻结基座没有梯度。另以真实 Qwen、DiT、VL 模块构成小模型，验证可选激活重算保持输出、参数梯度和随机状态一致。这些检查均在 CPU 上进行，没有初始化 CUDA。
 
@@ -384,7 +345,7 @@ Python 的 `AutoPolicy.from_pretrained` 对 π0.5 使用 `model_variant=`，对 
 | 阶段 | 主要函数或入口 | 应保存的产物 |
 |---|---|---|
 | 数值格式 | `_round_grid`、`_nvfp4_dequant`、`fp4_quant.py` 编解码 | CPU 边界测试、独立参考比较 |
-| 校准 | `collector.py::accumulate`、完整模型入口 | `calib.pt`、`calib_meta.json` |
+| 可选校准诊断（不进入 RTN 主配方） | `collector.py::accumulate`、完整模型入口 | `calib.pt`、`calib_meta.json` |
 | 分配与写盘 | `inventory`、`alloc`、`tied_aliases`、`bake.py` | `ptq_recipe.json`、索引、shard 摘要 |
 | 原生执行 | `Fp4DeviceWeights`、`fp4_linear`、行主序 scaled adapter | packed/scale 文件、manifest、GPU 测试与引擎日志 |
 | 演示适配 | `install_lora`、`resolve_batch` | A/B checkpoint、`recovery_manifest.json` |
@@ -406,7 +367,7 @@ Python 的 `AutoPolicy.from_pretrained` 对 π0.5 使用 `model_variant=`，对 
 | 原生部署 | APXInf π0.5 实现在线激活量化与 FP4 路由；GR00T packed 基座加低秩旁路属于后续模型集成工作。 |
 | 图执行验收 | 比较同一 NVFP4 模型的 eager/graph 输出；完整模型测试输出为内部 50×32 张量。 |
 | 配对统计 | 对齐同任务、同官方初态与状态摘要；策略噪声按任务播种。精确 McNemar 值用于探索性分析。 |
-| 数据与计算 | 校准和演示训练可能重复采样窗口；教师分支另计模拟器交互、标注和探针反向成本。 |
+| 数据与计算 | 演示训练可能重复采样窗口；教师分支另计模拟器交互、标注和探针反向成本。 |
 | 支持的训练器 | 单设备 HF Trainer 梯度累积；分布式 Apex、DeepSpeed、FSDP 的缩放规则需单独实现。 |
 
 另有两个独立研究工具保留在仓库中。`rl/scoped_quant.py` 用于从浮点模型临时构造 weight-only 量化策略；`rl/lora_rwr.py` 用于任务加权自模仿。它们与主流程的 bake checkpoint、学生状态教师蒸馏分别选择入口。
