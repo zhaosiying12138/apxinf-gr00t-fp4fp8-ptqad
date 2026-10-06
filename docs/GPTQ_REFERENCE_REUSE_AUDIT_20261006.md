@@ -37,7 +37,7 @@ category_bake_manifest.json
 
 ## 建立可核验参考的最小路径
 
-目前 [`collector.py`](../quant/ptq/collector.py) 和 [`collector_category.py`](../quant/ptq/collector_category.py) 仅从 `--dataset` 构造迭代数据集，没有读取 `capture_onpolicy.py` 的 `sample_*.pt` 入口。不能把这些捕获文件直接当作现有 dataset 参数。
+初次审查时，[`collector.py`](../quant/ptq/collector.py) 和 [`collector_category.py`](../quant/ptq/collector_category.py) 仅从 `--dataset` 构造迭代数据集，不能把 `capture_onpolicy.py` 的捕获文件直接当作 dataset 参数。随后已增加独立的 `--capture-manifest` 入口，使用方式和验收边界见[捕获校准说明](CAPTURED_PTQ_CALIBRATION.md)。
 
 后续补充应另立协议，保持当前 v12 五臂不变，执行顺序如下：
 
@@ -47,4 +47,4 @@ category_bake_manifest.json
 4. 先验证权重身份、实际激活覆盖与输入分区，再使用单独输出目录执行补充评测。模型、位宽及超参数应在读取补充 held-out 结果前固定，不利用主实验结果重新挑选参考。
 5. 配对评测与 v12 采用相同任务、初态、seed 及执行约定。补充首先回答 GPTQ 相对 RTN 的贡献，以及选定恢复模型相对 GPTQ 的差异；独立报告校准数据量、计算成本和参数编码预算。统计对比与多重检验规则需在执行前写入补充协议。
 
-本次尚未实现或执行以上补充。当前新增动作诊断仅测冻结观测上的完整动作差异，也不能替代 GPTQ 参考的闭环结果。即使补齐 GPTQ，对“超过 PTQ SOTA”的主张仍需更先进且同口径的可复现参照，不能把 GPTQ 自动等同于全部先进 PTQ 方法。
+本次已补齐输入适配与 CPU 校验；模型校准、重新量化和 GPTQ 补充闭环尚未执行。当前新增动作诊断仅测冻结观测上的完整动作差异，也不能替代 GPTQ 参考的闭环结果。即使补齐 GPTQ，对“超过 PTQ SOTA”的主张仍需更先进且同口径的可复现参照，不能把 GPTQ 自动等同于全部先进 PTQ 方法。

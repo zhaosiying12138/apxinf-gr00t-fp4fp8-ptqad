@@ -23,6 +23,7 @@ from category_fp4 import (ARCHITECTURE, ACTIVE_BANK, CACHE_VERSION, EXPECTED_SHA
                           checkpoint_identity, identity, tensor_hash, validate_parent)
 from probe_distill import replay_context, require_full_model, tensor_tree
 from gr00t_runtime import configure_libero_data, verify_libero_statistics
+from captured_calibration import CapturedCalibration, load_captured_model
 
 
 def use_local_hf_metadata() -> None:
@@ -61,6 +62,7 @@ def main():
     parser.add_argument("--parent", required=True, help="Pure PTQ parent checkpoint")
     parser.add_argument("--out", required=True)
     parser.add_argument("--dataset", default=os.environ.get("QAD_DATASET", "./demo_data/libero_demo"))
+    parser.add_argument("--capture-manifest", help="Frozen audited teacher inputs; requires batch=1 and all windows")
     parser.add_argument("--windows", type=int, default=128)
     parser.add_argument("--batch", type=int, default=1)
     parser.add_argument("--seed", type=int, default=20260929)
@@ -74,6 +76,9 @@ def main():
     if output.exists() or parent == output or parent in output.parents:
         raise FileExistsError("Refusing to overwrite or nest category calibration output")
     source, entries, _recipe = validate_parent(parent)
+    captured = CapturedCalibration(args.capture_manifest, parent, args.windows, args.batch) if args.capture_manifest else None
+    if captured is not None:
+        captured.validate_root_weights(source["root_bf16"]["weights"])
     output.mkdir(parents=True)
     start = time.time()
     torch.set_num_threads(args.cpu_threads)
@@ -102,10 +107,13 @@ def main():
     config.training.transformers_local_files_only = True
     config.load_config_path = None
     configure_libero_data(config, parent)
-    pipeline = MODEL_REGISTRY.get(type(config.model))(config, output)
-    pipeline.setup()
-    verify_libero_statistics(pipeline.processor, parent)
-    model = pipeline.return_model()
+    if captured is not None:
+        model = load_captured_model(parent, config.model)
+    else:
+        pipeline = MODEL_REGISTRY.get(type(config.model))(config, output)
+        pipeline.setup()
+        verify_libero_statistics(pipeline.processor, parent)
+        model = pipeline.return_model()
     architecture = require_full_model(model)
     if architecture != ARCHITECTURE:
         raise ValueError(f"Unexpected model architecture: {architecture}")
@@ -136,16 +144,22 @@ def main():
         hooks.append(module.register_forward_pre_hook(make_hook(key)))
     print(f"[category-calib] architecture={architecture}; layers={len(hooks)}; "
           f"active_bank={ACTIVE_BANK}; windows={args.windows}; H=CPU FP32", flush=True)
-    dataset, _ = pipeline.return_dataset()
-    collator = pipeline.return_collator()
-    iterator = iter(dataset)
+    if captured is not None:
+        iterator = iter(captured)
+    else:
+        dataset, _ = pipeline.return_dataset()
+        collator = pipeline.return_collator()
+        iterator = iter(dataset)
     consumed, forwards = 0, 0
     try:
         while consumed < args.windows:
             count = min(args.batch, args.windows - consumed)
-            raw = [next(iterator) for _ in range(count)]
-            batch = collator(raw)
-            inputs = batch.get("inputs", batch)
+            if captured is not None:
+                inputs = next(iterator)
+            else:
+                raw = [next(iterator) for _ in range(count)]
+                batch = collator(raw)
+                inputs = batch.get("inputs", batch)
             with replay_context(model, args.seed + forwards, "bfloat16"), torch.no_grad():
                 model(tensor_tree(inputs, args.device, clone=False))
             consumed += count
@@ -170,13 +184,16 @@ def main():
                        "H_sha256": tensor_hash(entry["H"]), "abs_sha256": tensor_hash(entry["abs"])} }
     metadata = {"version": CACHE_VERSION, "status": "complete", "parent": str(parent),
                 "provenance": provenance, "architecture": architecture, "active_bank": ACTIVE_BANK,
-                "dataset": str(Path(args.dataset).resolve()), "model_dtype": "bfloat16",
+                "dataset": None if captured is not None else str(Path(args.dataset).resolve()), "model_dtype": "bfloat16",
                 "accumulation_dtype": "float32", "accumulation_device": "cpu", "tf32_matmul": False,
                 "windows_requested": args.windows, "windows_consumed": consumed, "batch": args.batch,
                 "forwards": forwards, "seed": args.seed, "n_layers": len(acc), "layers": layer_meta,
                 "cache_sha256": identity(cache)["sha256"], "source_category_sha256": source["category_source_sha256"],
                 "implementation_sha256": identity(Path(__file__))["sha256"],
                 "elapsed_seconds": time.time() - start}
+    if captured is not None:
+        metadata["captured_input_provenance"] = captured.record
+        metadata["windows_are_unique"] = "unique capture files; one pass; not independent episodes"
     (output / "calib_meta.json").write_text(json.dumps(metadata, indent=2) + "\n")
     active_rows = sum(x[str(ACTIVE_BANK)]["n"] for x in acc.values())
     print(f"[category-calib] saved {len(acc)} layers; active bank rows={active_rows}; output={output}", flush=True)

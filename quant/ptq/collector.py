@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT / "rl"))
 from bake import alloc, file_hash, inventory, tied_aliases
 from probe_distill import replay_context, require_full_model, tensor_tree
 from gr00t_runtime import configure_libero_data, verify_libero_statistics
+from captured_calibration import CapturedCalibration, load_captured_model
 
 
 def accumulate(entry, value):
@@ -46,6 +47,7 @@ def main():
     parser.add_argument("--base", default=os.environ.get("PTQ_BASE", str(ROOT / "weights/GR00T-N1.7-LIBERO/libero_10")))
     parser.add_argument("--out", default=os.environ.get("PTQ_CAL_OUT"), required="PTQ_CAL_OUT" not in os.environ)
     parser.add_argument("--dataset", default=os.environ.get("QAD_DATASET", "./demo_data/libero_demo"))
+    parser.add_argument("--capture-manifest", help="Frozen audited teacher inputs; requires batch=1 and all windows")
     parser.add_argument("--windows", type=int, default=int(os.environ.get("PTQ_CAL_WINDOWS", "128")))
     parser.add_argument("--batch", type=int, default=int(os.environ.get("PTQ_CAL_BATCH", "1")))
     parser.add_argument("--recipe", choices=["mixed", "calib", "aggr"], default="mixed")
@@ -60,6 +62,7 @@ def main():
         raise FileExistsError(f"refusing to overwrite calibration output: {output}")
     if base == output or base in output.parents:
         raise ValueError("calibration output cannot be inside the checkpoint")
+    captured = CapturedCalibration(args.capture_manifest, base, args.windows, args.batch) if args.capture_manifest else None
     output.mkdir(parents=True)
     start = time.time()
     torch.set_num_threads(args.cpu_threads)
@@ -76,6 +79,8 @@ def main():
 
     entries, shards, _ = inventory(base)
     source_weights = {s: {"bytes": (base / s).stat().st_size, "sha256": file_hash(base / s)} for s in shards}
+    if captured is not None:
+        captured.validate_root_weights(source_weights)
     config = get_default_config().load_dict({"data": {
         "download_cache": False, "override_pretraining_statistics": False,
         "datasets": [{"dataset_paths": [args.dataset], "mix_ratio": 1.0,
@@ -89,10 +94,13 @@ def main():
     config.training.transformers_local_files_only = True
     config.load_config_path = None
     configure_libero_data(config, base)
-    pipeline = MODEL_REGISTRY.get(type(config.model))(config, output)
-    pipeline.setup()
-    verify_libero_statistics(pipeline.processor, base)
-    model = pipeline.return_model()
+    if captured is not None:
+        model = load_captured_model(base, config.model)
+    else:
+        pipeline = MODEL_REGISTRY.get(type(config.model))(config, output)
+        pipeline.setup()
+        verify_libero_statistics(pipeline.processor, base)
+        model = pipeline.return_model()
     architecture = require_full_model(model)
     model.requires_grad_(False)
     model = model.to(device=args.device, dtype=torch.bfloat16).eval()
@@ -131,16 +139,22 @@ def main():
         raise RuntimeError("no GPTQ targets were hooked")
     print(f"[calib] full architecture={architecture}; target_layers={len(hooks)}; "
           f"windows={args.windows} batch={args.batch}; H accumulation=CPU FP32", flush=True)
-    dataset, _ = pipeline.return_dataset()
-    collator = pipeline.return_collator()
-    iterator = iter(dataset)
+    if captured is not None:
+        iterator = iter(captured)
+    else:
+        dataset, _ = pipeline.return_dataset()
+        collator = pipeline.return_collator()
+        iterator = iter(dataset)
     consumed, forwards = 0, 0
     try:
         while consumed < args.windows:
             count = min(args.batch, args.windows - consumed)
-            raw = [next(iterator) for _ in range(count)]
-            batch = collator(raw)
-            inputs = batch.get("inputs", batch)
+            if captured is not None:
+                inputs = next(iterator)
+            else:
+                raw = [next(iterator) for _ in range(count)]
+                batch = collator(raw)
+                inputs = batch.get("inputs", batch)
             with replay_context(model, args.seed + forwards, "bfloat16"), torch.no_grad():
                 model(tensor_tree(inputs, args.device, clone=False))
             consumed += count
@@ -159,10 +173,11 @@ def main():
         "version": "full-model-cpu-hessian-v2", "status": "complete", "base": str(base),
         "base_weight_files": source_weights, "base_config_sha256": file_hash(base / "config.json"),
         "base_statistics_sha256": file_hash(base / "statistics.json") if (base / "statistics.json").exists() else None,
-        "dataset": str(Path(args.dataset).resolve()), "architecture": architecture,
+        "dataset": None if captured is not None else str(Path(args.dataset).resolve()), "architecture": architecture,
         "model_dtype": "bfloat16", "accumulation_dtype": "float32", "accumulation_device": "cpu",
         "tf32_matmul": False, "recipe_targets": args.recipe, "windows_requested": args.windows,
-        "windows_consumed": consumed, "windows_are_unique": "not asserted for iterable dataset",
+        "windows_consumed": consumed, "windows_are_unique": ("unique capture files; one pass; not independent episodes"
+            if captured is not None else "not asserted for iterable dataset"),
         "batch": args.batch, "forwards": forwards, "seed": args.seed,
         "n_layers": len(acc), "H_GB_f32": sum(x["H"].numel() * 4 for x in acc.values()) / 1e9,
         "nonlinear_targets": nonlinear_targets, "tied_weight_aliases": aliases,
@@ -171,6 +186,8 @@ def main():
         "cache_sha256": file_hash(output_cache), "implementation_sha256": file_hash(__file__),
         "elapsed_seconds": time.time() - start,
     }
+    if captured is not None:
+        meta["captured_input_provenance"] = captured.record
     (output / "calib_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     print(f"[calib] saved {len(acc)} layers, {meta['H_GB_f32']:.3f} GB H; "
           f"actual windows={consumed} -> {output_cache}", flush=True)
