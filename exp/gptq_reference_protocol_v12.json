@@ -1,0 +1,352 @@
+{
+  "format": "w4a4_gptq_supplement_protocol_v1",
+  "frozen_at_utc": "2026-10-06T16:07:50.389890+00:00",
+  "timing": "Frozen before any heldout directory exists in the named v12 run; first QAD candidate is still training. No main or supplemental heldout outcome used to choose this reference.",
+  "research_question": "Compare calibrated NVFP4 GPTQ against same-coverage RTN and the development-selected recovery models on the same fixed ten LIBERO tasks.",
+  "main_run": "results/reruns/rtn_w4a4_release_20261006_01/recovery_v12",
+  "main_protocol": {
+    "path": "exp/recovery_protocol_v12_rtn_w4a4.json",
+    "bytes": 5090,
+    "sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+  },
+  "main_protocol_unchanged": true,
+  "capture_manifest": {
+    "path": "paper/_build/captured_ptq_v12/inputs.json",
+    "bytes": 41957,
+    "sha256": "d70cd6c328556b48f3dccaefbf49208fdb1b8c4047240d0335e8105ac2798d36"
+  },
+  "teacher_weights": {
+    "model-00001-of-00002.safetensors": {
+      "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff",
+      "bytes": 4990519232
+    },
+    "model-00002-of-00002.safetensors": {
+      "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703",
+      "bytes": 1919980184
+    }
+  },
+  "teacher_metadata": {
+    "config.json": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
+    "statistics.json": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+    "processor_config.json": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121",
+    "embodiment_id.json": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
+  },
+  "calibration": {
+    "source": "training-only successful BF16 captures from teacher_supervision partition",
+    "init_state_indices": [
+      20,
+      21,
+      22,
+      23
+    ],
+    "tasks": 10,
+    "windows": 148,
+    "batch": 1,
+    "order": "task order in teacher audit, then filename; consume every observation exactly once",
+    "seed": 2026100601,
+    "ordinary_recipe": "calib",
+    "ordinary_forward_model": "root BF16",
+    "category_forward_model": "new ordinary GPTQ parent",
+    "category_method": "gptq_active",
+    "gptq_damp": 0.01,
+    "clip_grid": [
+      1.0,
+      0.95,
+      0.9,
+      0.85,
+      0.8,
+      0.7,
+      0.6,
+      0.5
+    ],
+    "activation_qdq_during_H_collection": false,
+    "hyperparameter_search": false,
+    "fallbacks": "Report aliases and non-Linear RTN fallbacks; inactive category banks use RTN. Do not label all tensors GPTQ."
+  },
+  "quantization": {
+    "weight": "NVFP4 E2M1, E4M3 scale per16, FP32 secondary scale; frozen PTQ values stored dequantized in BF16",
+    "eligible_weight_tensors": 479,
+    "activation_qdq": "same v12 installer, all eligible ordinary/category operators; secondary scale1",
+    "ordinary_activation_operators": 469,
+    "category_activation_operators": 7,
+    "lora_in_gptq_reference": false,
+    "scope": "numerical QDQ reference, not native deployment"
+  },
+  "execution": {
+    "start_condition": "Main v12 five-arm final manifest exists and verifies; no competing GPU process. No extra recovery training or development selection for this single fixed GPTQ recipe.",
+    "output_root": "results/supplement_gptq_capture_v12",
+    "eval_protocol_file": "exp/recovery_protocol_v12_rtn_w4a4.json",
+    "eval_partition": {
+      "seed": 970000,
+      "init_state_indices": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "episodes_per_task": 16,
+      "purpose": "new paired five-arm W4A4 evaluation"
+    },
+    "eval_contract": {
+      "task_count": 10,
+      "n_envs": 1,
+      "task_seed_stride": 1000,
+      "episode_seed_stride": 1,
+      "server_seed_offset": 10000000,
+      "settle_steps": 10,
+      "n_action_steps": 8,
+      "max_episode_steps": 720,
+      "initial_state_protocol": "libero10_official_bank_v1",
+      "final_episode_count_per_arm": 160,
+      "reporting_metrics": {
+        "micro_success_rate": "total successes divided by all episodes; used for pressure screening",
+        "task_macro_success_rate": "unweighted mean of ten task success rates; primary summary"
+      },
+      "primary_effect_minimum": {
+        "ptq_drop": 0.05,
+        "opd_gain_over_qad": 0.05,
+        "qad_gain_over_ptq": 0.05,
+        "note": "The 160 paired episodes support 10-point recovery claims as the preregistered minimum; smaller differences are exploratory."
+      }
+    },
+    "collection_manifest": "results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/collection_qad/eval_manifest.json",
+    "retry": "Infrastructure failures use a new audited output directory with unchanged model/protocol/seeds; never retry based on score. Preserve failed attempt metadata and cost.",
+    "eval_contract_mirror_note": "The copied primary_effect_minimum belongs to the unchanged main protocol. It is not a supplement selection threshold or a power guarantee; the sole reference is reported regardless of score."
+  },
+  "comparison": {
+    "reference_arms": [
+      "bf16",
+      "ptq",
+      "qad",
+      "continued_qad",
+      "qad_opd"
+    ],
+    "selection": "Use exactly the original v12 development-selected checkpoints from its verified final manifest. Never replace an arm based on heldout scores.",
+    "additional_arm": "gptq",
+    "contrasts": {
+      "gptq_vs_rtn": [
+        "ptq",
+        "gptq"
+      ],
+      "qad_vs_gptq": [
+        "gptq",
+        "qad"
+      ],
+      "opd_vs_gptq": [
+        "gptq",
+        "qad_opd"
+      ]
+    },
+    "additional_descriptive_comparisons": [
+      [
+        "bf16",
+        "gptq"
+      ],
+      [
+        "gptq",
+        "continued_qad"
+      ]
+    ],
+    "estimand": "Equal-weight mean success-rate difference across the ten fixed tasks, treatment minus baseline",
+    "confidence_interval": {
+      "method": "paired percentile bootstrap within each fixed task",
+      "replicates": 20000,
+      "seed": 20261007,
+      "level": 0.95,
+      "implementation": "paper.paired_uncertainty.paired_effect"
+    },
+    "tests": {
+      "method": "exact two-sided McNemar conditional on discordant paired outcomes",
+      "adjustment": "Holm across the three named supplementary contrasts",
+      "alpha": 0.05,
+      "implementation": "paper.paired_uncertainty.holm_adjust",
+      "family_scope": "This is a separate, prospectively specified supplementary family. Do not claim paper-wide error control across it and the four main contrasts.",
+      "assumptions": "Independent discordant signs with arm exchangeability within each task; equality of the task-average rate alone does not imply this null."
+    },
+    "interpretation": "Report every contrast regardless of sign. Pointwise intervals condition on ten fixed tasks and one training seed; no unseen-task generalization, equivalence claim from a degenerate interval, or guaranteed power. Do not retune based on these results."
+  },
+  "reporting": [
+    "All six arm success rates, per-task counts, paired reset identities, gains/losses, conditional intervals and specified p-values",
+    "Physical and tied-deduplicated encoded weight budgets including scales/padding/exclusions and recovery LoRA costs",
+    "Actual calibration rows/calls, fallback methods and wall/GPU costs; windows are not independent trajectories",
+    "No claim to exceed PTQ SOTA or QVLA from GPTQ alone; no native speed claim from QDQ"
+  ],
+  "source_commit": "0bd670fef41520055f0be1e720a1bf19eb4318dc",
+  "preparation_source_files": {
+    "quant/ptq/captured_calibration.py": {
+      "path": "quant/ptq/captured_calibration.py",
+      "bytes": 6420,
+      "sha256": "5f6ab74b883eb3683b6e9e5d59a6e6ca8b1265f73176570e4cecfeaf5f966860"
+    },
+    "exp/verify_teacher_replay.py": {
+      "path": "exp/verify_teacher_replay.py",
+      "bytes": 8770,
+      "sha256": "09522463fcfbcce20fe998d2ef6a556a7785cb6fa545f69ebb1de095ecc26f23"
+    },
+    "quant/ptq/collector.py": {
+      "path": "quant/ptq/collector.py",
+      "bytes": 10012,
+      "sha256": "ba9e4745d875a212d310e06a0173be2a3232257ebd2b2433584a27d8cddc0762"
+    },
+    "quant/ptq/collector_category.py": {
+      "path": "quant/ptq/collector_category.py",
+      "bytes": 10210,
+      "sha256": "c7037a87c84130e81f01c24ff93a4cfbe1b46062de498ade61d9111c8119958b"
+    },
+    "quant/ptq/bake.py": {
+      "path": "quant/ptq/bake.py",
+      "bytes": 22798,
+      "sha256": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae"
+    },
+    "quant/ptq/bake_category.py": {
+      "path": "quant/ptq/bake_category.py",
+      "bytes": 9990,
+      "sha256": "5a85c358616dc9d12255944a86845dc326774cbacb9e617fe2045bb0b497ec3a"
+    },
+    "quant/ptq/category_fp4.py": {
+      "path": "quant/ptq/category_fp4.py",
+      "bytes": 19739,
+      "sha256": "3a06a8e6ef0a4c5f7edb4cbe72210477e5f2d4d0ad77a89bc38f9dcfd082953d"
+    },
+    "quant/ptq/quantizers.py": {
+      "path": "quant/ptq/quantizers.py",
+      "bytes": 3939,
+      "sha256": "e7310601f5cb0a80d13c7a7be79714bc8ea4a85b03866968ef493646df6acfd2"
+    },
+    "eval/run_recovery_eval.py": {
+      "path": "eval/run_recovery_eval.py",
+      "bytes": 28351,
+      "sha256": "9615ab64fd4a9cba46defe31ab1d0d58a4dd344a9d1dac1cc40f03497af9f00a"
+    },
+    "eval/serve_recovery.py": {
+      "path": "eval/serve_recovery.py",
+      "bytes": 3000,
+      "sha256": "7ea3a40eeb11d46f9b0b3498f688138adce7ce47a50940fd0c071c5cb1045621"
+    },
+    "eval/run_gr00t_server_fp4vla.py": {
+      "path": "eval/run_gr00t_server_fp4vla.py",
+      "bytes": 12801,
+      "sha256": "f82107d31f4059919cff964cfde313c690a3041ef0abc218824425455d1a6fee"
+    },
+    "exp/run_high_fp4_v3.py": {
+      "path": "exp/run_high_fp4_v3.py",
+      "bytes": 89437,
+      "sha256": "e781e1294cd6a897ecc4c8e2de88cf864bf2716d045f568ecfb0dd030f9857a8"
+    },
+    "eval/compare_recovery.py": {
+      "path": "eval/compare_recovery.py",
+      "bytes": 15493,
+      "sha256": "6864b57eecf280425cb875406981ca10ee2235ca78bbf92588641add83007b5e"
+    },
+    "paper/paired_uncertainty.py": {
+      "path": "paper/paired_uncertainty.py",
+      "bytes": 5234,
+      "sha256": "09694de8fbb089b462cc2b347524259fbaf1c99b05172a92f410d083e3b3888e"
+    },
+    "quant/torch_fp4.py": {
+      "path": "quant/torch_fp4.py",
+      "bytes": 4767,
+      "sha256": "b8f1d073b7904e08c11d9d2c2dba8998e60acb80e0a317098ccfca8890a468e9"
+    },
+    "quant/native_activation.py": {
+      "path": "quant/native_activation.py",
+      "bytes": 9092,
+      "sha256": "f2d4c977f907c9637c555894a9fb9ab20767f00ed07b490008a9bdc6099384ff"
+    },
+    "quant/fp4_quant.py": {
+      "path": "quant/fp4_quant.py",
+      "bytes": 7804,
+      "sha256": "639be33aed86990ad7cca1c860a4eb38e3dcba91e147c84c9d26921b57ae0387"
+    },
+    "rl/scoped_quant.py": {
+      "path": "rl/scoped_quant.py",
+      "bytes": 15417,
+      "sha256": "87a02b55da550ab85c7f84ae1ca7e4d3459e9d2f7bc18f03cdad154abfb9607e"
+    },
+    "rl/probe_distill.py": {
+      "path": "rl/probe_distill.py",
+      "bytes": 10949,
+      "sha256": "b745beb9ca498637d0dadc54c4f162235b96a66fae187d86f269e8b488d4950d"
+    },
+    "rl/gr00t_runtime.py": {
+      "path": "rl/gr00t_runtime.py",
+      "bytes": 5031,
+      "sha256": "92f61fd9d36c68136394095ac151df46255b9f3308b18efc81b4426d057e1fa0"
+    },
+    "rl/opd_probe_cache.py": {
+      "path": "rl/opd_probe_cache.py",
+      "bytes": 10391,
+      "sha256": "e9072d8d16f3097b9b17a6ca8a575e6a8c230369354ede912697cd5d6644ec23"
+    },
+    "rl/w4a4_lora.py": {
+      "path": "rl/w4a4_lora.py",
+      "bytes": 4577,
+      "sha256": "fea047ea9fe2a490e91cb6169774bca2ce3124275097b13b01bd8c9b6b53809a"
+    },
+    "rl/w4a4_deploy.py": {
+      "path": "rl/w4a4_deploy.py",
+      "bytes": 4203,
+      "sha256": "62ddd5ce3342e35d7538cf7b0e4f902bc3a8e0e25a8e4fee4449e05f6d323b50"
+    },
+    "rl/lora_scope.py": {
+      "path": "rl/lora_scope.py",
+      "bytes": 1319,
+      "sha256": "f75acbc121e35158ffdae83e8a08ce331844adfbfa248b780d7422113380642e"
+    },
+    "eval/rollout_seeded.py": {
+      "path": "eval/rollout_seeded.py",
+      "bytes": 6436,
+      "sha256": "a0a1a071452e1562c764a2399253c279df86cad4d75f1e1599d77d2ac90b9fc5"
+    },
+    "setup/06_install_recovery.sh": {
+      "path": "setup/06_install_recovery.sh",
+      "bytes": 8774,
+      "sha256": "3cd6d2f5ff050e2b2468f19f5637b405b841023a9ebce34f5f4e4f40a09178f0"
+    },
+    "setup/locks/manifest.json": {
+      "path": "setup/locks/manifest.json",
+      "bytes": 2560,
+      "sha256": "ff134f2b3dfbc28a8b40096fa6e243a9e39c53dd24c57f1638786a8bbf0068d6"
+    },
+    "patches/gr00t-recovery-runtime.patch": {
+      "path": "patches/gr00t-recovery-runtime.patch",
+      "bytes": 65436,
+      "sha256": "77c4d6952ce6b6aa6e4810d94320bb8ae6487032ec721292a0d8fbb2a082878b"
+    }
+  },
+  "source_policy": "Record and verify these source identities before execution. Any bugfix requires an explicitly recorded protocol amendment before the affected supplemental measurement; no silent changes.",
+  "amendment": {
+    "at_utc": "2026-10-06T16:19:44.428124+00:00",
+    "previous_protocol_sha256": "b140dac7fa91d036b87629eb713f6408145d7ec29b83117ac5575ff355a18256",
+    "previous_protocol_path": "exp/source_snapshots/b140dac7fa91d036b87629eb713f6408145d7ec29b83117ac5575ff355a18256/gptq_reference_protocol_v12.json",
+    "reason": "Before any supplemental execution or main heldout, add direct numerical/runtime dependencies omitted from the initial preparation-source inventory and clarify the mirrored main-only threshold fields. No model, data, hyperparameter, comparison or statistical rule changes.",
+    "added_source_files": [
+      "quant/torch_fp4.py",
+      "quant/native_activation.py",
+      "quant/fp4_quant.py",
+      "rl/scoped_quant.py",
+      "rl/probe_distill.py",
+      "rl/gr00t_runtime.py",
+      "rl/opd_probe_cache.py",
+      "rl/w4a4_lora.py",
+      "rl/w4a4_deploy.py",
+      "rl/lora_scope.py",
+      "eval/rollout_seeded.py",
+      "setup/06_install_recovery.sh",
+      "setup/locks/manifest.json",
+      "patches/gr00t-recovery-runtime.patch"
+    ]
+  }
+}

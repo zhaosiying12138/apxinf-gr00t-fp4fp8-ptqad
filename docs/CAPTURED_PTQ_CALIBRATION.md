@@ -2,7 +2,9 @@
 
 此入口补充 [QVLA 对照审阅](QVLA_GAP_REVIEW_20261006.md) 指出的强 PTQ 基线缺口。它复用已有普通层、category 层 Hessian collector 和 GPTQ 算法，只增加捕获输入适配与来源校验，不改变当前 v12 的 RTN 恢复实验。
 
-当前完成的是 CPU 输入审计和程序测试；以下模型校准、重新量化与补充评测尚未执行，不能据此填写 GPTQ 成功率。GPU 步骤必须等待当前五臂流程结束，补充评测协议也必须在读取结果前另行冻结。
+当前完成的是 CPU 输入审计、程序测试、普通权重分配预检及[补充协议冻结](../exp/gptq_reference_protocol_v12.json)；以下模型校准、重新量化与补充评测尚未执行，不能据此填写 GPTQ 成功率。GPU 步骤必须等待当前五臂流程结束。
+
+补充协议在 v12 主实验 held-out 尚未开始时冻结，当前 SHA-256 为 `ba1f3972893fcc2bf2ab10ec9b0dd75569f6f5a10b79e594cd4d273837035a5b`。执行前审查补齐了 14 份数值与运行时依赖，初版原文及其 SHA 保存在协议 `amendment` 指向的快照中；模型、数据、配方与统计规则未变。它不参与原 v12 开发集选择，主实验协议的路径和字节保持原样。
 
 ## 输入与计算口径
 
@@ -31,6 +33,27 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
   --root "$PTQAD_RUN/teacher_supervision_v12_clean" \
   --protocol-file exp/recovery_protocol_v12_rtn_w4a4.json \
   --teacher "$PTQAD_BASE" --out "$PTQAD_CAL/inputs.json"
+```
+
+## 执行前身份检查
+
+在运行任何新增 GPU 步骤前，先核对已冻结的协议、输入和源码身份：
+
+```bash
+cd "$PTQAD_ROOT"
+python3 - <<'PY'
+import hashlib, json
+from pathlib import Path
+path = Path('exp/gptq_reference_protocol_v12.json')
+assert hashlib.sha256(path.read_bytes()).hexdigest() == 'ba1f3972893fcc2bf2ab10ec9b0dd75569f6f5a10b79e594cd4d273837035a5b'
+plan = json.loads(path.read_text())
+records = [plan['main_protocol'], plan['capture_manifest'], *plan['preparation_source_files'].values()]
+for record in records:
+    source = Path(record['path'])
+    assert source.stat().st_size == record['bytes'], source
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == record['sha256'], source
+print('Frozen supplement identities verified; this does not run calibration or evaluation.')
+PY
 ```
 
 ## 串行校准与量化（待执行）
@@ -71,7 +94,36 @@ OMP_NUM_THREADS=4 "$PTQAD_PY" "$PTQAD_ROOT/quant/ptq/bake_category.py" \
 
 保留两份 `calib_meta.json`、缓存、量化 recipe、bake manifest、源码版本及完整日志。新增 `captured_input_provenance` 位于校准元数据顶层，不改变既有 category parent 身份合同。原 `verify_calibration.py` 检查 Hessian 数值与源权重；它的 PASS 本身不等于重新审计捕获分区。来源审计由适配器执行，并随元数据保存。
 
-补充闭环评测仍需独立协议：锁定同一 GR00T 根权重、实际激活覆盖、配对初态与 seed、主要比较、置信区间和多重检验规则；不能根据主实验 held-out 分数挑选 GPTQ 超参数。新增基线首先回答 GPTQ 相对 RTN 的贡献，以及恢复模型相对这一校准参考的差异，不能自动升级为“超过 PTQ SOTA”。
+## 补充评测及统计规则（已冻结，待执行）
+
+复用原 v12 的十任务、初态 9–19 与 24–28、seed 970000，每任务 16 回合。固定报告 GPTQ−RTN、QAD−GPTQ、OPD−GPTQ 三项差值，采用任务内配对 bootstrap（20,000 次、seed 20261007、95% 逐项区间），三项 exact McNemar 检验做 Holm 校正。GPTQ 与 BF16、continued-QAD 的比较另作描述，不增加显著性主张。补充 family 与主实验的四项 family 分别定义，不能宣称覆盖整篇论文的统一错误率控制。
+
+QAD、continued-QAD、OPD 只能采用原 v12 开发集选定的检查点；无论结果方向如何，六臂和三项差值均完整报告。推断范围限于固定十任务与一个训练 seed；不能根据这些 held-out 分数再挑 GPTQ 参数。新增基线回答同覆盖校准 PTQ 的贡献，不能自动升级为“超过 PTQ SOTA”。
+
+评测入口仍使用原 v12 JSON，而不是把补充 JSON 传入 `--protocol-file`。只有原五臂完成并验收、新 GPTQ 量化产物完成身份与覆盖检查、GPU 空闲后，才运行：
+
+```bash
+set -e
+cd "$PTQAD_ROOT"
+export LIBERO_PYTHON="$PTQAD_GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python"
+export PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
+export PTQAD_ZMQ_TIMEOUT_MS=120000
+export FP4VLA_SCOPE=all
+test -s "$PTQAD_RUN/recovery_v12/final_manifest.json"
+test -s "$PTQAD_GPTQ/w4a4_category/category_bake_manifest.json"
+test -s "$PTQAD_RUN/recovery_v12/artifacts/collection_qad/eval_manifest.json"
+"$PTQAD_PY" eval/run_recovery_eval.py \
+  --checkpoint "$PTQAD_GPTQ/w4a4_category" --out "$PTQAD_GPTQ/heldout_gptq" \
+  --purpose heldout --protocol-file exp/recovery_protocol_v12_rtn_w4a4.json \
+  --seed 970000 --episodes 16 --port 6980 \
+  --collection-manifest "$PTQAD_RUN/recovery_v12/artifacts/collection_qad/eval_manifest.json" \
+  --gr00t "$PTQAD_GR00T" --server-python "$PTQAD_PY" \
+  --rollout-python "$LIBERO_PYTHON"
+```
+
+以上媒体环境路径对应本机；新安装按 `setup/06_install_recovery.sh` 生成的环境配置填写。`--collection-manifest` 必须指向已完成的学生 collection，不能替换成教师监督清单。基础设施失败保留失败记录和成本，用相同模型、协议及种子在新目录重试；成功率本身不是重跑理由。
+
+后续比较复用 `run_high_fp4_v3.eval_audit` 核对原始日志、实际激活安装及逐回合 reset，再用 `require_pairing` 对齐六臂。统计复用 `paired_uncertainty.paired_effect` 与 `holm_adjust`；现有 `compare_round` 和 `analyze` 固定为主实验五臂与四项比较，不修改其全局定义以加入第六臂。补充比较适配及真实结果仍待完成。
 
 ## CPU 测试
 

@@ -39,7 +39,7 @@ category_bake_manifest.json
 
 初次审查时，[`collector.py`](../quant/ptq/collector.py) 和 [`collector_category.py`](../quant/ptq/collector_category.py) 仅从 `--dataset` 构造迭代数据集，不能把 `capture_onpolicy.py` 的捕获文件直接当作 dataset 参数。随后已增加独立的 `--capture-manifest` 入口，使用方式和验收边界见[捕获校准说明](CAPTURED_PTQ_CALIBRATION.md)。
 
-后续补充应另立协议，保持当前 v12 五臂不变，执行顺序如下：
+补充已另立[冻结协议](../exp/gptq_reference_protocol_v12.json)，保持当前 v12 五臂不变，执行顺序如下：
 
 1. 为两个既有 collector 增加冻结捕获清单适配，复用现有 Hessian 累积和 GPTQ 实现；不另写量化算法。使用本轮已核验的教师训练分区 20–23，记录源 capture manifest、每个输入文件 SHA、任务、回合、初态和样本选择规则。
 2. 在原 BF16 上收集普通 Linear 的 H，生成新的全 NVFP4 GPTQ parent；保存各层实际 GPTQ/RTN 方法、回退原因和完整字节账本。
