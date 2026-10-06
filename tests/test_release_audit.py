@@ -34,6 +34,21 @@ def selection_fixture(root, prefix=''):
 
 
 class ReleaseAuditTest(unittest.TestCase):
+    def test_optional_null_environment_fields_match_omitted_trainer_fields(self):
+        numerical = {"FP4VLA_W4A4": "1", "QAD_LR": "0.0001"}
+        request = {"variables": {**numerical, "HF_HUB_OFFLINE": None,
+                                   "TRANSFORMERS_OFFLINE": None,
+                                   "PTQAD_ZMQ_TIMEOUT_MS": None}}
+        recovery = {"variables": dict(numerical)}
+        self.assertEqual(audit.normalized_environment_summary(request),
+                         audit.normalized_environment_summary(recovery))
+
+    def test_explicit_optional_environment_value_is_retained(self):
+        request = {"variables": {"FP4VLA_W4A4": "1", "PTQAD_ZMQ_TIMEOUT_MS": "120000"}}
+        recovery = {"variables": {"FP4VLA_W4A4": "1"}}
+        self.assertNotEqual(audit.normalized_environment_summary(request),
+                            audit.normalized_environment_summary(recovery))
+
     def test_v11_sources_beside_selection_are_bound_without_development_prefix(self):
         with tempfile.TemporaryDirectory() as tmp:
             checker,path,base,folder,selection,protocol,run=selection_fixture(Path(tmp))

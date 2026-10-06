@@ -29,6 +29,33 @@ CORE_METADATA = ("config.json", "statistics.json", "processor_config.json",
                  "embodiment_id.json", "model.safetensors.index.json")
 STATES = ("matched", "failed", "unverifiable")
 
+# These launch-only switches were added to producer receipts after the
+# numerical contract was frozen.  A producer may omit them, or record them as
+# null when the launcher did not set them.  Both encodings mean the same thing
+# for release provenance; an explicit non-null value remains part of the
+# comparison.  Keep this definition local so the read-only auditor does not
+# import the experiment driver.
+OPTIONAL_LAUNCH_ENV_KEYS = frozenset({
+    "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "PTQAD_ZMQ_TIMEOUT_MS",
+})
+
+
+def normalized_environment_summary(summary):
+    """Normalize only optional launch fields in an environment receipt.
+
+    Numerical switches are preserved exactly.  Missing or null optional
+    launch fields are removed so a request written by the orchestrator and a
+    recovery manifest written by the trainer compare under the same contract.
+    Malformed values are returned unchanged and are rejected by the caller.
+    """
+    if not isinstance(summary, dict) or not isinstance(summary.get("variables"), dict):
+        return summary
+    values = dict(summary["variables"])
+    for key in OPTIONAL_LAUNCH_ENV_KEYS:
+        if values.get(key) is None:
+            values.pop(key, None)
+    return {"variables": values}
+
 
 class Audit:
     def __init__(self, repo: Path, payload=True):
@@ -437,11 +464,14 @@ def recovery_environment_checks(audit, protocol, stage_name, record, output, bas
                         True, 'Recovery manifest records f16 activation saturation explicitly')
         if request:
             declared = request.get('environment_summary')
-            if not isinstance(declared, dict) or declared != summary:
-                audit.equal(stage_name + '.request_environment', declared, summary,
+            declared_norm = normalized_environment_summary(declared)
+            summary_norm = normalized_environment_summary(summary)
+            if not isinstance(declared, dict) or not isinstance(summary, dict) or declared_norm != summary_norm:
+                audit.equal(stage_name + '.request_environment', declared_norm, summary_norm,
                             'Training request and stage receipt share the same environment summary')
-            if rec.get('environment_summary') != declared:
-                audit.equal(stage_name + '.recovery_environment', rec.get('environment_summary'), declared,
+            recovery_norm = normalized_environment_summary(rec.get('environment_summary'))
+            if recovery_norm != declared_norm:
+                audit.equal(stage_name + '.recovery_environment', recovery_norm, declared_norm,
                             'Recovery manifest and training request share the same environment summary')
     elif stage_name.startswith(('dev_', 'heldout_', 'collection_')):
         manifest = audit.read(output / 'eval_manifest.json', stage_name + '.eval_manifest')
