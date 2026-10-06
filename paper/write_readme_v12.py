@@ -87,11 +87,15 @@ git clone git@github.com:zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad.git
 cd apxinf-gr00t-fp4fp8-ptqad
 bash setup/00_env_report.sh
 bash setup/01_install_dev_tools.sh
+bash setup/04_install_libero.sh
+bash setup/05_restore_all.sh
 bash setup/06_install_recovery.sh
 # 需要 APXInf 原生算子时再执行：
 bash setup/02_build_engine.sh
 bash setup/03_download_weights.sh
 ```
+
+训练与评测环境由脚本锁定并安装以下运行时组件：PyTorch/CUDA、`transformers`、`accelerate`、`peft`、`safetensors`、`numpy`、`msgpack`/`msgpack-numpy`、`pyzmq`、`mujoco`、LIBERO、OpenCV、`ffmpeg` 和 GR00T；APXInf 原生构建还需要 Rust/Cargo、`uv`、`maturin`、CUDA toolkit 与对应 GPU 架构。具体版本以 `setup/locks/manifest.json`、各环境的 `pip freeze` 和运行时 manifest 为准，避免用系统 Python 混装。
 
 安装完成后先做静态检查：
 
