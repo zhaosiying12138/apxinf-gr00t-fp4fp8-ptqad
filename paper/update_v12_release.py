@@ -298,7 +298,7 @@ for block in blocks_of_16(original_weight):
             text = replace_paragraph_starting(
                 text,
                 "本轮教师监督缓存包含 148 个演示窗口",
-                "本轮演示窗口的实际数量、文件顺序和尾批大小由 `recovery_manifest.json` 固定并随发布包提供；上游 DataLoader 顺序读取，不打乱、不丢弃尾批。配置 $B_\\mu=1,G=16$ 时，Trainer 按本次更新实际含有的微批数 $n$ 归一化损失，尾批不能按配置上限补齐。因而训练预算应报告 manifest 中的实际窗口读取次数，不能仅用“更新数×名义 batch”推断。",
+                "演示窗口数与批量配置由 `recovery_manifest.json` 记录，文件顺序与尾批规则由数据集和加载器源码决定；上游 DataLoader 顺序读取，不打乱、不丢弃尾批。配置 $B_\\mu=1,G=16$ 时，Trainer 按本次更新实际含有的微批数 $n$ 归一化损失，尾批不能按配置上限补齐。窗口读取预算由 `paper/collect_training_costs.py` 结合样本数、`trainer_state.json` 完成步数/轮数与尾批规则推导，不能仅用“更新数×名义 batch”计算。",
             )
             text = text.replace(
                 "顺序读取也意味着同一组 4 个窗口每轮都处于尾批，在该次平均损失中的单样本系数为 $1/4$，其余更新为 $1/16$。这是实际采样与归一化方式；continued-QAD 和 OPD 必须沿用同一数据顺序与尾批规则，才能比较相同演示预算下的附加教师监督。",
@@ -306,12 +306,12 @@ for block in blocks_of_16(original_weight):
             )
             text = text.replace(
                 "按本轮 148 窗口的读取方式，完整完成 2,000 次更新时共有 500 次探针更新，其中 400 次含 16 个微批、100 次含 4 个微批，合计 6,800 次探针反向。缓存索引仅在实际执行探针时递增。",
-                "探针更新次数、实际缓存读取数和尾批归一化分母由 OPD 的 `recovery_manifest.json` 记录；缓存索引仅在实际执行探针时递增。",
+                "探针更新与缓存读取预算由 `paper/collect_training_costs.py` 结合 OPD 配置、完成步数和尾批规则推导，并核对训练日志；缓存索引仅在实际执行探针时递增。",
             )
             text = replace_paragraph_starting(
                 text,
                 "按本轮 148 窗口的读取方式",
-                "探针更新次数、实际缓存读取数和尾批归一化分母由 OPD 的 `recovery_manifest.json` 记录；缓存索引仅在实际执行探针时递增。",
+                "探针更新与缓存读取预算由 `paper/collect_training_costs.py` 结合 OPD 配置、完成步数和尾批规则推导，并核对训练日志；缓存索引仅在实际执行探针时递增。",
             )
             text = text.replace(
                 "GPTQ 固定尺度、可表示性及矩阵目标",
@@ -323,7 +323,7 @@ for block in blocks_of_16(original_weight):
             text = text.replace("校准和演示训练可能重复采样窗口", "演示训练可能重复采样窗口")
             text = replace_paragraph_starting(
                 text, "以每 4 次优化器更新添加一次为例",
-                "v12 的 `opd_every=1`，每次优化器更新都加入教师项。探针更新次数、实际缓存读取数和尾批归一化分母由 OPD 的 `recovery_manifest.json` 记录；缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。",
+                "v12 的 `opd_every=1`，每次优化器更新都加入教师项。探针更新与缓存读取预算由 `paper/collect_training_costs.py` 结合 OPD 配置、完成步数和尾批规则推导，并核对训练日志；缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。",
             )
             text = text.replace("尾批的 $n=4$，不能使用配置上限 $G=16$ 代替。", "尾批使用实际微批数 $n$，不能使用配置上限 $G=16$ 代替。")
             text = text.replace("初始 QAD 训练与正式评测的开关差异见 §3.2。", "F16 转换与饱和开关由训练和评测 manifest 分别记录，具体合同见 §3.1。")
@@ -379,7 +379,7 @@ development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合
             )
             text = text.replace(
                 "本轮148窗口数据的尾批为4，实际读取预算见A.4.2。",
-                "实际演示窗口数、尾批和读取次数以本轮 `recovery_manifest.json` 为准，附录 A 只解释归一化规则。",
+                "`recovery_manifest.json` 提供演示窗口数与批量配置；读取预算由 `paper/collect_training_costs.py` 结合 `trainer_state.json` 的完成步数、轮数和加载器尾批规则推导，归一化规则见附录 A。",
             )
             text = text.replace("OPD 每 4 步加入一次教师项", "OPD 每次优化器更新都加入教师项（`opd_every=1`）")
             text = text.replace("分析规则见 §4.4。", "分析规则见 §4.3。")

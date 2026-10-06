@@ -246,6 +246,8 @@ $$\mathcal L_{\mathrm{OPD}}=\frac1n\sum_{j=1}^{n}\ell_{\mathrm{demo},j}+\lambda\
 
 教师演示与学生采集共享训练分区，均与正式评测隔离。每次重置后先执行 10 个零动作稳定步；模型生成 16 步动作，环境执行前 8 步后重新观测，单回合最多 720 步。配对回合使用相同初态、种子和步数预算，保存重置状态哈希与逐回合成败记录。
 
+BF16 教师在训练分区尝试 40 回合，保留其中 37 条成功轨迹的 148 个观测—动作窗口。采集每 4 次策略调用保存一窗，每回合最多四窗，因此偏向回合前段。148 窗不是 148 条独立演示，也不代表完整成功轨迹的均匀覆盖。学生状态采集采用相同窗口上限，并保留失败回合中已采集的状态。
+
 ![图 2　QAD→OPD 的训练与独立评测协议](images/recovery_protocol.png)
 
 *图 2　QAD→OPD 的训练与独立评测协议。开发、学生采集与最终评测使用互不重叠的官方初态。两个续训分支从同一 QAD 检查点出发；教师额外数据和计算单列。*
@@ -253,6 +255,8 @@ $$\mathcal L_{\mathrm{OPD}}=\frac1n\sum_{j=1}^{n}\ell_{\mathrm{demo},j}+\lambda\
 ## 4.2 五臂对照与训练预算
 
 QAD 在十任务的 BF16 成功演示上训练 2,000 次更新。LoRA 的 rank=32、alpha=64；学习率从 {5e-5, 1e-4} 中由开发集选择。continued-QAD 和 OPD 从同一入选 QAD 检查点出发，各追加 2,000 次演示更新。OPD 每次更新另加入教师项，系数从 {0.25, 1.0} 中选择。两者匹配演示读取数与更新数，OPD 的额外探针计算和教师标注成本单列。
+
+训练按文件路径排序顺序读取，不打乱、不丢尾批。每微批一窗、最多累积 16 微批，故每轮 148 窗形成九次 16 窗更新和一次四窗尾更新；书本任务的末四窗每轮都位于尾批。损失按本次实际窗口数平均。完成 2,000 次更新对应 200 轮、29,600 次窗口读取：这是加载规则与 `trainer_state.json` 完成步数/轮数共同推导的预算，不是逐样本计数日志。每次演示前向重新采样流噪声 $z$ 和时间 $t$，但不增加新的环境观测。
 
 | 配置 | 检验内容 | 正式成功率 |
 |---|---|---:|
@@ -460,7 +464,7 @@ v12 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；7 �
 
 参数存储使用 FP32，前向在 BF16 autocast 下计算。`recovery_batch.py::resolve_batch` 区分微批量 $B_\mu$ 与配置累积数 $G$；$B_\mu G$ 是完整更新的名义批量，数据遍历末尾可能不足此数。上游 CLI 的 `global-batch-size` 实际传递累积前的批量，因此入口将其设为 $B_\mu$，再核对 Trainer 的批量设置。
 
-本轮演示窗口的实际数量、文件顺序和尾批大小由 `recovery_manifest.json` 固定并随发布包提供；上游 DataLoader 顺序读取，不打乱、不丢弃尾批。配置 $B_\mu=1,G=16$ 时，Trainer 按本次更新实际含有的微批数 $n$ 归一化损失，尾批不能按配置上限补齐。因而训练预算应报告 manifest 中的实际窗口读取次数，不能仅用“更新数×名义 batch”推断。
+演示窗口数与批量配置由 `recovery_manifest.json` 记录，文件顺序与尾批规则由数据集和加载器源码决定；上游 DataLoader 顺序读取，不打乱、不丢弃尾批。配置 $B_\mu=1,G=16$ 时，Trainer 按本次更新实际含有的微批数 $n$ 归一化损失，尾批不能按配置上限补齐。窗口读取预算由 `paper/collect_training_costs.py` 结合样本数、`trainer_state.json` 完成步数/轮数与尾批规则推导，不能仅用“更新数×名义 batch”计算。
 
 顺序读取会使末尾微批具有不同的归一化分母；continued-QAD 与 OPD 沿用同一数据顺序、尾批规则和优化器更新数，才能比较相同演示预算下的附加教师监督。
 
@@ -507,7 +511,7 @@ $$
 
 尾批使用实际微批数 $n$，不能使用配置上限 $G=16$ 代替。若 `Accelerator.backward` 自身还会除以累积数 $a_{\mathrm{acc}}$，钩子传入 $\lambda a_{\mathrm{acc}}\mathcal L_{\mathrm{probe}}/n$，抵消这一步自动缩放；返回给日志的仍是 $\lambda\mathcal L_{\mathrm{probe}}/n$。当前 Transformers 4.57.3 与 Accelerate 1.13.0 由 Trainer 管理累积，$a_{\mathrm{acc}}=1$。CPU 回归同时检查 $a_{\mathrm{acc}}=1,16$、$n=1,4,16$ 的实际 A/B 梯度，并用真实 Trainer 验证探针尾批可继续执行。
 
-v12 的 `opd_every=1`，每次优化器更新都加入教师项。探针更新次数、实际缓存读取数和尾批归一化分母由 OPD 的 `recovery_manifest.json` 记录；缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。
+v12 的 `opd_every=1`，每次优化器更新都加入教师项。探针更新与缓存读取预算由 `paper/collect_training_costs.py` 结合 OPD 配置、完成步数和尾批规则推导，并核对训练日志；缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。
 
 `QAD_ACTIVATION_CHECKPOINTING=1` 可进一步启用逐语言、DiT 和 VL 块的非重入激活重算。实现只包装含可训练参数的块，保留随机状态，在学生 `eval` 模式但梯度开启时仍然有效；冻结教师的 `no_grad` 前向直接绕过重算。训练不使用生成缓存，故该模式关闭 KV cache，并在恢复 manifest 中记录设置；参数 dtype、损失和演示批量均不改变。
 
@@ -768,7 +772,7 @@ development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合
 
 ## B.4 在冻结 W4A4 基座上训练 QAD
 
-v12固定QAD学习率候选5e-5和1e-4，各2,000个优化器更新；`rank=32`、`alpha=64`、micro batch=1、配置累积数16、训练seed 20261006，恢复范围为 `all_ordinary_linear`。实际演示窗口数、尾批和读取次数以本轮 `recovery_manifest.json` 为准，附录 A 只解释归一化规则。选择只使用development。QAD只更新A/B，训练manifest记录W4A4格式、scope、rank、alpha、批量和更新数。正式部署保留冻结base与A/B adapter分离；dense `Wq+BA` 导出只作诊断。
+v12固定QAD学习率候选5e-5和1e-4，各2,000个优化器更新；`rank=32`、`alpha=64`、micro batch=1、配置累积数16、训练seed 20261006，恢复范围为 `all_ordinary_linear`。`recovery_manifest.json` 提供演示窗口数与批量配置；读取预算由 `paper/collect_training_costs.py` 结合 `trainer_state.json` 的完成步数、轮数和加载器尾批规则推导，归一化规则见附录 A。选择只使用development。QAD只更新A/B，训练manifest记录W4A4格式、scope、rank、alpha、批量和更新数。正式部署保留冻结base与A/B adapter分离；dense `Wq+BA` 导出只作诊断。
 
 ```bash
 "$PTQAD_PYTHON" exp/run_w4a4_recovery.py \
