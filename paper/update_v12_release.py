@@ -186,7 +186,12 @@ APXInf 的 NVFP4/FP8 kernel、图重放和 π0.5 计时单独报告；GR00T W4A4
 
 NVFP4 的数据为 E2M1 四位格点；连续 16 个输入元素共享一个 E4M3 块尺度，张量再共享 FP32 二级尺度。权重量化先从完整矩阵 $W$ 确定唯一二级尺度 $\tau_W$，再处理每个块 $w_b$：
 
-$$\tau_W=\operatorname{FP32}\!\left(\max(\max|W|/448,2^{-149})\right),\qquad s_b=R_{\mathrm{E4M3}}\!\left(\frac{\max_j|w_{b,j}|}{6\tau_W}\right),$$
+$$
+\begin{aligned}
+\tau_W&=\operatorname{FP32}\!\left(\max(\max|W|/448,2^{-149})\right),\\
+s_b&=R_{\mathrm{E4M3}}\!\left(\frac{\max_j|w_{b,j}|}{6\tau_W}\right),
+\end{aligned}
+$$
 
 $$\hat w_{b,j}=R_{\mathrm{E2M1}}\!\left(\frac{w_{b,j}}{s_b\tau_W}\right)s_b\tau_W.$$
 
