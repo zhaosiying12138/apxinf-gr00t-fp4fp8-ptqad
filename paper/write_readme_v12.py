@@ -27,6 +27,16 @@ def main() -> None:
     packed_bytes = recipe_budget["target_full_checkpoint_bytes"]
     net_bytes = packed_bytes + residual_bytes
     net_compression = source_bytes / net_bytes
+    engine_specs = [("GR00T BF16（Torch 基线）", "results/engine/gr00t_bf16_ptqad_20260929.json"),
+                    ("π0.5 BF16", "results/engine/pi05_bf16_ptqad_20260929.json"),
+                    ("π0.5 NVFP4（APXInf 独立路径）", "results/engine/pi05_nvfp4_ptqad_20260929.json")]
+    engine_rows = []
+    for label, rel in engine_specs:
+        path = ROOT / rel
+        if path.is_file():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            engine_rows.append(f"| {label} | {data['model_ms_p50']:.2f} | {data['total_ms_p50']:.2f} | {data['hz_p50']:.2f} | `{rel}` |")
+    engine_table = "\n".join(engine_rows) or "| （无已登记的独立基准） | — | — | — | — |"
     arm_rows = [("BF16", "bf16"), ("W4A4 PTQ", "ptq"), ("PTQ + QAD", "qad"),
                 ("continued-QAD", "continued_qad"), ("PTQ + QAD + OPD", "qad_opd")]
     metrics = "\n".join(f"| {label} | {row(final, key)['successes']}/{row(final, key)['episodes']} | {row(final, key)['success_rate']*100:.2f}% |"
@@ -178,6 +188,14 @@ patches/             APXInf/GR00T 集成补丁
 ## 复现边界
 
 结果针对固定的 LIBERO-10 任务、官方初态 bank 和一个训练 seed；它不声称未见任务、多 seed 或实机泛化。APXInf 的原生 NVFP4/FP8 延迟属于独立工程基准，当前 GR00T 闭环使用 Torch 数值 QDQ。QAD/OPD 的 BF16 LoRA 旁路必须计入净压缩比，不能把“479 个张量全部 NVFP4”写成整个 checkpoint 每个字节都是四位。
+
+## 独立执行基准
+
+下表只报告模型前向和端到端 wrapper 延迟，不替代 LIBERO 闭环成功率，也不把 APXInf π0.5 路径写成 GR00T 已接入原生 kernel。
+
+| 路径 | model p50 (ms) | total p50 (ms) | p50 Hz | 原始 JSON |
+|---|---:|---:|---:|---|
+{engine_table}
 
 ## 许可证与引用
 
