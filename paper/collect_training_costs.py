@@ -67,10 +67,10 @@ def is_orchestrated_protocol(protocol):
 def orchestrator_source(protocol, state=None, source_root=None):
     """Resolve the source identity recorded when run_manifest was initialized.
 
-    New run manifests should record ``implementation_path``. For the first
-    published orchestrator that field was absent, so derive a checked-in
-    snapshot filename from its recorded implementation hash. This hash is not
-    retroactive proof of the driver imported by later resumed invocations.
+    Prefer content-addressed initialization bytes in either the checkout or a
+    portable archive's ``source/`` root. Legacy manifests can instead resolve
+    their declared path or one of the historical filenames by exact hash. This
+    is not proof of the driver imported by later resumed invocations.
     """
     state = state or {}
     source_root = Path(source_root).resolve() if source_root is not None else ROOT
@@ -78,6 +78,16 @@ def orchestrator_source(protocol, state=None, source_root=None):
     need(isinstance(expected, str) and re.fullmatch(r'[0-9a-f]{64}', expected),
          'Missing/invalid initialization implementation SHA')
     relative = state.get('implementation_path')
+    if relative is not None:
+        need(isinstance(relative, str), 'Invalid orchestrator implementation path')
+        declared = Path(relative)
+        need(not declared.is_absolute() and '..' not in declared.parts and
+             declared.parts[:1] == ('exp',), 'Invalid orchestrator implementation path')
+    snapshot = Path('exp/source_snapshots') / expected / 'run_high_fp4_v3.py'
+    if (source_root / snapshot).exists():
+        # Once archived at its declared content address, corrupt or escaping
+        # bytes must fail below instead of falling back to a mutable checkout.
+        relative = snapshot.as_posix()
     if relative is None:
         # Older receipts omitted the path. Resolve only exact initialization
         # bytes; later orchestrator_source_sha256 amendments describe resumed

@@ -79,6 +79,49 @@ class W4A4TrainingCosts(unittest.TestCase):
         state={'implementation_sha256':cost.identity(ROOT/'exp/run_high_fp4_v3.py')['sha256']}
         self.assertEqual(cost.orchestrator_source(PROTOCOL,state),'exp/run_high_fp4_v3.py')
 
+    def test_initialization_content_address_survives_portable_archiving(self):
+        digest = '9d5888bf96dc81191142f9ae1a896047176a5791c5d9c48aa932186cd084f9e7'
+        relative = 'exp/source_snapshots/' + digest + '/run_high_fp4_v3.py'
+        original = (ROOT / relative).read_bytes()
+        self.assertEqual(hashlib.sha256(original).hexdigest(), digest)
+        state = {'implementation_sha256': digest, 'implementation_path': 'exp/run_high_fp4_v3.py'}
+        self.assertEqual(cost.orchestrator_source(PROTOCOL, state), relative)
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'source'
+            archived = source / relative
+            archived.parent.mkdir(parents=True)
+            archived.write_bytes(original)
+            # The live entry point is absent from this portable archive.
+            self.assertEqual(cost.orchestrator_source(PROTOCOL, state, source), relative)
+            self.assertEqual(cost.orchestrator_source(PROTOCOL, {'implementation_sha256': digest}, source), relative)
+            archived.write_bytes(original + b'\n')
+            with self.assertRaisesRegex(ValueError, 'path differs from recorded SHA'):
+                cost.orchestrator_source(PROTOCOL, state, source)
+
+    def test_content_address_does_not_bypass_invalid_declared_path(self):
+        state = {'implementation_sha256': '9d5888bf96dc81191142f9ae1a896047176a5791c5d9c48aa932186cd084f9e7',
+                 'implementation_path': '../outside.py'}
+        with self.assertRaisesRegex(ValueError, 'Invalid orchestrator implementation path'):
+            cost.orchestrator_source(PROTOCOL, state)
+
+    def test_content_addressed_initialization_is_copied_and_verified_without_private_run(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run, private, protocol, cache = v3_run(root)
+            out = root / 'costs'
+            digest = '9d5888bf96dc81191142f9ae1a896047176a5791c5d9c48aa932186cd084f9e7'
+            relative = 'exp/source_snapshots/' + digest + '/run_high_fp4_v3.py'
+            state_path = run / 'run_manifest.json'
+            state = read(state_path)
+            state.update(implementation_sha256=digest, implementation_path='exp/run_high_fp4_v3.py')
+            write(state_path, state)
+            with patch.dict(sys.modules, {'torch': types.SimpleNamespace(load=lambda *a, **kw: cache)}):
+                result = cost.collect(None, None, None, out, protocol, orchestrator_run=run)
+            self.assertEqual((out / 'source' / relative).read_bytes(), (ROOT / relative).read_bytes())
+            self.assertEqual(result['recovery_provenance']['initialization_snapshot']['published_path'], 'source/' + relative)
+            shutil.rmtree(private)
+            self.assertEqual(cost.verify_published(out), result)
+
     def test_initialization_resolution_ignores_later_driver_amendment(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);(root/'exp').mkdir()
