@@ -25,7 +25,7 @@ except ImportError:  # direct CLI invocation
 
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 PUBLIC_ARMS = ("bf16", "ptq", "qad", "qad_opd")
-FINAL_FORMAT_RE = re.compile(r"w4a4_recovery_v11_final_manifest\Z")
+FINAL_FORMAT_RE = re.compile(r"w4a4_recovery_v12_final_manifest\Z")
 
 
 def _read(path: Path) -> Any:
@@ -123,8 +123,9 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
              f"unsupported or incomplete final manifest format: {final.get('format')!r}")
     _require(final.get("selection_uses_heldout") is False,
              "final selection must be independent of heldout results")
-    _require(final.get("selected_pressure_recipe") == "all_nvfp4_gptq_category",
-             "v11 publication requires the unique all_nvfp4_gptq_category recipe")
+    _require(final.get("selected_pressure_recipe") in
+             {"rtn_all", "rtn_w4a4_category"},
+             "publication requires a recorded full-coverage W4A4 pressure recipe")
     _require(set(final.get("required_arms", [])) == set(ARMS),
              "final manifest does not declare the complete five-arm comparison")
 
@@ -134,8 +135,9 @@ def extract(run_dir: str | Path, out: str | Path | None = None) -> dict[str, Any
     _require(isinstance(protocol_sha, str) and protocol_sha == _sha256(protocol_file),
              "final protocol SHA-256 disagrees with final manifest")
     protocol = _read(protocol_file)
-    _require(protocol.get("version") == 11 and protocol.get("w4a4") is True,
-             "the W4A4 analysis plan applies only to the v11 W4A4 protocol")
+    _require(isinstance(protocol.get("version"), int) and protocol.get("version") >= 12 and
+             protocol.get("w4a4") is True,
+             "the publication requires a versioned W4A4 protocol")
 
     round_dir = Path(final.get("heldout_round", ""))
     comparison_path = round_dir / "paired_comparison.json"

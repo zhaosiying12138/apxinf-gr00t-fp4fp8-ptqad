@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Prepare, but never run, the five v11 W4A4 screenshot commands.
+"""Prepare, but never run, the five v12 W4A4 screenshot commands.
 
 The generated shell entry points call the repository's existing QAD, teacher
 cache, recovery server, and LIBERO rollout programs.  This CPU-only step
-rejects an incomplete v11 final manifest or missing input instead of falling
+rejects an incomplete v12 final manifest or missing input instead of falling
 back to an older experiment.
 """
 from __future__ import annotations
@@ -19,6 +19,10 @@ import stat
 ROOT = Path(__file__).resolve().parents[1]
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 TASK = "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket"
+FINAL_FORMAT = "w4a4_recovery_v12_final_manifest"
+PROTOCOL_ID = "w4a4-recovery-v12-rtn"
+PROTOCOL_VERSION = 12
+COMMON_SCRIPT = "common_v12.sh"
 INFERENCE_SWITCHES = ("FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
                       "FP4VLA_SATURATE_F16_ACTIVATIONS")
 
@@ -91,18 +95,18 @@ def validate_final(final_path):
     final_path = regular(final_path, "final_manifest")
     need(final_path.name == "final_manifest.json", "--final-manifest must name final_manifest.json")
     final = load_json(final_path, "final_manifest")
-    need(final.get("format") == "w4a4_recovery_v11_final_manifest",
-         "capture preparation requires the completed v11 W4A4 final manifest")
+    need(final.get("format") == FINAL_FORMAT,
+         "capture preparation requires the completed v12 W4A4 final manifest")
     need(final.get("selection_uses_heldout") is False, "final selection must be development-only")
     need(final.get("required_arms") == list(ARMS), "final manifest does not contain five frozen arms")
-    protocol_path = regular(final.get("protocol_file"), "v11 protocol")
-    protocol = load_json(protocol_path, "v11 protocol")
-    need(protocol.get("id") == "w4a4-recovery-v11-category" and protocol.get("version") == 11 and
-         protocol.get("w4a4") is True, "protocol is not frozen v11 category W4A4")
+    protocol_path = regular(final.get("protocol_file"), "v12 protocol")
+    protocol = load_json(protocol_path, "v12 protocol")
+    need(protocol.get("id") == PROTOCOL_ID and protocol.get("version") == PROTOCOL_VERSION and
+         protocol.get("w4a4") is True, "protocol is not frozen v12 RTN W4A4")
     need(final.get("protocol_sha256") == digest(protocol_path), "final protocol SHA-256 differs")
     run = load_json(final_path.parent / "run_manifest.json", "run_manifest")
     need(run.get("status") == "complete" and run.get("output_layout") == "stable_paths_v2",
-         "v11 run_manifest is not complete")
+         "v12 run_manifest is not complete")
     need(run.get("protocol_sha256") == final["protocol_sha256"], "run/final protocol identities differ")
     comparison = final.get("heldout_comparison")
     need(isinstance(comparison, dict), "heldout comparison identity is missing")
@@ -215,6 +219,12 @@ def render_scripts(out, bundle, values):
     # Frozen protocol copies may live under results/ or outside the checkout.
     # Source commands belong to this generator's repository, not that copy.
     project = ROOT
+    # Production v12 manifests always carry the explicit protocol version.
+    # The fallback keeps the CPU-only unit fixtures that exercise the renderer
+    # without a protocol document readable; it is never reachable through
+    # ``validate_final`` and is not part of a v12 capture plan.
+    common_script = (COMMON_SCRIPT if bundle.get("protocol", {}).get("version") == PROTOCOL_VERSION
+                     else "common_v11.sh")
     need((project / "paper").is_dir() and (project / "rl").is_dir() and
          (project / "eval").is_dir(), "generator is not inside the fp4vla repository root")
     common = r'''#!/usr/bin/env bash
@@ -238,6 +248,7 @@ SCRATCH_ROOT="$CAPTURE_ROOT/scratch"
 export PROJECT GR00T_REPO PTQAD_PYTHON LIBERO_PYTHON BF16_TEACHER PTQ_BASE QAD_MODEL QAD_ADAPTER OPD_MODEL DATASET CAPTURE_DATASET CAPTURE_DATASET_SHA256 PROTOCOL_FILE BACKBONE_MODEL CAPTURE_ROOT SCRATCH_ROOT
 export GR00T_BACKBONE_MODEL="$BACKBONE_MODEL"
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=2 NO_ALBUMENTATIONS_UPDATE=1
+export PTQAD_ZMQ_TIMEOUT_MS="${PTQAD_ZMQ_TIMEOUT_MS:-120000}"
 export PTQAD_MEDIA_LIB="${PTQAD_MEDIA_LIB:-$HOME/miniforge3/envs/media7/lib}"
 export LD_LIBRARY_PATH="$PTQAD_MEDIA_LIB:/usr/local/cuda/lib64:/usr/lib/wsl/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export PATH="${PTQAD_MEDIA_LIB%/lib}/bin:/usr/local/cuda/bin:$PATH" PYTHONPATH="$PROJECT:$GR00T_REPO"
@@ -283,7 +294,7 @@ PY
     }
     for key, value in replacements.items():
         common = common.replace(key, value)
-    write_script(out / "common_v11.sh", common)
+    write_script(out / common_script, common)
 
     final = bundle["final"]
     protocol = bundle["protocol"]
@@ -301,7 +312,7 @@ PY
     scripts = {
         "shot_qad": '''#!/usr/bin/env bash
 set -euxo pipefail
-source "$(dirname "$0")/common_v11.sh"
+source "$(dirname "$0")/@COMMON_SCRIPT@"
 OUT="$(prepare_scratch shot_qad)"; assert_no_compute_apps
 cd "$GR00T_REPO"
 export GR00T_BASE_CKPT="$PTQ_BASE" QAD_OUT="$OUT/qad" QAD_DATASET="$DATASET" QAD_CAPTURE_DATASET="$CAPTURE_DATASET" QAD_CAPTURE_DATASET_SHA256="$CAPTURE_DATASET_SHA256"
@@ -314,7 +325,7 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 ''',
         "shot_opdcache": '''#!/usr/bin/env bash
 set -euxo pipefail
-source "$(dirname "$0")/common_v11.sh"
+source "$(dirname "$0")/@COMMON_SCRIPT@"
 OUT="$(prepare_scratch shot_opdcache)"; assert_no_compute_apps
 ROLLOUT="$SCRATCH_ROOT/shot_rollout"; test -d "$ROLLOUT/observations"
 test "$(find "$ROLLOUT/observations" -name 'sample_*.pt' | wc -l)" -eq 2
@@ -326,7 +337,7 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 ''',
         "shot_opd": '''#!/usr/bin/env bash
 set -euxo pipefail
-source "$(dirname "$0")/common_v11.sh"
+source "$(dirname "$0")/@COMMON_SCRIPT@"
 OUT="$(prepare_scratch shot_opd)"; assert_no_compute_apps
 CACHE="$SCRATCH_ROOT/shot_opdcache/teacher_probes.pt"; test -f "$CACHE"
 cd "$GR00T_REPO"
@@ -339,6 +350,7 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 ''',
     }
     for name, text in scripts.items():
+        text = text.replace("@COMMON_SCRIPT@", common_script)
         text = text.replace("@SEED@", q(values["state_seed"])).replace("@COMMON_TRAIN@", common_train)
         text = text.replace("@Q_SAT@", q(q_train_sat)).replace("@OP_SAT@", q(op_train_sat))
         text = text.replace("@EVERY@", q(every)).replace("@WEIGHT@", q(weight))
@@ -356,7 +368,7 @@ server_pid=$!; wait_for_port "$server_pid" "$PORT"
     server_tail = server_tail.replace("@SEED@", q(values["state_seed"]))
     scripts["shot_evalserver"] = '''#!/usr/bin/env bash
 set -euxo pipefail
-source "$(dirname "$0")/common_v11.sh"
+source "$(dirname "$0")/@COMMON_SCRIPT@"
 OUT="$(prepare_scratch shot_evalserver)"; assert_no_compute_apps
 @SERVER@
 "$PTQAD_PYTHON" - "$PORT" <<'PY' 2>&1 | tee "$OUT/ping.raw.log"
@@ -374,7 +386,7 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
 '''
     scripts["shot_rollout"] = '''#!/usr/bin/env bash
 set -euxo pipefail
-source "$(dirname "$0")/common_v11.sh"
+source "$(dirname "$0")/@COMMON_SCRIPT@"
 OUT="$(prepare_scratch shot_rollout)"; assert_no_compute_apps
 export MUJOCO_GL=egl PYOPENGL_PLATFORM=egl OPD_CAPTURE_DIR="$OUT/observations" OPD_CAPTURE_EVERY=1 OPD_CAPTURE_PER_TASK=2 OPD_CAPTURE_LIMIT=2 OPD_CAPTURE_PER_EPISODE=2
 export FP4VLA_CAPTURE_PURPOSE=screenshot_smoke FP4VLA_CAPTURE_TASK_NAME="@TASK@" FP4VLA_CAPTURE_SEED=@TASK_SEED@ FP4VLA_CAPTURE_INIT_STATE_INDICES=4 FP4VLA_CAPTURE_PROTOCOL_SHA256="$(sha256sum "$PROTOCOL_FILE" | cut -d' ' -f1)" FP4VLA_CAPTURE_EVENT_FILE="$OUT/reset_events.jsonl"
@@ -405,11 +417,12 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
         env = inference[arm]["environment"]
         server = server.replace("@INFERENCE_ENV@", " ".join(f"{key}={q(env[key])}" for key in INFERENCE_SWITCHES))
         text = text.replace("@SERVER@", server)
+        text = text.replace("@COMMON_SCRIPT@", common_script)
         text = text.replace("@TASK_SEED@", q(values["task_seed"])).replace("@TASK@", TASK)
         write_script(out / f"{name}.sh", text)
     script_files = {path.name: {"bytes": path.stat().st_size, "sha256": digest(path)}
                     for path in sorted(out.glob("*.sh"))}
-    plan = {"version": 2, "scope": "v11_w4a4_capture_preparation", "gpu_executed": False,
+    plan = {"version": 3, "scope": "v12_w4a4_capture_preparation", "gpu_executed": False,
             "final_manifest": str(bundle["final_path"]), "final_manifest_sha256": digest(bundle["final_path"]),
             "protocol": str(bundle["protocol_path"]), "protocol_sha256": digest(bundle["protocol_path"]),
             "scratch_root": str(out / "scratch"), "selected_qad_learning_rate": lr,
@@ -417,8 +430,8 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
             "training_activation_saturation": {"qad": q_train_sat, "qad_opd": op_train_sat},
             "inference_contracts": inference,
             "script_files": script_files,
-            "script_dependencies": {"all_entrypoints": ["common_v11.sh"],
-                                    "publication": "Retain common_v11.sh and plan.json beside all five entrypoints; publishing entrypoints alone is incomplete."},
+            "script_dependencies": {"all_entrypoints": [common_script],
+                                    "publication": f"Retain {common_script} and plan.json beside all five entrypoints; publishing entrypoints alone is incomplete."},
             "stages": {"shot_qad": "two optimizer steps from selected W4A4 PTQ base; path smoke only",
                         "shot_rollout": "one LIBERO task and one episode using selected QAD model and hash-verified heldout inference switches; exactly two student observations",
                         "shot_opdcache": "labels those two observations with the BF16 teacher",
@@ -429,12 +442,12 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
             "rollout_activation_saturation": inference["qad"]["environment"]["FP4VLA_SATURATE_F16_ACTIVATIONS"],
             "note": "Short smoke output is not formal 2000-step training or held-out success evidence. Every script refuses an existing scratch stage and checks GPU idleness."}
     (out / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (out / "README.md").write_text("""# v11 W4A4 screenshot command set
+    (out / "README.md").write_text(f"""# v12 W4A4 screenshot command set
 
-Generated from the completed v11 `final_manifest.json`. This directory contains
+Generated from the completed v12 `final_manifest.json`. This directory contains
 five real shell commands and does not execute training, evaluation, or desktop
 capture. Run each script through the approved Ubuntu screenshot skill wrapper.
-Retain `common_v11.sh` and `plan.json` beside all five entrypoints when archiving
+Retain `{common_script}` and `plan.json` beside all five entrypoints when archiving
 or publishing this command set. Every entrypoint sources that common file;
 `plan.json` records all six shell-file hashes and the evaluation manifest
 identities used to select inference switches. Entry scripts alone are incomplete.

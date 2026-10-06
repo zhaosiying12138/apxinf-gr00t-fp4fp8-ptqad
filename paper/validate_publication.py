@@ -291,7 +291,7 @@ def capture_records(captures,required,package_inputs):
 def check_pairing(data,protocol_file=None):
     sys.path.insert(0,str(P.parent/'eval'))
     from compare_ptq_frontier import protocol_contract
-    expected=protocol_contract(protocol_file or P.parent/'exp/recovery_protocol_v11_w4a4_category.json')['heldout']
+    expected=protocol_contract(protocol_file or P.parent/'exp/recovery_protocol_v12_rtn_w4a4.json')['heldout']
     indices=expected['init_state_indices']
     task_count=expected['tasks']
     episodes_per_task=expected['episodes_per_task']
@@ -328,17 +328,17 @@ def check_training_costs(runtime, package_inputs,protocol_file=None):
     from collect_training_costs import verify_published
     folder=P/'evidence/training'
     costs=verify_published(folder)
-    # The publication package is frozen to the v11 full-coverage W4A4
-    # category protocol.  Reject archived recovery receipts from earlier
-    # mixed-pressure experiments before they can enter the article.
-    protocol=load(protocol_file or P.parent/'exp/recovery_protocol_v11_w4a4_category.json')
+    # Bind training receipts to the same versioned W4A4 protocol as the
+    # held-out evaluation.  The selected pressure recipe may be GPTQ or RTN;
+    # the manifest, protocol SHA and runtime contract are the authority.
+    protocol=load(protocol_file or P.parent/'exp/recovery_protocol_v12_rtn_w4a4.json')
     if protocol.get('partitions') and protocol.get('selection'):
-        require(protocol.get('id') == 'w4a4-recovery-v11-category' and
-                protocol.get('version') == 11 and protocol.get('w4a4') is True,
-                'Publication training evidence must use the frozen v11 W4A4 category protocol')
+        require(isinstance(protocol.get('version'), int) and protocol.get('version') >= 12 and
+                protocol.get('w4a4') is True,
+                'Publication training evidence must use a frozen W4A4 protocol')
     require(costs.get('status')=='complete' and set(costs['training'])=={'qad','continued_qad','qad_opd'},
             'Exactly three completed formal training stages are required')
-    require(costs['protocol_sha256']==sha(protocol_file or P.parent/'exp/recovery_protocol_v11_w4a4_category.json'),
+    require(costs['protocol_sha256']==sha(protocol_file or P.parent/'exp/recovery_protocol_v12_rtn_w4a4.json'),
             'Training costs used a different frozen protocol')
     manifest=load(folder/'evidence_manifest.json')
     records={row['published_path']:row for row in manifest['files']}
@@ -435,7 +435,7 @@ def archived_recovery_receipt(package_inputs, runtime, arm):
 def check_evaluation_environment(package_inputs, runtime, protocol_file):
     """Require explicit W4A4 and recovery-contract receipts in every eval arm."""
     protocol = load(protocol_file)
-    if int(protocol.get('version', 0)) < 11:
+    if int(protocol.get('version', 0)) < 12:
         return
     for arm in ('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd'):
         path = P / 'evidence' / ('heldout_' + arm) / 'eval_manifest.json'
@@ -445,7 +445,8 @@ def check_evaluation_environment(package_inputs, runtime, protocol_file):
         quant = arm != 'bf16'
         expected = {'FP4VLA_QUANT': '0', 'FP4VLA_W4A4': '1' if quant else '0',
                     'FP4VLA_W4A4_ADAPTER': '1' if arm in ('qad', 'continued_qad', 'qad_opd') else '0',
-                    'FP4VLA_SATURATE_F16_ACTIVATIONS': '1' if quant else '0'}
+                    'FP4VLA_SATURATE_F16_ACTIVATIONS': '1' if quant else '0',
+                    'PTQAD_ZMQ_TIMEOUT_MS': '120000'}
         for key, value in expected.items():
             require(variables.get(key) == value,
                     f'Evaluation environment summary differs from W4A4 contract: {arm}/{key}')
@@ -499,12 +500,13 @@ def check_heldout_raw_logs(package_inputs, protocol_file):
     package_inputs.add(manifest_path)
 
 
-def check_v11_frontier(package_inputs, paired):
-    """Rebuild the selected W4A4 frontier from verified v11 result inputs.
+def check_v12_frontier(package_inputs, paired):
+    """Rebuild the selected W4A4 frontier from verified result inputs.
 
     The old ``frontier_evidence`` contract froze a PTQ ladder and reference
-    runs.  v11 deliberately has one selected W4A4 checkpoint, so accepting a
-    stale ladder here would make the published chart disagree with the paper.
+    runs. The current release deliberately has one selected W4A4 checkpoint,
+    so accepting a stale ladder here would make the published chart disagree
+    with the paper.
     ``build_final_frontier`` is deterministic and fail-closed.  Origin paths
     remain in copied evidence as provenance; a relocated checkout binds those
     identities to its local byte-identical evidence before reconstruction.
@@ -513,19 +515,19 @@ def check_v11_frontier(package_inputs, paired):
     final_path = P / 'evidence/final_results.json'
     comparison_path = P / 'evidence/frontier_comparison.json'
     inventory_path = P / 'evidence/recipe_inventory.json'
-    require(final_path.is_file(), 'v11 final_results.json is missing')
-    require(comparison_path.is_file(), 'v11 frontier_comparison.json is missing')
+    require(final_path.is_file(), 'final_results.json is missing')
+    require(comparison_path.is_file(), 'frontier_comparison.json is missing')
     final = load(final_path)
     source = final.get('source', {}).get('heldout_comparison', {})
     local_pair = P / 'evidence/paired_comparison.json'
-    require(local_pair.is_file(), 'v11 local heldout paired comparison is missing')
+    require(local_pair.is_file(), 'local heldout paired comparison is missing')
     require(type(source.get('bytes')) is int and source['bytes'] == local_pair.stat().st_size and
             source.get('sha256') == sha(local_pair),
-            'v11 local heldout paired comparison identity differs from final_results')
-    require(load(local_pair) == paired, 'v11 frontier source differs from the paper heldout comparison')
+            'local heldout paired comparison identity differs from final_results')
+    require(load(local_pair) == paired, 'v12 frontier source differs from the paper heldout comparison')
     check_uncertainty(final, paired, package_inputs)
     import tempfile
-    with tempfile.TemporaryDirectory(prefix='validate-v11-frontier-') as tmp:
+    with tempfile.TemporaryDirectory(prefix='validate-v12-frontier-') as tmp:
         expected_path = Path(tmp) / 'frontier_comparison.json'
         expected = build(final_path, local_pair, inventory_path, expected_path)
     recorded = load(comparison_path)
@@ -535,17 +537,17 @@ def check_v11_frontier(package_inputs, paired):
     recorded_sources = recorded.get('source')
     expected_sources = expected['source']
     require(isinstance(recorded_sources, dict) and set(recorded_sources) == set(expected_sources),
-            'v11 frontier source identity set differs')
+            'frontier source identity set differs')
     for name, current in expected_sources.items():
         previous = recorded_sources[name]
         require(isinstance(previous, dict) and set(previous) == {'path','bytes','sha256'} and
                 isinstance(previous['path'], str) and Path(previous['path']).is_absolute() and
                 type(previous['bytes']) is int and
                 (previous['bytes'], previous['sha256']) == (current['bytes'], current['sha256']),
-                'v11 frontier source identity differs: ' + name)
+                'frontier source identity differs: ' + name)
     require({key:value for key,value in recorded.items() if key != 'source'} ==
             {key:value for key,value in expected.items() if key != 'source'},
-            'frontier_comparison.json differs from deterministic v11 reconstruction')
+            'frontier_comparison.json differs from deterministic reconstruction')
     for path in (final_path, comparison_path, inventory_path, local_pair,
                  P / 'evidence/selected_recipe/category_memory.json',
                  P / 'evidence/selected_recipe/category_ptq_recipe.json',
@@ -634,10 +636,10 @@ def validate(write_report=True,protocol_file=None):
     from compare_recovery import compare_round
     require(compare_round(P/'evidence',protocol_paths)==paired, 'Copied heldout evidence does not reproduce the reported comparison')
     check_heldout_raw_logs(package_inputs, protocol_file)
-    # v11 publishes one selected W4A4 checkpoint; rebuild that frontier from
+    # v12 publishes one selected W4A4 checkpoint; rebuild that frontier from
     # its heldout-only source instead of accepting the retired PTQ ladder
     # validator and its reference runs.
-    check_v11_frontier(package_inputs, paired)
+    check_v12_frontier(package_inputs, paired)
     renders=load(P/'validation/figure-renders.json')
     require(renders.get('status')=='passed' and renders.get('scale')==2.0,'Figure rasterization did not pass')
     require(len(renders['figures'])==len(expected_svg) and {x['svg'] for x in renders['figures']}==expected_svg,'Raster provenance set differs')

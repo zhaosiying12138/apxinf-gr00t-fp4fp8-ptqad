@@ -15,7 +15,7 @@ FIGS = P/'figs'
 _DATA_INPUTS = {}
 _GENERATED_SVGS = set()
 V11_ARMS = ('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd')
-V11_RECIPE = 'all_nvfp4_gptq_category'
+V11_RECIPE = 'all_nvfp4_gptq_category'  # legacy name; current inventory may select rtn_all
 INK, BLUE, TEAL, AMBER = '#183c4d', '#2368a0', '#258577', '#b97824'
 SUPER = dict(zip('⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺⁽⁾ᵀ', '0123456789-+()T'))
 SUB = dict(zip('₀₁₂₃₄₅₆₇₈₉ᵢⱼₖ', '0123456789ijk'))
@@ -258,10 +258,10 @@ def budget_rows():
     category_recipe_path='paper/evidence/selected_recipe/category_ptq_recipe.json'
     category_memory_record=read(category_memory_path)
     category_recipe_record=read(category_recipe_path)
-    order=(V11_RECIPE,)
-    if (data.get('schema_version') != 'v11-selected-all-nvfp4-category' or
+    order=(data.get('recipe'),)
+    if (order[0] not in {'all_nvfp4_gptq_category', 'rtn_all', 'rtn_w4a4_category'} or
             tuple(data.get('ladder',())) != order or set(data.get('recipes',{})) != set(order)):
-        raise ValueError(f'{path}: v11 inventory must contain only the selected all-NVFP4 recipe')
+        raise ValueError(f'{path}: inventory must contain only the selected all-NVFP4 recipe')
     if category_memory_record.get('format') != 'selected_category_recipe_memory_v2':
         raise ValueError(f'{category_memory_path}: unsupported selected memory format')
     if category_memory_record.get('recipe') != 'category_nvfp4_extension' or category_recipe_record.get('recipe') != category_memory_record.get('recipe'):
@@ -292,7 +292,7 @@ def budget_rows():
             selected_memory.get('fraction_of_eligible_params')!={'nvfp4':1.0,'fp8':0.0,'bf16':0.0} or
             unique.get('elements_by_format')!={'nvfp4':unique_count,'fp8':0,'bf16':0} or
             unique.get('fraction_of_eligible')!={'nvfp4':1.0,'fp8':0.0,'bf16':0.0}):
-        raise ValueError('v11 selected recipe requires 100% NVFP4 in both eligible-element budgets')
+        raise ValueError('selected recipe requires 100% NVFP4 in both eligible-element budgets')
     residual=data['recovery_residual']
     if (residual['scope']!='all_ordinary_linear' or residual['dtype']!='bfloat16' or
             residual['rank']!=32 or residual.get('alpha')!=64 or residual.get('linear_modules')!=468):
@@ -322,7 +322,7 @@ def budget_rows():
 
 def budget_ladder():
     data,rows,extra=budget_rows()
-    s=SVG(1420,620,'选定 W4A4 量化基座：完整权重的目标编码预算','v11 W4A4 category 唯一冻结配方 · GB = 10⁹ 字节 · 含未量化张量与格式缩放 · 单独叠加 BF16 LoRA 旁路预算')
+    s=SVG(1420,620,'选定 W4A4 量化基座：完整权重的目标编码预算','完整 NVFP4 W4A4 配方 · GB = 10⁹ 字节 · 含未量化张量与格式缩放 · 单独叠加 BF16 LoRA 旁路预算')
     for x,color,label in [(30,BLUE,'物理张量口径'),(267,TEAL,'已知共享别名去重'),(555,AMBER,f'独立 BF16 旁路：{extra/1e6:.2f} MB')]:
         s.rect(x,91,18,18,color);s.text(x+28,106,label,15)
     maximum=max(max(row['targets'])+extra for row in rows)/1e9*1.07
@@ -448,9 +448,10 @@ def frontier_rows():
                 'environment_pairing_verified','protocol_consistency_verified','source_accounting_verified'))):
         raise ValueError('Frontier requires a completed, paired current comparison')
     points=data['points'];names=[row['name'] for row in points]
-    if (data.get('selected_recipe')!=V11_RECIPE or data.get('reference_order')!=[] or
+    selected_recipe = data.get('selected_recipe')
+    if (selected_recipe not in {'all_nvfp4_gptq_category', 'rtn_all', 'rtn_w4a4_category'} or data.get('reference_order')!=[] or
             data.get('references')!={} or names!=list(V11_ARMS)):
-        raise ValueError('v11 frontier requires only the selected all-NVFP4 recipe and five arms')
+        raise ValueError('frontier requires only the selected all-NVFP4 recipe and five arms')
     paired,_=paired_rows()
     _,budgets,extra=budget_rows()
     selected_budget=budgets[0]
@@ -469,10 +470,10 @@ def frontier_rows():
     ptq=next(row for row in points if row['name']=='ptq')
     denominators={};residual=None
     for row in points:
-        expected_recipe='bf16' if row['name']=='bf16' else V11_RECIPE
+        expected_recipe='bf16' if row['name']=='bf16' else selected_recipe
         expected_role='recovery' if row['name'] in ('qad','continued_qad','qad_opd') else row['name']
         if row.get('recipe')!=expected_recipe or row.get('role')!=expected_role:
-            raise ValueError('Frontier point recipe/role differs from the frozen v11 arm')
+            raise ValueError('Frontier point recipe/role differs from the frozen arm')
         if any(row.get(field)!=paired['arms'][row['name']].get(field)
                for field in ('successes','count','macro_success_rate','per_task')):
             raise ValueError('Frontier arm differs from the paired heldout comparison')
@@ -492,7 +493,7 @@ def frontier_rows():
             expected_base=expected_source if row['name']=='bf16' else selected_budget['targets'][panel]
             if (cost['source_bytes']!=expected_source or cost['base_bytes']!=expected_base or
                     cost['residual_bytes']!=(extra if recovery else 0)):
-                raise ValueError('Frontier bytes differ from the selected v11 encoding budget')
+                    raise ValueError('Frontier bytes differ from the selected encoding budget')
             if any(type(cost[k]) is not int or cost[k]<0 for k in ('source_bytes','base_bytes','residual_bytes','total_bytes')) or cost['source_bytes']<=0 or cost['base_bytes']<=0 or cost['total_bytes']!=cost['base_bytes']+cost['residual_bytes']:
                 raise ValueError('Invalid frontier net encoding bytes')
             if not math.isclose(cost['compression_x'],cost['source_bytes']/cost['total_bytes'],rel_tol=1e-12):

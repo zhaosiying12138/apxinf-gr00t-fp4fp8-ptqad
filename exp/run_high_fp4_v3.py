@@ -65,6 +65,7 @@ ENV_SUMMARY_KEYS = (
     "QAD_LORA_SCOPE", "QAD_LORA_R", "QAD_LORA_ALPHA", "QAD_LR",
     "QAD_STEPS", "QAD_OPD_MSE_W", "OPD_EVERY", "TRAIN_SEED",
     "QAD_ACTIVATION_CHECKPOINTING", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE",
+    "PTQAD_ZMQ_TIMEOUT_MS",
 )
 
 
@@ -525,13 +526,58 @@ class Driver:
         if man.exists():
             state=jread(man)
             migrated_source = False
+            current_source_sha256 = sha(Path(__file__))
             if "orchestrator_source_sha256" not in state:
                 # Existing r4 runs were created before stage-level provenance
                 # was added.  Preserve their launch hash as legacy history and
                 # bind only future stages to the current source bytes.
-                state["legacy_orchestrator_source_sha256"] = state.get("implementation_sha256")
-                state["orchestrator_source_sha256"] = sha(Path(__file__))
+                legacy = state.get("implementation_sha256")
+                if legacy:
+                    state["legacy_orchestrator_source_sha256"] = legacy
+                state["orchestrator_source_sha256"] = current_source_sha256
                 state["orchestrator_source_amendment"] = "provenance-v1; existing stages retain legacy source identity"
+                migrated_source = True
+            elif state.get("orchestrator_source_sha256") != current_source_sha256:
+                # A run may be paused between stages while this orchestrator
+                # receives a backwards-compatible fix (for example, the
+                # rollout request timeout).  Keep the original launch hash as
+                # immutable legacy provenance, then bind resumed stages to the
+                # current source.  If this run was already migrated once,
+                # implementation_sha256 names the original source and the
+                # recorded legacy field proves that the mismatch is expected.
+                old_source = state.get("orchestrator_source_sha256")
+                # Keep the established scalar field for consumers that read
+                # the release manifest.  A prior migration may already have
+                # recorded a different hash; retain that value and append the
+                # complete chain in the optional history field.
+                legacy = state.get("legacy_orchestrator_source_sha256")
+                known_legacy = legacy if isinstance(legacy, list) else ([legacy] if legacy else [])
+                implementation = state.get("implementation_sha256")
+                if implementation and implementation != old_source and implementation not in known_legacy:
+                    raise OrchestrationError("resume identity changed: orchestrator_source_sha256")
+                if not implementation and old_source not in known_legacy:
+                    raise OrchestrationError("resume identity changed: orchestrator_source_sha256")
+                legacy_values = known_legacy
+                legacy_primary = legacy_values[0] if legacy_values else None
+                if not legacy:
+                    state["legacy_orchestrator_source_sha256"] = old_source
+                elif legacy_primary != old_source:
+                    # Normalize an early list-form migration back to the
+                    # scalar field expected by publication tooling.
+                    state["legacy_orchestrator_source_sha256"] = legacy_primary
+                    history = state.get("legacy_orchestrator_source_history", [])
+                    if isinstance(history, str):
+                        history = [history]
+                    elif not isinstance(history, list):
+                        history = []
+                    for source in (*legacy_values, old_source):
+                        if source and source not in history:
+                            history.append(source)
+                    state["legacy_orchestrator_source_history"] = history
+                state["orchestrator_source_sha256"] = current_source_sha256
+                state["orchestrator_source_amendment"] = (
+                    "provenance-v1; resumed with backwards-compatible orchestrator update"
+                )
                 migrated_source = True
             fixed={"output_layout":"stable_paths_v2","protocol_sha256":self.protocol["sha256"],"selection_sha256":self.selection["selection_sha256"],
                    "base":str(self.base),"train_seed":self.seed,"qad_steps":self.qsteps,
@@ -539,7 +585,7 @@ class Driver:
                    "capture_dataset_identity":self.capture_dataset_identity,
                    "teacher_capture_identity":self.teacher_capture_identity,
                    "w4a4":self.w4a4,
-                   "orchestrator_source_sha256":sha(Path(__file__))}
+                   "orchestrator_source_sha256":current_source_sha256}
             for k,v in fixed.items():
                 if state.get(k)!=v: raise OrchestrationError(f"resume identity changed: {k}")
             if migrated_source:
@@ -636,7 +682,8 @@ class Driver:
         # exports (and keeps the values auditable in the stage log).
         env.update({"FP4VLA_QUANT": "0", "FP4VLA_W4A4": "0",
                     "FP4VLA_W4A4_ADAPTER": "0",
-                    "FP4VLA_SATURATE_F16_ACTIVATIONS": "0"})
+                    "FP4VLA_SATURATE_F16_ACTIVATIONS": "0",
+                    "PTQAD_ZMQ_TIMEOUT_MS": os.environ.get("PTQAD_ZMQ_TIMEOUT_MS", "120000")})
         env.update(extra); env.setdefault("HF_HUB_OFFLINE","1")
         env.setdefault("TRANSFORMERS_OFFLINE","1")
         env.setdefault("PTQAD_LOCAL_HF_METADATA","1")
@@ -1061,7 +1108,7 @@ class Driver:
                 raise OrchestrationError(
                     "no QAD learning-rate candidate is strictly above the PTQ development baseline"
                 )
-        d={"format":"w4a4_recovery_v11_"+("qad_lr" if kind=="qad" else "opd")+"_"+("selection"),
+        d={"format":"w4a4_recovery_v12_"+("qad_lr" if kind=="qad" else "opd")+"_"+("selection"),
            "protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
            "selection_uses_heldout":False,"criterion":f"highest development {metric}; ties choose lower "+("learning rate" if kind=="qad" else "OPD weight"),
            "environment_pairing_verified":True,"reference_bf16_evaluation":str(reference_path),
@@ -1239,7 +1286,7 @@ class Driver:
             self.run_logged("compare_heldout",[str(self.py),str(ROOT/"eval/compare_recovery.py"),"--round",str(round_dir)],ROOT,{"PROTOCOL_FILE":str(self.protocol_path)})
         if jread(comparison) != compare_round(round_dir):
             raise OrchestrationError("heldout comparison differs from recomputed paired evidence")
-        result={"format":"w4a4_recovery_v11_final_manifest","protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
+        result={"format":"w4a4_recovery_v12_final_manifest","protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
                 "selection_file":str(self.selection_path),"selection_sha256":self.selection["selection_sha256"],
                 "qad_selection":qsd,"opd_selection":od,"selection_uses_heldout":False,"selected_pressure_recipe":self.selection["selected_recipe"],
                 "selected_pressure_checkpoint":str(base),"selected_ptq_checkpoint":str(base),"heldout_round":str(round_dir),"heldout_comparison":identity(comparison),

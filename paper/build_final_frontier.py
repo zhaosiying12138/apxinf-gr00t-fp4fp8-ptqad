@@ -89,9 +89,9 @@ def final_arm(final: dict[str, Any], name: str) -> dict[str, Any]:
 def validate_final_and_pair(final_path: Path, final: dict[str, Any], pair_path: Path,
                             pair: dict[str, Any]) -> dict[str, dict[str, Any]]:
     require(final.get("format") == "publication_final_results_v1" and
-            final.get("status") == "complete", "final_results is not complete v11 evidence")
-    require(final.get("selected_recipe") == "all_nvfp4_gptq_category",
-            "v11 frontier requires the selected all-NVFP4 category recipe")
+            final.get("status") == "complete", "final_results is not complete W4A4 evidence")
+    require(final.get("selected_recipe") in {"all_nvfp4_gptq_category", "rtn_all", "rtn_w4a4_category"},
+            "frontier requires a recorded full-coverage W4A4 category recipe")
     source = final.get("source", {}).get("heldout_comparison", {})
     require(source.get("bytes") == pair_path.stat().st_size and source.get("sha256") == digest(pair_path),
             "final_results heldout comparison identity differs")
@@ -121,10 +121,10 @@ def validate_final_and_pair(final_path: Path, final: dict[str, Any], pair_path: 
 
 def load_inventory(path: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     inventory = read(path)
-    recipe_name = "all_nvfp4_gptq_category"
-    require(inventory.get("schema_version") == "v11-selected-all-nvfp4-category" and
+    recipe_name = inventory.get("recipe")
+    require(recipe_name in {"all_nvfp4_gptq_category", "rtn_all", "rtn_w4a4_category"} and
             inventory.get("ladder") == [recipe_name] and set(inventory.get("recipes", {})) == {recipe_name},
-            "recipe inventory is not the v11 all-NVFP4 category snapshot")
+            "recipe inventory is not a single full-coverage W4A4 category snapshot")
     mixed = inventory["recipes"][recipe_name]
     counts = [mixed.get(name + "_params") for name in ("nvfp4", "fp8", "bf16")]
     require(type(mixed.get("linear_params")) is int and mixed["linear_params"] > 0 and
@@ -173,7 +173,7 @@ def load_inventory(path: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str
     require(artifact_paths.get("memory") == "paper/evidence/selected_recipe/category_memory.json" and
             artifact_paths.get("ptq_recipe") == "paper/evidence/selected_recipe/category_ptq_recipe.json" and
             artifact_paths.get("bake_manifest") == "paper/evidence/selected_recipe/category_bake_manifest.json",
-            "inventory selected recipe artifact paths are not the v11 published files")
+            "inventory selected recipe artifact paths are not the published files")
     require(memory_path.is_file() and recipe_path.is_file() and bake_path.is_file(),
             "selected category recipe artifacts are missing; materialize the completed run first")
     memory_artifact = read(memory_path)
@@ -214,9 +214,9 @@ def budget(memory: dict[str, Any], residual: dict[str, Any] | None) -> dict[str,
 
 
 def make_point(name: str, row: dict[str, Any], costs: dict[str, dict[str, Any]],
-               role: str, residual: dict[str, Any] | None) -> dict[str, Any]:
+               role: str, residual: dict[str, Any] | None, recipe_name: str) -> dict[str, Any]:
     return {"name": name, "role": role,
-            "recipe": "bf16" if name == "bf16" else "all_nvfp4_gptq_category", "count": row["count"],
+            "recipe": "bf16" if name == "bf16" else recipe_name, "count": row["count"],
             "successes": row["successes"], "macro_success_rate": row["macro_success_rate"],
             "per_task": row["per_task"],
             "encoding_budget": budget_from_base(costs, residual)}
@@ -252,9 +252,9 @@ def build(final_results: str | Path, paired_comparison: str | Path,
     recovery_costs = budget(mixed, residual)
     points = [make_point("bf16", arms["bf16"],
                          {scope: {**cost, "base_bytes": cost["source_bytes"]} for scope, cost in pure_costs.items()},
-                         "bf16", None),
-              make_point("ptq", arms["ptq"], pure_costs, "ptq", None)]
-    points.extend(make_point(name, arms[name], recovery_costs, "recovery", residual)
+                         "bf16", None, inventory["recipe"]),
+              make_point("ptq", arms["ptq"], pure_costs, "ptq", None, inventory["recipe"])]
+    points.extend(make_point(name, arms[name], recovery_costs, "recovery", residual, inventory["recipe"])
                   for name in ("qad", "continued_qad", "qad_opd"))
     observed = {}
     for scope in ("physical", "known_alias_deduplicated"):
@@ -272,14 +272,14 @@ def build(final_results: str | Path, paired_comparison: str | Path,
     result = {
         "version": 1, "status": "complete", "environment_pairing_verified": True,
         "protocol_consistency_verified": True, "source_accounting_verified": True,
-        "selected_recipe": "all_nvfp4_gptq_category", "reference_order": [], "references": {},
+        "selected_recipe": inventory["recipe"], "reference_order": [], "references": {},
         "points": points, "observed_nondominated_points": observed,
         "source": {"final_results": identity(final_path), "paired_comparison": identity(pair_path),
                     "recipe_inventory": identity(Path(inventory_path).resolve(strict=True)),
                     "selected_category_memory": identity(artifacts["memory"]),
                     "selected_category_recipe": identity(artifacts["recipe"]),
                     "selected_category_bake_manifest": identity(artifacts["bake"])},
-        "scope": "v11 heldout-only BF16, selected W4A4 all-NVFP4 PTQ, QAD, continued-QAD control and QAD+OPD",
+        "scope": "heldout-only BF16, selected W4A4 all-NVFP4 PTQ, QAD, continued-QAD control and QAD+OPD",
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

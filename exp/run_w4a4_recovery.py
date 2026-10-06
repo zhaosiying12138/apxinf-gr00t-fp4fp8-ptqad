@@ -2,9 +2,9 @@
 """W4A4 QAD/OPD recovery entry point.
 
 This is the public, W4A4-named facade for the audited serial driver in
-``run_high_fp4_v3.py``.  Keeping one implementation avoids two orchestration
-contracts drifting apart.  Unless the caller supplies ``--protocol-file``,
-the frozen full-coverage W4A4 v11 protocol is selected automatically.
+``run_high_fp4_v3.py``. Keeping one implementation avoids two orchestration
+contracts drifting apart. Unless the caller supplies ``--protocol-file``,
+the frozen full-coverage W4A4 v12 protocol is selected automatically.
 
 The driver still performs all of the fail-closed checks: a development-only
 PTQ selection, a finalized BF16 teacher capture dataset, two QAD learning
@@ -23,7 +23,7 @@ except ImportError:  # direct ``python exp/run_w4a4_recovery.py`` invocation
     from run_high_fp4_v3 import main as _driver_main
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PROTOCOL = ROOT / "exp" / "recovery_protocol_v11_w4a4_category.json"
+DEFAULT_PROTOCOL = ROOT / "exp" / "recovery_protocol_v12_rtn_w4a4.json"
 
 
 def main(argv: list[str] | None = None) -> int:

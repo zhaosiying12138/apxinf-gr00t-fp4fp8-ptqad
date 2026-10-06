@@ -32,11 +32,11 @@ DEFAULT_SOURCE_FILES = (
     'exp/bench_engine.py', 'exp/prepare_native_pi05.py',
     'exp/prepare_native_pi05.sh', 'exp/run_native_graph_gates.sh', 'exp/recovery_protocol.json',
     'exp/reproduce_ptqad.sh',
-    # The public recovery entry point is the W4A4 v11 facade. The underlying
+    # The public recovery entry point is the W4A4 v12 facade. The underlying
     # driver remains named v3 for import compatibility; keep both files in the
     # source receipt so a reader can reproduce the exact delegation path.
-    'exp/recovery_protocol_v11_w4a4_category.json', 'exp/run_w4a4_recovery.py',
-    'exp/continue_v11.sh', 'exp/continue_w4a4_run.py',
+    'exp/recovery_protocol_v12_rtn_w4a4.json', 'exp/run_w4a4_recovery.py',
+    'exp/continue_w4a4_run.py',
     'exp/make_w4a4_selection.py', 'exp/rebuild_w4a4_category.sh',
     'exp/verify_teacher_replay.py',
     # Compatibility source used by the facade's historical import path. It is
@@ -59,6 +59,7 @@ DEFAULT_SOURCE_FILES = (
     'paper/extract_final_evidence.py', 'paper/render_recovery_results.py',
     'paper/build_final_frontier.py', 'paper/build_recipe_inventory_v11.py',
     'paper/materialize_final_evidence.py', 'paper/collect_pairing_evidence.py',
+    'paper/prepare_w4a4_captures.py', 'paper/record_capture.py',
     'paper/collect_training_costs.py', 'paper/collect_search_costs.py',
     'exp/audit_recovery_release.py',
 )
@@ -103,12 +104,12 @@ def validate_final_manifest(path):
     if path.name != 'final_manifest.json' or path.is_symlink():
         raise ValueError('--final-manifest must name a regular final_manifest.json')
     data = json.loads(path.read_text(encoding='utf-8'))
-    # Recovery runs have used several internal driver names. The v11 W4A4
+    # Recovery runs have used several internal driver names. The v12 W4A4
     # boundary is explicit; older formats remain accepted here because this
     # low-level receipt is also used by CPU provenance fixtures. The
     # publication validator binds the selected protocol and rejects stale
     # result packages.
-    if not re.fullmatch(r'(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7|w4a4_recovery_v11)_final_manifest', str(data.get('format', ''))):
+    if not re.fullmatch(r'(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7|w4a4_recovery_v11|w4a4_recovery_v12)_final_manifest', str(data.get('format', ''))):
         raise ValueError('unsupported or incomplete final manifest format')
     if data.get('selection_uses_heldout') is not False:
         raise ValueError('final selection must be independent of heldout results')

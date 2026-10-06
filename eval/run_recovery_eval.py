@@ -398,6 +398,7 @@ def main():
                          "FP4VLA_W4A4": "1" if checkpoint_w4a4 else "0",
                          "FP4VLA_W4A4_ADAPTER": "1" if checkpoint_adapter_w4a4 else "0",
                          "FP4VLA_SATURATE_F16_ACTIVATIONS": "1" if checkpoint_w4a4 else "0",
+                         "PTQAD_ZMQ_TIMEOUT_MS": os.environ.get("PTQAD_ZMQ_TIMEOUT_MS", "120000"),
                      }},
                      "recovery_contract": recovery_contract})
     manifest["protocol_file"] = str(protocol_path)
@@ -423,6 +424,7 @@ def main():
                     "FP4VLA_W4A4": "1" if w4a4 else "0",
                     "FP4VLA_W4A4_ADAPTER": "1" if adapter_w4a4 else "0",
                     "FP4VLA_SATURATE_F16_ACTIVATIONS": "1" if w4a4 else "0",
+                    "PTQAD_ZMQ_TIMEOUT_MS": os.environ.get("PTQAD_ZMQ_TIMEOUT_MS", "120000"),
                     "PYTHONPATH": str(gr00t),
                     "GR00T_EVAL_SEED": str(seed + 10000000),
                     "MUJOCO_GL": "egl", "PYOPENGL_PLATFORM": "egl"})

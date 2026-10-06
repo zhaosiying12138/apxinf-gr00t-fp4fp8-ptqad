@@ -101,6 +101,24 @@ def main():
     name = sys.argv[sys.argv.index("--env-name") + 1].removeprefix("libero_sim/")
     sys.path.insert(0, os.getcwd())
     from gr00t.eval.sim.LIBERO.libero_env import LiberoEnv
+    # The upstream GR00T rollout policy constructs PolicyClient without
+    # exposing its timeout argument. Quantized first requests can legitimately
+    # exceed the upstream 15 s default while the model warms up, which used to
+    # surface as a misleading ZMQ ``Resource temporarily unavailable`` error.
+    # Patch only this audited rollout process and keep the value in the
+    # evaluation environment manifest through ``run_recovery_eval.py``.
+    from gr00t.policy import server_client
+    request_timeout_ms = int(os.environ.get("PTQAD_ZMQ_TIMEOUT_MS", "120000"))
+    if request_timeout_ms < 15000:
+        raise ValueError("PTQAD_ZMQ_TIMEOUT_MS must be at least 15000 ms")
+    _policy_client_init = server_client.PolicyClient.__init__
+
+    def _policy_client_init_with_timeout(self, *args, **kwargs):
+        kwargs.setdefault("timeout_ms", request_timeout_ms)
+        return _policy_client_init(self, *args, **kwargs)
+
+    server_client.PolicyClient.__init__ = _policy_client_init_with_timeout
+    print(f"FP4VLA_ZMQ_TIMEOUT_MS {request_timeout_ms}", flush=True)
     import gr00t.eval.rollout_policy as rollout
     install_bank_resets(LiberoEnv, name, indices)
     script = Path(rollout.__file__)
