@@ -130,13 +130,18 @@ def main():
     doc = doc.replace('<table>', '<div class="table-wrap" tabindex="0"><table>').replace('</table>', '</table></div>')
     kcss = (PAPER/'assets/katex/katex.min.css').read_text(encoding='utf-8')
     kcss = re.sub(r'src:[^;}]+', lambda m: 'src:url(' + data_uri(PAPER/'assets/katex'/re.search(r'url\(([^)]+\.woff2)\)', m[0])[1]) + ') format("woff2")', kcss)
+    is_review = '审阅稿' in meta.get('status', '')
+    review_notice = ('<p class="meta" style="color:#b42318">审阅稿 · 正式实验进行中，红色 xxx 为待测值</p>'
+                     if is_review else '')
+    package_scope = ('图表与截图的收录范围见审阅包清单。' if is_review else
+                     '完整源稿、运行证据、图像哈希及校验报告随发布包保存。')
     out = f'''<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="{html.escape(meta['meta'])}"><title>{html.escape(meta['title'])}</title>
 <style>{kcss}\n{CSS}</style></head><body><main id="top">
-<header><div class="eyebrow">FP4-VLA · RESEARCH REPORT · 2026</div><h1>{html.escape(meta['title'])}</h1><div class="meta">{html.escape(meta['meta'])}<br>修订日期：{meta['date']} · 正文、公式、图表与原始截图均可离线阅读</div></header>
+<header><div class="eyebrow">FP4-VLA · RESEARCH REPORT · 2026</div><h1>{html.escape(meta['title'])}</h1><div class="meta">{html.escape(meta['meta'])}<br>修订日期：{meta['date']} · 正文、公式、图表与原始截图均可离线阅读</div>{review_notice}</header>
 <nav aria-label="文章目录"><strong>阅读导航</strong><ol>{''.join(toc_main)}</ol><details><summary>展开完整章节目录</summary><ol>{''.join(toc)}</ol></details></nav>
-<article>{doc}</article><footer>由同一 Markdown 源生成 HTML 与知乎发布稿。完整源稿、运行证据、图像哈希及校验报告随发布包保存。数学排版使用 KaTeX 0.16.22（MIT）；详细来源见发布包。</footer>
+<article>{doc}</article><footer>由同一 Markdown 源生成 HTML 与知乎发布稿。{package_scope}数学排版使用 KaTeX 0.16.22（MIT）；详细来源见发布包。</footer>
 </main><a class="backtop" href="#top">返回目录 ↑</a><dialog id="viewer"><button aria-label="关闭大图">关闭 ×</button><img alt="原始截图放大"></dialog>
 <script>const v=document.getElementById('viewer'); document.querySelectorAll('.shot img').forEach(i=>i.addEventListener('click',()=>{{v.querySelector('img').src=i.src;v.showModal()}}));v.querySelector('button').onclick=()=>v.close();</script>
 </body></html>'''

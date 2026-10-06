@@ -119,13 +119,13 @@
     },
     {
       "path": "build_html.py",
-      "bytes": 12187,
-      "sha256": "39ef5004f9f5a56efd19c424e9054897ff25706b50c9f06d36f6dd7cd90f2909"
+      "bytes": 12558,
+      "sha256": "7f798e5ada7de94a1c13fec22d4270fb63657c2871e907ec985acc8fad938f3d"
     },
     {
       "path": "figs/budget_ladder.svg",
-      "bytes": 6599,
-      "sha256": "0e92fa7dac3489346c64589ff56ce630d06562d6668ca4b1bf0225b6743a006b"
+      "bytes": 3026,
+      "sha256": "e93391b7f05c9722856c2701e0eff1636c7db6a8bf532ca7352583fa9b52a958"
     },
     {
       "path": "figs/e1_latency.svg",
@@ -134,18 +134,18 @@
     },
     {
       "path": "figs/gptq_block.svg",
-      "bytes": 8363,
-      "sha256": "b76200e8d5f3018b454b672f8c2e8ffedf08ad302353bc2e9b1c3c80c70fae23"
+      "bytes": 6020,
+      "sha256": "9fedbfebb3f50cb1c0879304c4016c67ad757414b056b73ec8459bb3c78ecd63"
     },
     {
       "path": "figs/ladder.svg",
-      "bytes": 4568,
-      "sha256": "8bdc5a04ec9809557d7548bcaef056e910fde95263dfd263148e6cd617f99772"
+      "bytes": 3488,
+      "sha256": "37186724447ccc2b870fc536d00515caa2ab22751f6b5aa4c47de15b41b317b8"
     },
     {
       "path": "figs/ptq_frontier.svg",
-      "bytes": 13501,
-      "sha256": "7c6ebef17639ba2cb651b901c75d998f9e76052f03940ce1e927bd9840797c77"
+      "bytes": 3731,
+      "sha256": "06443743c5a39b6eda83e4c4b006addc1e6e2527b2d5f91cc1ede76d74bbb293"
     },
     {
       "path": "figs/recovery_protocol.svg",
@@ -244,13 +244,13 @@
     },
     {
       "path": "figures.json",
-      "bytes": 7845,
-      "sha256": "a3c1f2d48f4b3f14ec3e6096f2eb3daaef20962af8cd44dc47131423911f12a6"
+      "bytes": 8087,
+      "sha256": "234bfa30c0f5a34634123ae8de467c97f29d6952317742963731f08e3e800e2b"
     },
     {
       "path": "meta.json",
-      "bytes": 262,
-      "sha256": "107c6fe2b6019c601d264eef223675322fd982f97ca4edfe559b6cd58a5c7b17"
+      "bytes": 280,
+      "sha256": "5d91ddf89f2c3218b27632b4dd619e7bad650067729f74d3f7b3a967066a7b2f"
     },
     {
       "path": "publication_guard.py",
@@ -264,58 +264,66 @@
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "bytes": 6177,
-      "sha256": "231b9292fbf21b615f3d81d7c83bf866d5220af01bfbae0812ab6bf4dc0f3d1e"
+      "bytes": 3820,
+      "sha256": "f31d291018f27fe172e9f75e1ae81595763ddfb6ff5913ca5b6330dc03543d47"
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "bytes": 13384,
-      "sha256": "0f101947def94640d628130a454473b89a86222e2ab80cbe7c2ce458cff2d300"
+      "bytes": 15001,
+      "sha256": "e29900906366b8dd14c00ea24104ab2c60be55027e58cada3a09354611f56bb3"
     },
     {
       "path": "sections/03-方法.md",
-      "bytes": 10314,
-      "sha256": "1cce1e834cae0d17c9be151e862cec1faaf5d001bb4cb9d829ad447ab2e57303"
+      "bytes": 4937,
+      "sha256": "6a26d9ecc557f202b806a05b38b56a5249649288b77ddb89610c808c16d9494f"
     },
     {
       "path": "sections/04-实验.md",
-      "bytes": 12570,
-      "sha256": "0d0175918daacbeaa35fa6ae916c4c32891ce9aa7c29096c8224bce376c78d40"
+      "bytes": 5825,
+      "sha256": "99b696d1dd91f2cac1885f8f73eb403dc4aef5c8d50ef3aad144953fef18747e"
     },
     {
       "path": "sections/05-讨论与结论.md",
-      "bytes": 1796,
-      "sha256": "eb722c636ddad4433ae420a7579a1ab380795ba0bed2f6e58df033a9a251001e"
+      "bytes": 979,
+      "sha256": "c8f469cc430042e11516237b4dcc519a4e6c447c4227fe6c2ed8f93d3b4e3880"
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
-      "bytes": 46550,
-      "sha256": "735eb8b3e65ebaa24e1772835a48e9316e4b5c3fdc90a8a3501808fa6317c05a"
+      "bytes": 42982,
+      "sha256": "2fe88f8a1b247aafc0090f93e583771ff82554729cc975c62c17b6d0386fe391"
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "bytes": 22197,
-      "sha256": "b54651d0bda507cd3c74f407aa25422779fbaef3cbccf23c4ca0e05f237d65bd"
+      "bytes": 22374,
+      "sha256": "d5604749bef8ace545410dcfcdfc4c05d5f222c1498acd4bc1ee0e2bddb4c587"
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
-      "bytes": 12695,
-      "sha256": "c3c3d8286526b55d0ef021a8618557ecd390a6b9d3c458a64a54d7f426df9edc"
+      "bytes": 12693,
+      "sha256": "a5ae05d8c4967988cd90b12380c2d127b419afac330b075132a2a8fe03d58e58"
     },
     {
       "path": "sections/16-参考文献.md",
-      "bytes": 12054,
-      "sha256": "84dcc6943ff79284e8ab31f651006234fd2a62e4fc42fd32709f5e593e56beea"
+      "bytes": 12535,
+      "sha256": "71cbcdab470cc2a62a3f89a49e5d738bbb8cb2f45a6ef2d0215e1a47257724a1"
     }
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 8196148,
-    "sha256": "c829dae84910821a9771e52df732ab968bc58cdb589a134990f5602030816343"
+    "bytes": 4844650,
+    "sha256": "59a18dd643976836a4431bc8c46a9cc772f0e25524dbe70ac57ec7f4d041b140"
   },
-  "math_expressions": 274,
+  "math_expressions": 214,
   "figures": 24,
   "screenshot_slots": 17,
-  "screenshots": 17,
-  "screenshot_refresh_pending": []
+  "screenshots": 10,
+  "screenshot_refresh_pending": [
+    "shot_bake",
+    "shot_collect",
+    "shot_evalserver",
+    "shot_opd",
+    "shot_opdcache",
+    "shot_qad",
+    "shot_rollout"
+  ]
 }

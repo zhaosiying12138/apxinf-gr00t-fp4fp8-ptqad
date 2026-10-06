@@ -1,103 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="922" viewBox="0 0 1120 922" role="img" aria-label="纯 PTQ 与恢复策略：净编码预算—闭环成功率" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="580" viewBox="0 0 1100 580" role="img" aria-label="同一 W4A4 基座：编码预算与闭环恢复" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
 <rect width="100%" height="100%" fill="white"/>
-<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">纯 PTQ 与恢复策略：净编码预算—闭环成功率</tspan></text>
-<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">5 个冻结候选均为同协议 160 回合；描述本次观测，不代表全局 PTQ 最优或统计非劣性。</tspan></text>
-<path d="M100,505.0 L1040,505.0" stroke="#d9e4e9" fill="none"/>
-<text x="86" y="510.0" fill="#183c4d" font-size="13" font-weight="400" text-anchor="end"><tspan dy="0" font-size="13">0%</tspan></text>
-<path d="M100,428.8 L1040,428.8" stroke="#d9e4e9" fill="none"/>
-<text x="86" y="433.8" fill="#183c4d" font-size="13" font-weight="400" text-anchor="end"><tspan dy="0" font-size="13">20%</tspan></text>
-<path d="M100,352.6 L1040,352.6" stroke="#d9e4e9" fill="none"/>
-<text x="86" y="357.6" fill="#183c4d" font-size="13" font-weight="400" text-anchor="end"><tspan dy="0" font-size="13">40%</tspan></text>
-<path d="M100,276.4 L1040,276.4" stroke="#d9e4e9" fill="none"/>
-<text x="86" y="281.4" fill="#183c4d" font-size="13" font-weight="400" text-anchor="end"><tspan dy="0" font-size="13">60%</tspan></text>
-<path d="M100,200.2 L1040,200.2" stroke="#d9e4e9" fill="none"/>
-<text x="86" y="205.2" fill="#183c4d" font-size="13" font-weight="400" text-anchor="end"><tspan dy="0" font-size="13">80%</tspan></text>
-<path d="M100,124.0 L1040,124.0" stroke="#d9e4e9" fill="none"/>
-<text x="86" y="129.0" fill="#183c4d" font-size="13" font-weight="400" text-anchor="end"><tspan dy="0" font-size="13">100%</tspan></text>
-<path d="M100.0,505 L100.0,510" stroke="#d9e4e9" fill="none"/>
-<text x="100.0" y="529" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">0</tspan></text>
-<path d="M241.02861639861067,505 L241.02861639861067,510" stroke="#d9e4e9" fill="none"/>
-<text x="241.02861639861067" y="529" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">1</tspan></text>
-<path d="M382.05723279722133,505 L382.05723279722133,510" stroke="#d9e4e9" fill="none"/>
-<text x="382.05723279722133" y="529" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">2</tspan></text>
-<path d="M523.085849195832,505 L523.085849195832,510" stroke="#d9e4e9" fill="none"/>
-<text x="523.085849195832" y="529" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">3</tspan></text>
-<path d="M664.1144655944427,505 L664.1144655944427,510" stroke="#d9e4e9" fill="none"/>
-<text x="664.1144655944427" y="529" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">4</tspan></text>
-<path d="M805.1430819930533,505 L805.1430819930533,510" stroke="#d9e4e9" fill="none"/>
-<text x="805.1430819930533" y="529" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">5</tspan></text>
-<path d="M946.1716983916639,505 L946.1716983916639,510" stroke="#d9e4e9" fill="none"/>
-<text x="946.1716983916639" y="529" fill="#183c4d" font-size="13" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="13">6</tspan></text>
-<path d="M100,124 L100,505" stroke="#183c4d" fill="none"/>
-<path d="M100,505 L1040,505" stroke="#183c4d" fill="none"/>
-<text x="100" y="103" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">十任务宏平均成功率</tspan></text>
-<text x="570" y="558" fill="#183c4d" font-size="15" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="15">已知共享副本去重后的净编码预算 / GB（1 GB = 10 亿字节）</tspan></text>
-<path d="M986.7924528301887,159.71875 L997.7924528301887,159.71875" stroke="#183c4d" fill="none"/>
-<path d="M350.0849888732622,159.71875 L339.0849888732622,159.71875" stroke="#2368a0" fill="none"/>
-<path d="M370.6748599891901,162.10000000000002 L381.6748599891901,162.10000000000002" stroke="#258577" fill="none"/>
-<path d="M370.6748599891901,257.35 L381.6748599891901,257.35" stroke="#258577" fill="none"/>
-<path d="M370.6748599891901,185.91250000000002 L370.6748599891901,197.91250000000002" stroke="#258577" fill="none"/>
-<rect x="997.7924528301887" y="147.71875" width="26.0" height="24.0" fill="white" stroke="#183c4d" rx="3"/>
-<text x="1010.7924528301887" y="164.71875" fill="#183c4d" font-family="monospace" font-size="14" font-weight="600" text-anchor="middle" textLength="9" lengthAdjust="spacingAndGlyphs">A</text>
-<rect x="313.0849888732622" y="147.71875" width="26.0" height="24.0" fill="white" stroke="#2368a0" rx="3"/>
-<text x="326.0849888732622" y="164.71875" fill="#2368a0" font-family="monospace" font-size="14" font-weight="600" text-anchor="middle" textLength="9" lengthAdjust="spacingAndGlyphs">B</text>
-<rect x="381.6748599891901" y="150.10000000000002" width="26.0" height="24.0" fill="white" stroke="#258577" rx="3"/>
-<text x="394.6748599891901" y="167.10000000000002" fill="#258577" font-family="monospace" font-size="14" font-weight="600" text-anchor="middle" textLength="9" lengthAdjust="spacingAndGlyphs">C</text>
-<rect x="381.6748599891901" y="245.35000000000002" width="26.0" height="24.0" fill="white" stroke="#258577" rx="3"/>
-<text x="394.6748599891901" y="262.35" fill="#258577" font-family="monospace" font-size="14" font-weight="600" text-anchor="middle" textLength="9" lengthAdjust="spacingAndGlyphs">D</text>
-<rect x="357.6748599891901" y="197.91250000000002" width="26.0" height="24.0" fill="white" stroke="#258577" rx="3"/>
-<text x="370.6748599891901" y="214.91250000000002" fill="#258577" font-family="monospace" font-size="14" font-weight="600" text-anchor="middle" textLength="9" lengthAdjust="spacingAndGlyphs">E</text>
-<circle cx="986.7924528301887" cy="159.71875" r="6" fill="#183c4d"/>
-<circle cx="350.0849888732622" cy="159.71875" r="6" fill="#2368a0"/>
-<path d="M370.6748599891901,155.10000000000002 L377.6748599891901,162.10000000000002 L370.6748599891901,169.10000000000002 L363.6748599891901,162.10000000000002 Z" fill="#258577"/>
-<path d="M370.6748599891901,250.35000000000002 L377.6748599891901,257.35 L370.6748599891901,264.35 L363.6748599891901,257.35 Z" fill="#258577"/>
-<path d="M370.6748599891901,178.91250000000002 L377.6748599891901,185.91250000000002 L370.6748599891901,192.91250000000002 L363.6748599891901,185.91250000000002 Z" fill="#258577"/>
-<text x="30" y="596" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">圆点：BF16 / 纯 PTQ　　菱形：基座 + BF16 低秩残差；重合点合并字母，精确值见下表。</tspan></text>
-<rect x="30" y="621" width="1060" height="34" fill="#e7f0f5" stroke="none" rx="5"/>
-<text x="42" y="644" fill="#2368a0" font-size="14" font-weight="600" text-anchor="start"><tspan dy="0" font-size="14">点</tspan></text>
-<text x="95" y="644" fill="#2368a0" font-size="14" font-weight="600" text-anchor="start"><tspan dy="0" font-size="14">策略</tspan></text>
-<text x="340" y="644" fill="#2368a0" font-size="14" font-weight="600" text-anchor="end"><tspan dy="0" font-size="14">成功数</tspan></text>
-<text x="514" y="644" fill="#2368a0" font-size="14" font-weight="600" text-anchor="end"><tspan dy="0" font-size="14">成功率</tspan></text>
-<text x="683" y="644" fill="#2368a0" font-size="14" font-weight="600" text-anchor="end"><tspan dy="0" font-size="14">去重净 GB</tspan></text>
-<text x="866" y="644" fill="#2368a0" font-size="14" font-weight="600" text-anchor="end"><tspan dy="0" font-size="14">物理净 GB</tspan></text>
-<text x="1050" y="644" fill="#2368a0" font-size="14" font-weight="600" text-anchor="end"><tspan dy="0" font-size="14">去重压缩</tspan></text>
-<rect x="30" y="658" width="1060" height="31" fill="#f5f8fa" stroke="none" rx="5"/>
-<text x="42" y="682" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">A</tspan></text>
-<text x="95" y="682" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">BF16</tspan></text>
-<text x="340" y="682" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">145/160</tspan></text>
-<text x="514" y="682" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">90.6%</tspan></text>
-<text x="683" y="682" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">6.288032</tspan></text>
-<text x="866" y="682" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">6.910362</tspan></text>
-<text x="1050" y="682" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">1.0000×</tspan></text>
-<text x="42" y="716" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">B</tspan></text>
-<text x="95" y="716" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">W4A4 PTQ</tspan></text>
-<text x="340" y="716" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">145/160</tspan></text>
-<text x="514" y="716" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">90.6%</tspan></text>
-<text x="683" y="716" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">1.773293</tspan></text>
-<text x="866" y="716" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">1.948323</tspan></text>
-<text x="1050" y="716" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">3.5460×</tspan></text>
-<rect x="30" y="726" width="1060" height="31" fill="#f5f8fa" stroke="none" rx="5"/>
-<text x="42" y="750" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">C</tspan></text>
-<text x="95" y="750" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">QAD</tspan></text>
-<text x="340" y="750" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">144/160</tspan></text>
-<text x="514" y="750" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">90.0%</tspan></text>
-<text x="683" y="750" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">1.919290</tspan></text>
-<text x="866" y="750" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">2.094321</tspan></text>
-<text x="1050" y="750" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">3.2762×</tspan></text>
-<text x="42" y="784" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">D</tspan></text>
-<text x="95" y="784" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">继续 QAD</tspan></text>
-<text x="340" y="784" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">104/160</tspan></text>
-<text x="514" y="784" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">65.0%</tspan></text>
-<text x="683" y="784" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">1.919290</tspan></text>
-<text x="866" y="784" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">2.094321</tspan></text>
-<text x="1050" y="784" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">3.2762×</tspan></text>
-<rect x="30" y="794" width="1060" height="31" fill="#f5f8fa" stroke="none" rx="5"/>
-<text x="42" y="818" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">E</tspan></text>
-<text x="95" y="818" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">QAD + OPD</tspan></text>
-<text x="340" y="818" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">134/160</tspan></text>
-<text x="514" y="818" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">83.8%</tspan></text>
-<text x="683" y="818" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">1.919290</tspan></text>
-<text x="866" y="818" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">2.094321</tspan></text>
-<text x="1050" y="818" fill="#183c4d" font-size="14" font-weight="400" text-anchor="end"><tspan dy="0" font-size="14">3.2762×</tspan></text>
-<text x="30" y="886" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">预算含格式尺度、未量化张量及恢复残差；不等于当前稠密权重文件大小、实测显存或完整原生部署。</tspan></text>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">同一 W4A4 基座：编码预算与闭环恢复</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">结构审阅稿 · 预算与成功率均待冻结产物核验；不预设恢复收益。</tspan></text>
+<text x="45" y="132" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">比较项</tspan></text>
+<text x="470" y="132" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">完整目标编码预算</tspan></text>
+<text x="850" y="132" fill="#183c4d" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">闭环成功率</tspan></text>
+<text x="45" y="198" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">BF16</tspan></text>
+<text x="520" y="198" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="880" y="198" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
+<text x="45" y="260" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ</tspan></text>
+<text x="520" y="260" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="880" y="260" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
+<text x="45" y="322" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ + QAD</tspan></text>
+<text x="520" y="322" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="880" y="322" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
+<text x="45" y="384" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ + 继续 QAD</tspan></text>
+<text x="520" y="384" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="880" y="384" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
+<text x="45" y="446" fill="#183c4d" font-size="18" font-weight="400" text-anchor="start"><tspan dy="0" font-size="18">W4A4 PTQ + QAD + OPD</tspan></text>
+<text x="520" y="446" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx GB</tspan></text>
+<text x="880" y="446" fill="#b42318" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">xxx%</tspan></text>
+<text x="45" y="506" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">量化基座含 payload、格式缩放及未量化权重；恢复臂另计完整 BF16 低秩参数。</tspan></text>
+<text x="45" y="543" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">该预算不是稠密 checkpoint 文件体积、实际显存或延迟；不预设恢复收益。</tspan></text>
 </svg>

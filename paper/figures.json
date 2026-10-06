@@ -5,7 +5,7 @@
   },
   "ladder": {
     "title": "图 3　同一 W4A4 基座上的五臂闭环对照",
-    "note": "BF16、W4A4 PTQ、QAD、继续 QAD 与 QAD+OPD 使用同一 v12 最终评测协议；数值来自 160 回合/臂的冻结 held-out 评测。"
+    "note": "BF16、RTN W4A4 PTQ、QAD、继续 QAD 与 QAD+OPD 使用同一 v12 最终评测协议；红色占位符为待测值。"
   },
   "swizzle_layout": {
     "title": "图 6　NVFP4 块缩放的物理布局",
@@ -21,15 +21,18 @@
   },
   "shot_bake": {
     "title": "运行截图 02　冻结 NVFP4 配方与低秩旁路编码预算核验",
-    "note": "在 CPU 上从冻结配方与恢复清单重建编码账本，并核对协议和配方的 SHA-256。输出记录 NVFP4 权重元素数及完整 BF16 低秩参数字节数；本图展示只读预算核验，不是重新烘焙权重或 GPU 激活验证。"
+    "note": "在 CPU 上从冻结配方与恢复清单重建编码账本，并核对协议和配方的 SHA-256。输出记录 NVFP4 权重元素数及完整 BF16 低秩参数字节数；本图展示只读预算核验，不是重新烘焙权重或 GPU 激活验证。 本轮执行截图尚未登记。",
+    "refresh_pending": true
   },
   "shot_collect": {
     "title": "运行截图 01　BF16 成功演示与教师回放核验",
-    "note": "只读核验冻结的 BF16 教师演示归档、任务覆盖和样本哈希；v12 RTN PTQ 不使用 Hessian 校准，截图不作为量化结果。"
+    "note": "只读核验冻结的 BF16 教师演示归档、任务覆盖和样本哈希；v12 RTN PTQ 不使用 Hessian 校准，截图不作为量化结果。 本轮执行截图尚未登记。",
+    "refresh_pending": true
   },
   "shot_evalserver": {
     "title": "运行截图 09　W4A4 策略服务与健康 RPC",
-    "note": "本轮真实截图展示冻结 W4A4 base 与独立 A/B adapter 的加载、健康 RPC 和主分支激活量化；BF16 旁路保持独立。"
+    "note": "该图位用于展示冻结 W4A4 base 与独立 A/B adapter 的加载、健康 RPC 和主分支激活量化；BF16 旁路保持独立。 本轮执行截图尚未登记。",
+    "refresh_pending": true
   },
   "shot_fp8probe": {
     "title": "运行截图 12　FP8 描述符可用性与同步返回状态（GPU 探针）",
@@ -53,11 +56,13 @@
   },
   "shot_opd": {
     "title": "运行截图 07　QAD→OPD 续训与教师监督",
-    "note": "本轮真实截图展示从入选 QAD 检查点启动 OPD、加载固定教师缓存并执行教师损失。"
+    "note": "该图位用于展示从入选 QAD 检查点启动 OPD、加载固定教师缓存并执行教师损失。 本轮执行截图尚未登记。",
+    "refresh_pending": true
   },
   "shot_opdcache": {
     "title": "运行截图 06　学生访问状态的教师标注",
-    "note": "本轮真实截图展示学生观测的教师速度标注、共享随机性、有效动作掩码和缓存校验。"
+    "note": "该图位用于展示学生观测的教师速度标注、共享随机性、有效动作掩码和缓存校验。 本轮执行截图尚未登记。",
+    "refresh_pending": true
   },
   "shot_packed": {
     "title": "运行截图 03　π0.5 单层 NVFP4 打包（CPU smoke）",
@@ -73,7 +78,8 @@
   },
   "shot_qad": {
     "title": "运行截图 05　完整模型 W4A4 QAD",
-    "note": "本轮真实截图展示完整 GR00T 的 W4A4 QAD 训练，核对 all_ordinary_linear 恢复范围、r=32、alpha=64、W4A4 基座与激活重算。"
+    "note": "该图位用于展示完整 GR00T 的 W4A4 QAD 训练，核对 all_ordinary_linear 恢复范围、r=32、alpha=64、W4A4 基座与激活重算。 本轮执行截图尚未登记。",
+    "refresh_pending": true
   },
   "shot_qat": {
     "title": "运行截图 08　恢复训练的激活重算与 LoRA 梯度检查（CPU 小模型）",
@@ -81,7 +87,8 @@
   },
   "shot_rollout": {
     "title": "运行截图 10　学生闭环与观测采集",
-    "note": "本轮真实截图展示学生 rollout 的官方初态恢复、稳定步和观测缓存。"
+    "note": "该图位用于展示学生 rollout 的官方初态恢复、稳定步和观测缓存。 本轮执行截图尚未登记。",
+    "refresh_pending": true
   },
   "shot_verify": {
     "title": "运行截图 11　量化格点与最小 checkpoint 导出测试（CPU smoke）",
@@ -89,10 +96,10 @@
   },
   "budget_ladder": {
     "title": "图 4　W4A4 基座的编码预算与低秩旁路成本",
-    "note": "唯一冻结的 v12 W4A4 category 配方按物理张量和已知共享别名去重两种口径核算，计入未量化权重、格式缩放及完整 BF16 低秩旁路。目标编码预算不等于稠密文件或实测显存。"
+    "note": "v12 RTN W4A4 的实际编码预算待冻结产物核算；最终计入未量化权重、格式缩放及完整 BF16 低秩旁路。红色 xxx 不代表测量值。"
   },
   "ptq_frontier": {
     "title": "图 5　全 NVFP4 W4A4 基座的预算与闭环成功率",
-    "note": "编码预算从唯一冻结的 v12 W4A4 category 配方账本生成，按已知共享别名去重；恢复臂另计完整 BF16 低秩残差。闭环成功率对应 160 回合/臂的最终评测。"
+    "note": "v12 RTN W4A4 五臂的预算与闭环成功率均待测量和核验；恢复臂须计入完整 BF16 低秩残差。图中不预设收益大小或排名。"
   }
 }

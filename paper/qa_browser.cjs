@@ -12,7 +12,7 @@ const SCREENSHOTS = ['shot_bake','shot_collect','shot_evalserver','shot_fp8probe
   'shot_probe','shot_qad','shot_qat','shot_rollout','shot_verify'].sort();
 const DIAGRAMS = ['e1_latency','ladder','swizzle_layout','gptq_block','recovery_protocol',
   'budget_ladder','ptq_frontier'].sort();
-const REVIEW_PENDING = ['shot_bake','shot_qad','shot_opdcache','shot_opd','shot_evalserver','shot_rollout'].sort();
+const REVIEW_PENDING = ['shot_bake','shot_collect','shot_qad','shot_opdcache','shot_opd','shot_evalserver','shot_rollout'].sort();
 function snapshot() {
   const registry = JSON.parse(fs.readFileSync(path.join(P,'figures.json'),'utf8'));
   const meta = JSON.parse(fs.readFileSync(path.join(P,'meta.json'),'utf8'));

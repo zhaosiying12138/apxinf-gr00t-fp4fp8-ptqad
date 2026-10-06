@@ -88,6 +88,15 @@ def main():
     manifest['screenshots']=sorted([r for r in manifest['screenshots'] if r['figure']!=args.figure]+[record],key=lambda r:r['figure'])
     temporary=manifest_path.with_suffix('.json.tmp')
     temporary.write_text(json.dumps(manifest,indent=2)+'\n');temporary.replace(manifest_path)
+    # A verified replacement can now occupy its review slot. Final publication
+    # still checks the capture script and protocol against the released run.
+    if registry[args.figure].pop('refresh_pending', False):
+        registry[args.figure]['note'] = registry[args.figure].get('note', '').replace(
+            ' 本轮执行截图尚未登记。', '')
+        registry_path = P/'figures.json'
+        temporary_registry = registry_path.with_suffix('.json.tmp')
+        temporary_registry.write_text(json.dumps(registry, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+        temporary_registry.replace(registry_path)
     print(f'Recorded {args.figure}: image, raw log, script, capture quality and crop proof hashed')
 
 

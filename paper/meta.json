@@ -1,6 +1,6 @@
 {
   "title": "PTQAD：APXInf 生态下 GR00T 的全 NVFP4 W4A4 量化与行为适配",
   "meta": "块缩放 PTQ、QAD/OPD 低秩适配与 LIBERO 五臂闭环评测",
-  "date": "2026-10-06",
-  "status": "v11 W4A4 完整五臂评测与发布证据已核验"
+  "date": "2026-10-07",
+  "status": "v12 RTN W4A4 审阅稿 · 正式实验进行中，红色 xxx 为待测值"
 }

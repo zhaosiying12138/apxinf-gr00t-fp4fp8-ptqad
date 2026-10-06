@@ -28,27 +28,35 @@
     "swizzle_layout"
   ],
   "screenshot_slots": 17,
-  "screenshots": 17,
-  "screenshot_refresh_pending": [],
-  "meta_sha256": "107c6fe2b6019c601d264eef223675322fd982f97ca4edfe559b6cd58a5c7b17",
-  "html_sha256": "c829dae84910821a9771e52df732ab968bc58cdb589a134990f5602030816343",
-  "qa_script_sha256": "4dc0329af03f7e9b8e8a61545c0265c698645dd818b2fa4676a1ffc4fda3c632",
-  "figures_manifest_sha256": "a3c1f2d48f4b3f14ec3e6096f2eb3daaef20962af8cd44dc47131423911f12a6",
+  "screenshots": 10,
+  "screenshot_refresh_pending": [
+    "shot_bake",
+    "shot_collect",
+    "shot_evalserver",
+    "shot_opd",
+    "shot_opdcache",
+    "shot_qad",
+    "shot_rollout"
+  ],
+  "meta_sha256": "5d91ddf89f2c3218b27632b4dd619e7bad650067729f74d3f7b3a967066a7b2f",
+  "html_sha256": "59a18dd643976836a4431bc8c46a9cc772f0e25524dbe70ac57ec7f4d041b140",
+  "qa_script_sha256": "d452250fd7528927fe309e236cc526615cf46f3592556e99190f4624834417d3",
+  "figures_manifest_sha256": "234bfa30c0f5a34634123ae8de467c97f29d6952317742963731f08e3e800e2b",
   "svg_sha256": {
-    "budget_ladder": "0e92fa7dac3489346c64589ff56ce630d06562d6668ca4b1bf0225b6743a006b",
+    "budget_ladder": "e93391b7f05c9722856c2701e0eff1636c7db6a8bf532ca7352583fa9b52a958",
     "e1_latency": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
-    "gptq_block": "b76200e8d5f3018b454b672f8c2e8ffedf08ad302353bc2e9b1c3c80c70fae23",
-    "ladder": "8bdc5a04ec9809557d7548bcaef056e910fde95263dfd263148e6cd617f99772",
-    "ptq_frontier": "7c6ebef17639ba2cb651b901c75d998f9e76052f03940ce1e927bd9840797c77",
+    "gptq_block": "9fedbfebb3f50cb1c0879304c4016c67ad757414b056b73ec8459bb3c78ecd63",
+    "ladder": "37186724447ccc2b870fc536d00515caa2ab22751f6b5aa4c47de15b41b317b8",
+    "ptq_frontier": "06443743c5a39b6eda83e4c4b006addc1e6e2527b2d5f91cc1ede76d74bbb293",
     "recovery_protocol": "1d0a1e46bd762745951d8321ad943f2399a16ff0f3acae7344060ee80c0b8f90",
     "swizzle_layout": "62da8e6496c030f0fa5e17486051d0fd3ccedbf125376c0e23666b2085c02ff9"
   },
   "png_sha256": {
-    "budget_ladder": "bf30af18ac293e5c60737c5a7432019565f81777e635e840f91eebf10906608e",
+    "budget_ladder": "157257609a71070af81a8a809b5d0b5c27198c12c767bb2f4a7bd486b964e9fb",
     "e1_latency": "fa164675b28844757083507a2c5f92742beb18b805c072f2c562ee8c6cfc6c20",
-    "gptq_block": "045260cb338429083207d3ec2b9b3fff44e7c03f9522c66dab23e3de1c6fd39e",
-    "ladder": "2d65ce4e5bdd950f220c6f94bdea0a32b2b386619e7a8ebc8ae7f223269ca0c5",
-    "ptq_frontier": "a0cb48a066fa9e33977e4c400e2881dbafc97de9d651523c79a1db8e0d592ae3",
+    "gptq_block": "d667e08eebce029dcfbb03c36ddc73c425b7cd6af31db553f02c12aef049c8a6",
+    "ladder": "fadb8174654a3792db4ee8092db9d388db55b4b00297b0753cd443c05ea07c2d",
+    "ptq_frontier": "acdbf4fcff6b0016293def60005eae534f5c459cd9be29d2697fd8fd5a204441",
     "recovery_protocol": "950909be8dea50bd7d42c0f0834b55d79d4fc62f71c1e2b43516e330059acc1b",
     "shot_bake": "60abac3df423856939ae7e2fdde74645fa80328cca57beec4b497bfd930003d8",
     "shot_collect": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
@@ -99,22 +107,20 @@
       "shot_verify",
       "swizzle_layout"
     ],
-    "pendingNames": [],
+    "pendingNames": [
+      "shot_bake",
+      "shot_collect",
+      "shot_evalserver",
+      "shot_opd",
+      "shot_opdcache",
+      "shot_qad",
+      "shot_rollout"
+    ],
     "diagramCount": 7,
-    "mathCount": 274,
+    "mathCount": 214,
     "mathErrors": 0,
     "svgOverflow": [],
     "decoded": [
-      {
-        "figure": "shot_collect",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_bake",
-        "width": 3840,
-        "height": 2280
-      },
       {
         "figure": "shot_packed",
         "width": 3840,
@@ -131,32 +137,7 @@
         "height": 2280
       },
       {
-        "figure": "shot_qad",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_opdcache",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_opd",
-        "width": 3840,
-        "height": 2280
-      },
-      {
         "figure": "shot_qat",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_evalserver",
-        "width": 3840,
-        "height": 2280
-      },
-      {
-        "figure": "shot_rollout",
         "width": 3840,
         "height": 2280
       },

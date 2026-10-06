@@ -13,7 +13,7 @@ def main():
     info = json.loads((P/'meta.json').read_text(encoding='utf-8'))
     figs = json.loads((P/'figures.json').read_text(encoding='utf-8'))
     pending = {name for name, figure in figs.items() if figure.get('refresh_pending') is True}
-    refreshable = {'shot_bake', 'shot_qad', 'shot_opdcache', 'shot_opd', 'shot_evalserver', 'shot_rollout'}
+    refreshable = {'shot_bake', 'shot_collect', 'shot_qad', 'shot_opdcache', 'shot_opd', 'shot_evalserver', 'shot_rollout'}
     if not pending <= refreshable:
         raise ValueError('Pending screenshot refresh set includes an unaudited slot')
     if pending and '审阅稿' not in info.get('status', ''):

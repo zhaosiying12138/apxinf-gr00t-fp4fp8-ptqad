@@ -619,6 +619,7 @@ def check_action_diagnostics(package_inputs):
                            P / 'action_diagnostics_publication.py',
                            P / 'requirements-evidence.txt', P.parent / 'README.md',
                            P / 'readme_v12_supplement_commands.md',
+                           P / 'readme_v12_workflow.py', P / 'readme_v12_workflow.md',
                            P.parent / 'docs/ACTION_CHUNK_DIAGNOSTICS.md'))
     return diagnostic
 

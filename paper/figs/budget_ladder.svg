@@ -1,47 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="620" viewBox="0 0 1420 620" role="img" aria-label="选定 W4A4 量化基座：完整权重的目标编码预算" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="580" viewBox="0 0 1100 580" role="img" aria-label="W4A4 编码预算：待冻结产物核算" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
 <rect width="100%" height="100%" fill="white"/>
-<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">选定 W4A4 量化基座：完整权重的目标编码预算</tspan></text>
-<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">v11 W4A4 category 唯一冻结配方 · GB = 10</tspan><tspan dy="-4.16" font-size="9.36">9</tspan><tspan dy="4.16" font-size="13"> 字节 · 含未量化张量与格式缩放 · 单独叠加 BF16 LoRA 旁路预算</tspan></text>
-<rect x="30" y="91" width="18" height="18" fill="#2368a0" stroke="none" rx="5"/>
-<text x="58" y="106" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">物理张量口径</tspan></text>
-<rect x="267" y="91" width="18" height="18" fill="#258577" stroke="none" rx="5"/>
-<text x="295" y="106" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">已知共享别名去重</tspan></text>
-<rect x="555" y="91" width="18" height="18" fill="#b97824" stroke="none" rx="5"/>
-<text x="583" y="106" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">独立 BF16 旁路：146.00 MB</tspan></text>
-<text x="30" y="150" fill="#2368a0" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">物理 checkpoint：保留两份共享权重</tspan></text>
-<text x="30" y="178" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">BF16 源字节分母：6.910 GB</tspan></text>
-<path d="M215.0,213 L215.0,480" stroke="#d9e4e9" fill="none"/>
-<text x="215.0" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">0</tspan></text>
-<path d="M351.1046288152471,213 L351.1046288152471,480" stroke="#d9e4e9" fill="none"/>
-<text x="351.1046288152471" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">1</tspan></text>
-<path d="M487.20925763049416,213 L487.20925763049416,480" stroke="#d9e4e9" fill="none"/>
-<text x="487.20925763049416" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">2</tspan></text>
-<path d="M623.3138864457412,213 L623.3138864457412,480" stroke="#d9e4e9" fill="none"/>
-<text x="623.3138864457412" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">3</tspan></text>
-<text x="30" y="247" fill="#2368a0" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">all_nvfp4_gptq_category</tspan></text>
-<text x="30" y="269" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：100.00%</tspan></text>
-<rect x="215" y="231" width="265.1757493286088" height="23" fill="#2368a0" stroke="none" rx="0"/>
-<rect x="480.1757493286088" y="231" width="19.87097964335377" height="23" fill="#b97824" stroke="none" rx="0"/>
-<text x="508.0467289719626" y="248" fill="#2368a0" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">2.094 GB</tspan></text>
-<text x="215" y="278" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 3.547× → 加旁路 3.300×</tspan></text>
-<text x="735" y="150" fill="#258577" font-size="18" font-weight="600" text-anchor="start"><tspan dy="0" font-size="18">已知别名去重：共享权重仅计一次</tspan></text>
-<text x="735" y="178" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">BF16 源字节分母：6.288 GB</tspan></text>
-<path d="M920.0,213 L920.0,480" stroke="#d9e4e9" fill="none"/>
-<text x="920.0" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">0</tspan></text>
-<path d="M1056.104628815247,213 L1056.104628815247,480" stroke="#d9e4e9" fill="none"/>
-<text x="1056.104628815247" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">1</tspan></text>
-<path d="M1192.2092576304942,213 L1192.2092576304942,480" stroke="#d9e4e9" fill="none"/>
-<text x="1192.2092576304942" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">2</tspan></text>
-<path d="M1328.3138864457412,213 L1328.3138864457412,480" stroke="#d9e4e9" fill="none"/>
-<text x="1328.3138864457412" y="204" fill="#183c4d" font-size="12" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="12">3</tspan></text>
-<text x="735" y="247" fill="#258577" font-size="15" font-weight="600" text-anchor="start"><tspan dy="0" font-size="15">all_nvfp4_gptq_category</tspan></text>
-<text x="735" y="269" fill="#183c4d" font-size="12" font-weight="400" text-anchor="start"><tspan dy="0" font-size="12">候选 FP4：100.00%</tspan></text>
-<rect x="920" y="231" width="241.35331858219857" height="23" fill="#258577" stroke="none" rx="0"/>
-<rect x="1161.3533185821987" y="231" width="19.87097964335377" height="23" fill="#b97824" stroke="none" rx="0"/>
-<text x="1189.2242982255525" y="248" fill="#258577" font-size="13" font-weight="600" text-anchor="start"><tspan dy="0" font-size="13">1.919 GB</tspan></text>
-<text x="920" y="278" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">PTQ 3.546× → 加旁路 3.276×</tspan></text>
-<rect x="30" y="510" width="1360" height="83" fill="#fff6e9" stroke="none" rx="5"/>
-<text x="48" y="537" fill="#b97824" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">旁路：all_ordinary_linear，rank = 32，468 个 Linear；两种口径均完整计入旁路。</tspan></text>
-<text x="48" y="561" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">同一旁路成本叠加到唯一 all-NVFP4 基座；该图不包含激活、优化器、对齐和运行时工作区。</tspan></text>
-<text x="48" y="583" fill="#b97824" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">闭环加载稠密反量化基座与独立 BF16 旁路；图示为目标编码预算，不是实测文件或显存压缩。</tspan></text>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">W4A4 编码预算：待冻结产物核算</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">结构审阅稿 · 红色 xxx 为待核验数值；不读取其他配方的预算。</tspan></text>
+<rect x="30" y="110" width="1040" height="58" fill="#f4f7f8" stroke="none" rx="5"/>
+<text x="48" y="147" fill="#183c4d" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">BF16 原始权重</tspan></text>
+<text x="1000" y="147" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx GB</tspan></text>
+<rect x="30" y="182" width="1040" height="58" fill="#f4f7f8" stroke="none" rx="5"/>
+<text x="48" y="219" fill="#183c4d" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">NVFP4 payload 与格式缩放</tspan></text>
+<text x="1000" y="219" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx GB</tspan></text>
+<rect x="30" y="254" width="1040" height="58" fill="#f4f7f8" stroke="none" rx="5"/>
+<text x="48" y="291" fill="#183c4d" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">未量化权重及补零开销</tspan></text>
+<text x="1000" y="291" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx GB</tspan></text>
+<rect x="30" y="326" width="1040" height="58" fill="#f4f7f8" stroke="none" rx="5"/>
+<text x="48" y="363" fill="#183c4d" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">完整 BF16 低秩旁路</tspan></text>
+<text x="1000" y="363" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx GB</tspan></text>
+<rect x="30" y="398" width="1040" height="58" fill="#f4f7f8" stroke="none" rx="5"/>
+<text x="48" y="435" fill="#183c4d" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">含低秩旁路的完整压缩比</tspan></text>
+<text x="1000" y="435" fill="#b42318" font-size="22" font-weight="600" text-anchor="end"><tspan dy="0" font-size="22">xxx×</tspan></text>
+<text x="32" y="514" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">最终同时报告物理张量与已知共享别名去重口径；恢复臂完整计入 BF16 旁路。</tspan></text>
+<text x="32" y="548" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">编码预算不是稠密 checkpoint 文件体积、实际显存或延迟。</tspan></text>
 </svg>

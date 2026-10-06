@@ -1,54 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="840" viewBox="0 0 1080 840" role="img" aria-label="GPTQ 块适配：固定张量缩放，逐列补偿误差" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-label="NVFP4 W4A4：权重离线定标，激活逐次量化" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">
 <rect width="100%" height="100%" fill="white"/>
-<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">GPTQ 块适配：固定张量缩放，逐列补偿误差</tspan></text>
-<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">X:[R,K]；W′:[N,K]；H、U:[K,K]。r 是输出行，i 是当前输入列，j&gt;i 是待处理列。</tspan></text>
-<rect x="30" y="104" width="237" height="134" fill="#f0f6f8" stroke="none" rx="5"/>
-<text x="45" y="137" fill="#2368a0" font-size="17" font-weight="600" text-anchor="start"><tspan dy="0" font-size="17">校准与预处理</tspan></text>
-<text x="45" y="173" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">H = X</tspan><tspan dy="-4.16" font-size="9.36">T</tspan><tspan dy="4.16" font-size="13">X；处理零通道</tspan></text>
-<text x="45" y="204" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">阻尼后令 U</tspan><tspan dy="-4.16" font-size="9.36">T</tspan><tspan dy="4.16" font-size="13">U = H</tspan><tspan dy="-4.16" font-size="9.36">-1</tspan></text>
-<text x="273" y="180" fill="#2368a0" font-size="20" font-weight="400" text-anchor="start"><tspan dy="0" font-size="20">→</tspan></text>
-<rect x="293" y="104" width="237" height="134" fill="#f0f6f8" stroke="none" rx="5"/>
-<text x="308" y="137" fill="#2368a0" font-size="17" font-weight="600" text-anchor="start"><tspan dy="0" font-size="17">每 16 列进入新块</tspan></text>
-<text x="308" y="173" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">用已补偿 W′ 选择块 scale</tspan></text>
-<text x="308" y="204" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">张量 scale τ 全程固定</tspan></text>
-<text x="536" y="180" fill="#2368a0" font-size="20" font-weight="400" text-anchor="start"><tspan dy="0" font-size="20">→</tspan></text>
-<rect x="556" y="104" width="237" height="134" fill="#f0f6f8" stroke="none" rx="5"/>
-<text x="571" y="137" fill="#2368a0" font-size="17" font-weight="600" text-anchor="start"><tspan dy="0" font-size="17">量化当前列 i</tspan></text>
-<text x="571" y="173" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">按本块有效 scale 得到 q</tspan></text>
-<text x="571" y="204" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">计算未归一化误差 δ</tspan></text>
-<text x="799" y="180" fill="#2368a0" font-size="20" font-weight="400" text-anchor="start"><tspan dy="0" font-size="20">→</tspan></text>
-<rect x="819" y="104" width="237" height="134" fill="#f0f6f8" stroke="none" rx="5"/>
-<text x="834" y="137" fill="#2368a0" font-size="17" font-weight="600" text-anchor="start"><tspan dy="0" font-size="17">补偿其余列并提交</tspan></text>
-<text x="834" y="173" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">δ 除以 U[i,i]，再乘 U[i,j]</tspan></text>
-<text x="834" y="204" fill="#183c4d" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">提交当前 q，再处理 i+1</tspan></text>
-<rect x="30" y="260" width="1020" height="326" fill="#f1f6f8" stroke="none" rx="5"/>
-<text x="49" y="296" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">τ = FP32(max(c · max|W| / 448, 2</tspan><tspan dy="-5.12" font-size="11.52">-149</tspan><tspan dy="5.12" font-size="16">))；全零矩阵取 τ = 1。</tspan></text>
-<text x="49" y="337" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">b = floor(i/16)；s[r,b] = R8(c · max|W′[r,16b:16b+16]| / (6τ))</tspan></text>
-<text x="49" y="378" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">σ64[r] = FP64(s[r,b]) · FP64(τ)；σ32[r] = FP32(s[r,b] · τ)</tspan></text>
-<text x="49" y="419" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">q[r,i] = σ32[r] · R4(W′[r,i] / σ64[r])；σ64[r] = 0 时 q[r,i] = 0。</tspan></text>
-<text x="49" y="460" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">δ[r,i] = W′[r,i] − q[r,i]</tspan></text>
-<text x="49" y="501" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">对每个 j &gt; i：W′[r,j] ← W′[r,j] − (δ[r,i] / U[i,i]) · U[i,j]</tspan></text>
-<text x="49" y="542" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">最后提交：W′[r,i] ← q[r,i]。U 为上三角因子，满足 U</tspan><tspan dy="-5.12" font-size="11.52">T</tspan><tspan dy="5.12" font-size="16">U = H</tspan><tspan dy="-5.12" font-size="11.52">-1</tspan><tspan dy="5.12" font-size="16">。</tspan></text>
-<text x="30" y="629" fill="#2368a0" font-size="17" font-weight="600" text-anchor="start"><tspan dy="0" font-size="17">先选裁剪系数 c：</tspan></text>
-<rect x="240" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="281" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">1.00</tspan></text>
-<rect x="337" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="378" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">.95</tspan></text>
-<rect x="434" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="475" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">.90</tspan></text>
-<rect x="531" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="572" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">.85</tspan></text>
-<rect x="628" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="669" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">.80</tspan></text>
-<rect x="725" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="766" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">.70</tspan></text>
-<rect x="822" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="863" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">.60</tspan></text>
-<rect x="919" y="603" width="82" height="38" fill="#dcebf2" stroke="none" rx="5"/>
-<text x="960" y="629" fill="#183c4d" font-size="16" font-weight="400" text-anchor="middle"><tspan dy="0" font-size="16">.50</tspan></text>
-<text x="30" y="667" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">对 RTN 候选计算 tr(ΔW · H · ΔW</tspan><tspan dy="-5.12" font-size="11.52">T</tspan><tspan dy="5.12" font-size="16">)，选定 c 后固定 τ，仅运行一次 GPTQ。</tspan></text>
-<text x="30" y="703" fill="#183c4d" font-size="14" font-weight="400" text-anchor="start"><tspan dy="0" font-size="14">阻尼：H ← H + 0.01 · mean(diag H) · I；统计与阻尼均以当前层为单位。</tspan></text>
-<rect x="30" y="732" width="1020" height="82" fill="#fff6e9" stroke="none" rx="5"/>
-<text x="48" y="760" fill="#b97824" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">R4：E2M1 最近偶数舍入；R8：E4M3 最近偶数舍入。σ64 用于选码，σ32 用于反量化。</tspan></text>
-<text x="48" y="786" fill="#b97824" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">原始 W 确定 τ；补偿后的 W′ 确定块缩放 s；s 在块内固定。校准与闭环分别验收。</tspan></text>
+<text x="30" y="38" fill="#183c4d" font-size="23" font-weight="700" text-anchor="start"><tspan dy="0" font-size="23">NVFP4 W4A4：权重离线定标，激活逐次量化</tspan></text>
+<text x="30" y="67" fill="#667c87" font-size="13" font-weight="400" text-anchor="start"><tspan dy="0" font-size="13">正式 RTN 配方固定 clip = 1；沿输入维 K 每 16 个元素一块。R4、R8 分别表示 E2M1、E4M3 最近偶数舍入。</tspan></text>
+<rect x="30" y="103" width="555" height="367" fill="#f0f6f8" stroke="#2368a0" rx="5"/>
+<text x="50" y="138" fill="#2368a0" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">W4：一次量化并冻结权重</tspan></text>
+<text x="50" y="180" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">输入 W:[N,K]；τ 随权重张量确定</tspan></text>
+<text x="50" y="217" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">τ = FP32(max(max|W| / 448, 2</tspan><tspan dy="-5.12" font-size="11.52">-149</tspan><tspan dy="5.12" font-size="16">))</tspan></text>
+<text x="50" y="254" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">s[b] = R8(max|W[b]| / (6τ))</tspan></text>
+<text x="50" y="291" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">q[b] = R4(W[b] / (s[b] · τ))</tspan></text>
+<text x="50" y="328" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">Wq[b] = FP32(q[b] · FP32(s[b] · τ))</tspan></text>
+<text x="50" y="365" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">选码的除法使用 FP64；解码使用 FP32。</tspan></text>
+<text x="50" y="402" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">量化后写回源 BF16 dtype；该稠密文件</tspan></text>
+<text x="50" y="439" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">用于闭环数值参考，编码预算另外计算。</tspan></text>
+<rect x="615" y="103" width="555" height="367" fill="#f0f6f8" stroke="#258577" rx="5"/>
+<text x="635" y="138" fill="#258577" font-size="21" font-weight="600" text-anchor="start"><tspan dy="0" font-size="21">A4：每次前向重新量化激活</tspan></text>
+<text x="635" y="180" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">输入 x:[M,K]；二级尺度固定 τ = 1</tspan></text>
+<text x="635" y="217" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">h = F16(x)；按运行契约处理有限溢出</tspan></text>
+<text x="635" y="254" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">s[b] = R8(FP32(max|h[b]| × FP32(1/6)))</tspan></text>
+<text x="635" y="291" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">q[b] = R4(FP32(h[b]) / s[b])</tspan></text>
+<text x="635" y="328" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">Q</tspan><tspan dy="3.68" font-size="11.52">A</tspan><tspan dy="-3.68" font-size="16">(x)[b] = FP32(q[b] · s[b])</tspan></text>
+<text x="635" y="365" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">解码后转回输入 dtype；训练使用 STE。</tspan></text>
+<text x="635" y="402" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">固定二级尺度允许饱和和零尺度下溢；</tspan></text>
+<text x="635" y="439" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">NaN/Inf 拒绝执行，不混入成功结果。</tspan></text>
+<rect x="30" y="499" width="1140" height="106" fill="#e8f2ee" stroke="none" rx="5"/>
+<text x="50" y="532" fill="#258577" font-size="22" font-weight="600" text-anchor="start"><tspan dy="0" font-size="22">线性主分支：y = Q</tspan><tspan dy="5.06" font-size="15.84">A</tspan><tspan dy="-5.06" font-size="22">(x)(Wq)</tspan><tspan dy="-7.04" font-size="15.84">T</tspan><tspan dy="7.04" font-size="22"> + b</tspan></text>
+<text x="50" y="566" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">479 个权重张量采用 NVFP4；469 个 ordinary Linear 与 7 个 category Linear 接入激活 QDQ。</tspan></text>
+<text x="50" y="592" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">479 个张量中有 3 个 embedding/position 张量仅量化权重；QAD/OPD 的 BF16 旁路独立保留。</tspan></text>
+<rect x="30" y="630" width="1140" height="140" fill="#fff6e9" stroke="none" rx="5"/>
+<text x="50" y="663" fill="#b97824" font-size="19" font-weight="600" text-anchor="start"><tspan dy="0" font-size="19">边界规则</tspan></text>
+<text x="50" y="694" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">全零权重张量取 τ = 1；s = 0 时仅替换除法分母，解码结果仍为 0。</tspan></text>
+<text x="50" y="724" fill="#183c4d" font-size="16" font-weight="400" text-anchor="start"><tspan dy="0" font-size="16">类别层沿 K 补零：K′ = 16 × ceil(K / 16)，两处 K = 132 补到 144；补出的权重为零。</tspan></text>
+<text x="50" y="752" fill="#183c4d" font-size="15" font-weight="400" text-anchor="start"><tspan dy="0" font-size="15">E2M1 正幅值：0、0.5、1、1.5、2、3、4、6；E4M3 最大有限幅值：448。</tspan></text>
 </svg>
