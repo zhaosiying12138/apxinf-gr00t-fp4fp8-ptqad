@@ -206,6 +206,21 @@ patches/             APXInf/GR00T 集成补丁
 代码和补丁按仓库许可证发布；GR00T、APXInf、LIBERO、MuJoCo 和相关模型权重遵循各自上游许可证。引用方法时请同时引用 [`paper/paper.html`](paper/paper.html)、协议 [`exp/recovery_protocol_v12_rtn_w4a4.json`](exp/recovery_protocol_v12_rtn_w4a4.json) 和最终证据 [`paper/evidence/final_results.json`](paper/evidence/final_results.json)。
 '''
     (ROOT / "README.md").write_text(root, encoding="utf-8")
+    paper_readme = f'''# v12 W4A4 论文与证据包
+
+这里保存离线论文 [`paper.html`](paper.html)、知乎稿 [`zhihu/article.md`](zhihu/article.md)、17 张 Ubuntu 执行截图、协议副本和逐回合证据。正文只使用 v12 RTN 全覆盖 W4A4 实验；工程安装、训练、评测和发布命令以根目录 [`README.md`](../README.md) 为准。
+
+| 配置 | 闭环成功率 |
+|---|---:|
+| BF16 | {row(final, 'bf16')['successes']}/{row(final, 'bf16')['episodes']}（{row(final, 'bf16')['success_rate']*100:.2f}%） |
+| W4A4 PTQ | {row(final, 'ptq')['successes']}/{row(final, 'ptq')['episodes']}（{row(final, 'ptq')['success_rate']*100:.2f}%） |
+| PTQ + QAD | {row(final, 'qad')['successes']}/{row(final, 'qad')['episodes']}（{row(final, 'qad')['success_rate']*100:.2f}%） |
+| continued-QAD | {row(final, 'continued_qad')['successes']}/{row(final, 'continued_qad')['episodes']}（{row(final, 'continued_qad')['success_rate']*100:.2f}%） |
+| PTQ + QAD + OPD | {row(final, 'qad_opd')['successes']}/{row(final, 'qad_opd')['episodes']}（{row(final, 'qad_opd')['success_rate']*100:.2f}%） |
+
+`final_results.json`、`paired_comparison.json` 和每个 held-out 臂的原始 rollout/server 日志构成唯一数字来源；截图是命令执行凭证，不替代 JSON 统计。
+'''
+    (PAPER / "README.md").write_text(paper_readme, encoding="utf-8")
 
 
 if __name__ == "__main__":
