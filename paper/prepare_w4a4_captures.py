@@ -374,7 +374,8 @@ OUT="$(prepare_scratch shot_evalserver)"; assert_no_compute_apps
 "$PTQAD_PYTHON" - "$PORT" <<'PY' 2>&1 | tee "$OUT/ping.raw.log"
 import json, sys
 from gr00t.policy.server_client import PolicyClient
-client = PolicyClient(host="127.0.0.1", port=int(sys.argv[1]), timeout_ms=10000)
+import os
+client = PolicyClient(host="127.0.0.1", port=int(sys.argv[1]), timeout_ms=int(os.environ.get("PTQAD_ZMQ_TIMEOUT_MS", "120000")))
 try:
     response = client.call_endpoint("ping", requires_input=False)
     print(json.dumps({"endpoint":"ping", "scope":"health RPC only", "response":response}, ensure_ascii=False), flush=True)
@@ -400,7 +401,8 @@ root = Path(sys.argv[1]); json.dump({"purpose":"screenshot_smoke","tasks":1,"epi
 PY
 "$PTQAD_PYTHON" - <<'PY'
 from gr00t.policy.server_client import PolicyClient
-client = PolicyClient(host="127.0.0.1", port=5618, timeout_ms=10000)
+import os
+client = PolicyClient(host="127.0.0.1", port=5618, timeout_ms=int(os.environ.get("PTQAD_ZMQ_TIMEOUT_MS", "120000")))
 try: client.kill_server()
 finally: client.close()
 PY
