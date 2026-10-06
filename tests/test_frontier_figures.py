@@ -182,7 +182,7 @@ class FrontierFigureTests(unittest.TestCase):
                 cost["residual_bytes"] += 2
                 cost["total_bytes"] += 2
                 cost["compression_x"] = cost["source_bytes"] / cost["total_bytes"]
-        with self.assertRaisesRegex(ValueError, "selected v11 encoding budget"):
+        with self.assertRaisesRegex(ValueError, "selected encoding budget"):
             self.parse_frontier(report)
 
     def test_all_budget_artifacts_cannot_consistently_switch_back_to_fp8(self):

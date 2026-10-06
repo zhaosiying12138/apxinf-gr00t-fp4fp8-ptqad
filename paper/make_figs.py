@@ -375,30 +375,40 @@ def swizzle_layout():
     s.save('swizzle_layout')
 
 def gptq_block():
-    s=SVG(1080,840,'GPTQ 块适配：固定张量缩放，逐列补偿误差','X:[R,K]；W′:[N,K]；H、U:[K,K]。r 是输出行，i 是当前输入列，j>i 是待处理列。')
-    stages=[('校准与预处理','H = XᵀX；处理零通道','阻尼后令 UᵀU = H⁻¹'),('每 16 列进入新块','用已补偿 W′ 选择块 scale','张量 scale τ 全程固定'),('量化当前列 i','按本块有效 scale 得到 q','计算未归一化误差 δ'),('补偿其余列并提交','δ 除以 U[i,i]，再乘 U[i,j]','提交当前 q，再处理 i+1')]
-    for i,(title,l1,l2) in enumerate(stages):
-        x=30+i*263;s.rect(x,104,237,134,'#f0f6f8');s.text(x+15,137,title,17,BLUE,600);s.text(x+15,173,l1,13);s.text(x+15,204,l2,13)
-        if i<3:s.text(x+243,180,'→',20,BLUE)
-    s.rect(30,260,1020,326)
-    equations=[
-        'τ = FP32(max(c · max|W| / 448, 2⁻¹⁴⁹))；全零矩阵取 τ = 1。',
-        'b = floor(i/16)；s[r,b] = R8(c · max|W′[r,16b:16b+16]| / (6τ))',
-        'σ64[r] = FP64(s[r,b]) · FP64(τ)；σ32[r] = FP32(s[r,b] · τ)',
-        'q[r,i] = σ32[r] · R4(W′[r,i] / σ64[r])；σ64[r] = 0 时 q[r,i] = 0。',
-        'δ[r,i] = W′[r,i] − q[r,i]',
-        '对每个 j > i：W′[r,j] ← W′[r,j] − (δ[r,i] / U[i,i]) · U[i,j]',
-        '最后提交：W′[r,i] ← q[r,i]。U 为上三角因子，满足 UᵀU = H⁻¹。',
-    ]
-    for i,line in enumerate(equations):s.text(49,296+i*41,line,16,INK)
-    s.text(30,629,'先选裁剪系数 c：',17,BLUE,600)
-    for i,c in enumerate(['1.00','.95','.90','.85','.80','.70','.60','.50']):
-        x=240+i*97;s.rect(x,603,82,38,'#dcebf2');s.text(x+41,629,c,16,anchor='middle')
-    s.text(30,667,'对 RTN 候选计算 tr(ΔW · H · ΔWᵀ)，选定 c 后固定 τ，仅运行一次 GPTQ。',16)
-    s.text(30,703,'阻尼：H ← H + 0.01 · mean(diag H) · I；统计与阻尼均以当前层为单位。',14)
-    s.rect(30,732,1020,82,'#fff6e9')
-    s.text(48,760,'R4：E2M1 最近偶数舍入；R8：E4M3 最近偶数舍入。σ64 用于选码，σ32 用于反量化。',13,AMBER)
-    s.text(48,786,'原始 W 确定 τ；补偿后的 W′ 确定块缩放 s；s 在块内固定。校准与闭环分别验收。',13,AMBER)
+    # Preserve the asset key to keep figure links stable; this release uses RTN.
+    s=SVG(1200,800,'NVFP4 W4A4：权重离线定标，激活逐次量化','正式 RTN 配方固定 clip = 1；沿输入维 K 每 16 个元素一块。R4、R8 分别表示 E2M1、E4M3 最近偶数舍入。')
+    panels=[(30,BLUE,'W4：一次量化并冻结权重',[
+        '输入 W:[N,K]；τ 随权重张量确定',
+        'τ = FP32(max(max|W| / 448, 2⁻¹⁴⁹))',
+        's[b] = R8(max|W[b]| / (6τ))',
+        'q[b] = R4(W[b] / (s[b] · τ))',
+        'Wq[b] = FP32(q[b] · FP32(s[b] · τ))',
+        '选码的除法使用 FP64；解码使用 FP32。',
+        '量化后写回源 BF16 dtype；该稠密文件',
+        '用于闭环数值参考，编码预算另外计算。',
+    ]),(615,TEAL,'A4：每次前向重新量化激活',[
+        '输入 x:[M,K]；二级尺度固定 τ = 1',
+        'h = F16(x)；按运行契约处理有限溢出',
+        's[b] = R8(FP32(max|h[b]| × FP32(1/6)))',
+        'q[b] = R4(FP32(h[b]) / s[b])',
+        'Qₐ(x)[b] = FP32(q[b] · s[b])',
+        '解码后转回输入 dtype；训练使用 STE。',
+        '固定二级尺度允许饱和和零尺度下溢；',
+        'NaN/Inf 拒绝执行，不混入成功结果。',
+    ])]
+    for x,color,title,lines in panels:
+        s.rect(x,103,555,367,'#f0f6f8',color)
+        s.text(x+20,138,title,21,color,600)
+        for i,line in enumerate(lines):s.text(x+20,180+i*37,line,16)
+    s.rect(30,499,1140,106,'#e8f2ee')
+    s.text(50,532,'线性主分支：y = Qₐ(x)(Wq)ᵀ + b',22,TEAL,600)
+    s.text(50,566,'479 个权重张量采用 NVFP4；469 个 ordinary Linear 与 7 个 category Linear 接入激活 QDQ。',16)
+    s.text(50,592,'479 个张量中有 3 个 embedding/position 张量仅量化权重；QAD/OPD 的 BF16 旁路独立保留。',15)
+    s.rect(30,630,1140,140,'#fff6e9')
+    s.text(50,663,'边界规则',19,AMBER,600)
+    s.text(50,694,'全零权重张量取 τ = 1；s = 0 时仅替换除法分母，解码结果仍为 0。',16)
+    s.text(50,724,'类别层沿 K 补零：K′ = 16 × ceil(K / 16)，两处 K = 132 补到 144；补出的权重为零。',16)
+    s.text(50,752,'E2M1 正幅值：0、0.5、1、1.5、2、3、4、6；E4M3 最大有限幅值：448。',15)
     s.save('gptq_block')
 
 def recovery_protocol():

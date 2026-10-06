@@ -84,15 +84,16 @@ def rewrite_main(final: dict) -> None:
     inventory = load("recipe_inventory.json")
     budget = inventory["recipes"][inventory["recipe"]]
     residual_bytes = inventory["recovery_residual"]["target_bytes"]
-    packed_bytes = budget["target_full_checkpoint_bytes"]
-    source_bytes = budget["source_tensor_bytes"]
+    deduplicated = budget["known_tied_alias_deduplicated"]
+    packed_bytes = deduplicated["target_full_bytes"]
+    source_bytes = deduplicated["source_tensor_bytes"]
     net_bytes = packed_bytes + residual_bytes
     compression = f"{source_bytes / net_bytes:.3f}×"
     intro = f'''# 摘要与引言
 
 视觉—语言—动作模型（Vision–Language–Action model，VLA）把相机观测、语言指令和机器人状态映射为动作。对这类模型，低位宽量化的目标不仅是减少权重占用，还要保持动作反馈到环境之后的任务成功率。本文围绕 **APXInf 推理生态、GR00T N1.7、NVFP4、W4A4 训练后量化（PTQ），以及量化基座上的 QAD/OPD 恢复**，给出一条从数值表示、量化、恢复训练到 LIBERO 闭环评测的可复现链条。
 
-本文把 479 个可量化权重张量全部压到 NVFP4，并让 469 个普通 Linear 与 7 个 CategorySpecificLinear 同时采用 NVFP4 激活 QDQ，形成严格的 W4A4 压力基座。PTQ 不更新模型；QAD 在冻结基座上用成功演示训练低秩修正；OPD 再用 QAD 学生真正访问到的状态，请 BF16 教师提供动作生成速度监督。三个阶段回答三个不同问题：低位宽压力是否真实、演示是否能恢复行为、同等追加演示预算之外教师监督是否有独立价值。
+本文把 479 个可量化权重张量全部压到 NVFP4，并让 469 个普通 Linear 与 7 个 CategorySpecificLinear 同时采用 NVFP4 激活 QDQ，形成 W4A4 压力基座。PTQ 只量化权重，不进行恢复训练；QAD 在冻结基座上用成功演示训练低秩修正；OPD 再用 QAD 学生真正访问到的状态，请 BF16 教师提供动作流的速度场标签。三个阶段回答三个不同问题：低位宽压力是否真实、演示是否能恢复行为、同等追加演示预算之外教师监督是否有独立价值。
 
 最终五臂评测使用十个 LIBERO-10 任务、每臂 160 个配对回合。结果由冻结的 v12 协议和逐回合日志直接计算：
 

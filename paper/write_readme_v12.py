@@ -258,6 +258,7 @@ def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[
     legacy_engine = legacy_engine_section()
     installation = (PAPER / "readme_v12_installation.md").read_text(encoding="utf-8").strip()
     engine_commands = (PAPER / "readme_v12_engine_commands.md").read_text(encoding="utf-8").strip()
+    capture_commands = (PAPER / "readme_v12_capture_commands.md").read_text(encoding="utf-8").strip()
     return f'''# apxinf-gr00t-fp4fp8-ptqad
 
 APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
@@ -265,10 +266,10 @@ APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
 
 ## 项目意义与贡献
 
-量化 VLA 的难点是误差会经过动作反馈改变下一次观测。本文固定数值格式、校准和配对初态，完整记录 **RTN W4A4 PTQ → QAD 演示恢复 → OPD 学生状态蒸馏 → 五臂闭环**，使压缩比例、恢复效果、训练预算和复现命令可以逐项核查。
+量化 VLA 的难点是误差会经过动作反馈改变下一次观测。本文固定数值格式、舍入规则和配对初态，完整记录 **RTN W4A4 PTQ → QAD 演示恢复 → OPD 学生状态蒸馏 → 五臂闭环**，使压缩比例、恢复效果、训练预算和复现命令可以逐项核查。
 
 1. 全部 479 个 eligible 张量使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 使用 W4A4 激活 QDQ。
-2. QAD/OPD 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 BF16 LoRA；`continued-QAD` 以同一追加更新预算作为控制臂。
+2. QAD/OPD 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 LoRA；参数以 FP32 训练，前向使用 BF16，部署预算计入 BF16 残差。`continued-QAD` 以同一追加更新预算作为控制臂。
 3. BF16、PTQ、QAD、continued-QAD 和 QAD+OPD 使用同一 LIBERO-10 held-out 初态、任务顺序和 episode 种子；成功率、配对区间和检验只从最终 manifest 读取。
 4. APXInf 的 NVFP4/FP8 编译、缩放、padding、图重放、GEMM 和完整 π0.5 路径独立验收，不把独立 kernel 延迟冒充 GR00T 闭环速度。
 
@@ -380,12 +381,10 @@ mkdir -p "$RUN"
 `quant/ptq/bake.py` 的 `rtn` 配方不读取 Hessian，直接生成全 NVFP4 普通层；`bake_category.py --method rtn_all` 补齐七个 category bank。
 
 ```bash
-export PURE_RTN="$RUN/pure_rtn" CATEGORY_CALIB="$RUN/category_calibration" CATEGORY_OUT="$RUN/rtn_category"
+export PURE_RTN="$RUN/pure_rtn" CATEGORY_OUT="$RUN/rtn_category"
 "$PY" quant/ptq/bake.py --base "$BASE" --out "$PURE_RTN" --recipe rtn --calibration-mode none
-"$PY" quant/ptq/collector_category.py --parent "$PURE_RTN" --out "$CATEGORY_CALIB" \\
-  --dataset "$DATASET" --windows 128 --batch 1 --seed 20261006 --device cuda
-"$PY" quant/ptq/bake_category.py --parent "$PURE_RTN" --calib "$CATEGORY_CALIB" \\
-  --out "$CATEGORY_OUT" --expected-windows 128 --gptq-damp 0.01 --method rtn_all
+"$PY" quant/ptq/bake_category.py --parent "$PURE_RTN" \\
+  --out "$CATEGORY_OUT" --method rtn_all --rtn-clip 1.0
 ```
 
 ### 2. development、教师轨迹和选择文件
@@ -436,6 +435,14 @@ export PTQAD_ZMQ_TIMEOUT_MS=120000
 只有冻结 v12 发布运行的 `final_manifest.json` complete 且五臂各 160 回合时才材料化；命令不会把超时或半成品写进正文。上一步独立复现使用了 `$RUN/recovery_protocol_v12_rtn_w4a4.local.json`，其 SHA 与仓库冻结协议不同；它可以用于验证方法，但不能直接喂给正式发布工具。正式发布必须切换到本次冻结 v12 运行目录，并令 `PROTOCOL="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"`。
 
 ```bash
+export RECOVERY="$PROJECT/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12"
+export PROTOCOL="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"
+export CATEGORY_OUT="$("$PY" - "$RECOVERY/final_manifest.json" <<'PY'
+import json, pathlib, sys
+m = json.loads(pathlib.Path(sys.argv[1]).read_text())
+print(pathlib.Path(m["selected_pressure_checkpoint"]).resolve())
+PY
+)"
 python3 paper/extract_final_evidence.py --run-dir "$RECOVERY" --out /tmp/v12_final_results.json
 export OPD_MERGE="$("$PY" - "$RECOVERY/final_manifest.json" <<'PY'
 import json, pathlib, sys
@@ -446,10 +453,26 @@ if not p:
 print(pathlib.Path(p).resolve())
 PY
 )"
-python3 paper/build_recipe_inventory_v11.py --checkpoint "$CATEGORY_OUT" --recovery-manifest "$OPD_MERGE/recovery_manifest.json" --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
+python3 paper/build_recipe_inventory_v12.py --checkpoint "$CATEGORY_OUT" --recovery-manifest "$OPD_MERGE/recovery_manifest.json" --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
 python3 paper/materialize_final_evidence.py --final-manifest "$RECOVERY/final_manifest.json" --recipe-inventory /tmp/v12_recipe_inventory.json --out paper/_build/final_bundle_v12 --orchestrator-run "$RECOVERY"
 python3 paper/install_final_evidence.py --bundle paper/_build/final_bundle_v12 --archive paper/evidence.v12.previous
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
+```
+
+### 5. 截图登记
+
+最终五臂完成后先生成本轮受控脚本，再用仓库内的 Windows/WSL 采集工具逐张运行；训练和评测进程必须退出，GPU 必须空闲。
+
+```bash
+CAPTURE_ROOT="$(dirname "$RECOVERY")/captures/w4a4_final"
+python3 paper/prepare_w4a4_captures.py --final-manifest "$RECOVERY/final_manifest.json" --out "$CAPTURE_ROOT"
+```
+
+{capture_commands}
+
+截图登记完毕后，再从同一套证据生成文稿与发布包。先前的输出目录或临时文件若已存在，工具会拒绝覆盖；复跑时使用新的 staging 名称并保留来源记录。
+
+```bash
 python3 paper/update_v12_release.py
 python3 paper/write_readme_v12.py
 sudo apt-get install -y libcairo2 fontconfig fonts-noto-cjk
@@ -464,17 +487,6 @@ uv run --with-requirements paper/requirements-build.txt python paper/validate_pu
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py --check
 uv run --with-requirements paper/requirements-build.txt python paper/package_publication.py
 ```
-
-### 5. 截图登记
-
-最终五臂完成后先生成本轮受控脚本，再用仓库内的 Windows/WSL 采集工具逐张运行；训练和评测进程必须退出，GPU 必须空闲。
-
-```bash
-CAPTURE_ROOT="$RUN/captures/w4a4_final"
-python3 paper/prepare_w4a4_captures.py --final-manifest "$RECOVERY/final_manifest.json" --out "$CAPTURE_ROOT"
-```
-
-请按 [`setup/windows_capture/README.md`](setup/windows_capture/README.md) 执行每个 `$CAPTURE_ROOT/shot_*.sh`，保留原始 `.log`、`.json`、`.window-binding.json` 和 `.crop.json`，再以 `paper/record_capture.py --figure ... --visually-verified` 登记。登记后 `write_readme_v12.py` 会检查 17 个 PNG 均为 3840×2280。
 
 {engine_commands}
 
