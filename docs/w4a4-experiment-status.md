@@ -13,7 +13,7 @@
 - 479 个 eligible 权重张量全部 NVFP4；469 个 ordinary Linear 和 7 个 CategorySpecificLinear 使用 W4A4 激活 QDQ；3 个 embedding/position 张量只量化权重。
 - QAD/continued-QAD/OPD 均为 2,000 steps；468 个 ordinary Linear 训练 rank=32、alpha=64 的 BF16 LoRA，类别层冻结。
 - 开发集为官方初态 4–8（每任务 5 回合）；教师监督和学生采集使用 20–23；held-out 为 9–19、24–28（每任务 16 回合，共 160 回合/臂）。选择禁止读取 held-out。
-- 主要预注册门槛：PTQ 相对 BF16 至少下降 5 pp；QAD 相对 PTQ 至少恢复 5 pp；OPD 相对 QAD 至少提升 5 pp。若数据未达到门槛，必须如实报告，不得调整协议或用旧结果替换。
+- 预注册效应目标：PTQ 相对 BF16 至少下降 5 pp；QAD 相对 PTQ 至少恢复 5 pp；OPD 相对 QAD 至少提升 5 pp。160 配对回合不保证分辨 5 pp 差异；结论还须结合配对区间及同预算 continued-QAD 对照。统计解释以 `paper/analysis_plan_w4a4.json` 为准。若数据未达到目标，必须如实报告，不得调整协议或用旧结果替换。
 
 ## 当前运行状态（2026-10-06）
 
@@ -23,7 +23,17 @@ v12 开发压力已完成：BF16 46/50，W4A4 RTN PTQ 41/50，说明当前全覆
 results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/
 ```
 
-QAD 第一学习率阶段仍在运行，最近日志约为 400/2,000 steps；无 OOM、Traceback 或 ZeroMQ 错误，GPU 约 18/24 GiB。主命令通过 `PTQAD_ZMQ_TIMEOUT_MS=120000` 修复 GR00T 默认 15 s PolicyClient 超时。训练完成后，驱动按顺序选择 QAD 学习率、采集学生状态、缓存教师、训练 continued-QAD 与两种 OPD 权重、选择 OPD、最后运行五臂 held-out。续跑会验证已完成阶段；若阶段目录不完整，驱动会停止，需先审计失败日志再恢复。不得并发启动第二个 GPU 作业。
+本次核查时 QAD 第一学习率阶段仍在运行，已保存 checkpoint-1500；五臂 held-out 尚未开始。步数与进程状态会继续变化，接手时运行以下只读命令获取当前记录，并用 `ps` 核对日志所对应的训练进程。状态 JSON 中的 `incomplete` 只表示缺少完成收据，不等于训练已经停止。
+
+```bash
+python3 exp/high_fp4_status.py \
+  --development-root results/reruns/rtn_w4a4_release_20261006_01/selection_final \
+  --recovery-root results/reruns/rtn_w4a4_release_20261006_01/recovery_v12
+```
+
+主命令通过 `PTQAD_ZMQ_TIMEOUT_MS=120000` 延长 GR00T PolicyClient 的请求超时。驱动依次完成两个 QAD 学习率及开发评测、选择 QAD、采集学生状态、缓存教师、训练 continued-QAD 与两种 OPD 权重、选择 OPD，最后运行五臂 held-out。当前接续进程会等原驱动退出后，用已提交的验证器核验完整产物并继续；它不会覆盖真正不完整的阶段。若发生失败，先审计日志再恢复，不因观察超时而重启，不并发启动第二个 GPU 作业。
+
+QVLA 对照审阅见 [`QVLA_GAP_REVIEW_20261006.md`](QVLA_GAP_REVIEW_20261006.md)。新增的[固定观测动作诊断](ACTION_CHUNK_DIAGNOSTICS.md)已通过 CPU 测试，并从教师训练分区冻结 80 个观测；尚未运行 GPU 测量。该入口用于训练分布上的拟合分析，不是独立泛化证据；它要求本轮最终五臂清单，不能在当前训练中途冒用检查点标签。
 
 ## 为什么不能使用旧 v11 数字
 
