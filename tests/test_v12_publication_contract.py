@@ -1,5 +1,4 @@
 """Publication guards use synthetic counts, never experimental evidence."""
-import ast
 import copy
 from pathlib import Path
 import sys
@@ -41,9 +40,7 @@ class PublicationGuardTests(unittest.TestCase):
             with self.assertRaises(ValueError): validate_v12_results(d, root=ROOT)
 
     def test_method_preserves_latex_commands(self):
-        tree = ast.parse((ROOT / "paper/update_v12_release.py").read_text())
-        value = next(ast.literal_eval(n.value) for n in ast.walk(tree) if isinstance(n, ast.Assign)
-                     and any(isinstance(t, ast.Name) and t.id == "method" for t in n.targets))
+        value = (ROOT / "paper/templates/v12/03-方法.md").read_text()
         self.assertIn(r"\mathrm{E4M3}", value)
         self.assertIn(r"\frac{\alpha}{r}", value)
         self.assertNotIn("\t", value)

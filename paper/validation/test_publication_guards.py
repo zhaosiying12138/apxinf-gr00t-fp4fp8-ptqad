@@ -128,19 +128,22 @@ class Gates(unittest.TestCase):
     def test_package_contains_analysis_plan_required_by_bundled_analyzer(self):
         with tempfile.TemporaryDirectory() as raw:
             folder=Path(raw)
-            for name in ('paper.html','README.md','meta.json','requirements-build.txt','requirements-evidence.txt','analysis_plan_w4a4.json'):
+            for name in ('paper.html','README.md','meta.json','requirements-build.txt','requirements-evidence.txt','analysis_plan_w4a4.json') + package.DOCUMENT_TEMPLATES:
                 (folder/name).write_text('{}')
             (folder/'figures.json').write_text('{"shot_fixture": {}}')
-            for name in ('figs/shot_fixture.png','figs/render_pngs.sh','zhihu/images/shot_fixture.png'):
+            for name in ('figs/shot_fixture.png','figs/render_pngs.sh','zhihu/images/shot_fixture.png',
+                         'templates/v12/03-方法.md'):
                 path=folder/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
             with mock.patch.object(package,'P',folder):
                 self.assertIn(folder/'analysis_plan_w4a4.json',package.publication_files())
                 self.assertIn(folder/'requirements-evidence.txt',package.publication_files())
+                self.assertTrue(all(folder/name in package.publication_files() for name in package.DOCUMENT_TEMPLATES))
+                self.assertIn(folder/'templates/v12/03-方法.md',package.publication_files())
 
     def test_package_excludes_old_reports_and_keeps_cited_evidence_and_sources(self):
         with tempfile.TemporaryDirectory() as raw:
             folder=Path(raw)
-            for name in ('paper.html','README.md','meta.json','requirements-build.txt','requirements-evidence.txt','analysis_plan_w4a4.json'):
+            for name in ('paper.html','README.md','meta.json','requirements-build.txt','requirements-evidence.txt','analysis_plan_w4a4.json') + package.DOCUMENT_TEMPLATES:
                 (folder/name).write_text('{}')
             (folder/'figures.json').write_text('{"shot_fixture": {}}')
             old_reports=('bank_split_audit.json','review-build.json','publication-gate-review.md',

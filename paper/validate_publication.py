@@ -621,6 +621,12 @@ def check_action_diagnostics(package_inputs):
                            P / 'readme_v12_supplement_commands.md',
                            P / 'readme_v12_workflow.py', P / 'readme_v12_workflow.md',
                            P.parent / 'docs/ACTION_CHUNK_DIAGNOSTICS.md'))
+    from update_v12_release import TEMPLATE_NAMES
+    package_inputs.update(P / 'templates/v12' / name for name in TEMPLATE_NAMES)
+    package_inputs.update((P / 'update_v12_release.py', P / 'write_readme_v12.py'))
+    package_inputs.update(P / name for name in (
+        'readme_v12_installation.md', 'readme_v12_legacy_engine.md',
+        'readme_v12_capture_commands.md', 'readme_v12_engine_commands.md'))
     return diagnostic
 
 

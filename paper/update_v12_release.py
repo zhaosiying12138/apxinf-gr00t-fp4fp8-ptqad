@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Rewrite the public prose from the verified v12 held-out evidence.
+"""Fill the polished v12 manuscript templates from verified final evidence.
 
-The manuscript keeps equations, figures and source-reading appendices in the
-repository, but all headline numbers are generated from ``final_results.json``
-and ``paired_comparison.json``.  This prevents a completed rerun from leaving
-the article with stale v11 values.
+Main counts, paired statistics and supplementary archives must verify before
+the entry point writes public prose. Rendering itself never runs experiments.
 """
 from __future__ import annotations
 
@@ -55,7 +53,7 @@ def task_table(final: dict) -> str:
 
 
 def headline_table(final: dict) -> str:
-    rows = ["| 配置 | 闭环成功率 | 相对 BF16 | eligible 权重的 NVFP4 覆盖率 |",
+    rows = ["| 配置 | 闭环成功率 | 相对 BF16 | 可量化权重的 NVFP4 覆盖率 |",
             "|---|---:|---:|---:|"]
     bf = arm_row(final, "bf16")["success_rate"]
     for name in ARMS:
@@ -67,197 +65,126 @@ def headline_table(final: dict) -> str:
 
 def paired_table(final: dict) -> str:
     c = final["uncertainty"]["contrasts"]
-    order = (("ptq_vs_bf16", "PTQ − BF16"), ("qad_vs_ptq", "QAD − PTQ"),
-             ("opd_vs_qad", "OPD − QAD"), ("opd_vs_continued_qad", "OPD − continued-QAD"))
     rows = ["| 对比 | 差值 / pp | 95% 配对区间 / pp | McNemar p | Holm p |",
             "|---|---:|---:|---:|---:|"]
-    for key, label in order:
+    for key, label in CONTRASTS:
         item = c[key]
         lo, hi = item["pointwise_ci_pp"]
         rows.append(f"| {label} | {item['difference_pp']:+.2f} | [{lo:+.2f}, {hi:+.2f}] | {item['exact_mcnemar_two_sided_p']:.6g} | {item['holm_adjusted_p']:.6g} |")
     return "\n".join(rows)
 
 
-def rewrite_main(final: dict, diagnostic_text: str, gptq_text: str) -> None:
-    bf = arm_row(final, "bf16"); ptq = arm_row(final, "ptq"); qad = arm_row(final, "qad")
-    cont = arm_row(final, "continued_qad"); opd = arm_row(final, "qad_opd")
-    inventory = load("recipe_inventory.json")
-    budget = inventory["recipes"][inventory["recipe"]]
+CONTRASTS = (
+    ("ptq_vs_bf16", "PTQ − BF16"),
+    ("qad_vs_ptq", "QAD − PTQ"),
+    ("opd_vs_qad", "OPD − QAD"),
+    ("opd_vs_continued_qad", "OPD − continued-QAD"),
+)
+TEMPLATES = PAPER / "templates" / "v12"
+TEMPLATE_NAMES = ("01-摘要与引言.md", "03-方法.md", "04-实验.md", "05-讨论与结论.md")
+TOKEN = re.compile(r"@@([a-z_]+)@@")
+
+
+def contrast_assessment(item: dict) -> str:
+    """Interpret existing conditional statistics; never recompute or select them."""
+    difference = item["difference_pp"]
+    lo, hi = item["pointwise_ci_pp"]
+    p = item["holm_adjusted_p"]
+    if lo <= 0 <= hi:
+        return "95% 配对区间包含零，尚不能确认差异方向，也不证明两者等价"
+    if p >= .05:
+        return "Holm 校正后未达到 0.05 水平，尚不能确认成功率改善或下降"
+    if difference > 0 and lo > 0:
+        return "配对区间与校正检验支持本设置下的成功率提高"
+    if difference < 0 and hi < 0:
+        return "配对区间与校正检验支持本设置下的成功率下降"
+    raise ValueError("Contrast estimate and interval directions disagree")
+
+
+def paired_interpretation(final: dict) -> str:
+    contrasts = final["uncertainty"]["contrasts"]
+    groups: dict[str, list[str]] = {}
+    for key, label in CONTRASTS:
+        groups.setdefault(contrast_assessment(contrasts[key]), []).append(label)
+    lines = ["、".join(labels) + "：" + assessment + "。" for assessment, labels in groups.items()]
+    return ("".join(lines) + "\n\n这些推断以任务内回合可独立重采样及 McNemar 的配对可交换性为前提，"
+            "仅适用于这十个固定任务与一个训练种子。区间逐项计算；Holm 校正只覆盖上述四项比较。")
+
+
+def five_arm_table(final: dict) -> str:
+    purposes = ("未量化参考", "全覆盖量化的影响", "成功演示恢复", "追加演示更新的作用", "追加教师监督的作用")
+    rows = ["| 配置 | 检验内容 | 正式成功率 |", "|---|---|---:|"]
+    for name, purpose in zip(ARMS, purposes):
+        row = arm_row(final, name)
+        rows.append(f"| {LABELS[name]} | {purpose} | {row['successes']}/{row['episodes']}（{pct(row['success_rate'])}） |")
+    return "\n".join(rows)
+
+
+def result_conclusion(final: dict, compression: str) -> str:
+    contrasts = final["uncertainty"]["contrasts"]
+    descriptions = (
+        ("ptq_vs_bf16", "量化影响"),
+        ("qad_vs_ptq", "QAD 恢复"),
+        ("opd_vs_qad", "OPD 完整追加阶段相对 QAD"),
+        ("opd_vs_continued_qad", "OPD 相对同演示预算续训"),
+    )
+    lines = [f"{label}的配对差值为 {contrasts[key]['difference_pp']:+.2f} 个百分点，"
+             + contrast_assessment(contrasts[key]) + "。" for key, label in descriptions]
+    return ("".join(lines) + f"含 BF16 低秩旁路的净编码压缩比为 **{compression}**。"
+            "校准 GPTQ 参考和完整动作诊断分别见 §4.6 与 §4.5；它们限定比较范围，"
+            "不构成优于所有 PTQ 方法或实现原生 GR00T 加速的证据。")
+
+
+def validate_inventory_name(final: dict, inventory: dict) -> None:
+    # The protocol names the experiment candidate; the inventory builder names
+    # its encoding recipe. These are intentionally different namespaces.
+    if (final["selected_recipe"] != "rtn_w4a4_category" or inventory["recipe"] != "rtn_all"
+            or inventory.get("schema_version") != "w4a4-selected-all-nvfp4-category-v12"):
+        raise ValueError("Encoding inventory is not the selected final recipe")
+
+
+def load_verified_inventory(final: dict) -> dict:
+    from build_final_frontier import load_inventory
+    inventory, _, _, _ = load_inventory(PAPER / "evidence/recipe_inventory.json")
+    validate_inventory_name(final, inventory)
+    return inventory
+
+
+def render_main(final: dict, diagnostic_text: str, gptq_text: str, inventory: dict) -> dict[str, str]:
+    """Fill the polished manuscript in memory, after the caller verifies evidence."""
+    validate_inventory_name(final, inventory)
+    budget = inventory["recipes"][inventory["recipe"]]["known_tied_alias_deduplicated"]
+    source_bytes = budget["source_tensor_bytes"]
+    packed_bytes = budget["target_full_bytes"]
     residual_bytes = inventory["recovery_residual"]["target_bytes"]
-    deduplicated = budget["known_tied_alias_deduplicated"]
-    packed_bytes = deduplicated["target_full_bytes"]
-    source_bytes = deduplicated["source_tensor_bytes"]
-    net_bytes = packed_bytes + residual_bytes
-    compression = f"{source_bytes / net_bytes:.3f}×"
-    intro = f'''# 摘要与引言
-
-视觉—语言—动作模型（Vision–Language–Action model，VLA）把相机观测、语言指令和机器人状态映射为动作。对这类模型，低位宽量化的目标不仅是减少权重占用，还要保持动作反馈到环境之后的任务成功率。本文围绕 **APXInf 推理生态、GR00T N1.7、NVFP4、W4A4 训练后量化（PTQ），以及量化基座上的 QAD/OPD 恢复**，给出一条从数值表示、量化、恢复训练到 LIBERO 闭环评测的可复现链条。
-
-本文把 479 个可量化权重张量全部压到 NVFP4，并为 469 个普通线性层（Linear）与 7 个按机器人类别选择权重的线性层（CategorySpecificLinear）安装激活量化。W4A4 表示主分支权重与激活均为四位；本文用量化后再反量化（QDQ）模拟其数值。PTQ 离线量化权重，在每次前向中量化激活，不进行恢复训练；QAD 在冻结基座上用成功演示训练低秩修正；OPD 再用 QAD 学生真正访问到的状态，请 BF16 教师提供动作流的速度场标签。三个阶段回答三个不同问题：低位宽压力是否真实、演示是否能恢复行为、同等追加演示预算之外教师监督是否有独立价值。
-
-最终五臂评测使用十个 LIBERO-10 任务、每臂 160 个配对回合。结果由冻结的 v12 协议和逐回合日志直接计算：
-
-{headline_table(final)}
-
-PTQ 相对 BF16 的变化为 **{(ptq['success_rate'] - bf['success_rate']) * 100:+.2f} 个百分点**；QAD 相对 PTQ 为 **{(qad['success_rate'] - ptq['success_rate']) * 100:+.2f} 个百分点**；OPD 相对同预算 continued-QAD 为 **{(opd['success_rate'] - cont['success_rate']) * 100:+.2f} 个百分点**。APXInf 的原生 NVFP4/FP8 算子延迟另作工程基准，不能替代 GR00T Torch W4A4 闭环结果。
-
-**关键词：** VLA；GR00T；APXInf；NVFP4；W4A4；PTQ；QAD；OPD；LIBERO。
-
-## 1.1 为什么必须在闭环中评估量化
-
-策略每次生成一段动作，机器人只执行其中一部分，再把新的图像和状态送回模型；这种反复决策称为**闭环**。一次从环境重置到成功或超时的完整尝试称为 **episode（回合）**。量化造成的微小动作误差会改变下一次观测，误差可能在后续反馈中累积。因此静态层误差只能用于筛选，任务是否完成必须由环境判定。
-
-## 1.2 从 PTQ 到 QAD，再到 OPD
-
-PTQ（训练后量化）在已有权重上确定格式、尺度和舍入结果，不进行恢复训练；其中 RTN 直接舍入，GPTQ 还使用校准输入估计误差。主五臂采用全覆盖 NVFP4 RTN 基座，并另设同覆盖的校准 GPTQ 参考，检验恢复模型相对于校准 PTQ 的效果。
-
-**QAD**（项目中的量化后演示适配）冻结 PTQ 权重，只更新低秩适配（LoRA）的 A/B 参数，使量化模型重新拟合成功演示的动作速度场。**OPD**（学生访问状态上的教师监督）先让 QAD 学生执行闭环，再在这些观测上缓存 BF16 教师速度标签。缓存固定输入、教师标签和随机种子，追加训练时重放相同噪声与时间，同时使用演示损失和探针损失。
-
-为隔离“多训练一段时间”与教师监督，设置 **continued-QAD**：从同一个 QAD 检查点出发，追加相同次数的演示更新，但不使用学生状态教师标签。OPD−continued-QAD 是教师监督的主要对照；OPD−QAD 还包含追加训练本身。
-
-## 1.3 本文贡献
-
-1. **完整 W4A4 压力。** 479 个 eligible 权重张量全部使用 NVFP4，476 个线性算子同时量化激活，明确记录 ordinary/category 层的覆盖和 padding。
-2. **量化域恢复。** QAD 保持 W4A4 基座不变，只训练 468 个参与动作前向的普通 Linear 的低秩残差；OPD 在学生真实访问分布上提供教师速度监督。
-3. **配对闭环证据。** BF16、PTQ、QAD、continued-QAD 和 QAD+OPD 使用同一任务顺序、官方初态和随机种子，逐回合保存 reset 哈希、服务日志和成功标记。
-4. **工程边界清楚。** GR00T 行为结果来自 Torch W4A4 QDQ；APXInf 原生 kernel 与图执行作为独立延迟基准，二者不混写。
-
-## 1.4 读者需要先知道的三个口径
-
-“100%”的分母是配方清单中的 479 个可量化（eligible）权重张量，不包括偏置、归一化参数或新增 LoRA。W4A4 只描述线性主分支；3 个 embedding/position 张量只量化权重。QAD/OPD 残差读取原始 BF16 输入，部署参数按 BF16 计入净压缩比。本文的成功率是闭环环境指标，不是动作均方误差（MSE）或原生 kernel 延迟。
-'''
-    (SECTIONS / "01-摘要与引言.md").write_text(intro, encoding="utf-8")
-
-    experiment = f'''# 4. 实验
-
-## 4.1 设置与数据划分
-
-实验使用 GR00T N1.7 LIBERO-10，在 WSL2 Ubuntu、RTX 5090 Laptop 24 GB 上运行。开发集使用官方初态索引 4–8（50 回合）选择恢复超参数；教师监督和学生采集使用训练索引 20–23；最终 held-out 使用索引 9–19 与 24–28，共 10 个任务×16 个回合。所有任务先恢复官方初态，再执行 10 个零动作稳定步；策略每次产生 16 步动作，环境执行前 8 步，单回合最多 720 步。
-
-QAD 的演示来自十个任务的 BF16 成功轨迹。每个窗口保留图像、语言、状态、动作端点和有效 mask；OPD 的 160 个学生访问窗口由选定 QAD 学生采集，再由冻结教师按固定随机种子标注速度场。开发集只用于选择学习率与 OPD 权重，held-out 结果不回流调参。
-
-{{{{fig:recovery_protocol}}}}
-
-## 4.2 五臂对照
-
-QAD 与两个追加分支均使用 rank=32、alpha=64 的 LoRA。QAD 训练 2,000 次更新；continued-QAD 与 OPD 从同一个 QAD 检查点出发，各追加 2,000 次演示更新。OPD 还加入学生访问状态上的教师速度损失。正式量化路径统一使用 W4A4 激活 QDQ，并在 manifest 中记录 120,000 ms 的 ZeroMQ 单次请求超时，避免首次量化请求被默认 15 s 客户端超时截断。
-
-| 配置 | 作用 | LIBERO-10 |
-|---|---|---:|
-| BF16 | 未量化参考 | {bf['successes']}/{bf['episodes']}（{pct(bf['success_rate'])}） |
-| W4A4 PTQ | 全覆盖 NVFP4 压力基座 | {ptq['successes']}/{ptq['episodes']}（{pct(ptq['success_rate'])}） |
-| PTQ + QAD | 成功演示恢复 | {qad['successes']}/{qad['episodes']}（{pct(qad['success_rate'])}） |
-| PTQ + continued-QAD | 同预算演示续训对照 | {cont['successes']}/{cont['episodes']}（{pct(cont['success_rate'])}） |
-| PTQ + QAD + OPD | 演示损失 + 学生状态教师速度监督 | {opd['successes']}/{opd['episodes']}（{pct(opd['success_rate'])}） |
-
-{task_table(final)}
-
-## 4.3 配对结果与解释
-
-同一初态上的两个策略可能同时成功或同时失败，统计因此保留 episode 配对关系。按预先固定的分层 bootstrap 和精确 McNemar 检验，结果如下：
-
-{paired_table(final)}
-
-只有 OPD−continued-QAD 直接回答教师监督是否超过同预算演示续训；OPD−QAD 还包含额外 2,000 次更新，不能单独解释为教师项的纯增益。区间和检验只描述这十个任务、一个训练种子的条件证据，不外推到未见任务。
-
-{{{{fig:ladder}}}}
-
-## 4.4 编码预算与执行边界
-
-479/479 表示 eligible 张量覆盖率，不是全部模型参数的元素占比。编码预算先对已知共享别名去重；源 BF16 参数为 **{source_bytes:,} B**，主分支包含 NVFP4 数据、E4M3 块尺度、FP32 二级尺度和未量化参数，共 **{packed_bytes:,} B**；BF16 LoRA 另占 **{residual_bytes:,} B**。净压缩比按“去别名 BF16 源参数字节数 ÷（去别名主分支字节数＋LoRA 字节数）”计算，为 **{compression}**。物理张量、去别名张量及元素占比的完整账目由 `paper/evidence/recipe_inventory.json` 生成；目标编码预算不同于当前稠密 checkpoint 的文件大小。
-
-APXInf 的 NVFP4/FP8 kernel、图重放和 π0.5 计时单独报告；GR00T W4A4 闭环当前是 Torch QDQ 数值参考路径。
-
-{{{{fig:budget_ladder}}}}
-
-{{{{fig:ptq_frontier}}}}
-
-## 4.5 训练成本与复现
-
-运行目录中的每个阶段都有 `recovery_manifest.json`、训练日志、checkpoint identity 和协议 SHA。继续 QAD 与 OPD 使用相同演示读取数和优化器更新数；OPD 另有学生探针前向/反传，因此耗时不等同。完整命令、环境安装、五臂评测、截图和逐文件哈希见根目录 `README.md` 及附录 B。
-
-## 4.6 固定观测上的完整动作诊断
-
-{diagnostic_text}
-
-## 4.7 同覆盖的校准 GPTQ 参考
-
-{gptq_text}
-'''
-    (SECTIONS / "04-实验.md").write_text(experiment, encoding="utf-8")
-
-    method = r'''# 3. 方法
-
-本文把低位宽主分支与高精度恢复旁路分开定义。这样读者可以先复现 W4A4 PTQ，再复现 QAD，最后复现 OPD，而不会把 LoRA 残差误看成四位主分支的一部分。
-
-## 3.1 NVFP4 W4A4 PTQ
-
-NVFP4 的数据为 E2M1 四位格点；连续 16 个输入元素共享一个 E4M3 块尺度，张量再共享 FP32 二级尺度。权重量化先从完整矩阵 $W$ 确定唯一二级尺度 $\tau_W$，再处理每个块 $w_b$：
-
-$$
-\begin{aligned}
-\tau_W&=\operatorname{FP32}\!\left(\max(\max|W|/448,2^{-149})\right),\\
-s_b&=R_{\mathrm{E4M3}}\!\left(\frac{\max_j|w_{b,j}|}{6\tau_W}\right),
-\end{aligned}
-$$
-
-$$\hat w_{b,j}=R_{\mathrm{E2M1}}\!\left(\frac{w_{b,j}}{s_b\tau_W}\right)s_b\tau_W.$$
-
-这里 RTN 的裁剪系数为 1；全零权重约定 $\tau_W=1$。块尺度为零时只在除法中使用安全分母，实际反量化仍严格为零。权重分片编码时复用同一个 $\tau_W$，不能对每个分片重新定标。
-
-激活使用另一项明确的尺度合同：先把输入转为 F16，再沿最后一维分成 16 元素块，以 FP32 的 `amax * float32(1/6)` 求块尺度并舍入为 E4M3；激活二级尺度固定为 $\tau_A=1$。若显式启用 `FP4VLA_SATURATE_F16_ACTIVATIONS=1`，有限输入在 F16 转换前截到 $[-65504,65504]$；关闭时拒绝转换溢出，NaN/Inf 在两种设置下都拒绝。训练与评测各自的开关值保存在 manifest，不能把权重的动态二级尺度与激活固定尺度混写。服务日志报告 469/469 ordinary 和 7/7 category 的 W4A4 安装结果。
-
-v12 的主结果使用 `rtn_w4a4_category`：不使用校准数据，把 472 个 ordinary recipe 张量和 7 个 category 张量全部写成 NVFP4。3 个 embedding/position 张量只量化权重。每个张量的形状、padding、尺度和实际格式写入 `ptq_recipe.json`、`category_ptq_recipe.json` 与 bake manifest；这些文件是最终配方的唯一来源。
-
-{{fig:gptq_block}}
-
-## 3.2 QAD：冻结基座上的低秩恢复
-
-沿用 §2.2 的行向量约定，对一个 $K\rightarrow N$ 线性层，冻结量化权重 $W_q$ 与原偏置 $b$，增加不带偏置的低秩矩阵 $A\in\mathbb R^{r\times K}$ 与 $B\in\mathbb R^{N\times r}$：
-
-$$y=Q_A(x)W_q^\top+b+\frac{\alpha}{r}(xA^\top)B^\top.$$
-
-主分支接收 NVFP4 激活，残差分支读取量化前的 BF16 输入。469 个 ordinary Linear 中，语言输出投影 `lm_head` 不参与动作前向，因此只在其余 468 个模块上训练 rank=32、alpha=64 的 A/B；类别层保持冻结。训练参数以 FP32 保存，前向使用 BF16 autocast；部署旁路以 BF16 执行，按 BF16 参数载荷计账。QDQ 使用直通估计器（STE）：前向执行量化，反向把量化映射对输入的导数近似为 1。
-
-对来自 BF16 成功轨迹的演示窗口，沿用 §2.1 的观测 $o$、动作端点 $a$、噪声 $z$ 和插值 $a_t=(1-t)z+ta$。令二值掩码 $m_{h,d}$ 标记有效时间步 $h$ 与控制维度 $d$，演示损失为
-
-$$\ell_{\mathrm{demo}}=\frac{\sum_{h,d}m_{h,d}\left[v_\theta(o,a_t,t)_{h,d}-(a-z)_{h,d}\right]^2}{\sum_{h,d}m_{h,d}+10^{-6}}.$$
-
-这里可训练参数 $\theta$ 仅包含 A/B。QAD 对实际微批的演示损失求平均后更新；填充区域不贡献损失。
-
-## 3.3 OPD：学生访问状态上的教师速度监督
-
-先固定 QAD 学生并运行训练分区，保存其观测 $o_i$、预测动作端点 $a_i^S$ 与有效掩码 $m_i$。教师标注阶段为每个窗口固定随机种子，重建噪声 $z_i$ 与时间 $t_i$，形成探针输入 $P_i=(o_i,(1-t_i)z_i+t_i a_i^S,t_i)$。缓存保存原输入、种子和 BF16 教师速度 $v_T(P_i)$；学生重放同一随机上下文，因此比较发生在同一个插值点。
-
-$$\ell_{\mathrm{probe},i}=\frac{\sum_{h,d}m_{i,h,d}\left[v_\theta(P_i)_{h,d}-v_T(P_i)_{h,d}\right]^2}{\sum_{h,d}m_{i,h,d}}.$$
-
-探针实现先拒绝空掩码，因此分母无需稳定项；教师标签固定且不求梯度。每次更新实际累积 $n$ 个微批时，联合目标为
-
-$$\mathcal L_{\mathrm{OPD}}=\frac1n\sum_{j=1}^{n}\ell_{\mathrm{demo},j}+\lambda\frac1n\sum_{j=1}^{n}\ell_{\mathrm{probe},j}.$$
-
-本轮每次优化器更新都加入教师项（`opd_every=1`），$\lambda$ 由开发集在协议候选中选择。缓存只采集一轮，追加训练期间不刷新。continued-QAD 使用同一 QAD 起点、演示顺序、实际读取数和更新数，只保留上式的演示项；OPD−continued-QAD 因而衡量额外教师监督的作用。
-
-## 3.4 部署与闭环评测
-
-部署保留冻结 W4A4 基座和独立 A/B adapter。把 $BA$ 预先合入权重会让残差也接收量化输入，改变训练时的函数，因此正式服务不使用这种合并。每个评测臂使用相同的任务、初态、seed、稳定步和动作步预算；`eval_manifest.json` 记录数值开关、ZeroMQ 超时、checkpoint identity 与 reset 哈希，`compare_recovery.py` 再计算五臂配对统计。
-'''
-    (SECTIONS / "03-方法.md").write_text(method, encoding="utf-8")
-
-    conclusion = f'''# 5. 讨论与结论
-
-## 5.1 结果应怎样读
-
-PTQ−BF16 衡量全覆盖 W4A4 压力，QAD−PTQ 衡量成功演示能否恢复行为，OPD−continued-QAD 衡量在相同追加演示预算之外教师速度监督的独立作用。本文不把 APXInf 的原生 kernel 延迟解释成 GR00T 闭环速度，也不把 OPD−QAD 单独解释为纯教师增益，因为它包含额外训练阶段。
-
-## 5.2 复现边界
-
-实验固定 LIBERO-10 十个任务和一个训练种子；未见任务、多种子和实机验证需要另行开展。GR00T 闭环是 Torch W4A4 QDQ 参考路径，APXInf 原生执行是独立基准。QAD/OPD 只覆盖 ordinary Linear，7 个 category 层保持 W4A4 冻结；量化主分支保持 W4A4，BF16 低秩旁路的参数占用计入净压缩比。
-
-## 5.3 结论
-
-在冻结的 v12 协议下，BF16 为 **{bf['successes']}/{bf['episodes']}（{pct(bf['success_rate'])}）**，全 NVFP4 W4A4 PTQ 为 **{ptq['successes']}/{ptq['episodes']}（{pct(ptq['success_rate'])}）**，QAD 为 **{qad['successes']}/{qad['episodes']}（{pct(qad['success_rate'])}）**，continued-QAD 为 **{cont['successes']}/{cont['episodes']}（{pct(cont['success_rate'])}）**，QAD+OPD 为 **{opd['successes']}/{opd['episodes']}（{pct(opd['success_rate'])}）**。最终结论只由这些完整 held-out 日志支持；所有命令、截图、协议、清单和哈希都随发布包提供。
-'''
-    (SECTIONS / "05-讨论与结论.md").write_text(conclusion, encoding="utf-8")
+    if any(type(value) is not int or value <= 0 for value in (source_bytes, packed_bytes, residual_bytes)):
+        raise ValueError("Encoding budget requires positive source and target tensor byte counts")
+    compression = f"{source_bytes / (packed_bytes + residual_bytes):.3f}×"
+    budget_table = ("| 项目 | 完整目标编码 |\n|---|---:|\n"
+                    f"| BF16 源参数 | {source_bytes:,} B |\n"
+                    f"| NVFP4 PTQ 主分支与未量化参数 | {packed_bytes:,} B |\n"
+                    f"| BF16 低秩旁路 | {residual_bytes:,} B |\n"
+                    f"| 恢复模型净压缩比 | {compression} |")
+    values = {"headline_table": headline_table(final), "five_arm_table": five_arm_table(final),
+              "task_table": task_table(final), "paired_table": paired_table(final),
+              "paired_interpretation": paired_interpretation(final), "budget_table": budget_table,
+              "net_compression": compression,
+              "opd_delta_pp": f"{final['uncertainty']['contrasts']['opd_vs_continued_qad']['difference_pp']:+.2f}",
+              "action_diagnostics": diagnostic_text, "gptq_reference": gptq_text,
+              "conclusion": result_conclusion(final, compression)}
+    rendered = {}
+    for name in TEMPLATE_NAMES:
+        template = (TEMPLATES / name).read_text(encoding="utf-8")
+        document = TOKEN.sub(lambda match: values[match[1]], template)
+        if re.search(r"@@|xxx|审阅说明|待回填|尚未全部完成|正式评测尚未完成", document):
+            raise ValueError(f"Unresolved release text in {name}")
+        rendered[name] = document
+    return rendered
+
+
+def rewrite_main(documents: dict[str, str]) -> None:
+    for name, document in documents.items():
+        (SECTIONS / name).write_text(document, encoding="utf-8")
 
 
 def rewrite_other_sources() -> None:
@@ -512,11 +439,12 @@ def main() -> None:
     diagnostic_text = render(load_verified(PAPER))
     from gptq_reference_publication import load_verified as load_gptq, render as render_gptq
     gptq_text = render_gptq(load_gptq(PAPER))
+    documents = render_main(final, diagnostic_text, gptq_text, load_verified_inventory(final))
     meta_path = PAPER / "meta.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     meta["status"] = "v12 RTN W4A4 完整五臂评测与发布证据已核验"
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    rewrite_main(final, diagnostic_text, gptq_text)
+    rewrite_main(documents)
     rewrite_other_sources()
 
 

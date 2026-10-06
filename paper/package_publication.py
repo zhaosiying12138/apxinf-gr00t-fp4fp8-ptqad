@@ -11,6 +11,11 @@ from validate_publication import validate
 
 P = Path(__file__).resolve().parent
 DESTINATION = 'apxinf-gr00t-fp4fp8-ptqad-publication.zip'
+DOCUMENT_TEMPLATES = (
+    'readme_v12_installation.md', 'readme_v12_legacy_engine.md',
+    'readme_v12_workflow.md', 'readme_v12_supplement_commands.md',
+    'readme_v12_capture_commands.md', 'readme_v12_engine_commands.md',
+)
 # Keep review/debug outputs on disk without publishing them.  The first five
 # receipts are consumed or produced by the final publication gates; the rest
 # are explicitly cited by the source and reproduction appendices.
@@ -47,6 +52,8 @@ def publication_files():
     files = [P/name for name in ('paper.html','README.md','meta.json','figures.json','requirements-build.txt','requirements-evidence.txt',
                                 'analysis_plan_w4a4.json')]
     files.extend((P/'sections').glob('*.md'))
+    files.extend(P/name for name in DOCUMENT_TEMPLATES)
+    files.extend((P/'templates/v12').glob('*.md'))
     for folder in ('zhihu','figs','evidence','assets'):
         files.extend(path for path in (P/folder).rglob('*') if path.is_file() and '__pycache__' not in path.parts)
     validation = P/'validation'
