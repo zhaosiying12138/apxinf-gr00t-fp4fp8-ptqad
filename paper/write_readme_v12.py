@@ -140,17 +140,32 @@ $PYTHON exp/run_w4a4_recovery.py \\
 
 ```bash
 # 从完成的 final_manifest 生成发布结果（只读取 held-out，拒绝不完整运行）
+rm -f paper/evidence/final_results.json paper/evidence/recipe_inventory.json paper/evidence/frontier_comparison.json
 python3 paper/extract_final_evidence.py \\
-  --run-dir $RUN --out paper/evidence/final_results.json
+  --run-dir $RUN --out /tmp/v12_final_results.json
 
-# 生成 shape-derived 编码预算和 frontier
+# 生成 shape-derived 编码预算（临时路径，安装证据包时复制进去）
 python3 paper/build_recipe_inventory_v11.py \\
   --checkpoint results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category \\
   --recovery-manifest $RUN/artifacts/merge_opd_025/recovery_manifest.json \\
-  --recipe-name rtn_all --out paper/evidence/recipe_inventory.json
+  --recipe-name rtn_all --out /tmp/v12_recipe_inventory.json
+
+# 将完成的 final_manifest、逐回合日志、协议和训练成本材料化并安装到发布证据目录
+python3 paper/materialize_final_evidence.py \\
+  --final-manifest $RUN/final_manifest.json \\
+  --recipe-inventory /tmp/v12_recipe_inventory.json \\
+  --out paper/_build/final_bundle_v12 \\
+  --orchestrator-run $RUN
+python3 paper/install_final_evidence.py \\
+  --bundle paper/_build/final_bundle_v12 \\
+  --archive paper/evidence.v11.archive
+# 完成审计后可删除替换前的归档，发布包只保留 v12 证据
+rm -rf paper/evidence.v11.archive
+
+# 安装完成后写入 frontier 的发布路径
 python3 paper/build_final_frontier.py \\
   --final-results paper/evidence/final_results.json \\
-  --paired-comparison $RUN/artifacts/heldout_round/paired_comparison.json \\
+  --paired-comparison paper/evidence/paired_comparison.json \\
   --inventory paper/evidence/recipe_inventory.json \\
   --out paper/evidence/frontier_comparison.json
 
