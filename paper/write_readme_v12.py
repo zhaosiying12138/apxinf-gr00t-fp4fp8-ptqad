@@ -148,11 +148,13 @@ def result_tables(final: dict[str, Any]) -> tuple[str, str, str]:
     return "\n".join(rows), "\n".join(paired), "\n".join(task_rows)
 
 
-def training_table() -> str:
+def training_table(protocol_sha: str) -> str:
     path = EVIDENCE / "training" / "costs.json"
     require(path.is_file(), "paper/evidence/training/costs.json is required; refusing zero/placeholder costs")
     data = read(path)
     require(data.get("status") == "complete", "training cost evidence is incomplete")
+    require(data.get("protocol_sha256") == protocol_sha,
+            "training cost evidence protocol differs from final results")
     require(set(data.get("training", {})) == {"qad", "continued_qad", "qad_opd"},
             "training cost evidence must contain QAD, continued-QAD and QAD+OPD")
     rows = ["| 阶段 | 更新数 | 演示窗口读取 | 探针学生反传 | 阶段耗时 / h | 显存峰值 / GiB |",
@@ -160,6 +162,7 @@ def training_table() -> str:
     for key, label in (("qad", "QAD"), ("continued_qad", "continued-QAD"), ("qad_opd", "QAD + OPD")):
         item = data.get("training", {}).get(key)
         require(isinstance(item, dict), f"missing training cost stage {key}")
+        require(item.get("status") == "completed", f"training cost stage {key} is incomplete")
         require(int(item.get("optimizer_steps", 0)) > 0 and int(item.get("demonstration_window_draws", 0)) > 0,
                 f"training cost stage {key} has zero/unknown update or draw count")
         require(float(item.get("wall_seconds", 0)) > 0, f"training cost stage {key} has no measured wall time")
@@ -282,7 +285,7 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 
 ### 训练成本
 
-{training_table()}
+{training_table(protocol_sha)}
 
 训练计时包含模型准备和 checkpoint 序列化；显存为进程级 PyTorch allocator 峰值。训练成本与 held-out 成功率分开记账，完整来源见 [`paper/evidence/training/costs.json`](paper/evidence/training/costs.json)。
 
