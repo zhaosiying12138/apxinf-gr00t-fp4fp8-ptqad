@@ -29,6 +29,14 @@ import collect_pairing_evidence
 import extract_final_evidence
 
 
+# These artifacts are produced after the five-arm held-out run but are part of
+# the same public evidence package.  Keeping their names in one contract makes
+# it impossible for a materialized bundle to silently omit one of the
+# publication-time replays.
+SUPPLEMENT_DIRECTORIES = ("runtime", "search_costs", "action_diagnostics", "gptq_reference")
+SUPPLEMENT_FILES = ("frontier_comparison.json",)
+
+
 def require(ok: bool, message: str) -> None:
     if not ok:
         raise ValueError(message)
@@ -225,10 +233,41 @@ def _materialize_training(stage: Path, final_path: Path, protocol_path: Path,
     return json.loads((target / "costs.json").read_text(encoding="utf-8"))
 
 
+def _materialize_supplements(stage: Path, supplement_root: Path | None,
+                             mapping: list[dict[str, Any]]) -> list[str]:
+    """Copy the publication-time evidence that is generated after the run.
+
+    The core materializer intentionally does not invent these artifacts: a
+    caller must pass a directory containing all four verified archive folders
+    and the deterministic frontier file.  A partial set is rejected so a
+    bundle cannot look complete while silently losing one replay axis.
+    """
+    if supplement_root is None:
+        return []
+    root = Path(supplement_root).resolve(strict=True)
+    require(root.is_dir() and not root.is_symlink(),
+            f"supplement root is not a regular directory: {root}")
+    missing = [name for name in SUPPLEMENT_DIRECTORIES
+               if (not (root / name).is_dir() or (root / name).is_symlink() or
+                   not any(path.is_file() for path in (root / name).rglob('*')))]
+    missing += [name for name in SUPPLEMENT_FILES
+                if not (root / name).is_file() or (root / name).is_symlink()]
+    require(not missing,
+            "supplement root must contain runtime, search_costs, action_diagnostics, "
+            "gptq_reference and frontier_comparison.json; missing " + ", ".join(missing))
+    target = stage / "evidence"
+    for name in SUPPLEMENT_DIRECTORIES:
+        _copy_tree(root / name, target / name, mapping, "verified_supplement_" + name)
+    for name in SUPPLEMENT_FILES:
+        _copy_file(root / name, target / name, mapping, "verified_supplement_" + name.removesuffix(".json"))
+    return [*SUPPLEMENT_DIRECTORIES, *SUPPLEMENT_FILES]
+
+
 def materialize(final_manifest: str | Path, out: str | Path,
                 recipe_inventory: str | Path | None = None,
                 orchestrator_run: str | Path | None = None,
-                training_evidence: str | Path | None = None) -> dict[str, Any]:
+                training_evidence: str | Path | None = None,
+                supplement_root: str | Path | None = None) -> dict[str, Any]:
     final_path = Path(final_manifest).resolve(strict=True)
     require(final_path.name == "final_manifest.json", "--final-manifest must name final_manifest.json")
     run_dir = final_path.parent
@@ -301,6 +340,7 @@ def materialize(final_manifest: str | Path, out: str | Path,
 
         costs = _materialize_training(stage, final_path, protocol_path, orchestrator_run,
                                       training_evidence, mapping)
+        supplements = _materialize_supplements(stage, supplement_root, mapping)
         # Replace the temporary absolute paths in the mapping with paths
         # relative to the final package; JSON evidence itself is untouched.
         for row in mapping:
@@ -320,6 +360,7 @@ def materialize(final_manifest: str | Path, out: str | Path,
                     "development_scores_included": False,
                     "development_selection_audit_included":
                         isinstance(costs.get("development_selection_audit"), dict),
+                    "supplemental_entries": supplements,
                     "development_scores_scope": "audit_only_not_public_main_results"}
         (stage / "evidence_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
                                                        encoding="utf-8")
@@ -338,6 +379,7 @@ def materialize(final_manifest: str | Path, out: str | Path,
             "development_scores_included": False,
             "development_selection_audit_included":
                 isinstance(costs.get("development_selection_audit"), dict),
+            "supplemental_entries": supplements,
             "development_scores_scope": "audit_only_not_public_main_results",
             "files": len(mapping) + 3}
 
@@ -349,10 +391,14 @@ def main() -> int:
     parser.add_argument("--recipe-inventory")
     parser.add_argument("--orchestrator-run")
     parser.add_argument("--training-evidence")
+    parser.add_argument("--supplement-root",
+                        help="Directory containing verified runtime/search_costs/action_diagnostics/"
+                             "gptq_reference archives and frontier_comparison.json")
     args = parser.parse_args()
     try:
         print(json.dumps(materialize(args.final_manifest, args.out, args.recipe_inventory,
-                                     args.orchestrator_run, args.training_evidence),
+                                     args.orchestrator_run, args.training_evidence,
+                                     args.supplement_root),
                            ensure_ascii=False, indent=2))
         return 0
     except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:

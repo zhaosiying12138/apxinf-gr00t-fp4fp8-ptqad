@@ -9,6 +9,27 @@ from paper import materialize_final_evidence as materialize
 
 
 class MaterializeFinalEvidenceTests(unittest.TestCase):
+    def test_materializes_complete_supplement_set_and_rejects_partial(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            stage = root / 'stage'
+            stage.mkdir()
+            supplement = root / 'supplement'
+            for name in materialize.SUPPLEMENT_DIRECTORIES:
+                path = supplement / name / 'manifest.json'
+                path.parent.mkdir(parents=True)
+                path.write_text(name + '\n')
+            (supplement / 'frontier_comparison.json').write_text('{}\n')
+            mapping = []
+            self.assertEqual(
+                set(materialize._materialize_supplements(stage, supplement, mapping)),
+                set((*materialize.SUPPLEMENT_DIRECTORIES, *materialize.SUPPLEMENT_FILES)))
+            self.assertEqual(len(mapping), 5)
+            self.assertEqual((stage / 'evidence/runtime/manifest.json').read_text(), 'runtime\n')
+            (supplement / 'gptq_reference/manifest.json').unlink()
+            with self.assertRaisesRegex(ValueError, 'missing gptq_reference'):
+                materialize._materialize_supplements(root / 'other-stage', supplement, [])
+
     def test_mixed_protocol_requires_nonzero_fp4_and_fp8(self):
         protocol = {"quantization_scope": {"recipe": "mixed"}}
         memory = {"linear_params": 100, "nvfp4_params": 75, "fp8_params": 25,

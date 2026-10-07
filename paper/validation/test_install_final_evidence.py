@@ -143,6 +143,49 @@ class InstallFinalEvidenceTests(unittest.TestCase):
         (self.old / 'runtime/manifest.json').write_text('{}')
         self.assertEqual(installer.verify(self.old)['status'], 'verified')
 
+    def make_supplements(self):
+        root = self.root / 'supplements'
+        for name in installer.SUPPLEMENT_DIRECTORIES:
+            path = root / name / 'manifest.json'
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(name + '\n')
+        (root / 'frontier_comparison.json').write_text('{"frontier": true}\n')
+        return root
+
+    def test_install_registers_complete_supplement_set(self):
+        report = installer.install(self.bundle, self.archive, self.paper,
+                                   self.make_supplements())
+        self.assertEqual(report['status'], 'verified')
+        manifest = installer.read(self.old / 'evidence_manifest.json')
+        self.assertEqual(set(manifest['supplemental_entries']),
+                         set(installer.SUPPLEMENT_ENTRIES))
+        self.assertEqual(len(manifest['registered_supplement_files']), 5)
+        self.assertEqual(installer.verify(self.old)['status'], 'verified')
+
+    def test_register_supplements_after_core_install(self):
+        self.run_install()
+        supplements = self.make_supplements()
+        report = installer.register_supplements(self.old, supplements)
+        self.assertEqual(report['status'], 'verified')
+        self.assertEqual(set(installer.read(self.old / 'evidence_manifest.json')['supplemental_entries']),
+                         set(installer.SUPPLEMENT_ENTRIES))
+        self.assertEqual(installer.verify(self.old)['status'], 'verified')
+
+    def test_registers_supplements_already_created_in_installed_evidence(self):
+        self.run_install()
+        supplements = self.make_supplements()
+        for name in (*installer.SUPPLEMENT_DIRECTORIES, *installer.SUPPLEMENT_FILES):
+            source = supplements / name
+            target = self.old / name
+            if source.is_dir():
+                shutil.copytree(source, target)
+            else:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, target)
+        report = installer.register_supplements(self.old, self.old)
+        self.assertEqual(report['status'], 'verified')
+        self.assertEqual(installer.verify(self.old)['status'], 'verified')
+
     def test_failed_replace_rolls_back_archived_evidence(self):
         original = Path.rename
 

@@ -20,6 +20,10 @@ ARMS = ('bf16', 'ptq', 'qad', 'continued_qad', 'qad_opd')
 EVIDENCE_ENTRIES = {'paired_comparison.json', 'heldout_raw_logs.json',
                     'recipe_inventory.json', 'selected_recipe', 'training'} | {
                         'heldout_' + arm for arm in ARMS}
+CORE_EVIDENCE_ENTRIES = frozenset(EVIDENCE_ENTRIES)
+SUPPLEMENT_DIRECTORIES = ('runtime', 'search_costs', 'action_diagnostics', 'gptq_reference')
+SUPPLEMENT_FILES = ('frontier_comparison.json',)
+SUPPLEMENT_ENTRIES = frozenset((*SUPPLEMENT_DIRECTORIES, *SUPPLEMENT_FILES))
 GENERATED = ('final_results.json', 'evidence/heldout_raw_logs.json',
              'evidence/selected_recipe/category_memory.json')
 FORMAT = 'installed_final_evidence_v1'
@@ -76,13 +80,72 @@ def tree_files(root):
     return names
 
 
+def supplement_files(root):
+    """Return verified source files for the five post-run evidence axes.
+
+    ``root`` may be a materialization staging directory (where artifacts live
+    below ``evidence/``) or an evidence directory itself.  The caller chooses
+    the latter for the install/register CLI, while ``bundle_files`` validates
+    the former through its normal mapping.
+    """
+    root = Path(root).resolve(strict=True)
+    evidence = root / 'evidence' if (root / 'evidence').is_dir() else root
+    need(evidence.is_dir() and not evidence.is_symlink(),
+         'Supplement root is not a regular evidence directory: ' + str(root))
+    files = {}
+    missing = []
+    for name in SUPPLEMENT_DIRECTORIES:
+        folder = evidence / name
+        if not folder.is_dir() or folder.is_symlink():
+            missing.append(name)
+            continue
+        entries = sorted(path for path in folder.rglob('*') if path.is_file())
+        if not entries:
+            missing.append(name)
+            continue
+        for path in entries:
+            files[f'{name}/{path.relative_to(folder).as_posix()}'] = path
+    for name in SUPPLEMENT_FILES:
+        path = evidence / name
+        if not path.is_file() or path.is_symlink():
+            missing.append(name)
+        else:
+            files[name] = path
+    need(not missing,
+         'Supplement root must contain runtime, search_costs, action_diagnostics, '
+         'gptq_reference and frontier_comparison.json; missing ' + ', '.join(missing))
+    return files
+
+
+def _supplement_rows(source_root, target_root, role='registered_supplement'):
+    """Copy supplement files into a staging evidence tree and return rows."""
+    rows = []
+    for relative, source in supplement_files(source_root).items():
+        target = local(target_root, relative)
+        need(not target.exists(), 'Supplement path already exists: ' + relative)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+        source_identity = identity(source)
+        need(identity(target) == source_identity, 'Supplement changed during copy: ' + relative)
+        rows.append({'published_path': relative, 'role': role,
+                     'source': {'path': str(source), **source_identity}})
+    return rows
+
+
 def bundle_files(bundle):
     """Validate the materializer's exact output layout before copying anything."""
     manifest = read(local(bundle, 'evidence_manifest.json'))
     need(manifest.get('version') == 1 and manifest.get('status') == 'complete',
          'Source bundle is incomplete')
-    need({p.name for p in (bundle / 'evidence').iterdir()} == EVIDENCE_ENTRIES,
-         'Unexpected source bundle evidence entries')
+    evidence_entries = {p.name for p in (bundle / 'evidence').iterdir()}
+    need(CORE_EVIDENCE_ENTRIES <= evidence_entries,
+         'Source bundle is missing core evidence entries')
+    extras = evidence_entries - CORE_EVIDENCE_ENTRIES
+    need(extras in (set(), set(SUPPLEMENT_ENTRIES)),
+         'Source bundle has a partial or unknown supplemental evidence set')
+    declared_supplements = set(manifest.get('supplemental_entries', ()))
+    need(declared_supplements == extras,
+         'Source bundle supplemental entries disagree with its directory layout')
     rows = manifest.get('files')
     need(isinstance(rows, list) and rows, 'Empty source bundle manifest')
     inputs = {}
@@ -151,7 +214,17 @@ def verify(folder):
     expected = {installed_path(row['published_path']):
                 {**row, 'published_path': installed_path(row['published_path'])}
                 for row in original['files']}
-    need(len(expected) == len(original['files']), 'Installed source paths collide')
+    registered_rows = manifest.get('registered_supplement_files', [])
+    need(isinstance(registered_rows, list), 'Registered supplement records are invalid')
+    for row in registered_rows:
+        relative = row.get('published_path')
+        need(isinstance(relative, str) and relative not in expected and
+             (relative.split('/', 1)[0] in SUPPLEMENT_DIRECTORIES or
+              relative in SUPPLEMENT_FILES),
+             'Invalid registered supplemental path: ' + str(relative))
+        expected[relative] = row
+    need(len(expected) == len(original['files']) + len(registered_rows),
+         'Installed source paths collide')
     rows = manifest.get('files')
     need(isinstance(rows, list) and rows, 'Empty installed manifest')
     actual = {}
@@ -174,9 +247,13 @@ def verify(folder):
     checked(folder, 'final_manifest.json', final['source']['final_manifest'])
     checked(folder, 'paired_comparison.json', final['source']['heldout_comparison'])
     need(final['source'] == original['source_final_manifest'], 'Installed final source differs')
-    # Subsequent runtime/search/frontier evidence and updated captures are owned
-    # by their own manifests. The materialized scientific core stays immutable.
-    for name in EVIDENCE_ENTRIES | {'protocol'}:
+    # Core evidence is always required.  Supplemental evidence is required only
+    # when it was materialized or registered; a core-only review bundle remains
+    # valid before the post-run diagnostic/GPTQ jobs finish.
+    supplement_entries = set(manifest.get('supplemental_entries', ()))
+    need(supplement_entries <= SUPPLEMENT_ENTRIES,
+         'Installed manifest contains unknown supplemental entries')
+    for name in CORE_EVIDENCE_ENTRIES | supplement_entries | {'protocol'}:
         path = folder / name
         current = ({name + '/' + child for child in tree_files(path)} if path.is_dir() else {name})
         recorded = {item for item in actual if item == name or item.startswith(name + '/')}
@@ -186,7 +263,7 @@ def verify(folder):
             'source_bundle_manifest_sha256': identity(original_path)['sha256']}
 
 
-def install(bundle, archive, paper=PAPER):
+def install(bundle, archive, paper=PAPER, supplement_root=None):
     bundle = Path(bundle).absolute()
     paper = Path(paper).resolve(strict=True)
     old = paper / 'evidence'
@@ -198,6 +275,10 @@ def install(bundle, archive, paper=PAPER):
          not archive.resolve().is_relative_to(bundle.resolve()) and
          not bundle.resolve().is_relative_to(archive.resolve()), 'Archive overlaps source evidence')
     source_manifest, source_files = bundle_files(bundle)
+    supplement_root = Path(supplement_root).resolve(strict=True) if supplement_root else None
+    if supplement_root is not None:
+        need(not supplement_root.is_relative_to(old.resolve()),
+             'Supplement root cannot be the evidence directory being replaced')
     captures = capture_files(old)
     bundle_snapshot = {name: identity(bundle / name) for name in tree_files(bundle)}
     archive.parent.mkdir(parents=True, exist_ok=True)
@@ -212,6 +293,10 @@ def install(bundle, archive, paper=PAPER):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(bundle / relative, target)
             installed.append({**row, 'published_path': name})
+        registered = []
+        if supplement_root is not None:
+            registered = _supplement_rows(supplement_root, ready, 'registered_supplement')
+            installed.extend(registered)
         shutil.copyfile(bundle / 'evidence_manifest.json', ready / 'source_bundle_manifest.json')
         for relative in captures:
             target = local(ready, relative)
@@ -223,7 +308,13 @@ def install(bundle, archive, paper=PAPER):
                                                **identity(ready / 'source_bundle_manifest.json')},
                     'heldout_raw_logs_manifest': {**source_manifest['heldout_raw_logs_manifest'],
                                                  'path': 'heldout_raw_logs.json'},
-                    'files': sorted(installed, key=lambda row: row['published_path'])}
+                    'files': sorted(installed, key=lambda row: row['published_path']),
+                    'registered_supplement_files': registered,
+                    'supplemental_entries': sorted({row['published_path'].split('/', 1)[0]
+                                                    if '/' in row['published_path']
+                                                    else row['published_path']
+                                                    for row in registered} | set(
+                                                        source_manifest.get('supplemental_entries', ())))}
         (ready / 'evidence_manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
         report = verify(ready)
         need(capture_files(ready) == captures, 'Capture evidence changed during copy')
@@ -240,21 +331,92 @@ def install(bundle, archive, paper=PAPER):
     return {**report, 'installed': str(old), 'previous_evidence_archive': str(archive)}
 
 
+def register_supplements(folder, supplement_root):
+    """Atomically register post-run archives in an already installed bundle."""
+    folder = Path(folder).resolve(strict=True)
+    supplement_root = Path(supplement_root).resolve(strict=True)
+    need(folder.is_dir() and not folder.is_symlink(), 'Installed evidence is not a directory')
+    same_root = supplement_root == folder
+    need(same_root or not supplement_root.is_relative_to(folder),
+         'Supplement root cannot be inside the installed evidence directory')
+    verify(folder)
+    manifest_path = folder / 'evidence_manifest.json'
+    original_manifest_bytes = manifest_path.read_bytes()
+    manifest = read(manifest_path)
+    need(not manifest.get('registered_supplement_files') and
+         not manifest.get('supplemental_entries'),
+         'Supplemental evidence is already registered; refusing a second append')
+    parent = folder.parent
+    with tempfile.TemporaryDirectory(prefix='register-supplements-', dir=parent) as temporary:
+        stage = Path(temporary)
+        if same_root:
+            rows = [{'published_path': relative, 'role': 'registered_supplement',
+                     'source': {'path': str(source), **identity(source)}}
+                    for relative, source in supplement_files(folder).items()]
+        else:
+            rows = _supplement_rows(supplement_root, stage)
+        manifest['registered_supplement_files'] = rows
+        manifest['files'] = sorted([*manifest.get('files', []), *rows],
+                                   key=lambda row: row['published_path'])
+        manifest['supplemental_entries'] = sorted({row['published_path'].split('/', 1)[0]
+                                                   if '/' in row['published_path']
+                                                   else row['published_path'] for row in rows})
+        installed_paths = []
+        try:
+            if not same_root:
+                for row in rows:
+                    target = local(folder, row['published_path'])
+                    need(not target.exists(), 'Installed supplement path already exists: ' + row['published_path'])
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(stage / row['published_path'], target)
+                    installed_paths.append(target)
+            manifest_tmp = stage / 'evidence_manifest.json'
+            manifest_tmp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+            manifest_path_tmp = folder / '.evidence_manifest.registered.tmp'
+            manifest_path_tmp.write_bytes(manifest_tmp.read_bytes())
+            manifest_path_tmp.replace(manifest_path)
+            verify(folder)
+        except BaseException:
+            # Restore the original manifest and remove every copied artifact;
+            # a failed registration must leave the installed evidence exactly
+            # as it was before the command.
+            manifest_path.write_bytes(original_manifest_bytes)
+            for path in reversed(installed_paths):
+                if path.is_file() or path.is_symlink():
+                    path.unlink()
+            for name in SUPPLEMENT_DIRECTORIES:
+                folder_path = folder / name
+                if folder_path.is_dir() and not any(folder_path.rglob('*')):
+                    folder_path.rmdir()
+            raise
+    return verify(folder)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--bundle', type=Path)
     parser.add_argument('--archive', type=Path)
     parser.add_argument('--paper', type=Path, default=PAPER)
     parser.add_argument('--verify', type=Path)
+    parser.add_argument('--supplement-root', type=Path,
+                        help='Evidence root containing the four archive directories and frontier_comparison.json')
+    parser.add_argument('--register-supplements', type=Path,
+                        help='Register supplements in an already installed evidence directory')
     args = parser.parse_args()
-    if args.verify:
-        if args.bundle or args.archive:
-            parser.error('--verify cannot be combined with --bundle or --archive')
+    if args.register_supplements:
+        if args.bundle or args.archive or args.verify or not args.supplement_root:
+            parser.error('--register-supplements requires --supplement-root and cannot be combined with --verify/--bundle/--archive')
+        result = register_supplements(args.register_supplements, args.supplement_root)
+    elif args.verify:
+        if args.bundle or args.archive or args.supplement_root or args.register_supplements:
+            parser.error('--verify cannot be combined with install/register options')
         result = verify(args.verify)
     else:
         if not args.bundle or not args.archive:
             parser.error('installation requires --bundle and --archive')
-        result = install(args.bundle, args.archive, args.paper)
+        if args.register_supplements:
+            parser.error('--register-supplements cannot be combined with install')
+        result = install(args.bundle, args.archive, args.paper, args.supplement_root)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
