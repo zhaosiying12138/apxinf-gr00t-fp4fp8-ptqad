@@ -32,7 +32,7 @@
 
 衡量扰动，再用 Jacobian 增益与量化噪声构造一阶 proxy，通过 greedy demotion 满足全局平均位宽预算；`0 bit` 表示剪枝。这样读者才能理解 QVLA 是“动作空间、通道级、混合位宽”的分配方法，而本文是“固定格式、全覆盖主分支、训练恢复”的方法。
 
-这里要保留一个容易被混淆的细节：正文 Eq. (5) 的累计指标是逐时刻二范数之和，附录 G 为便于一阶推导又定义了平方范数形式的真实敏感度。两者是不同的记号和统计量，不能在本文中写成同一个“累计 MSE”。QVLA 的公开 `sensitivity_hessian_proxy.py` 也不是直接计算完整 Jacobian，而是用输入协方差和阻尼逆 Cholesky 生成行级 proxy；终稿应把“理论目标”“论文中的验证指标”“代码中的便宜 proxy”分开。
+这里要保留一个容易被混淆的细节：正文 Eq. (5) 的累计指标是逐时刻二范数之和，附录 G 为便于一阶推导又定义了平方范数形式的真实敏感度。两者是不同的记号和统计量，不能在本文中写成同一个“累计 MSE”。QVLA 的公开 `sensitivity_hessian_proxy.py` 也不是直接计算完整 Jacobian，而是用输入协方差和阻尼逆 Cholesky 生成行级 proxy；`assign_gates_from_sensitivity.py` 的堆代价进一步使用 `proxy_blow/(b_hi-b_low)`，与论文式敏感度差的边际增量不是同一个量；`inject_fake_w.py` 仍是 weight-only fake quant。终稿应把“理论目标”“论文中的验证指标”“代码中的便宜 proxy”和“公开分配器实现”分开。
 
 ### 本次重读新增的缺口：证据层级与适用范围
 
