@@ -264,13 +264,13 @@
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "bytes": 9146,
-      "sha256": "2b6bb909221f950b7fa9f4d2bf1e924c6b13ee763cba4c1c854e7c38e4bcbf6d"
+      "bytes": 10344,
+      "sha256": "682e544e2cce620a6d154fe8b7978d5a5d42804061db031927a38d75bb8699cf"
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "bytes": 14729,
-      "sha256": "f1efa3efebeb0b8427f0ddafeec276454e7a5688b504acf0bd74782fb9109537"
+      "bytes": 16578,
+      "sha256": "fd5ec94d6219c064cb631429d2cf53c557e3b2dc0cc7e2ba1ac21f40daf895f9"
     },
     {
       "path": "sections/03-方法.md",
@@ -284,8 +284,8 @@
     },
     {
       "path": "sections/05-讨论与结论.md",
-      "bytes": 979,
-      "sha256": "c8f469cc430042e11516237b4dcc519a4e6c447c4227fe6c2ed8f93d3b4e3880"
+      "bytes": 1295,
+      "sha256": "0217833e94fa714625434d55f133fdb6abd5a049442619f78b107f67dbb1f32d"
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
@@ -304,14 +304,14 @@
     },
     {
       "path": "sections/16-参考文献.md",
-      "bytes": 12535,
-      "sha256": "71cbcdab470cc2a62a3f89a49e5d738bbb8cb2f45a6ef2d0215e1a47257724a1"
+      "bytes": 13437,
+      "sha256": "03b0f5b4d6f2fbbd91b67252143aa525f46d224a38c4e5255bc816bf60c31a90"
     }
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 4878717,
-    "sha256": "753324ab98260f52632a3cc99fc09b238ca0e4e397101177e8465d0235ded979"
+    "bytes": 4883160,
+    "sha256": "21437ec306e60ca81cebc2562a5894a31bd7766514ea71edd889f70e75eb755d"
   },
   "math_expressions": 223,
   "figures": 24,

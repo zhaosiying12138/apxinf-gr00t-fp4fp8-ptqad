@@ -74,13 +74,13 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "d1334ad015678849ff860333c7cbdbe0025ceaf76d6d42571425296014883dc9",
-      "bytes": 4868151
+      "sha256": "21437ec306e60ca81cebc2562a5894a31bd7766514ea71edd889f70e75eb755d",
+      "bytes": 4883160
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "7065ec33c7f42b2ffda86bdf844d4caed4e4a914ba20a0cb4e6653f4a1db4730",
-      "bytes": 137049
+      "sha256": "8c649847a222350d55c21bca189ec3dc5faf73ba212196a6503eca7637b42e40",
+      "bytes": 140585
     },
     {
       "path": "meta.json",
@@ -94,13 +94,13 @@
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "sha256": "63bf38179fc0ae7e5956249ea9f0ee1c5e694e2bd813051e7836f055b14b2ed3",
-      "bytes": 5976
+      "sha256": "682e544e2cce620a6d154fe8b7978d5a5d42804061db031927a38d75bb8699cf",
+      "bytes": 10344
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "sha256": "28656f410f5dfaed5a8aafed32e07ac4c669fc681e1bf1912370458705c2ed31",
-      "bytes": 19346
+      "sha256": "fd5ec94d6219c064cb631429d2cf53c557e3b2dc0cc7e2ba1ac21f40daf895f9",
+      "bytes": 16578
     },
     {
       "path": "sections/03-方法.md",
@@ -114,8 +114,8 @@
     },
     {
       "path": "sections/05-讨论与结论.md",
-      "sha256": "c8f469cc430042e11516237b4dcc519a4e6c447c4227fe6c2ed8f93d3b4e3880",
-      "bytes": 979
+      "sha256": "0217833e94fa714625434d55f133fdb6abd5a049442619f78b107f67dbb1f32d",
+      "bytes": 1295
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
@@ -124,8 +124,8 @@
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "sha256": "2bc33bb0723b80c07836343044d40cbf92371b8c919629f2d7ce67eebbaa9d01",
-      "bytes": 22477
+      "sha256": "8f59aa83325ebba529c2834efad9ddcec738cffbc670db833c29a61dc8ee84a1",
+      "bytes": 23195
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
@@ -134,8 +134,8 @@
     },
     {
       "path": "sections/16-参考文献.md",
-      "sha256": "71cbcdab470cc2a62a3f89a49e5d738bbb8cb2f45a6ef2d0215e1a47257724a1",
-      "bytes": 12535
+      "sha256": "03b0f5b4d6f2fbbd91b67252143aa525f46d224a38c4e5255bc816bf60c31a90",
+      "bytes": 13437
     },
     {
       "path": "zhihu/images/gptq_block.png",

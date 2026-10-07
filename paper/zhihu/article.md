@@ -26,35 +26,35 @@
 2. **可分解的恢复过程。** QAD 用成功演示训练低秩旁路；OPD 再加入学生访问状态的教师监督。continued-QAD 从同一 QAD 起点追加相同演示更新数，用于区分追加训练与教师项的作用。
 3. **从动作到任务的验证。** 五臂共享任务、初态和随机种子；固定观测诊断另行比较四步积分后的动作。参数编码、训练成本和独立 APXInf 执行延迟分别记账。
 
-这里需要把本文与 QVLA 的关系说清楚。QVLA 是动作空间敏感度驱动的 PTQ：它对每个输出通道试验多种整数位宽，再按平均位宽预算做通道级分配，并保护 projector、action head 等模块。本文不复现这条分配路线；本文的对象是固定格式的 NVFP4 W4A4 主分支。479 个 eligible 权重张量统一编码，随后在同一量化基座上研究演示低秩恢复和学生状态教师监督。项目中把前一阶段称为 QAD、后一阶段称为 OPD，是本文工程协议中的命名，不能将 QAD 误读为 QVLA 的组成模块或某一种统一的 KL 蒸馏标准。
+这里需要把本文与 QVLA 的关系说清楚。QVLA 是动作空间敏感度驱动的 PTQ：它对每个输出通道试验多种整数位宽，再按平均位宽预算做通道级分配，并保护 projector、action head 等模块。本文不复现这条分配路线；本文的对象是固定格式的 NVFP4 W4A4 主分支。479 个 eligible 权重张量统一编码，随后在同一量化基座上研究演示低秩恢复和学生状态教师监督。项目中把前一阶段称为 QAD-LoRA（demo-flow recovery），后一阶段称为 OPD。QAD-LoRA 是本文工程协议中的命名，与 Xin et al. 的 NVFP4 QAD 蒸馏目标不同，也不能将它误读为 QVLA 的组成模块或某一种统一的 KL 蒸馏标准。
 
-QVLA 的实验矩阵同时包含 W8A8、W4A4 以及权重为主的 W8A16/W4A16；下表只引用与本文最接近的 W4A4 行。因而不能把 QVLA 的全部实验概括成“激活也是四位”，也不能把它的平均位宽理解成每个权重元素都固定四位。
+QVLA 的实验矩阵同时包含 W8A8、W4A4 以及权重为主的 W8A16/W4A16；下表只引用与本文最接近的 W4A4 行。只有 W4A4 子实验使用统一 4-bit activation，其他行使用各自对应的 activation 设置；也不能把它的平均位宽理解成每个权重元素都固定四位。
 
 为避免两个工作都使用 “W4A4” 而造成口径混淆，表 1 将关键差异列在同一处。QVLA 的数字是文献原报告，本文右列在正式五臂评测完成前保留占位。
 
 | 对照项 | QVLA（文献口径） | 本文（v12 协议） |
 |---|---|---|
 | 模型与任务 | OpenVLA-OFT；LIBERO 四套件 | GR00T N1.7；LIBERO-10 十任务 |
-| W4A4 的含义 | 指定量化层内的通道平均权重位宽为 4；各通道可取 0/2/4/8/16 位，激活采用统一 4-bit（论文未声明为 NVFP4）；projector/action head 保持 BF16 且不计入该平均位宽 | 权重为 NVFP4 E2M1；每 16 个元素共享 E4M3 块尺度，每个权重张量共享一个 FP32 二级尺度；激活走 NVFP4 QDQ |
+| W4A4 的含义 | 指定量化层内的通道平均权重位宽为 4；各通道可取 0/2/4/8/16 位，W4A4 行使用统一 4-bit activation（论文未声明为 NVFP4）；projector/action head 保持 BF16 且不计入该平均位宽 | 权重为 NVFP4 E2M1；每 16 个元素共享 E4M3 块尺度，每个权重张量共享一个 FP32 二级尺度；激活走 NVFP4 QDQ |
 | 覆盖范围 | 主要量化 vision backbone 与 language module；projector、action head 和公开脚本中的 `language_model.lm_head` 保持全精度 | 479 个 eligible 权重张量全部编码；469 个 ordinary Linear 与 7 个 category Linear 安装 A4 QDQ，QAD 只在 468 个 ordinary Linear 上挂 BF16 LoRA |
 | 方法 | 动作空间敏感度、逐通道 greedy demotion | 固定 RTN 压力、QAD 演示恢复、continued-QAD 控制、OPD 学生状态教师监督 |
 | 已报告结果 | OpenVLA-OFT：97.1% → 96.0%，15.4 → 4.5 GB，1.49× | 正式结果：<span style="color:#b42318">xxx</span> |
 
-QVLA 表 1 的 W4A4 外部参照如下，完整列出其强基线而不只摘录摘要数字：
+论文表 1 的 W4A4 外部参照如下，完整列出其强基线而不只摘录摘要数字。公开仓库的 inject_fake_w.py 入口只实现 weight-only fake quant 并将结果反写回原 dtype，没有建立 A4 packed kernel；因此下表的 W4A4 数字是论文报告，不能当作本文对公开代码的复现：
 
 | 模型（LIBERO 四套件平均） | BF16 | SmoothQuant | OmniQuant | QVLA | 显存/速度（QVLA） |
 |---|---:|---:|---:|---:|---:|
 | OpenVLA | 76.5% | 63.2% | 73.3% | 76.0% | 4.3 GB / 1.47× |
 | OpenVLA-OFT | 97.1% | 73.4% | 93.9% | 96.0% | 4.5 GB / 1.49× |
 
-这里的平均值来自 LIBERO-Spatial、Object、Goal、Long 四个套件；QVLA 使用 RTX 4090，本文使用 GR00T N1.7 的 LIBERO-10 十任务。模型、套件、硬件和成功率分母均不同，表中数值只能作为机制参照，不能与本文结果组成排行榜。QVLA 的消融也说明了参照方法的必要性：OpenVLA 上 INT4 的 channel-wise 分配为 76.5%，layer-wise 为 74.8%；在整体 INT8 预算下，uniform-bit 为 74.6%，channel-wise 加 pruning 为 76.8%。这些消融不是本文复现实验。
+这里的平均值来自 LIBERO-Spatial、Object、Goal、Long 四个套件；QVLA 使用 RTX 4090，本文使用 GR00T N1.7 的 LIBERO-10 十任务。模型、套件、硬件和成功率分母均不同，且文献表格没有提供与本文相同的配对区间或完整计时边界，因此这些点估计只能作为机制参照，不能与本文结果组成排行榜。QVLA 的消融也说明了参照方法的必要性：在 OpenVLA 的权重为主消融中，INT4 的 channel-wise 分配为 76.5%，layer-wise 为 74.8%；INT8 的 channel-wise 为 76.8%，layer-wise 为 74.9%；在整体 INT8 预算下，不带 pruning 的 channel-wise {2,4,8,16} 为 76.7%，uniform-bit 为 74.6%，channel-wise 加 pruning 为 76.8%。这些消融不是本文复现实验。
 QVLA 的 98.9% 是 96.0/97.1 的相对保留率；相对 SmoothQuant 的差值 22.6 是百分点。上述文献结果与本文不使用相同模型、任务和后端，不能直接排名。
 
-QVLA 的校准集来自 LIBERO 训练轨迹，主实验随机取 512 条轨迹，并加入少量仅含指令的样本。它用 teacher-forcing 下的单步 Action-MSE 做位宽分配，再用短 rollout 的累计动作偏差、末端偏差和最终成功率交叉验证排序；因此“单步指标用于筛选、短时闭环用于验证”是两个不同层次的证据。本文的 148 个窗口来自成功教师回合的恢复监督，既不是 512 条 PTQ 校准轨迹，也没有声称复现 QVLA 的校准规模消融。
+QVLA 的校准集来自 LIBERO 合并训练轨迹，主实验随机取 512 条轨迹，并加入少量仅含指令的样本；论文没有给出后者的数量。它用 teacher-forcing 下的单步 Action-MSE 做位宽分配，再用短 rollout 的累计动作偏差、末端偏差和最终成功率交叉验证排序；因此“单步指标用于筛选、短时闭环用于验证”是两个不同层次的证据。其 W8A16 校准规模消融在 128/256/512/1024 条轨迹下的平均成功率分别为 96.4%/96.8%/97.0%/96.7%，512 是该消融的最高点。512 条轨迹不等于 512 条完整输入记录，公开读取器的 max_samples 也不能直接复现该抽样。本文的 148 个窗口来自成功教师回合的恢复监督，既不是 512 条 PTQ 校准轨迹，也没有声称复现 QVLA 的校准规模消融。
 
 为避免把两种方法的“四位”混为一谈，补充说明 QVLA 的计算链。对第 $l$ 层第 $c$ 个输出通道，QVLA 把该通道单独量化到 $b\in\{0,2,4,8,16\}$ 位，其动作敏感度定义为教师强制下的单步误差 $s_{l,c}^{(b)}=\mathbb{E}\|\tilde A_{l,c}^{(b)}-A^*\|_2^2$；再用短回合累计动作偏差 $S_{l,c}^{(b)}=\mathbb{E}\sum_t\|\tilde A_{l,c}^{(b)}(t)-A^*(t)\|_2$ 做时域验证。为降低逐通道全量前向的成本，论文用局部一阶近似将量化噪声与动作 Jacobian 增益相乘，先得到全局排序，再对候选通道做精确测量。最后从 16 位开始，按 $16\rightarrow8\rightarrow4\rightarrow2\rightarrow0$ 的相邻降位步骤，把单位节省位宽带来的敏感度增量最小的通道逐个降位，直到达到平均位宽预算；$0$ 位表示剪枝。
 
-这一定义解释了本文与 QVLA 的边界：QVLA 的核心是**动作空间敏感度驱动的通道级混合整数位宽分配**，并保护 projector 与 action head；本文则故意把 GR00T 的可量化主分支固定为 NVFP4 W4A4，用 QAD/OPD 学习恢复参数。因而本文不是 QVLA 的复现或直接超越，也没有声称已经完成 GR00T 上的动作敏感度分配。QVLA 还报告了通道/层级消融、校准规模消融、UniVLA/CALVIN 和真实机器人实验；本文只复用其中与动作误差—闭环成功率相连的思想，其他证据不作为本文结果。
+这一定义解释了本文与 QVLA 的边界：QVLA 的核心是**动作空间敏感度驱动的通道级混合整数位宽分配**，并保护 projector 与 action head；其一阶 proxy 依赖局部线性、零均值和各向同性噪声假设，是条件性的排序工具，不是闭环保证。本文则故意把 GR00T 的可量化主分支固定为 NVFP4 W4A4，用 QAD/OPD 学习恢复参数。因而本文不是 QVLA 的复现或直接超越，也没有声称已经完成 GR00T 上的动作敏感度分配。QVLA 还报告了通道/层级消融、校准规模消融、UniVLA/CALVIN 和真实机器人实验；其中 UniVLA 的低位结果含 W4A16/W8A8，CALVIN 与实机量化为 W8A16，不能当作 W4A4 跨平台证据。附录表格中的 AutoQVLA 与正文 QVLA 指同一方法。本文只复用其中与动作误差—闭环成功率相连的思想，其他证据不作为本文结果。
 
 ## 1.3 “全 W4A4”的准确含义
 
@@ -174,22 +174,24 @@ $$
 
 ### QVLA 的定位与本文边界
 
-QVLA 的“四位”不是把模型中每个权重固定成四位。对第 $l$ 层第 $c$ 个输出通道，它分别试验 $b\in\{0,2,4,8,16\}$，并以教师强制下的单步动作误差
+QVLA 的“四位”不是把模型中每个权重固定成四位。这里的 channel 指卷积的输出通道，或 Linear 权重矩阵的一行。对第 $l$ 层第 $c$ 个输出通道，它分别试验 $b\in\{0,2,4,8,16\}$，并以教师强制下的单步动作误差
 $s_{l,c}^{(b)}=\mathbb{E}\|\tilde A_{l,c}^{(b)}-A^*\|_2^2$
 衡量扰动，再用短回合的累计动作偏差
 $S_{l,c}^{(b)}=\mathbb{E}\sum_t\|\tilde A_{l,c}^{(b)}(t)-A^*(t)\|_2$
-检查时间累积。它用局部一阶近似把量化噪声与动作 Jacobian 增益相乘，先获得全局排序，再从 16 位开始沿 $16\rightarrow8\rightarrow4\rightarrow2\rightarrow0$ 的相邻步骤，把“每节省一位带来的误差增量”最小的通道逐个降位；0 位表示剪枝。主实验采用统一 4-bit activation，projector 与 action head 保持 BF16，平均位宽只在指定量化层内计算，论文没有把这一路径声明为 NVFP4。
+检查时间累积。它用局部一阶近似把量化噪声与动作 Jacobian 增益相乘，先获得全局排序，再从 16 位开始沿 $16\rightarrow8\rightarrow4\rightarrow2\rightarrow0$ 的相邻步骤，把“每节省一位带来的误差增量”最小的通道逐个降位；0 位表示剪枝。在 W4A4 子实验中，activation 统一为 4 bit；W8A8、W8A16 和 W4A16 行分别使用对应的 activation 设置。projector 与 action head 保持 BF16，平均位宽只在指定量化层内计算，论文没有把这一路径声明为 NVFP4。公开 fake-quant 入口还跳过 language_model.lm_head，因此“指定量化层”不等于整个模型参数。
 
-QVLA 的 OpenVLA/OFT 结果、channel-wise 与 layer-wise 消融、uniform-bit 与 pruning 对照、512 条轨迹及校准规模消融，均属于外部文献证据，已在 §1.2 列出其中与本文最接近的 W4A4 数字。其 UniVLA、CALVIN 和真实机器人结果不能替代本文 GR00T 的闭环评测；固定观测动作误差也不能单独给出闭环成功率保证。公开代码中的层输入 Hessian proxy 和 weight-only fake quant 入口与论文的动作 Jacobian 理论并不等价，复现边界见附录 B。
+QVLA 的 OpenVLA/OFT 结果、channel-wise 与 layer-wise 消融、uniform-bit 与 pruning 对照、512 条轨迹及校准规模消融，均属于外部文献证据，已在 §1.2 列出其中与本文最接近的 W4A4 数字。这里的消融同时说明两个因素：OpenVLA 上 INT4 的 channel-wise 为 76.5%，layer-wise 为 74.8%；INT8 的 channel-wise 为 76.8%，layer-wise 为 74.9%；在 INT8 总预算下，不带 pruning 的 channel-wise {2,4,8,16} 为 76.7%，统一 8 bit 为 74.6%，加入 0-bit pruning 后为 76.8%。这些数字不能被压缩成“只要剪枝就有效”。其 UniVLA、CALVIN 和真实机器人结果也不能替代本文 GR00T 的闭环评测：UniVLA 报告了 W4A16/W8A8，CALVIN 与实机量化采用 W8A16，而不是 W4A4。固定观测动作误差也不能单独给出闭环成功率保证。公开代码中的层输入 Hessian proxy 和 weight-only fake quant 入口与论文的动作 Jacobian 理论并不等价，复现边界见附录 B；附录表格中的 AutoQVLA 与正文 QVLA 指同一方法。
 
-QVLA 的理想目标写成动作分布之间的 KL 散度，但实际分配使用 teacher-forcing 的单步 Action-MSE，再用短 rollout 的累计动作和末端偏差验证。本文的 QAD/OPD 优化的是 flow-matching 速度 MSE，动作诊断比较完整 endpoint，闭环指标是环境成功率；三者不是同一个损失，不能互相替代。
+QVLA 的理想目标写成动作分布之间的 KL 散度，但实际分配使用 teacher-forcing 的单步 Action-MSE，再用短 rollout 的累计动作和末端偏差验证。本文的 QAD/OPD 优化的是 flow-matching 速度 MSE，动作诊断比较完整 endpoint，闭环指标是环境成功率；三者不是同一个损失，不能互相替代。QVLA 图 3 的 Ours 曲线是 8-bit 示例，不能直接当作 W4A4 的固定输入对照。QVLA 的一阶 proxy 还依赖局部线性、零均值且各向同性的量化噪声假设，因此是条件性的排序工具，不是动作敏感度本身，更不是闭环成功率保证。
 
-这套设计有明确的实证动机：QVLA 的模块分析显示视觉编码器通常比语言模块稳定，而 projector 与 action head 更敏感；同一层内不同输出通道的敏感度也并不均匀。附录用约 1,000 个通道比较单步与累计敏感度排序，约 80% 的点靠近对角线，支持用较便宜的单步代理做初筛，再用短 rollout 检验长时行为。本文故意把动作路径纳入全覆盖 NVFP4 W4A4，目的是制造可测的压力并研究恢复，而不是宣称找到了比 QVLA 更优的位宽分配。
+这套设计有明确的实证动机：在 OpenVLA 上，QVLA 观察到视觉编码器相对稳定，语言模块更敏感，projector 与 action head 最敏感；同一层内不同输出通道的敏感度也并不均匀。附录随机抽取约 1,000 个通道比较单步与累计敏感度排序，论文只以散点图描述约 80% 的点靠近对角线，没有给出相关系数或显著性检验，因此这不是定量一致率。本文故意把 GR00T 动作路径纳入全覆盖 NVFP4 W4A4，目的是制造可测的压力并研究恢复，而不是把 OpenVLA 的敏感度结论外推为 GR00T 的最优位宽分配。
+
+QVLA 的 512 条样本是从 LIBERO 合并训练轨迹中随机抽取的轨迹数，另有少量仅含指令的样本；论文没有给出后者的数量。它的校准集不是“512 条完整输入记录”的同义词，公开读取器的 max_samples 也不能直接复现论文的轨迹抽样。QVLA 表 1、表 2 和附录表的成功率、显存和速度是文献点估计，未提供与本文相同的逐回合分母、配对区间或完整 warm-up/计时边界；本文把它们作为机制参照，不将它们与本项目的 160 回合配对结果组成统计排行榜。
 
 NVIDIA 的 GR00T N1.7 Thor 教程把视觉塔设为 FP8、语言主体设为 NVFP4，并保护语言投影层；其约 39.9 ms 是另一套硬件与融合策略的部署测量。FoldQuantVLA 将通道缩放、分块旋转、GPTQ 与动态激活量化组合，在其自己的 W4A4/W8A8 保护口径下报告 LIBERO 结果。两者说明保护范围和后端会改变结果，不能与本文固定 NVFP4 W4A4、QDQ 执行和低秩恢复的五臂直接横排。本文的 APXInf π0.5 基准同样只用于独立算子与原生执行核验，不作为 GR00T 端到端加速证据。
 ## 2.5 恢复训练的监督来源
 
-**行为克隆**从专家观测—动作对学习策略；**知识蒸馏**从教师模型输出学习策略。本文的两阶段恢复分别使用这两类监督。
+**行为克隆**从专家观测—动作对学习策略；**知识蒸馏**从教师模型输出学习策略。本文的两阶段恢复分别使用这两类监督。本文将第一阶段写作 QAD-LoRA（demo-flow recovery），不要与 Xin et al. 的 NVFP4 QAD 蒸馏目标混同。
 
 - **QAD-LoRA** 以 BF16 教师成功 rollout 形成的演示窗口训练 LoRA，监督目标是流匹配速度。
 - **OPD-LoRA** 使用 QAD 学生访问的观测和预测动作端点，由未量化教师在同一插值问题上提供速度标签，再与演示目标联合训练。
@@ -350,6 +352,8 @@ GPTQ 成功率为 <span style="color:#b42318">xxx%</span>。预先固定的补�
 # 5. 讨论与结论
 
 本文把 VLA 量化拆成三个可检验的问题：四位主分支带来多大闭环变化，成功演示能恢复多少，以及学生访问状态上的教师监督能否提供额外收益。设计的关键是保持同一量化基座，并让 continued-QAD 与 OPD 从同一个 QAD 起点分支，避免把追加训练本身误算成教师项的贡献。
+
+点估计高于 BF16 不能单独判定为实现错误。QVLA 自身的 OpenVLA W8A16（76.8% 对 76.5%）和 UniVLA W8A16（95.3% 对 95.2%）也出现过这种差异；本文只依据同初态的成功/失败互换数、配对区间以及 McNemar/Holm 结果判断方向，不因点估计上升而删除结果。
 
 方法的适用范围也由实验界定：当前是 LIBERO-10 的十个任务、一个训练种子和新的测试初态；尚不支持跨任务、跨套件或实机泛化结论。OPD 只采集一轮学生状态，追加训练后的策略仍可能离开缓存分布。GR00T 的行为证据来自 QDQ 路径，原生 packed 部署的收益需要同模型测量。
 
@@ -1162,90 +1166,95 @@ BF16、FP8 和 NVFP4 均有 9/9 项可执行，MXFP4 为 0/9 项，其日志状�
 
 7. **Liu, B., et al.（2023）. LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning.** [论文](https://arxiv.org/abs/2306.03310)；[官方代码](https://github.com/Lifelong-Robot-Learning/LIBERO)。用于说明机器人任务套件与闭环成功判定所依赖的评测环境。
 
-8. **Infinigence. ApxInf.** [官方仓库](https://github.com/infinigence/ApxInf)。用于说明 Rust/CUDA 推理框架及本文所扩展的执行接口来源。
+8. **Kim, M. J., et al.（2024；CoRL 2024）. OpenVLA: An Open-Source Vision-Language-Action Model.** [论文](https://arxiv.org/abs/2406.09246)；[官方代码](https://github.com/openvla/openvla)。QVLA 表 1/2 的 OpenVLA 基线来源。
+9. **Kim, M. J., Finn, C., & Liang, P.（2025）. Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success.** [论文](https://arxiv.org/abs/2502.19645)。用于标识 OpenVLA-OFT 基线及其微调模型。
+10. **Bu, Q., et al.（2025）. UniVLA: Learning to Act Anywhere with Task-Centric Latent Actions.** [论文](https://arxiv.org/abs/2505.06111)。用于标识 QVLA 附录中的跨模型对照。
+11. **Mees, O., et al.（2022）. CALVIN: A Benchmark for Language-Conditioned Policy Learning for Long-Horizon Robot Manipulation Tasks.** [论文](https://arxiv.org/abs/2112.03227)。用于标识 QVLA 附录中的 CALVIN 评测套件。
 
-9. **RLinf. APXinf-robo.** [官方仓库](https://github.com/RLinf/APXinf-robo)。用于说明机器人模型封装、服务与评测衔接的上游工程来源。
+12. **Infinigence. ApxInf.** [官方仓库](https://github.com/infinigence/ApxInf)。用于说明 Rust/CUDA 推理框架及本文所扩展的执行接口来源。
+
+13. **RLinf. APXinf-robo.** [官方仓库](https://github.com/RLinf/APXinf-robo)。用于说明机器人模型封装、服务与评测衔接的上游工程来源。
 
 ## 数值格式与量化基础
 
-10. **Alvarez, E., et al.（2025）. Introducing NVFP4 for Efficient and Accurate Low-Precision Inference.** [NVIDIA 官方说明](https://developer.nvidia.com/blog/introducing-nvfp4-for-efficient-and-accurate-low-precision-inference/)。用于核对 E2M1、每 16 元素的 E4M3 缩放及 FP32 二级缩放的格式定义。
+14. **Alvarez, E., et al.（2025）. Introducing NVFP4 for Efficient and Accurate Low-Precision Inference.** [NVIDIA 官方说明](https://developer.nvidia.com/blog/introducing-nvfp4-for-efficient-and-accurate-low-precision-inference/)。用于核对 E2M1、每 16 元素的 E4M3 缩放及 FP32 二级缩放的格式定义。
 
-11. **NVIDIA. cuBLAS Library Documentation.** [官方文档](https://docs.nvidia.com/cuda/cublas/index.html)。用于核对 cuBLASLt 矩阵布局、缩放模式和低精度矩阵乘法接口；在线文档需与实际安装的工具链版本对应。
+15. **NVIDIA. cuBLAS Library Documentation.** [官方文档](https://docs.nvidia.com/cuda/cublas/index.html)。用于核对 cuBLASLt 矩阵布局、缩放模式和低精度矩阵乘法接口；在线文档需与实际安装的工具链版本对应。
 
-12. **Nagel, M., et al.（2021）. A White Paper on Neural Network Quantization.** [论文](https://arxiv.org/abs/2106.08295)。用于介绍量化误差、校准和训练感知量化的基本概念。
+16. **Nagel, M., et al.（2021）. A White Paper on Neural Network Quantization.** [论文](https://arxiv.org/abs/2106.08295)。用于介绍量化误差、校准和训练感知量化的基本概念。
 
-13. **Wu, H., et al.（2020）. Integer Quantization for Deep Learning Inference: Principles and Empirical Evaluation.** [论文](https://arxiv.org/abs/2004.09602)。用于说明范围选择与校准准则对整数推理精度的影响。
+17. **Wu, H., et al.（2020）. Integer Quantization for Deep Learning Inference: Principles and Empirical Evaluation.** [论文](https://arxiv.org/abs/2004.09602)。用于说明范围选择与校准准则对整数推理精度的影响。
 
-14. **Vanhoucke, V., Senior, A., & Mao, M. Z.（2011）. Improving the speed of neural networks on CPUs.** [Google Research 原始出版记录](https://research.google/pubs/improving-the-speed-of-neural-networks-on-cpus/)。发表于 NIPS 2011 相关研讨会，用于交代低精度神经网络计算的早期工程背景。
+18. **Vanhoucke, V., Senior, A., & Mao, M. Z.（2011）. Improving the speed of neural networks on CPUs.** [Google Research 原始出版记录](https://research.google/pubs/improving-the-speed-of-neural-networks-on-cpus/)。发表于 NIPS 2011 相关研讨会，用于交代低精度神经网络计算的早期工程背景。
 
-15. **Jacob, B., et al.（2018）. Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference.** [CVPR 2018 论文页](https://openaccess.thecvf.com/content_cvpr_2018/html/Jacob_Quantization_and_Training_CVPR_2018_paper.html)。用于说明训练、量化参数与纯整数推理之间的一致性要求。
+19. **Jacob, B., et al.（2018）. Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference.** [CVPR 2018 论文页](https://openaccess.thecvf.com/content_cvpr_2018/html/Jacob_Quantization_and_Training_CVPR_2018_paper.html)。用于说明训练、量化参数与纯整数推理之间的一致性要求。
 
-16. **Migacz, S.（2017）. 8-bit Inference with TensorRT.** [NVIDIA GTC 原讲义](https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf)；[NVIDIA 官方引用入口](https://developer.nvidia.com/blog/large-scale-object-detection-tensorrt/)。用于追溯 TensorRT INT8 校准背景；原讲义本次访问受限，作者、题名和年份由 NVIDIA 官方引用记录核对。
+20. **Migacz, S.（2017）. 8-bit Inference with TensorRT.** [NVIDIA GTC 原讲义](https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf)；[NVIDIA 官方引用入口](https://developer.nvidia.com/blog/large-scale-object-detection-tensorrt/)。用于追溯 TensorRT INT8 校准背景；原讲义本次访问受限，作者、题名和年份由 NVIDIA 官方引用记录核对。
 
-17. **Choi, J., et al.（2018）. PACT: Parameterized Clipping Activation for Quantized Neural Networks.** [论文](https://arxiv.org/abs/1805.06085)。用于说明学习裁剪阈值这一相关思路，与本文离散裁剪网格搜索作区分。
+21. **Choi, J., et al.（2018）. PACT: Parameterized Clipping Activation for Quantized Neural Networks.** [论文](https://arxiv.org/abs/1805.06085)。用于说明学习裁剪阈值这一相关思路，与本文离散裁剪网格搜索作区分。
 
 ## PTQ、坐标变换与低秩补偿
 
-18. **Frantar, E., Ashkboos, S., Hoefler, T., & Alistarh, D.（2023；预印本 2022）. GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers.** [论文](https://arxiv.org/abs/2210.17323)。用于推导基于激活二阶统计的逐列量化及剩余列误差补偿。
+22. **Frantar, E., Ashkboos, S., Hoefler, T., & Alistarh, D.（2023；预印本 2022）. GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers.** [论文](https://arxiv.org/abs/2210.17323)。用于推导基于激活二阶统计的逐列量化及剩余列误差补偿。
 
-19. **Yao, Z., et al.（2022）. ZeroQuant: Efficient and Affordable Post-Training Quantization for Large-Scale Transformers.** [论文](https://arxiv.org/abs/2206.01861)。用于介绍逐层知识蒸馏与高效 PTQ 的相关路径。
+23. **Yao, Z., et al.（2022）. ZeroQuant: Efficient and Affordable Post-Training Quantization for Large-Scale Transformers.** [论文](https://arxiv.org/abs/2206.01861)。用于介绍逐层知识蒸馏与高效 PTQ 的相关路径。
 
-20. **Nagel, M., et al.（2020）. Up or Down? Adaptive Rounding for Post-Training Quantization.** [论文](https://arxiv.org/abs/2004.10568)。用于说明 AdaRound 学习舍入方向的重建思路。
+24. **Nagel, M., et al.（2020）. Up or Down? Adaptive Rounding for Post-Training Quantization.** [论文](https://arxiv.org/abs/2004.10568)。用于说明 AdaRound 学习舍入方向的重建思路。
 
-21. **Li, Y., et al.（2021）. BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction.** [论文](https://arxiv.org/abs/2102.05426)。用于说明把重建对象从独立层扩展到网络块的 PTQ 方法。
+25. **Li, Y., et al.（2021）. BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction.** [论文](https://arxiv.org/abs/2102.05426)。用于说明把重建对象从独立层扩展到网络块的 PTQ 方法。
 
-22. **Lin, J., et al.（2023；MLSys 2024）. AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration.** [论文](https://arxiv.org/abs/2306.00978)。用于说明激活感知的通道缩放及其与本地 AWQ 探索的关系。
+26. **Lin, J., et al.（2023；MLSys 2024）. AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration.** [论文](https://arxiv.org/abs/2306.00978)。用于说明激活感知的通道缩放及其与本地 AWQ 探索的关系。
 
-23. **Shao, W., et al.（2024；预印本 2023）. OmniQuant: Omnidirectionally Calibrated Quantization for Large Language Models.** [论文](https://arxiv.org/abs/2308.13137)。用于说明可学习裁剪与等价变换联合校准的路线。
+27. **Shao, W., et al.（2024；预印本 2023）. OmniQuant: Omnidirectionally Calibrated Quantization for Large Language Models.** [论文](https://arxiv.org/abs/2308.13137)。用于说明可学习裁剪与等价变换联合校准的路线。
 
-24. **Xiao, G., et al.（2023；预印本 2022）. SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models.** [论文](https://arxiv.org/abs/2211.10438)。用于说明通过等价缩放在权重与激活之间分配量化难度。
+28. **Xiao, G., et al.（2023；预印本 2022）. SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models.** [论文](https://arxiv.org/abs/2211.10438)。用于说明通过等价缩放在权重与激活之间分配量化难度。
 
-25. **Ashkboos, S., et al.（2024）. QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs.** [论文](https://arxiv.org/abs/2404.00456)。用于说明通过旋转坐标缓解异常通道的方法。
+29. **Ashkboos, S., et al.（2024）. QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs.** [论文](https://arxiv.org/abs/2404.00456)。用于说明通过旋转坐标缓解异常通道的方法。
 
-26. **Tseng, A., et al.（2024）. QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks.** [论文](https://arxiv.org/abs/2402.04396)。用于说明 Hadamard 变换与码本量化结合的相关工作。
+30. **Tseng, A., et al.（2024）. QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks.** [论文](https://arxiv.org/abs/2402.04396)。用于说明 Hadamard 变换与码本量化结合的相关工作。
 
-27. **Liu, Z., et al.（2024；ICLR 2025）. SpinQuant: LLM quantization with learned rotations.** [论文](https://arxiv.org/abs/2405.16406)。用于区分固定旋转与可学习旋转的量化方法。
+31. **Liu, Z., et al.（2024；ICLR 2025）. SpinQuant: LLM quantization with learned rotations.** [论文](https://arxiv.org/abs/2405.16406)。用于区分固定旋转与可学习旋转的量化方法。
 
-28. **Sun, Y., et al.（2024；ICML 2025）. FlatQuant: Flatness Matters for LLM Quantization.** [论文](https://arxiv.org/abs/2410.09426)。用于说明比正交旋转更一般的可逆变换及分布平坦化思路。
+32. **Sun, Y., et al.（2024；ICML 2025）. FlatQuant: Flatness Matters for LLM Quantization.** [论文](https://arxiv.org/abs/2410.09426)。用于说明比正交旋转更一般的可逆变换及分布平坦化思路。
 
-29. **Li, M., et al.（2024；ICLR 2025）. SVDQuant: Absorbing Outliers by Low-Rank Components for 4-Bit Diffusion Models.** [论文](https://arxiv.org/abs/2411.05007)。用于说明低秩高精度分支吸收量化困难成分的结构。
+33. **Li, M., et al.（2024；ICLR 2025）. SVDQuant: Absorbing Outliers by Low-Rank Components for 4-Bit Diffusion Models.** [论文](https://arxiv.org/abs/2411.05007)。用于说明低秩高精度分支吸收量化困难成分的结构。
 
-30. **Liu, S.-Y., et al.（2024）. EoRA: Fine-tuning-free Compensation for Compressed LLM with Eigenspace Low-Rank Approximation.** [论文](https://arxiv.org/abs/2410.21271)。用于说明利用激活特征空间构造低秩补偿的另一条路线；此处年份采用首发预印本年。
+34. **Liu, S.-Y., et al.（2024）. EoRA: Fine-tuning-free Compensation for Compressed LLM with Eigenspace Low-Rank Approximation.** [论文](https://arxiv.org/abs/2410.21271)。用于说明利用激活特征空间构造低秩补偿的另一条路线；此处年份采用首发预印本年。
 
 ## VLA 的低精度部署
 
-31. **Sahu, A., & Liu, A. Isaac GR00T 1.7 on Jetson Thor.** [NVIDIA Jetson AI Lab 官方教程](https://www.jetson-ai-lab.com/tutorials/groot_n17_on_thor/)。用于核对官方混合精度分配与图优化方案，并界定其硬件和延迟结果的比较范围。
+35. **Sahu, A., & Liu, A. Isaac GR00T 1.7 on Jetson Thor.** [NVIDIA Jetson AI Lab 官方教程](https://www.jetson-ai-lab.com/tutorials/groot_n17_on_thor/)。用于核对官方混合精度分配与图优化方案，并界定其硬件和延迟结果的比较范围。
 
-32. **Ho, H. T., et al.（2026）. FoldQuantVLA: Native Low-Bit Quantization of Vision-Language-Action Models via Consistent Folding.** [论文](https://arxiv.org/abs/2609.24433)。用于比较一致坐标变换、GPTQ 与原生整数执行相结合的 VLA PTQ 路线。
+36. **Ho, H. T., et al.（2026）. FoldQuantVLA: Native Low-Bit Quantization of Vision-Language-Action Models via Consistent Folding.** [论文](https://arxiv.org/abs/2609.24433)。用于比较一致坐标变换、GPTQ 与原生整数执行相结合的 VLA PTQ 路线。
 
 ## 模仿学习、蒸馏与奖励加权恢复
 
-33. **Ross, S., Gordon, G., & Bagnell, D.（2011）. A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning.** [AISTATS 2011 论文页](https://proceedings.mlr.press/v15/ross11a.html)。用于说明 DAgger、学生状态分布与模仿学习误差累积的条件性分析。
+37. **Ross, S., Gordon, G., & Bagnell, D.（2011）. A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning.** [AISTATS 2011 论文页](https://proceedings.mlr.press/v15/ross11a.html)。用于说明 DAgger、学生状态分布与模仿学习误差累积的条件性分析。
 
-34. **Agarwal, R., et al.（2023；ICLR 2024）. On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes.** [论文](https://arxiv.org/abs/2306.13649)。用于说明 GKD 所讨论的生成分布选择，并与本文固定离线探针对齐区分。
+38. **Agarwal, R., et al.（2023；ICLR 2024）. On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes.** [论文](https://arxiv.org/abs/2306.13649)。用于说明 GKD 所讨论的生成分布选择，并与本文固定离线探针对齐区分。
 
-35. **Hu, E. J., et al.（2021）. LoRA: Low-Rank Adaptation of Large Language Models.** [论文](https://arxiv.org/abs/2106.09685)。用于定义两个低秩矩阵形成权重更新的参数化方式。
+39. **Hu, E. J., et al.（2021）. LoRA: Low-Rank Adaptation of Large Language Models.** [论文](https://arxiv.org/abs/2106.09685)。用于定义两个低秩矩阵形成权重更新的参数化方式。
 
-36. **Xin, M., et al.（2026）. Quantization-Aware Distillation for NVFP4 Inference Accuracy Recovery.** [论文](https://arxiv.org/abs/2601.20088)。用于对照带教师蒸馏目标的 QAD 定义，避免把本文仅含演示流匹配损失的实验标签误解为同一训练目标。
+40. **Xin, M., et al.（2026）. Quantization-Aware Distillation for NVFP4 Inference Accuracy Recovery.** [论文](https://arxiv.org/abs/2601.20088)。用于对照带教师蒸馏目标的 QAD 定义，避免把本文仅含演示流匹配损失的实验标签误解为同一训练目标。
 
-37. **Williams, R. J.（1992）. Simple statistical gradient-following algorithms for connectionist reinforcement learning.** [期刊原文页](https://link.springer.com/article/10.1007/BF00992696)。用于说明 REINFORCE 的回报加权对数策略梯度。
+41. **Williams, R. J.（1992）. Simple statistical gradient-following algorithms for connectionist reinforcement learning.** [期刊原文页](https://link.springer.com/article/10.1007/BF00992696)。用于说明 REINFORCE 的回报加权对数策略梯度。
 
-38. **Schulman, J., et al.（2017）. Proximal Policy Optimization Algorithms.** [论文](https://arxiv.org/abs/1707.06347)。用于定义 PPO 的概率比与裁剪更新，并与本文 RWR 实现区分。
+42. **Schulman, J., et al.（2017）. Proximal Policy Optimization Algorithms.** [论文](https://arxiv.org/abs/1707.06347)。用于定义 PPO 的概率比与裁剪更新，并与本文 RWR 实现区分。
 
-39. **Ren, A. Z., et al.（2024）. Diffusion Policy Policy Optimization.** [论文](https://arxiv.org/abs/2409.00588)。用于说明扩散策略需要专门的策略优化处理，不能直接把流匹配 MSE 等同于策略梯度。
+43. **Ren, A. Z., et al.（2024）. Diffusion Policy Policy Optimization.** [论文](https://arxiv.org/abs/2409.00588)。用于说明扩散策略需要专门的策略优化处理，不能直接把流匹配 MSE 等同于策略梯度。
 
-40. **Peters, J., & Schaal, S.（2007）. Reinforcement Learning by Reward-weighted Regression for Operational Space Control.** [ICML 2007 官方收录页](https://icml.cc/Conferences/2007/paperlist.html)。用于交代奖励加权回归的机器人学习背景。
+44. **Peters, J., & Schaal, S.（2007）. Reinforcement Learning by Reward-weighted Regression for Operational Space Control.** [ICML 2007 官方收录页](https://icml.cc/Conferences/2007/paperlist.html)。用于交代奖励加权回归的机器人学习背景。
 
-41. **Kober, J., & Peters, J. R.（2008）. Policy Search for Motor Primitives in Robotics.** [NIPS 2008 官方论文页](https://papers.nips.cc/paper_files/paper/2008/hash/7647966b7343c29048673252e490f736-Abstract.html)。用于说明以加权拟合改进运动策略的相关路线；此处采用官方会议归档年 2008。
+45. **Kober, J., & Peters, J. R.（2008）. Policy Search for Motor Primitives in Robotics.** [NIPS 2008 官方论文页](https://papers.nips.cc/paper_files/paper/2008/hash/7647966b7343c29048673252e490f736-Abstract.html)。用于说明以加权拟合改进运动策略的相关路线；此处采用官方会议归档年 2008。
 
-42. **Oh, J., Guo, Y., Singh, S., & Lee, H.（2018）. Self-Imitation Learning.** [论文](https://arxiv.org/abs/1806.05635)。用于说明对优于当前价值估计的经验进行自模仿的思想。
+46. **Oh, J., Guo, Y., Singh, S., & Lee, H.（2018）. Self-Imitation Learning.** [论文](https://arxiv.org/abs/1806.05635)。用于说明对优于当前价值估计的经验进行自模仿的思想。
 
-43. **Peng, X. B., Kumar, A., Zhang, G., & Levine, S.（2019）. Advantage-Weighted Regression: Simple and Scalable Off-Policy Reinforcement Learning.** [论文](https://arxiv.org/abs/1910.00177)。用于说明由回报加权进一步转向优势加权的离策略回归方法。
+47. **Peng, X. B., Kumar, A., Zhang, G., & Levine, S.（2019）. Advantage-Weighted Regression: Simple and Scalable Off-Policy Reinforcement Learning.** [论文](https://arxiv.org/abs/1910.00177)。用于说明由回报加权进一步转向优势加权的离策略回归方法。
 
-44. **Nair, A., Gupta, A., Dalal, M., & Levine, S.（2020）. AWAC: Accelerating Online Reinforcement Learning with Offline Datasets.** [论文](https://arxiv.org/abs/2006.09359)。用于说明利用离线经验初始化并继续在线改进的优势加权方法。
+48. **Nair, A., Gupta, A., Dalal, M., & Levine, S.（2020）. AWAC: Accelerating Online Reinforcement Learning with Offline Datasets.** [论文](https://arxiv.org/abs/2006.09359)。用于说明利用离线经验初始化并继续在线改进的优势加权方法。
 
-45. **Chen, L., et al.（2021）. Decision Transformer: Reinforcement Learning via Sequence Modeling.** [论文](https://arxiv.org/abs/2106.01345)。用于说明通过回报条件序列建模利用高回报经验的另一种方法。
+49. **Chen, L., et al.（2021）. Decision Transformer: Reinforcement Learning via Sequence Modeling.** [论文](https://arxiv.org/abs/2106.01345)。用于说明通过回报条件序列建模利用高回报经验的另一种方法。
 
 ## 动作敏感度与 VLA 量化
 
-46. **Xu, Y., Yang, Y., Fan, Z., Liu, Y., Li, Y., Li, B., & Zhang, Z.（2026；ICLR 2026）. QVLA: Not All Channels Are Equal in Vision-Language-Action Model's Quantization.** [论文](https://arxiv.org/abs/2602.03782)；[公开代码](https://github.com/AutoLab-SAI-SJTU/QVLA)。用于比较动作空间敏感度、逐通道整数位宽分配及敏感接口保护；其平均位宽预算、模型、评测套件和显存口径与本文不同。
+50. **Xu, Y., Yang, Y., Fan, Z., Liu, Y., Li, Y., Li, B., & Zhang, Z.（2026；ICLR 2026）. QVLA: Not All Channels Are Equal in Vision-Language-Action Model's Quantization.** [论文](https://arxiv.org/abs/2602.03782)；[公开代码](https://github.com/AutoLab-SAI-SJTU/QVLA)。用于比较动作空间敏感度、逐通道整数位宽分配及敏感接口保护；其平均位宽预算、模型、评测套件和显存口径与本文不同。
