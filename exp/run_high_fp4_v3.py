@@ -525,11 +525,32 @@ def activation_installation_audit(path: Path, checkpoint: Path, protocol: dict[s
                     "report_count": len(reports), "server_logs": source_hashes})
     return compact
 
+def check_ptq_reference_stage(protocol: dict[str, Any], until: str, validate_only: bool) -> None:
+    """A source-protocol selection authorizes only a bounded sampling ablation."""
+    if "ptq_reference" in protocol["data"] and not validate_only and until != "qad_dev":
+        raise OrchestrationError(
+            "PTQ reference is restricted to --until qad_dev or --validate-only; "
+            "source development scores do not authorize recovery selection or heldout evaluation"
+        )
+
+
+def resolve_ptq_selection(path: Path, protocol: dict[str, Any]) -> dict[str, Any]:
+    if "ptq_reference" in protocol["data"]:
+        if __package__:
+            from .ptq_sampling_reference import validate_reference
+        else:
+            from ptq_sampling_reference import validate_reference
+        return validate_reference(path, protocol)
+    return validate_ptq(path, protocol)
+
+
 class Driver:
     def __init__(self,a:argparse.Namespace):
         self.a=a; self.protocol_path=need(a.protocol_file,"protocol")
-        self.protocol=load_protocol(self.protocol_path); self.selection_path=need(a.ptq_selection,"PTQ selection")
-        self.selection=validate_ptq(self.selection_path,self.protocol)
+        self.protocol=load_protocol(self.protocol_path)
+        check_ptq_reference_stage(self.protocol, getattr(a, "until", "all"), getattr(a, "validate_only", False))
+        self.selection_path=need(a.ptq_selection,"PTQ selection")
+        self.selection=resolve_ptq_selection(self.selection_path,self.protocol)
         self.run_dir=Path(a.run_dir).expanduser().resolve()
         self.art=self.run_dir/"artifacts"; self.work=self.run_dir/"work"; self.logs=self.run_dir/"logs"
         self.stages=self.run_dir/"stages"; self.receipts=self.run_dir/"cleanup_receipts"
@@ -636,7 +657,10 @@ class Driver:
                    "capture_dataset_identity":self.capture_dataset_identity,
                    "teacher_capture_identity":self.teacher_capture_identity,
                    "w4a4":self.w4a4,
-                   "orchestrator_source_sha256":current_source_sha256}
+                   "orchestrator_source_sha256":current_source_sha256,
+                   "reference_provenance":self.selection.get("reference_provenance")}
+            if "reference_provenance" in self.selection:
+                fixed["selection_protocol_sha256"] = self.selection["protocol_sha256"]
             for k,v in fixed.items():
                 if state.get(k)!=v: raise OrchestrationError(f"resume identity changed: {k}")
             if migrated_source:
@@ -649,6 +673,8 @@ class Driver:
                "protocol_file":str(self.protocol_path),"protocol_sha256":self.protocol["sha256"],
                "protocol_version":self.protocol["data"].get("version"),
                "selection_file":str(self.selection_path),"selection_sha256":self.selection["selection_sha256"],
+               "selection_protocol_sha256":self.selection.get("protocol_sha256"),
+               "reference_provenance":self.selection.get("reference_provenance"),
                "selected_recipe":self.selection["selected_recipe"],
                "selected_ptq_checkpoint":self.selection["selected_ptq_checkpoint"],
                "selected_ptq_recipe_sha256":self.selection["selected_ptq_recipe_sha256"],
@@ -670,8 +696,11 @@ class Driver:
 
     def freeze_check(self):
         if sha(self.protocol_path)!=self.protocol["sha256"]: raise OrchestrationError("protocol changed")
-        if validate_ptq(self.selection_path,self.protocol)["selection_sha256"]!=self.selection["selection_sha256"]:
+        current_selection = resolve_ptq_selection(self.selection_path,self.protocol)
+        if current_selection["selection_sha256"]!=self.selection["selection_sha256"]:
             raise OrchestrationError("PTQ selection changed")
+        if current_selection.get("reference_provenance") != self.selection.get("reference_provenance"):
+            raise OrchestrationError("PTQ reference provenance changed")
 
     def mark(self,name:str,payload:dict[str,Any]):
         rec={"stage":name,"status":"complete","completed_utc":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
@@ -1290,9 +1319,12 @@ class Driver:
         return {"selection_identity":identity(p/"selection.json")}
 
     def run(self,until):
+        check_ptq_reference_stage(self.protocol, until, self.a.validate_only)
         if self.a.validate_only:
             return {"status":"validated_only","protocol_sha256":self.protocol["sha256"],"selection_sha256":self.selection["selection_sha256"],
-                    "selected_recipe":self.selection["selected_recipe"],"selected_ptq_checkpoint":self.selection["selected_ptq_checkpoint"]}
+                    "selected_recipe":self.selection["selected_recipe"],"selected_ptq_checkpoint":self.selection["selected_ptq_checkpoint"],
+                    "selection_protocol_sha256":self.selection.get("protocol_sha256"),
+                    "reference_provenance":self.selection.get("reference_provenance")}
         base=Path(self.selection["selected_ptq_checkpoint"]); lrs=[float(x) for x in self.protocol["selection"]["qad_learning_rates"]]
         trains,models,devs={},{},{}
         for i,lr in enumerate(lrs):

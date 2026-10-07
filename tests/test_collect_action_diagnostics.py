@@ -72,7 +72,8 @@ def fixture(root):
     external = root / "external_decoder.py"
     external.write_text("# Recorded inference source; not imported for CPU metric replay.\n")
     source_map = {str(p): identity(p)["sha256"] for p in (ROOT / "exp/action_chunk_diagnostics.py",
-                  ROOT / "rl/gr00t_runtime.py", ROOT / "rl/probe_distill.py", external)}
+                  ROOT / "rl/gr00t_runtime.py", ROOT / "rl/probe_distill.py",
+                  ROOT / "rl/checkpoint_identity.py", external)}
     spec = {"horizon": 2, "dimensions": 7, "keys": ["x", "y", "z", "roll", "pitch", "yaw", "gripper"], "key_dimensions": [1] * 7}
     for i, arm in enumerate(ARMS):
         folder = source / arm

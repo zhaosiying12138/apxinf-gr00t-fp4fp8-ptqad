@@ -16,6 +16,7 @@ from eval.run_recovery_eval import (TASKS, capture_sampling_config, parse_log,
                                     protocol_entry, validate_capture_partition_separation,
                                     validate_resets)
 from rl.capture_sampling import materialize_capture_view, plan_capture_view
+from rl.checkpoint_identity import checkpoint_files
 
 
 def read(path):
@@ -45,6 +46,10 @@ def plan_views(source, windows_per_episode=4):
     require(purpose in ("teacher_supervision", "collection"), "Source must be a training capture")
     require(manifest.get("tasks") == TASKS and set(results) == set(TASKS), "All ten tasks are required")
     require(manifest.get("n_envs") == 1, "Full capture requires one environment")
+    require(manifest.get("checkpoint_files") == checkpoint_files(manifest["checkpoint"]),
+            "Capture checkpoint bytes differ from the identity frozen before rollout")
+    require(summary.get("checkpoint_files_verified_unchanged") is True,
+            "Capture did not certify unchanged checkpoint bytes through rollout completion")
     protocol = Path(manifest["protocol_file"])
     require(sha(protocol) == manifest.get("protocol_sha256"), "Source protocol changed")
     partition = protocol_entry(protocol, purpose)
@@ -130,22 +135,14 @@ def derive_views(source, output, windows_per_episode=4):
     return receipt
 
 
-def audit_training_view(root, protocol_file, teacher, minimum_episodes=2):
-    """Verify a selected teacher view through the original complete rollout.
+def audit_paired_views(paired_root, protocol_file):
+    """Verify both data views against the external protocol and source rollout.
 
-    The paired source is checked again, including its unselected candidates;
-    both views must still have their exact deterministic tensors and labels.
-    No evaluation directory or episode outcome is synthesized for the view.
+    This common provenance check permits teacher or collection sources. It
+    does not declare collection states to be successful teacher supervision.
     """
-    import torch
     from rl.capture_sampling import verify_capture_view
-    root, protocol_file, teacher = (Path(x).resolve() for x in (root, protocol_file, teacher))
-    view = root.parent if root.name == "observations" else root
-    mode = view.name
-    require(mode in ("head", "stratified") and root in (view, view / "observations"),
-            "Training root must select one head/stratified view or its observations child")
-    require(type(minimum_episodes) is int and minimum_episodes > 0, "Invalid minimum episode count")
-    paired = view.parent
+    paired, protocol_file = (Path(x).resolve() for x in (paired_root, protocol_file))
     receipt = read(paired / "views_manifest.json")
     require(receipt.get("schema") == "fp4vla_paired_capture_views_v1"
             and receipt.get("status") == "complete", "Paired views are not complete")
@@ -171,6 +168,40 @@ def audit_training_view(root, protocol_file, teacher, minimum_episodes=2):
     evaluation = read(source / "eval_manifest.json")
     require(evaluation.get("protocol_sha256") == protocol_sha,
             "Source evaluation protocol differs from the requested training protocol")
+    inventories, views, all_training_files = {}, {}, set()
+    for selection, task_plans in plan["plans"].items():
+        inventories[selection] = {"tasks": 0, "accepted_samples": 0, "rejected_samples": 0}
+        views[selection] = {}
+        for task_plan in task_plans:
+            directory = paired / selection / "observations" / task_plan["task_name"]
+            manifest = verify_capture_view(task_plan, directory)
+            inventories[selection]["tasks"] += 1
+            for key in ("accepted_samples", "rejected_samples"):
+                inventories[selection][key] += manifest[key]
+            all_training_files.update(directory / row["output_filename"] for row in task_plan["selected"]
+                                      if row["accepted_for_training"])
+            views[selection][task_plan["task_name"]] = manifest
+    require(receipt.get("views") == inventories, "Paired view inventory differs")
+    require(set(paired.rglob("sample_*.pt")) == all_training_files,
+            "Unexpected training samples outside the declared paired views")
+    return {"plan": plan, "receipt": receipt, "evaluation": evaluation, "views": views}
+
+
+def audit_training_view(root, protocol_file, teacher, minimum_episodes=2):
+    """Verify successful teacher supervision through both views and the original rollout."""
+    import torch
+    root, protocol_file, teacher = (Path(x).resolve() for x in (root, protocol_file, teacher))
+    view = root.parent if root.name == "observations" else root
+    mode = view.name
+    require(mode in ("head", "stratified") and root in (view, view / "observations"),
+            "Training root must select one head/stratified view or its observations child")
+    require(type(minimum_episodes) is int and minimum_episodes > 0, "Invalid minimum episode count")
+    paired = view.parent
+    verified = audit_paired_views(paired, protocol_file)
+    plan, receipt, evaluation = (verified[key] for key in ("plan", "receipt", "evaluation"))
+    protocol_sha = sha(protocol_file)
+    source = Path(plan["source_directory"])
+    view_config = read(protocol_file)["capture_views"]
     require(evaluation.get("purpose") == "teacher_supervision"
             and evaluation.get("checkpoint") == str(teacher),
             "QAD views must come from the specified teacher's successful training rollouts")
@@ -185,33 +216,20 @@ def audit_training_view(root, protocol_file, teacher, minimum_episodes=2):
     teacher_weights = {p.name: {"bytes": p.stat().st_size, "sha256": sha(p)}
                        for p in sorted(teacher.glob("*.safetensors"))}
     require(bool(teacher_weights), "Teacher has no weight shards")
-    inventories, selected_views, all_training_files = {}, {}, set()
-    for selection, task_plans in plan["plans"].items():
-        inventories[selection] = {"tasks": 0, "accepted_samples": 0, "rejected_samples": 0}
-        for task_plan in task_plans:
-            directory = paired / selection / "observations" / task_plan["task_name"]
-            manifest = verify_capture_view(task_plan, directory)
+    for selection, task_views in verified["views"].items():
+        for task, manifest in task_views.items():
             for key, value in {"source_kind": "teacher_rollout", "checkpoint_role": "teacher",
                                "student_checkpoint": str(teacher),
                                "student_statistics_sha256": statistics_sha,
                                "student_config_sha256": config_sha}.items():
-                require(manifest.get(key) == value, f"Teacher view mismatch: {task_plan['task_name']}/{key}")
-            inventories[selection]["tasks"] += 1
-            for key in ("accepted_samples", "rejected_samples"):
-                inventories[selection][key] += manifest[key]
-            all_training_files.update(directory / row["output_filename"] for row in task_plan["selected"]
-                                      if row["accepted_for_training"])
-            if selection == mode:
-                selected_views[task_plan["task_name"]] = (directory, manifest)
-    require(receipt.get("views") == inventories, "Paired view inventory differs")
-    require(set(paired.rglob("sample_*.pt")) == all_training_files,
-            "Unexpected training samples outside the declared paired views")
+                require(manifest.get(key) == value, f"Teacher view mismatch: {task}/{key}")
     observations = view / "observations"
     tasks = {}
     required_inputs = {"embodiment_id", "state", "input_ids", "attention_mask",
                        "pixel_values", "image_grid_thw", "action", "action_mask"}
     for task in TASKS:
-        folder, manifest = selected_views[task]
+        folder = observations / task
+        manifest = verified["views"][mode][task]
         episodes, files = Counter(), []
         for record in manifest["selected_sources"]:
             if not record["accepted_for_training"]:

@@ -178,7 +178,7 @@ class DerivedTeacherReplayTests(unittest.TestCase):
             audit_replay(paired / "head", protocol, teacher, minimum_episodes=1)
         paired, protocol, teacher = self.derive(self.source())
         fixtures.write_json(teacher / "ptq_recipe.json", {"quantized": True})
-        with self.assertRaisesRegex(ValueError, "unquantized BF16 teacher"):
+        with self.assertRaisesRegex(ValueError, "Capture checkpoint bytes differ"):
             audit_replay(paired / "head", protocol, teacher, minimum_episodes=1)
 
     def test_hidden_extra_training_sample_is_rejected(self):

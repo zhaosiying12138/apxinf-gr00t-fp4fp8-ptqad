@@ -18,6 +18,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "rl"))
+from checkpoint_identity import checkpoint_files
 from gr00t_runtime import action_mask, libero_action_spec
 from probe_distill import file_sha256, replay_context, require_full_model, tensor_tree
 
@@ -131,25 +132,6 @@ def decode_chunk(policy, action, processor_config):
     return decoded
 
 
-def checkpoint_files(checkpoint):
-    """Hash all loaded base/adapter weights, including referenced deployment files."""
-    checkpoint = Path(checkpoint).resolve()
-    roots = {checkpoint}
-    merge = checkpoint / "merge_manifest.json"
-    if merge.is_file():
-        info = read(merge)
-        require(info.get("status") == "complete", "Incomplete deployment manifest")
-        roots.update(Path(info[k]).resolve() for k in ("base", "training_checkpoint"))
-    records = {}
-    for root in sorted(roots):
-        paths = sorted(root.glob("*.safetensors"))
-        require(paths, f"No weight shards: {root}")
-        paths += sorted(root.glob("*.json"))
-        for path in paths:
-            records[str(path)] = {"bytes": path.stat().st_size, "sha256": file_sha256(path)}
-    return records
-
-
 def bind_final_checkpoint(final_path, arm, inputs):
     """Resolve labels from the completed run and verify the weights it selected."""
     final = read(final_path)
@@ -237,7 +219,8 @@ def collect(args):
         require(file_sha256(actual_base / name) == file_sha256(checkpoint / name),
                 "Export and actual loader base disagree: " + name)
     source_paths = [Path(__file__), ROOT / "eval/serve_recovery.py", ROOT / "eval/run_gr00t_server_fp4vla.py",
-                    ROOT / "rl/probe_distill.py", ROOT / "rl/scoped_quant.py", ROOT / "rl/w4a4_deploy.py",
+                    ROOT / "rl/probe_distill.py", ROOT / "rl/checkpoint_identity.py",
+                    ROOT / "rl/scoped_quant.py", ROOT / "rl/w4a4_deploy.py",
                     ROOT / "rl/w4a4_lora.py", ROOT / "quant/native_activation.py",
                     gr00t / "gr00t/eval/sim/LIBERO/libero_env.py"]
 

@@ -219,6 +219,33 @@ def validate_capture_partition_separation(path, purpose):
             raise ValueError(f"Capture and {name} reset seeds overlap")
 
 
+def _capture_checkpoint_files(checkpoint):
+    # Keep the shared helper and its import path out of the unchanged prefix
+    # evaluation path. This branch runs before any policy server is launched.
+    if not __package__:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from rl.checkpoint_identity import checkpoint_files
+    return checkpoint_files(checkpoint)
+
+
+def record_capture_checkpoint(manifest):
+    """Bind opt-in candidate capture to current checkpoint/base/adapter bytes."""
+    if manifest.get("capture_sampling") is not None:
+        manifest["checkpoint_files"] = _capture_checkpoint_files(manifest["checkpoint"])
+
+
+def verify_capture_checkpoint(manifest, summary):
+    """Reject a changed candidate producer before publishing a complete summary."""
+    if manifest.get("capture_sampling") is None:
+        return
+    recorded = manifest.get("checkpoint_files")
+    if not isinstance(recorded, dict) or not recorded:
+        raise ValueError("Full candidate capture lacks initial checkpoint identity")
+    if _capture_checkpoint_files(manifest["checkpoint"]) != recorded:
+        raise ValueError("Checkpoint files changed during full candidate capture")
+    summary["checkpoint_files_verified_unchanged"] = True
+
+
 def configure_capture_environment(env, output, task, purpose, manifest, seed, indices):
     """Configure optional rollout capture variables for one task.
 
@@ -496,6 +523,7 @@ def main():
     manifest["protocol_sha256"] = hashlib.sha256(protocol_path.read_bytes()).hexdigest()
     if sampling_config is not None:
         manifest["capture_sampling"] = sampling_config
+        record_capture_checkpoint(manifest)
     (output / "eval_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     results = {}
     started = time.time()
@@ -583,6 +611,7 @@ def main():
                "score_definition": "macro_success_rate=unweighted mean of ten task rates; micro_success_rate=total successes/episodes",
                "purpose": args.purpose, "seed": args.seed,
                "wall_seconds_including_server_loads": time.time() - started}
+    verify_capture_checkpoint(manifest, summary)
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary), flush=True)
 

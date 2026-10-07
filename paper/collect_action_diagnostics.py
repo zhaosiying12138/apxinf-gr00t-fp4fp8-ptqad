@@ -29,6 +29,7 @@ REPLAY = {
     "producer": "exp/action_chunk_diagnostics.py",
     "action_contract": "rl/gr00t_runtime.py",
     "producer_import": "rl/probe_distill.py",
+    "checkpoint_identity": "rl/checkpoint_identity.py",
 }
 TENSOR_TAG = "__finite_torch_tensor_v1__"
 
@@ -120,9 +121,9 @@ def decode(value):
 
 @contextmanager
 def comparator(source_root):
-    """Import exactly the recorded three-file CPU implementation, then restore imports."""
+    """Import exactly the recorded CPU implementation, then restore imports."""
     cpu_only()
-    names = ("gr00t_runtime", "probe_distill")
+    names = ("gr00t_runtime", "probe_distill", "checkpoint_identity")
     saved = {name: sys.modules.pop(name, None) for name in names}
     path_before = sys.path[:]
     bytecode_before = sys.dont_write_bytecode

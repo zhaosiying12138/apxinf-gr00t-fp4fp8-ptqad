@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "rl"))
 from eval.run_recovery_eval import (TASKS, capture_sampling_config,
                                     finalize_capture_samples, parse_log)
 from exp.derive_capture_views import derive_views
+from rl.checkpoint_identity import checkpoint_files
 
 MODE = "full_trajectory_candidates"
 
@@ -56,16 +57,16 @@ class DeriveCaptureViewsTests(unittest.TestCase):
         config = capture_sampling_config(partition, purpose, 2)
         checkpoint_path = self.root / (f"frozen_checkpoint_{self.fixture_count}" if formal_teacher else "frozen_checkpoint")
         checkpoint = str(checkpoint_path)
-        if formal_teacher:
-            checkpoint_path.mkdir()
-            write_json(checkpoint_path / "config.json", {"fixture": "identity-only"})
-            write_json(checkpoint_path / "statistics.json", {"fixture": "normalization identity"})
-            (checkpoint_path / "model.safetensors").write_bytes(b"hash-only fixture; never model-loaded")
+        checkpoint_path.mkdir(exist_ok=True)
+        write_json(checkpoint_path / "config.json", {"fixture": "identity-only"})
+        write_json(checkpoint_path / "statistics.json", {"fixture": "normalization identity"})
+        (checkpoint_path / "model.safetensors").write_bytes(b"hash-only fixture; never model-loaded")
         kind = "teacher_rollout" if purpose == "teacher_supervision" else "student_rollout"
         manifest = {"purpose": purpose, "tasks": TASKS, "n_envs": 1, "episodes": 2,
                     "protocol_file": str(protocol), "protocol_sha256": digest(protocol),
                     "init_state_indices": [20, 21], "seed": 950000, "max_episode_steps": 720,
-                    "checkpoint": checkpoint, "capture_sampling": config}
+                    "checkpoint": checkpoint, "checkpoint_files": checkpoint_files(checkpoint_path),
+                    "capture_sampling": config}
         if formal_teacher:
             manifest["environment_summary"] = {"variables": {key: "0" for key in (
                 "FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
@@ -129,6 +130,7 @@ class DeriveCaptureViewsTests(unittest.TestCase):
             task_results[task] = result
         write_json(directory / "task_results.json", task_results)
         write_json(directory / "summary.json", {"tasks_complete": 10, "total_episodes": 20,
+                                                "checkpoint_files_verified_unchanged": True,
                                                 "total_successes": 10 * sum(success), "purpose": purpose})
         return directory
 
@@ -183,6 +185,26 @@ class DeriveCaptureViewsTests(unittest.TestCase):
         log.write_text(log.read_text() + "tampered raw bytes\n")
         output = self.root / "rejected_log"
         with self.assertRaisesRegex(ValueError, "Raw rollout disagrees"):
+            derive_views(source, output)
+        self.assertFalse(output.exists())
+
+    def test_collection_checkpoint_must_match_capture_time_identity(self):
+        source = self.fixture(purpose="collection")
+        manifest = json.loads((source / "eval_manifest.json").read_text())
+        (Path(manifest["checkpoint"]) / "model.safetensors").write_bytes(b"different frozen policy")
+        output = self.root / "changed_checkpoint"
+        with self.assertRaisesRegex(ValueError, "checkpoint bytes differ"):
+            derive_views(source, output)
+        self.assertFalse(output.exists())
+
+    def test_completion_requires_checkpoint_unchanged_attestation(self):
+        source = self.fixture()
+        path = source / "summary.json"
+        summary = json.loads(path.read_text())
+        summary.pop("checkpoint_files_verified_unchanged")
+        write_json(path, summary)
+        output = self.root / "unverified_checkpoint"
+        with self.assertRaisesRegex(ValueError, "unchanged checkpoint bytes"):
             derive_views(source, output)
         self.assertFalse(output.exists())
 
