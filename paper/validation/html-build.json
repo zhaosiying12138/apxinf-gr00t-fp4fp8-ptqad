@@ -269,8 +269,8 @@
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "bytes": 16955,
-      "sha256": "8e8d427ed877c910a6e69034b981b8170d3450c89a01afbf40062f43030c68be"
+      "bytes": 17436,
+      "sha256": "6d77fab250be7da8aff650b18dca36a36d97a448aa1e44db5d7d783539aa800a"
     },
     {
       "path": "sections/03-方法.md",
@@ -310,8 +310,8 @@
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 4852679,
-    "sha256": "391222edaa4e2932e3f39e6dd9afad7302bef8472c6d1e649e1811a94b15caa3"
+    "bytes": 4853204,
+    "sha256": "679342a5bd881f0f4c0986e0b4540c609ef49e7822d43812a130bc57e488e37e"
   },
   "math_expressions": 217,
   "figures": 24,
