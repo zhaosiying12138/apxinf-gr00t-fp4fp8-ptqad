@@ -234,6 +234,8 @@ python3 paper/install_final_evidence.py --verify paper/evidence
 python3 paper/collect_search_costs.py --run-dir "$RECOVERY" --out paper/evidence/search_costs
 python3 paper/collect_search_costs.py --verify paper/evidence/search_costs
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
+python3 paper/install_final_evidence.py --register-supplements paper/evidence --supplement-root paper/evidence
+python3 paper/install_final_evidence.py --verify paper/evidence
 ```
 
 安装器只迁移本轮科学证据和截图登记；上面的命令重新归档完整搜索成本。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
