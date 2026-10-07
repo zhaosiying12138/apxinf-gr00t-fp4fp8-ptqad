@@ -28,17 +28,33 @@
 
 这里需要把本文与 QVLA 的关系说清楚。QVLA 是动作空间敏感度驱动的 PTQ：它对每个输出通道试验多种整数位宽，再按平均位宽预算做通道级分配，并保护 projector、action head 等模块。本文不复现这条分配路线；本文的对象是固定格式的 NVFP4 W4A4 主分支。479 个 eligible 权重张量统一编码，随后在同一量化基座上研究演示低秩恢复和学生状态教师监督。项目中把前一阶段称为 QAD、后一阶段称为 OPD，是本文工程协议中的命名，不能将 QAD 误读为 QVLA 的组成模块或某一种统一的 KL 蒸馏标准。
 
+QVLA 的实验矩阵同时包含 W8A8、W4A4 以及权重为主的 W8A16/W4A16；下表只引用与本文最接近的 W4A4 行。因而不能把 QVLA 的全部实验概括成“激活也是四位”，也不能把它的平均位宽理解成每个权重元素都固定四位。
+
 为避免两个工作都使用 “W4A4” 而造成口径混淆，表 1 将关键差异列在同一处。QVLA 的数字是文献原报告，本文右列在正式五臂评测完成前保留占位。
 
 | 对照项 | QVLA（文献口径） | 本文（v12 协议） |
 |---|---|---|
 | 模型与任务 | OpenVLA-OFT；LIBERO 四套件 | GR00T N1.7；LIBERO-10 十任务 |
-| W4A4 的含义 | 指定量化层内的通道平均权重位宽为 4；各通道可取 0/2/4/8/16 位，目标路径激活为 INT4；保护层保持 BF16 且不计入该平均位宽 | 权重为 NVFP4 E2M1；每 16 个元素共享 E4M3 块尺度，每个权重张量共享一个 FP32 二级尺度；激活走 NVFP4 QDQ |
+| W4A4 的含义 | 指定量化层内的通道平均权重位宽为 4；各通道可取 0/2/4/8/16 位，激活采用统一 4-bit（论文未声明为 NVFP4）；projector/action head 保持 BF16 且不计入该平均位宽 | 权重为 NVFP4 E2M1；每 16 个元素共享 E4M3 块尺度，每个权重张量共享一个 FP32 二级尺度；激活走 NVFP4 QDQ |
 | 覆盖范围 | 主要量化 vision backbone 与 language module；projector、action head 和公开脚本中的 `language_model.lm_head` 保持全精度 | 479 个 eligible 权重张量全部编码；469 个 ordinary Linear 与 7 个 category Linear 安装 A4 QDQ，QAD 只在 468 个 ordinary Linear 上挂 BF16 LoRA |
 | 方法 | 动作空间敏感度、逐通道 greedy demotion | 固定 RTN 压力、QAD 演示恢复、continued-QAD 控制、OPD 学生状态教师监督 |
 | 已报告结果 | OpenVLA-OFT：97.1% → 96.0%，15.4 → 4.5 GB，1.49× | 正式结果：<span style="color:#b42318">xxx</span> |
 
-QVLA 的 98.9% 是 96.0/97.1 的相对保留率，不是 98.9% 的绝对成功率；表中相对 SmoothQuant 的 22.6 也应读作 **22.6 个百分点**。两篇工作的数字不能直接排成同一排行榜。
+QVLA 表 1 的 W4A4 外部参照如下，完整列出其强基线而不只摘录摘要数字：
+
+| 模型（LIBERO 四套件平均） | BF16 | SmoothQuant | OmniQuant | QVLA | 显存/速度（QVLA） |
+|---|---:|---:|---:|---:|---:|
+| OpenVLA | 76.5% | 63.2% | 73.3% | 76.0% | 4.3 GB / 1.47× |
+| OpenVLA-OFT | 97.1% | 73.4% | 93.9% | 96.0% | 4.5 GB / 1.49× |
+
+这里的平均值来自 LIBERO-Spatial、Object、Goal、Long 四个套件；QVLA 使用 RTX 4090，本文使用 GR00T N1.7 的 LIBERO-10 十任务。模型、套件、硬件和成功率分母均不同，表中数值只能作为机制参照，不能与本文结果组成排行榜。QVLA 的消融也说明了参照方法的必要性：OpenVLA 上 INT4 的 channel-wise 分配为 76.5%，layer-wise 为 74.8%；在整体 INT8 预算下，uniform-bit 为 74.6%，channel-wise 加 pruning 为 76.8%。这些消融不是本文复现实验。
+QVLA 的 98.9% 是 96.0/97.1 的相对保留率；相对 SmoothQuant 的差值 22.6 是百分点。上述文献结果与本文不使用相同模型、任务和后端，不能直接排名。
+
+QVLA 的校准集来自 LIBERO 训练轨迹，主实验随机取 512 条轨迹，并加入少量仅含指令的样本。它用 teacher-forcing 下的单步 Action-MSE 做位宽分配，再用短 rollout 的累计动作偏差、末端偏差和最终成功率交叉验证排序；因此“单步指标用于筛选、短时闭环用于验证”是两个不同层次的证据。本文的 148 个窗口来自成功教师回合的恢复监督，既不是 512 条 PTQ 校准轨迹，也没有声称复现 QVLA 的校准规模消融。
+
+为避免把两种方法的“四位”混为一谈，补充说明 QVLA 的计算链。对第 $l$ 层第 $c$ 个输出通道，QVLA 把该通道单独量化到 $b\in\{0,2,4,8,16\}$ 位，其动作敏感度定义为教师强制下的单步误差 $s_{l,c}^{(b)}=\mathbb{E}\|\tilde A_{l,c}^{(b)}-A^*\|_2^2$；再用短回合累计动作偏差 $S_{l,c}^{(b)}=\mathbb{E}\sum_t\|\tilde A_{l,c}^{(b)}(t)-A^*(t)\|_2$ 做时域验证。为降低逐通道全量前向的成本，论文用局部一阶近似将量化噪声与动作 Jacobian 增益相乘，先得到全局排序，再对候选通道做精确测量。最后从 16 位开始，按 $16\rightarrow8\rightarrow4\rightarrow2\rightarrow0$ 的相邻降位步骤，把单位节省位宽带来的敏感度增量最小的通道逐个降位，直到达到平均位宽预算；$0$ 位表示剪枝。
+
+这一定义解释了本文与 QVLA 的边界：QVLA 的核心是**动作空间敏感度驱动的通道级混合整数位宽分配**，并保护 projector 与 action head；本文则故意把 GR00T 的可量化主分支固定为 NVFP4 W4A4，用 QAD/OPD 学习恢复参数。因而本文不是 QVLA 的复现或直接超越，也没有声称已经完成 GR00T 上的动作敏感度分配。QVLA 还报告了通道/层级消融、校准规模消融、UniVLA/CALVIN 和真实机器人实验；本文只复用其中与动作误差—闭环成功率相连的思想，其他证据不作为本文结果。
 
 ## 1.3 “全 W4A4”的准确含义
 
@@ -146,50 +162,29 @@ $$
 
 ## 2.4 已有方法分别解决什么问题
 
-下表按误差处理的位置归类。RTN 指按给定尺度取最近格点，MSE 指均方误差，KL 散度用于比较概率分布。
+量化方法的差别在于它们把误差放在哪里处理。RTN 只决定格点、尺度和舍入；GPTQ、BRECQ 等用校准输入重构层输出；AWQ、SmoothQuant、OmniQuant 和旋转类方法通过缩放、坐标变换或保护显著通道改变误差分布；LoRA、SVDQuant 等则在量化后增加低秩补偿。本文的主压力基座使用固定、无校准的 NVFP4 RTN，GPTQ 只作为同覆盖补充参考，QAD/OPD 属于量化后的行为恢复。
 
-| 比较维度 | 代表方法 | 核心做法及本文关系 |
+| 比较维度 | 代表方法 | 与本文的关系 |
 |---|---|---|
-| 格点、范围与舍入 | Jacob et al.（2018）、Migacz（2017）、PACT（Choi et al., 2018）、AdaRound（Nagel et al., 2020） | 选择范围、裁剪或舍入方向。本文的 RTN 主配方固定裁剪系数为 1，并明确张量尺度、块尺度与最近偶数舍入规则 |
-| 层与块的局部重建 | GPTQ（Frantar et al., 2023）、ZeroQuant（Yao et al., 2022）、BRECQ（Li et al., 2021） | 利用校准输入重建输出。工程提供 NVFP4 块缩放的 GPTQ 接口；本文的五臂对照统一从无校准 RTN 基座开始 |
-| 等价缩放与坐标变换 | AWQ（Lin et al., 2023）、SmoothQuant（Xiao et al., 2023）、OmniQuant（Shao et al., 2024）、QuaRot、QuIP#、SpinQuant、FlatQuant（2024） | 将数值重新分配到适合低位宽的坐标；变换须在线执行或等价折叠。本文主配方沿用原模型坐标，恢复训练直接补偿其量化误差 |
-| 低秩补偿 | LoRA（Hu et al., 2021）、SVDQuant（Li et al., 2024）、EoRA（Liu et al., 2024） | 用少量低秩参数表达修正。本文冻结已量化基座，以演示与教师速度目标训练加性旁路 |
-| 动作敏感度与位宽分配 | QVLA（Xu et al., ICLR 2026） | 对每层输出通道分别试验 $b\in\{0,2,4,8,16\}$，以 teacher-forcing 下的单步 Action-MSE 和短回合累计动作偏差衡量扰动，再用 Jacobian 增益与量化噪声的一阶 proxy 排序，通过 greedy demotion 满足全局平均位宽预算；0 bit 表示剪枝。其主实验只量化 vision backbone 与 language module，保护 projector、action head，并在公开脚本中排除 `language_model.lm_head`；本文研究把动作路径的可量化主分支也压到 NVFP4 后的恢复 |
-| 蒸馏的数据来源 | DAgger（Ross et al., 2011）、GKD（Agarwal et al., 2023） | 关注学生访问或生成的分布。本文从学生实际 rollout 采集观测，离线标注后执行一轮固定缓存训练 |
-| NVFP4 教师蒸馏 | Xin et al.（2026） | 通过教师分布的 KL 目标恢复 NVFP4 模型。本文的 QAD 阶段使用演示流匹配；教师项只在后续 OPD 中出现，目标为连续速度 MSE |
+| 格点与舍入 | RTN、AdaRound | 决定低位宽数值误差；本文固定 NVFP4 块缩放与最近偶数舍入 |
+| 层/块重构 | GPTQ、BRECQ | 用校准输入降低层输出误差；本文单独报告同覆盖 NVFP4 GPTQ，不把它写成 QVLA 复现 |
+| 等价变换 | AWQ、SmoothQuant、OmniQuant、QuaRot、SpinQuant、FoldQuantVLA | 改变权重和激活的坐标或保护范围；本文主配方不折叠坐标，恢复项直接学习残差 |
+| 动作敏感度分配 | QVLA | 在最终动作空间测量每个输出通道的扰动，再按平均整数位宽预算分配 |
+| 量化后恢复 | LoRA、QAD、OPD | 用低秩参数修正量化基座；本文比较演示恢复、同预算续训和学生状态教师监督 |
 
-量化基本概念与实践可参见 Vanhoucke et al.（2011）、Wu et al.（2020）和 Nagel et al.（2021）。
+### QVLA 的定位与本文边界
 
-VLA 量化还需要同时说明模型保护范围与执行后端。NVIDIA 的 GR00T N1.7 Thor 教程把视觉塔设为 FP8、语言主体设为 NVFP4，并保护语言 o_proj/down_proj 等投影；它还使用交叉注意力 K/V 复用、时间条件预计算和算子融合。教程报告的约 39.9 ms 来自这套联合部署优化。[NVIDIA 官方教程](https://www.jetson-ai-lab.com/tutorials/groot_n17_on_thor/)
+QVLA 的“四位”不是把模型中每个权重固定成四位。对第 $l$ 层第 $c$ 个输出通道，它分别试验 $b\in\{0,2,4,8,16\}$，并以教师强制下的单步动作误差
+$s_{l,c}^{(b)}=\mathbb{E}\|\tilde A_{l,c}^{(b)}-A^*\|_2^2$
+衡量扰动，再用短回合的累计动作偏差
+$S_{l,c}^{(b)}=\mathbb{E}\sum_t\|\tilde A_{l,c}^{(b)}(t)-A^*(t)\|_2$
+检查时间累积。它用局部一阶近似把量化噪声与动作 Jacobian 增益相乘，先获得全局排序，再从 16 位开始沿 $16\rightarrow8\rightarrow4\rightarrow2\rightarrow0$ 的相邻步骤，把“每节省一位带来的误差增量”最小的通道逐个降位；0 位表示剪枝。主实验采用统一 4-bit activation，projector 与 action head 保持 BF16，平均位宽只在指定量化层内计算，论文没有把这一路径声明为 NVFP4。
 
-QVLA（Xu et al., ICLR 2026）把量化误差的评价目标放在最终动作上，再按通道敏感度分配位宽。其表 1 的 W4A4 表示**指定量化层内的通道平均权重预算为 4 位，目标路径激活为 INT4**；保护层保持 BF16，且不进入平均位宽分母。通道仍可使用 0/2/4/8/16 位；它先用计算便宜的单步敏感度排序分配位宽，再用短回合累计敏感度验证排序是否能解释长时行为，而不是把累计指标直接当作每个通道的分配目标。位宽从 16→8→4→2→0 逐级 demotion，每一步按“增加的敏感度误差/节省的位数”排序。这个整数、逐通道方案并不是本文的 NVFP4 E2M1/E4M3 块缩放。§4.1 明确保留 projector 和 action head 为 BF16，公开代码还排除 `language_model.lm_head`。OpenVLA-OFT 的四套件平均成功率由 97.1% 变为 96.0%，摘要中的 98.9% 是相对保留率，而不是绝对成功率；表 1 中相对 SmoothQuant 的 22.6% 应读作 **22.6 个百分点**（96.0−73.4）。其校准集是 LIBERO 训练集中的 512 条轨迹，并另做 128/256/512/1024 规模消融；论文还说明加入少量仅指令样本。
+QVLA 的 OpenVLA/OFT 结果、channel-wise 与 layer-wise 消融、uniform-bit 与 pruning 对照、512 条轨迹及校准规模消融，均属于外部文献证据，已在 §1.2 列出其中与本文最接近的 W4A4 数字。其 UniVLA、CALVIN 和真实机器人结果不能替代本文 GR00T 的闭环评测；固定观测动作误差也不能单独给出闭环成功率保证。公开代码中的层输入 Hessian proxy 和 weight-only fake quant 入口与论文的动作 Jacobian 理论并不等价，复现边界见附录 B。
 
-论文算法与公开实现需要分别核对。固定代码快照 `26cc4821a3be4c003d09d3c7997b38db2a347982` 的 `sensitivity_hessian_proxy.py` 使用层输入二阶统计和带阻尼的逆 Cholesky，对逐行权重舍入误差加权；这个入口没有计算最终动作的 Jacobian，不能据此确认它等价于论文的动作敏感度代理。脚本默认 `--max_samples=32`、`--bits=0,2,4,8`，16 位由未量化旁路表示。`max_samples` 计数的是单张图像与文本组成的 JSONL 记录，设为 512 并不等于采样 512 条轨迹；复现还需要轨迹到图文记录的抽样规则。仅指令样本也会被这个读取器跳过。另一个入口 `inject_fake_w.py` 只改写权重行，没有激活 QDQ 或低精度 kernel。因此引用 QVLA 表格不等于已通过这些脚本复现其 W4A4 运行时。
+这套设计有明确的实证动机：QVLA 的模块分析显示视觉编码器通常比语言模块稳定，而 projector 与 action head 更敏感；同一层内不同输出通道的敏感度也并不均匀。附录用约 1,000 个通道比较单步与累计敏感度排序，约 80% 的点靠近对角线，支持用较便宜的单步代理做初筛，再用短 rollout 检验长时行为。本文故意把动作路径纳入全覆盖 NVFP4 W4A4，目的是制造可测的压力并研究恢复，而不是宣称找到了比 QVLA 更优的位宽分配。
 
-QVLA 的“敏感度”也有三层含义，不能混写。正文单步指标是通道被量化后最终动作的平方二范数期望。令 $\Delta A=A(X_{l,c}+\Delta X_{l,c}^{(b)})-A(X_{l,c})$，其理论目标为
-
-$$
-S_{l,c}^{(b)}=\mathbb E\|\Delta A\|_2^2\approx(\sigma_{l,c}^{(b)})^2\|J_{A,X_{l,c}}\|_F^2,
-$$
-
-其中最后一步依赖局部线性、零均值和各向同性噪声假设。正文式 (5) 的短回合指标是每个时刻动作偏差二范数的累加，图 3 则标为累计 MSE；附录的平方范数推导不能与二者混用，也不能当作闭环成功率保证。累计和在每步误差恒定时也会增长，故仅凭累计曲线不能证明闭环放大；还应检查逐步误差及回合提前终止的影响。上述动作 Jacobian 代理与公开的层输入 Hessian 代理是不同计算。本文不复现这套 action-aware 分配，而是把动作诊断放在固定 NVFP4 W4A4 基座之后：先测固定观测下的完整动作块，再以同初态配对的 LIBERO rollout 检验 QAD、continued-QAD 与 OPD 的行为变化。
-
-QVLA 还用 layer/channel、uniform-bit/pruning、gate ratio、校准规模、UniVLA、CALVIN、真实机器人和定性 rollout 组成证据矩阵。本文的研究问题更窄：验证全覆盖 W4A4 压力下的低秩恢复和学生状态教师监督。若未补做 rollout 累计误差、首次失败阶段或保护范围消融，正文只能把固定观测动作差异称为机制诊断，不能把它写成 QVLA 意义上的长时稳定性证明；APXInf 的独立算子和 $\pi_0.5$ 基准也不能替代 GR00T 同模型的端到端显存与延迟测量。
-
-QVLA 的附录提供了两个补充参照。表 6 在 OpenVLA 的 INT8 预算下列出四组完整位宽配比，8-bit 通道占比分别为 56%、35.5%、18.5%、25%，对应成功率 76.3%、75.6%、74.6%、74.1%。其他位宽占比也同时改变，不能把结果归因于 8-bit 比例的单调变化。表 9 使用的是 **OpenVLA-OFT W8A16**：校准轨迹数为 128、256、512、1024 时，成功率分别为 96.4%、96.8%、97.0%、96.7%。这些是外部模型的分配与校准消融，不是本文 GR00T 的结果；本文 37 个成功回合所提供的 148 个窗口属于恢复监督，不属于 PTQ 校准。
-
-本文的覆盖口径见 §1.3：479 个符合条件的权重张量均采用 NVFP4，469 个普通线性层和 7 个类别专属线性层安装激活 QDQ，其余 3 个张量只量化权重。低秩恢复覆盖 468 个普通线性层；差额来自动作前向不调用的 `lm_head`，7 个类别专属层也保持冻结。更广的覆盖本身不代表优于 QVLA，还需按同模型、同任务和完整字节预算比较，并验证速度场拟合能否改善最终动作与闭环。[QVLA 原文，表 1、§3.3–4.1、附录 F](https://arxiv.org/abs/2602.03782)
-
-FoldQuantVLA（Ho et al., 2026）组合通道缩放 $S$、分块正交旋转 $R$、GPTQ 与动态激活量化。把单个输入暂写为列向量 $x$，可逆对角矩阵 $S$ 与正交矩阵 $R$ 保证
-
-$$
-Wx=(WSR^\top)(RS^{-1}x).
-$$
-
-量化与运行时沿用这个坐标，才能保持变换的一致性。其 GR00T 表 I 使用 W4A4，并以 W8A8 保护语言 o_proj/down_proj；四套件平均成功率由 95.75% 变为 95.625%。本文将这些投影也纳入 NVFP4 权重与激活量化，再用 QAD/OPD 恢复。两者的硬件、套件和激活格式不同，成功率应在各自协议内解读。[FoldQuantVLA 原文](https://arxiv.org/html/2609.24433v1)
-
-本文围绕 APXInf 建立数值表示、RTN 量化、低秩恢复与闭环评测的工程链。APXInf 以 Rust/CUDA 提供算子、权重加载和模型执行，APXInf-robo 提供机器人策略接口。本文在完整 PyTorch GR00T 上比较恢复后的任务行为，在 APXInf 原生 π0.5 上检查低比特执行。具体量化覆盖、净编码预算与本地收益由同协议实验报告。
-
+NVIDIA 的 GR00T N1.7 Thor 教程把视觉塔设为 FP8、语言主体设为 NVFP4，并保护语言投影层；其约 39.9 ms 是另一套硬件与融合策略的部署测量。FoldQuantVLA 将通道缩放、分块旋转、GPTQ 与动态激活量化组合，在其自己的 W4A4/W8A8 保护口径下报告 LIBERO 结果。两者说明保护范围和后端会改变结果，不能与本文固定 NVFP4 W4A4、QDQ 执行和低秩恢复的五臂直接横排。本文的 APXInf π0.5 基准同样只用于独立算子与原生执行核验，不作为 GR00T 端到端加速证据。
 ## 2.5 恢复训练的监督来源
 
 **行为克隆**从专家观测—动作对学习策略；**知识蒸馏**从教师模型输出学习策略。本文的两阶段恢复分别使用这两类监督。
@@ -780,6 +775,8 @@ export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
 `CONDA_EXE` 须指向已安装的 conda。默认安装位置为 `third_party/Isaac-GR00T`，训练和仿真解释器分别在 `.venv` 与 `.venv-libero`；自定义位置以生成的环境文件为准。上面只定义实验路径，首次运行还需按[完整复现教程](https://github.com/zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad/blob/main/docs/reproduce-ptqad.md)第 2 节创建新实验根与协议副本，再完成 B.3 所列前置步骤；继续原有运行时不重新复制协议模板。
 
 恢复环境需要 Python 3.12、PyTorch 2.9.0+cu128、transformers 4.57.3、torchcodec 0.8.0；仿真环境需要 robosuite 1.4.0、MuJoCo 3.3.1 和 gym 0.25.2。实际版本、上游 commit、补丁和权重散列以 `setup/locks/manifest.json` 与 `docs/weight-provenance.md` 为准。演示数据由 Git LFS 提供，文件、processor、statistics 和 embodiment ID 必须来自同一来源。
+
+本文对 QVLA 的代码复核固定在作者仓库提交 `26cc4821a3be4c003d09d3c7997b38db2a347982`。该审计用于界定文献对照，不是本文的运行依赖；公开入口的 Hessian proxy、gate JSON 接口和 weight-only fake-quant 与论文算法的差异见 [`docs/QVLA_GAP_REVIEW_20261007.md`](../../docs/QVLA_GAP_REVIEW_20261007.md)。
 
 ## B.2 先做 CPU 检查，再验收 W4A4 数值契约
 
