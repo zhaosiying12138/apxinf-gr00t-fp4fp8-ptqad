@@ -98,7 +98,7 @@ if original.exists():
 original.parent.mkdir(parents=True, exist_ok=True)
 original.write_bytes(manifest.read_bytes())
 # Preserve the original proof files outside the new capture namespace.
-# New batches can then keep their own common_v11.sh and plan.json unchanged.
+# New batches must keep their own protocol-bound common_<release>.sh and plan.json.
 proofs = repro / "paper/evidence/captures"
 if proofs.is_dir():
     proofs.rename(original.parent / "captures")
@@ -119,4 +119,4 @@ PY
 
 工具校验命令退出状态、窗口身份、前台可见性、非黑屏像素及图像裁剪链。人工仍需核验可读性、内容与来源。它不验证训练是否收敛，也不由终端图推断成功率或延迟；这些结论来自完整实验 JSON 和逐回合日志。
 
-本次公开复制仅进行了七文件哈希比对、PowerShell/Python 语法解析和 Bash 语法检查，没有为复制过程执行实验或新增截图。
+采集工具的语法和哈希检查不等于实验完成。最终截图数量、运行日期和证据状态以 `paper/evidence/captures.json` 为准；每张发布截图都必须绑定当前协议、stage、原始命令日志、sidecar、裁剪记录和 SHA-256。

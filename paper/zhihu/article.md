@@ -182,6 +182,8 @@ $S_{l,c}^{(b)}=\mathbb{E}\sum_t\|\tilde A_{l,c}^{(b)}(t)-A^*(t)\|_2$
 
 QVLA 的 OpenVLA/OFT 结果、channel-wise 与 layer-wise 消融、uniform-bit 与 pruning 对照、512 条轨迹及校准规模消融，均属于外部文献证据，已在 §1.2 列出其中与本文最接近的 W4A4 数字。其 UniVLA、CALVIN 和真实机器人结果不能替代本文 GR00T 的闭环评测；固定观测动作误差也不能单独给出闭环成功率保证。公开代码中的层输入 Hessian proxy 和 weight-only fake quant 入口与论文的动作 Jacobian 理论并不等价，复现边界见附录 B。
 
+QVLA 的理想目标写成动作分布之间的 KL 散度，但实际分配使用 teacher-forcing 的单步 Action-MSE，再用短 rollout 的累计动作和末端偏差验证。本文的 QAD/OPD 优化的是 flow-matching 速度 MSE，动作诊断比较完整 endpoint，闭环指标是环境成功率；三者不是同一个损失，不能互相替代。
+
 这套设计有明确的实证动机：QVLA 的模块分析显示视觉编码器通常比语言模块稳定，而 projector 与 action head 更敏感；同一层内不同输出通道的敏感度也并不均匀。附录用约 1,000 个通道比较单步与累计敏感度排序，约 80% 的点靠近对角线，支持用较便宜的单步代理做初筛，再用短 rollout 检验长时行为。本文故意把动作路径纳入全覆盖 NVFP4 W4A4，目的是制造可测的压力并研究恢复，而不是宣称找到了比 QVLA 更优的位宽分配。
 
 NVIDIA 的 GR00T N1.7 Thor 教程把视觉塔设为 FP8、语言主体设为 NVFP4，并保护语言投影层；其约 39.9 ms 是另一套硬件与融合策略的部署测量。FoldQuantVLA 将通道缩放、分块旋转、GPTQ 与动态激活量化组合，在其自己的 W4A4/W8A8 保护口径下报告 LIBERO 结果。两者说明保护范围和后端会改变结果，不能与本文固定 NVFP4 W4A4、QDQ 执行和低秩恢复的五臂直接横排。本文的 APXInf π0.5 基准同样只用于独立算子与原生执行核验，不作为 GR00T 端到端加速证据。
@@ -777,6 +779,8 @@ export PROTOCOL_FILE="$PTQAD_PROTOCOL_FILE"
 恢复环境需要 Python 3.12、PyTorch 2.9.0+cu128、transformers 4.57.3、torchcodec 0.8.0；仿真环境需要 robosuite 1.4.0、MuJoCo 3.3.1 和 gym 0.25.2。实际版本、上游 commit、补丁和权重散列以 `setup/locks/manifest.json` 与 `docs/weight-provenance.md` 为准。演示数据由 Git LFS 提供，文件、processor、statistics 和 embodiment ID 必须来自同一来源。
 
 本文对 QVLA 的代码复核固定在作者仓库提交 `26cc4821a3be4c003d09d3c7997b38db2a347982`。该审计用于界定文献对照，不是本文的运行依赖；公开入口的 Hessian proxy、gate JSON 接口和 weight-only fake-quant 与论文算法的差异见 [`docs/QVLA_GAP_REVIEW_20261007.md`](../../docs/QVLA_GAP_REVIEW_20261007.md)。
+
+公开分配器的推进细节也不能无条件等同于论文正文：代码在每次降位后重新压入下一候选，允许不同通道异步推进；论文正文的阶段式描述更像先完成一轮再进入下一轮。本文不复现该分配器，因此只报告文献明示的候选位宽和结果，不把这两种推进方式混写成本文算法。
 
 ## B.2 先做 CPU 检查，再验收 W4A4 数值契约
 

@@ -6,7 +6,7 @@
 
 | 内容 | 路径 | 核对方式 |
 |---|---|---|
-| 实验源码与协议 | `quant/`、`rl/`、`eval/`、`exp/recovery_protocol.json` | Git commit、运行时源码 SHA-256、实际命令 |
+| 实验源码与协议 | `quant/`、`rl/`、`eval/`、`exp/recovery_protocol_v12_rtn_w4a4.json` | Git commit、运行时源码 SHA-256、实际命令 |
 | 运行环境锁文件 | `setup/locks/` | `manifest.json` 中的依赖锁文件及补丁 SHA-256 |
 | GR00T 运行补丁 | `patches/gr00t-recovery-runtime.patch` | 固定公开上游 commit 后，正向或反向 `git apply --check` |
 | APXInf 运行补丁 | `patches/apxinf-fp4vla-engine.patch` | 在固定引擎子模块版本上检查，应用后再编译 |
@@ -60,14 +60,14 @@ source setup/recovery-env.sh
 
 | 工件 | 相对实验根路径 | 再生成入口 | 完成身份与验收 |
 |---|---|---|---|
-| 校准 H | `calibration/calib.pt` | `exp/reproduce_ptqad.sh calibrate`；full-scope、128 窗口、batch 1 | `calib_meta.json`：完整 16/32/4 结构、实际窗口/行数、输入权重和缓存散列 |
-| PTQ 基座 | `<recipe>/` | driver 的 `rtn`、`fp8`、`mixed`、`aggr`、`head_ffn`、`head_lang`、`head_lang_vision`、`calib` 阶段 | `ptq_recipe.json`、`bake_manifest.json`：实际方法、明确回退、tied alias、dtype 和分配预算 |
-| QAD 训练产物 | `train_qad/checkpoint-500/` | `train-qad` | Trainer 状态与 `recovery_manifest.json`：实际步数、micro/global/accum、scope、基座及 LoRA 身份 |
-| QAD 稠密导出 | `qad/` | `merge-qad` | `merge_manifest.json`：冻结 W 核验、rank/alpha、输出 dtype、唯一物理键及 shard 散列 |
-| 学生访问的观测 | `round_01/collection/observations/` | `rl/run_onpolicy_round.sh` 的 collection 阶段 | 来源为 QAD 学生，官方初态索引 2、3；按任务保存观测来源 |
-| 教师缓存 | `round_01/teacher_probes.pt` | 同脚本的 `rl/opd_probe_cache.py` 阶段 | v3 metadata：`student_rollout`、教师结构、统计、随机条件与有效 16×7 动作掩码 |
-| 两臂继续训练及导出 | `round_01/{continued_qad,qad_opd}/` 及对应 `_merged/` | 同脚本，默认各 100 个优化器更新 | 同一起始 A/B 与 PTQ base；分别验证训练及合并 manifest |
-| 五臂最终评测 | `round_01/heldout_<arm>/` | 同脚本的 heldout 阶段 | 每任务日志、`eval_manifest.json`、`task_results.json`；完整十任务通过才生成汇总 |
+| GPTQ 校准统计 | `results/.../supplement_gptq_capture_v12/`（仅补充实验） | GPTQ 补充脚本；主 RTN 配方不读取校准统计 | 校准窗口、层覆盖、输入权重身份和散列；不能把补充统计写成 RTN 配方依赖 |
+| RTN W4A4 基座 | `selection_final/rtn_w4a4_category/` | v12 driver 的冻结压力配方 | `ptq_recipe.json`、`category_ptq_recipe.json`、bake manifest：479 个 NVFP4 张量、W4A4 安装和完整字节预算 |
+| QAD 训练产物 | `recovery_v12/artifacts/train_qad_lr_*/` | `exp/run_w4a4_recovery.py` | Trainer 状态与 `recovery_manifest.json`：实际 2,000 步、micro/global/accum、scope、基座及 LoRA 身份 |
+| QAD 稠密导出 | `recovery_v12/artifacts/merge_qad_lr_*/` | v12 driver merge 阶段 | `merge_manifest.json`：冻结 W 核验、rank/alpha、输出 dtype、唯一物理键及 shard 散列 |
+| 学生访问的观测 | `teacher_supervision_v12_clean/collection/` | v12 driver 的 collection 阶段 | 来源为 QAD 学生，官方初态索引 20–23；按任务保存观测来源 |
+| 教师缓存 | `recovery_v12/artifacts/teacher_cache/` | v12 driver 的 teacher-cache 阶段 | 固定教师、学生端点、随机条件与有效 16×7 动作掩码；缓存身份绑定 v12 协议 |
+| 两臂继续训练及导出 | `recovery_v12/artifacts/{train_continued_qad,opd_*}` 及 merge 目录 | v12 driver，continued-QAD 与 OPD 各 2,000 步 | 同一起始 QAD A/B 与 RTN W4A4 base；分别验证训练、合并和教师项收据 |
+| 五臂最终评测 | `recovery_v12/artifacts/heldout_round/heldout_<arm>/` | v12 driver 的 heldout 阶段 | 每臂十任务、每任务 16 回合、逐回合日志、`eval_manifest.json` 和 `task_results.json` |
 | 正式闭环与前驱证据 | `paper/evidence/frontier/`、顶层比较 JSON | `compare_recovery.py` 由完整 round 生成；`paper/collect_frontier_evidence.py --frontier ...` 归档 | 五臂及冻结前驱的原始日志、每集初态配对、实际分母和字节来源映射 |
 | 正式训练成本 | `paper/evidence/training/` | `paper/collect_training_costs.py`；`--verify-published` 可脱离私有权重复算 | 完成状态、共同起点、更新预算、原始计时范围、教师与学生身份及成本推导 |
 | 原生算子与引擎测量 | `results/spike/`、`results/engine/` | `spike/run.sh`、`exp/bench_engine.py` | 独立记录设备、形状、后端、warmup、样本量与计时口径 |
@@ -76,7 +76,7 @@ source setup/recovery-env.sh
 
 ## 5. 评测与发布的验收边界
 
-正式协议固定 development 初态索引 0、1，collection 索引 2、3，heldout 索引 10–19。三者均覆盖十任务；heldout 同时检查与 collection 的初态索引、种子不重叠。逐集保存官方 bank、恢复状态和初态散列；环境初态可以配对，不据此假定不同策略的所有动作噪声逐步相同。
+正式 v12 协议固定 development 初态索引 4–8，teacher/collection 索引 20–23，heldout 索引 9–19 与 24–28（每臂 160 回合）。三者均覆盖十任务；heldout 同时检查与训练分区的初态索引、种子不重叠。逐集保存官方 bank、恢复状态和初态散列；环境初态可以配对，不据此假定不同策略的所有动作噪声逐步相同。
 
 正式闭环比较直接核对每集布尔结局、固定官方初态与原始日志；缺失或不配对的任务不能生成完整比较。`paper/collect_reevaluation.py` 仅为通用 driver 保留单臂日志快照兼容接口，不是正式配对或发布验收入口。论文结果绑定源码、权重/数据、参数、输出工件、完整日志和统计推导；截图不能替代这些记录。
 

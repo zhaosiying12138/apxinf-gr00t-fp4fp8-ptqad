@@ -269,8 +269,8 @@
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "bytes": 14371,
-      "sha256": "8fcb68b0c33d8f5587ecc98179c0ca64cc842a33bb4020a6b48985ff086713cb"
+      "bytes": 14729,
+      "sha256": "f1efa3efebeb0b8427f0ddafeec276454e7a5688b504acf0bd74782fb9109537"
     },
     {
       "path": "sections/03-方法.md",
@@ -294,8 +294,8 @@
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "bytes": 22830,
-      "sha256": "785eaa241e06bce845cd05a8a273eeb09444bde0b66f2033e563d1a2036d2b0c"
+      "bytes": 23195,
+      "sha256": "8f59aa83325ebba529c2834efad9ddcec738cffbc670db833c29a61dc8ee84a1"
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",
@@ -310,8 +310,8 @@
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 4877982,
-    "sha256": "93c007f9664cb35f502b41bcbd35858aaefe99f182d8d817b3bb38dbfcc3795a"
+    "bytes": 4878717,
+    "sha256": "753324ab98260f52632a3cc99fc09b238ca0e4e397101177e8465d0235ded979"
   },
   "math_expressions": 223,
   "figures": 24,
