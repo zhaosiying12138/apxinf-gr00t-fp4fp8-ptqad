@@ -56,6 +56,7 @@ class ProbeEndpointPlanTests(unittest.TestCase):
                     "init_state_indices": [20, 21, 22], "capture_sampling": capture},
                 "development": {"seed": 910000, "episodes_per_task": 2, "init_state_indices": [4, 5]},
                 "heldout": {"seed": 970000, "episodes_per_task": 2, "init_state_indices": [24, 25]}}}
+        self.protocol_data.update(copy.deepcopy(getattr(self, "protocol_overrides", {})))
         write(self.protocol, self.protocol_data)
         self.teacher, self.base, self.training, self.qad = (self.root / name for name in (
             "teacher", "base", "training/checkpoint-2000", "qad"))

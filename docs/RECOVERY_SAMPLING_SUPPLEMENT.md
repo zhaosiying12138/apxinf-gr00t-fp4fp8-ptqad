@@ -1,6 +1,6 @@
 # QAD/OPD 时间覆盖与状态分布补充实验
 
-日期：2026-10-07。状态：完整候选采集、成对视图、QAD 训练来源检查、原 PTQ 证据的显式复用和阶段 B 的 CPU 配对计划已在独立分支 `experiment/full-trajectory-capture` 实现。[补充协议草案](../exp/recovery_sampling_protocol_draft.json)尚未冻结，GPU 补充实验尚未启动；阶段 B 的真实端点推理、教师缓存与三臂训练仍待接入。本方案不修改正在运行的 v12 协议、训练代码或数据。它用于定位恢复不足的原因，不预设任一实验臂胜出。
+日期：2026-10-07。状态：完整候选采集、成对视图、QAD 训练来源检查、原 PTQ 证据的显式复用、阶段 B 配对计划、共用 QAD 的端点生成入口及教师缓存/训练准入已在独立分支 `experiment/full-trajectory-capture` 实现。[补充协议草案](../exp/recovery_sampling_protocol_draft.json)尚未冻结，GPU 补充实验尚未启动；阶段 B 的串行调度与真实推理、缓存、三臂训练仍待完成。本方案不修改正在运行的 v12 协议、训练代码或数据。它用于定位恢复不足的原因，不预设任一实验臂胜出。
 
 ## 已核实的输入限制
 
@@ -24,7 +24,7 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 \
 
 ## 实验 A：固定四窗预算，只改变时间位置
 
-使用现有 BF16 教师、W4A4 RTN 基座及训练初态 20–23。重新采集十任务各四回合，仍每四次查询保存候选，但持续到回合结束。同一批完整候选派生两份数据，避免两次 rollout 的随机差异混入采样比较。新采样按回合内查询号计数，并保存原始前向使用的 collated 输入；原 v12 的采样相位继承任务级计数，且会重新 collate。因此新 `head4` 是这组受控对照的前段视图，不是对 v12 旧样本的逐字节重演。
+使用现有 BF16 教师、W4A4 RTN 基座及训练初态 20–23。重新采集十任务各四回合，仍每四次查询保存候选，但持续到回合结束。同一批完整候选派生两份数据，避免两次 rollout 的随机差异混入采样比较。
 
 两份数据的规则如下：
 
@@ -66,7 +66,9 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 \
 3. 已接入现有 `verify_teacher_replay.py` 入口，通过独立的派生视图规则检查来源。检查器重算两份选择计划，逐张量核对派生文件与源候选，核对十任务原始日志、BF16 教师身份及协议。`legacy_audit_compatible=false` 仍保留，表示派生视图不伪装成旧原始 rollout。训练器会重新审计，并将报告摘要与调度请求比较；每个样本读取后、反序列化前再核对字节 SHA，避免检查后换入别的输入。这项训练加载保护仅用于新派生视图。
 4. 已实现 `exp/ptq_sampling_reference.py`：在原协议下重新核查 PTQ 选择、原始开发日志与权重，再给新协议附上显式来源。新协议只允许到 `qad_dev` 或只读验证，不得用原分数授权新的后续恢复选择或 held-out 评测。
 5. 已实现 `exp/probe_endpoint_plan.py` 的 CPU 计划：重新审计教师和学生的原始 rollout、两份视图与检查点，按共同任务/初态和查询顺序配对；保留学生失败，固定每对端点/速度种子，拒绝不匹配的有效动作掩码或任务预算。起点必须为同一教师 `stratified` 视图上训练的纯 QAD，核对数据、训练参数及完整步数收据，拒绝 `head`、continued-QAD 或 OPD 检查点误入。计划只记录后续推理输入，不产生动作、教师速度或成功率。
-6. 待扩展 `rl/opd_probe_cache.py`，明确支持捕获的演示状态类型，并验证端点来自指定 QAD；保留教师/学生状态来源，不能把教师样本改名伪装成学生 rollout。后续继续使用 `rl/lora_qad.py` 与 `ProbeAnchor`；新增臂均在同一补充协议内运行，不修改旧 adapter 元数据绕过身份检查。
+6. 已实现 `exp/probe_endpoint_bundle.py`：复用正式服务加载器和 `infer_chunk`，在两个来源的观测上由同一 QAD 生成完整动作端点；逐对核对实际初始噪声，而非只核对 seed。保留原始来源和有效掩码，pad 端点也完整保存。任何中断、来源变更或额外文件都会使数据包无法通过加载检查。尚未执行真实 GR00T GPU 端点生成。
+7. 已扩展 `rl/opd_probe_cache.py` 的显式 `--endpoint-bundle` / `--endpoint-role` 接口；按计划使用全部样本和各自速度重放 seed，拒绝截断数量或覆盖 seed。演示状态仍标为 `teacher_rollout`，学生状态仍标为 `student_rollout`；动作端点策略另行记录，不能改写观测来源。
+8. 已实现 `rl/endpoint_cache_guard.py` 并接入现有 `lora_qad.py` / `ProbeAnchor`。三个续训臂均检查同 QAD 起点、演示数据和追加预算；两个蒸馏臂再逐张量核对缓存输入、端点、种子和标注源码。检查在权重分支前执行，不能以误设零权重绕过。新缓存按审计 SHA 核验实际读入字节，再反序列化。旧 v12 协议不增加这些来源要求。
 
 ## 新接口的使用与验证范围
 
@@ -113,7 +115,7 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PYTHON" \
   --teacher "$BF16_TEACHER"
 ```
 
-`stratified` 使用同一入口；每任务至少需要两个实际贡献样本的成功教师回合。调度器已有 `--capture-dataset` 参数可传 `head` 或 `stratified`，并自动把指定教师和审计摘要交给训练器。阶段 A 必须限定在 `--until qad_dev`，两个数据臂分别使用独立输出目录和同一固定学习率。现有后续 collection/cache 调度尚不支持阶段 B 的成对端点包，不能把这一数据接入宣称为整套补充恢复链已跑通。直接启动训练器时，新视图必须提供与审计一致的 `QAD_CAPTURE_TEACHER` 和 `QAD_CAPTURE_AUDIT_SHA256`，缺少时会明确报错。
+`stratified` 使用同一入口；每任务至少需要两个实际贡献样本的成功教师回合。调度器已有 `--capture-dataset` 参数可传 `head` 或 `stratified`，并自动把指定教师和审计摘要交给训练器。阶段 A 必须限定在 `--until qad_dev`，两个数据臂分别使用独立输出目录和同一固定学习率。旧调度器的后续 collection/cache 阶段仍不自动串联阶段 B；不能把单个接口实现宣称为整套补充恢复链已跑通。直接启动训练器时，新视图必须提供与审计一致的 `QAD_CAPTURE_TEACHER` 和 `QAD_CAPTURE_AUDIT_SHA256`，缺少时会明确报错。
 
 原 PTQ 选择已经可以通过草案的 `ptq_reference` 显式接入。它分别固定源协议、源选择文件和新协议的 SHA，要求量化格式、开发分区、评测契约及压力选择规则一致；原选择中的 `protocol_sha256` 保持原值，新增 `reference_provenance` 说明这是复用证据而非新评测。调度器在构造、冻结复查及恢复运行时重新核对这些身份，并限制 `--until qad_dev`。不声明这个字段时，原有同协议检查不变。
 
@@ -134,7 +136,28 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PYTHON" \
 
 计划匹配的是同一初态身份下的窗口顺序，不表示两个策略在同一时刻访问了同一个物理状态。教师与学生 rollout 使用各自预声明的 reset seed；二者的官方 bank 与初态字节必须相同。两类状态始终保留各自来源，后续端点则统一由冻结 QAD 生成。
 
-本次 169 项 CPU 集成测试通过，覆盖完整候选采集、原始与派生来源审计、真实训练 Dataset/Collator 接线、PTQ 参考复用、端点配对计划、调度请求和既有收据兼容。测试验证 JSON 子进程传输前后的审计摘要一致，也拒绝只重写派生收据协议 SHA 的跨协议复用。对现有真实教师数据的只读复查仍为十任务、148 个样本通过；这不是新采样实验结果。另有十项旧 `exp.test_high_fp4_v3_cpu` 夹具错误在未修改的 HEAD driver 上同样复现：九项缺少未跟踪的历史 v8 协议文件，一项续训夹具缺少已有数值开关。它们未被计入本次通过项，也未通过放宽检查来修正。
+下面是 GPU 空闲且阶段 A/学生采集完成后的执行入口，当前未执行。先生成一个同时包含两种来源的端点包，再分别运行两个教师标注进程；无需打开 RPC 服务或重跑 rollout。
+
+```bash
+"$PTQAD_PYTHON" exp/probe_endpoint_bundle.py \
+  --plan "$ENDPOINT_PLAN_OUT" --out "$ENDPOINT_BUNDLE_OUT" --gr00t "$PTQAD_GR00T"
+
+PTQAD_SOURCE_ROOT="$PWD"
+cd "$PTQAD_GR00T"
+"$PTQAD_PYTHON" "$PTQAD_SOURCE_ROOT/rl/opd_probe_cache.py" \
+  --teacher "$BF16_TEACHER" --endpoint-bundle "$ENDPOINT_BUNDLE_OUT" \
+  --endpoint-role teacher --dataset "$PTQAD_DEMO_DATASET" --out "$TEACHER_STATE_CACHE"
+"$PTQAD_PYTHON" "$PTQAD_SOURCE_ROOT/rl/opd_probe_cache.py" \
+  --teacher "$BF16_TEACHER" --endpoint-bundle "$ENDPOINT_BUNDLE_OUT" \
+  --endpoint-role student --dataset "$PTQAD_DEMO_DATASET" --out "$STUDENT_STATE_CACHE"
+cd "$PTQAD_SOURCE_ROOT"
+```
+
+上述变量均应使用绝对路径。缓存不接受 `--count` 或 `--seed`，避免两组预算被单独改变。训练继续复用 `rl/lora_qad.py`；新协议的 `state_distillation` 固定两个 KD 臂权重 0.25、追加 2,000 步、学习率 `5e-5` 和梯度裁剪 0.25。续训环境需声明 `QAD_ENDPOINT_ROLE=continued/teacher/student`。continued 臂通过 `QAD_ENDPOINT_BUNDLE` 绑定共同起点但不读取教师速度标签；另外两臂从 `OPD_CACHE_PATH` 追溯同一包。完整三臂调度命令要待调度接口完成并经过验证后再提供，不能沿用旧调度器隐含的学生缓存分支。
+
+[流匹配重放审计](OPD_FLOW_REPLAY_AUDIT_20261007.md)未发现当前教师与学生辅助前向的 noise/time 错位。它验证的是相同缓存输入下的速度监督；不要求与主演示损失共享随机样本，也没有证明整个 CUDA 前向数值一致。统一端点生成策略去除了一项混杂因素，后续结论仍限定在匹配身份与预算下的状态来源效果。
+
+本次 218 项 CPU 集成测试通过，覆盖完整候选采集、原始与派生来源审计、真实训练 Dataset/Collator 接线、PTQ 参考复用、端点计划与生成、教师缓存、训练准入、调度请求和既有收据兼容。端点串联测试仅用轻量模型代替完整 GR00T 加载，仍执行真实来源检查和完整动作采样入口；60 对观测均进入缓存与训练审计，30 个失败学生窗口保留。它不是机器人实验结果。测试还拒绝只重写收据协议 SHA 的跨协议复用，以及缓存检查后的文件替换。对现有真实教师数据的只读复查仍为十任务、148 个样本通过。另有十项旧 `exp.test_high_fp4_v3_cpu` 夹具错误在未修改的 HEAD driver 上同样复现：九项缺少未跟踪的历史 v8 协议文件，一项续训夹具缺少已有数值开关。它们未被计入本次通过项，也未通过放宽检查来修正。
 
 完整上限是五次训练、共 10,000 次更新，加 80 个采集回合和 250 个开发评测回合。若两份 QAD 数据各为 148 窗，沿用当前加载与尾批规则，五臂合计 148,000 次演示窗口读取，两个 KD 臂合计 59,200 次额外探针前向/反传。实际预算必须由新样本数和训练收据计算；不能把匹配更新次数称为相同总 GPU 成本。
 

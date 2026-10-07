@@ -193,6 +193,15 @@
     }
   },
   "status": "draft_not_executed",
+  "state_distillation": {
+    "arms": ["continued_qad", "teacher_state_kd", "student_state_opd"],
+    "starting_qad_view": "stratified",
+    "teacher_velocity_weight": 0.25,
+    "probe_every": 1,
+    "optimizer_steps": 2000,
+    "learning_rate": 0.00005,
+    "max_grad_norm": 0.25
+  },
   "capture_views": {
     "modes": [
       "head",

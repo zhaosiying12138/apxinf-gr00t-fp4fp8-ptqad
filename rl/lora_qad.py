@@ -46,6 +46,7 @@ from probe_distill import file_sha256, install_sequential_probe, require_full_mo
 from lora_scope import SCOPES, in_scope as module_in_scope
 from recovery_batch import resolve_batch
 from derived_replay_guard import prepare_derived_replay
+from endpoint_cache_guard import prepare_endpoint_training
 from gr00t_runtime import configure_libero_data, verify_libero_statistics, libero_action_spec, restore_checkpoint_model_config
 from runtime_metrics import cuda_memory_peaks, parameter_storage
 
@@ -80,6 +81,7 @@ if TRAIN_SEED < 0:
 _lora_count = [0]
 _runtime_trainer = [None]
 _w4a4_patch = [None]
+_endpoint_cache_audit = [None]
 W4A4 = os.environ.get("QAD_W4A4", "0") == "1"
 _W4A4_NVFP4_NAMES = None
 
@@ -324,6 +326,7 @@ def install_gradient_audit(trainer_cls):
 
 def install_trainer_hooks():
     """Inject LoRA and preserve checkpoint normalization without external edits."""
+    _endpoint_cache_audit[0] = prepare_endpoint_training(PROTOCOL_FILE, MSE_W)
     from gr00t.experiment.trainer import Gr00tTrainer
     from gr00t.model.gr00t_n1d7.setup import Gr00tN1d7Pipeline
     from transformers import TrainerCallback
@@ -425,10 +428,12 @@ def install_trainer_hooks():
                     "capture_dataset_samples": (len(list(Path(os.environ["QAD_CAPTURE_DATASET"]).expanduser().rglob("sample_*.pt")))
                                                  if os.environ.get("QAD_CAPTURE_DATASET") else None)}
         manifest["activation_checkpointing"] = activation_checkpointing
+        if _endpoint_cache_audit[0] is not None:
+            manifest["endpoint_training_identity"] = _endpoint_cache_audit[0]
         recovery_sources = [
             PROJECT / "rl" / filename for filename in (
                 "lora_qad.py", "probe_distill.py", "lora_scope.py", "recovery_batch.py",
-                "derived_replay_guard.py",
+                "derived_replay_guard.py", "endpoint_cache_guard.py",
                 "gr00t_runtime.py", "activation_checkpoint.py", "runtime_metrics.py",
                 "w4a4_lora.py")]
         if W4A4:
@@ -460,7 +465,8 @@ def install_trainer_hooks():
         if not cache_path:
             raise ValueError("Set OPD_CACHE_PATH to a version-3 masked teacher cache")
         every = int(os.environ.get("OPD_EVERY", "4"))
-        anchor = install_sequential_probe(Gr00tTrainer, cache_path, MSE_W, every)
+        cache_sha = (_endpoint_cache_audit[0]["cache_sha256"] if _endpoint_cache_audit[0] is not None else None)
+        anchor = install_sequential_probe(Gr00tTrainer, cache_path, MSE_W, every, cache_sha256=cache_sha)
         print(f"[opd] sequential velocity MSE weight={MSE_W} every={every} "
               f"source={anchor.meta['source_kind']} probes={len(anchor.samples)}", flush=True)
     install_gradient_audit(Gr00tTrainer)

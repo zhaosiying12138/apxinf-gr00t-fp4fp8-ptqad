@@ -6,6 +6,7 @@ sees the same eval flags. RNG state is restored even when a forward fails.
 from collections.abc import Mapping
 from contextlib import contextmanager
 import hashlib
+import io
 import operator
 from pathlib import Path
 
@@ -103,12 +104,20 @@ def replay_context(model, seed, autocast_dtype="bfloat16"):
 
 
 class ProbeAnchor:
-    def __init__(self, path):
+    def __init__(self, path, expected_sha256=None):
         self.path = Path(path)
-        cache = torch.load(path, map_location="cpu", weights_only=True)
+        if expected_sha256 is None:
+            cache = torch.load(path, map_location="cpu", weights_only=True)
+        else:
+            content = self.path.read_bytes()
+            if hashlib.sha256(content).hexdigest() != expected_sha256:
+                raise ValueError("Teacher cache changed after training audit")
+            cache = torch.load(io.BytesIO(content), map_location="cpu", weights_only=True)
         if cache.get("version") != CACHE_VERSION:
             raise ValueError("Legacy teacher cache rejected; regenerate with opd_probe_cache.py")
         self.meta = cache["metadata"]
+        if "endpoint_bundle" in self.meta and expected_sha256 is None:
+            raise ValueError("Matched endpoint cache requires its training audit hash")
         self.samples = cache["samples"]
         if not self.samples:
             raise ValueError("Teacher cache is empty")
@@ -146,7 +155,7 @@ class ProbeAnchor:
         return mse
 
 
-def install_sequential_probe(trainer_cls, cache_path, weight, every=4):
+def install_sequential_probe(trainer_cls, cache_path, weight, every=4, cache_sha256=None):
     """Accumulate auxiliary gradients AFTER the main backward, before optimizer.
 
     Each scheduled optimizer update gets one probe per training microbatch:
@@ -160,7 +169,7 @@ def install_sequential_probe(trainer_cls, cache_path, weight, every=4):
     original = trainer_cls.training_step
     if getattr(original, "_sequential_probe", False):
         raise RuntimeError("Sequential probe hook already installed")
-    anchor = ProbeAnchor(cache_path)  # fail before a lengthy training run
+    anchor = ProbeAnchor(cache_path, expected_sha256=cache_sha256)  # fail before a lengthy training run
 
     def training_step(self, model, inputs, *args, **kwargs):
         # The integration has only been audited for HF Trainer + Accelerator on
