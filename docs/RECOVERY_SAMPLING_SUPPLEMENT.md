@@ -1,6 +1,6 @@
 # QAD/OPD 时间覆盖与状态分布补充实验
 
-日期：2026-10-07。状态：CPU 来源审计已完成；下述 GPU 补充实验尚未启动，采集接口尚未扩展。本方案不修改正在运行的 v12 协议、训练代码或数据。它用于定位恢复不足的原因，不预设任一实验臂胜出。
+日期：2026-10-07。状态：CPU 来源审计已完成；完整候选采集与成对数据视图接口已在独立分支 `experiment/full-trajectory-capture` 实现并通过 CPU 测试。下述 GPU 补充实验尚未启动，训练审计与蒸馏缓存的接入尚未完成。本方案不修改正在运行的 v12 协议、训练代码或数据。它用于定位恢复不足的原因，不预设任一实验臂胜出。
 
 ## 已核实的输入限制
 
@@ -33,6 +33,8 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 \
 
 若一回合不足四个候选，两组均使用全部实际候选，不复制补齐。新一轮成功数和窗口数以采集结果为准，不能预填为 37/148。终止时必须确认最后一段候选仍在，不能仅增大一个不足以覆盖长回合的前缀配额。
 
+这里的 `head4` 与 `stratified4` 是同一新采集中的成对比较，不是旧 v12 的逐样本复刻。新采集每回合从第 1、5、9…次查询重新计数；旧采集沿用任务级查询相位。新路径还复用原 collator 输出。因此不能将新 `head4` 与旧 v12 的差异全部归因于时间覆盖。
+
 两份数据分别训练 QAD：同一初始化、rank=32、alpha=64、学习率 `5e-5`、相同随机种子和 2,000 次更新；不再搜索学习率。它们使用同一个新的补充协议，避免跨协议续训。先在预先固定的 development 分区各评测 50 回合，并报告逐任务差异；不能只比较训练损失。是否扩展后续实验由开发证据与动作诊断决定，不能依据 v12 held-out 分数改变采样规则。
 
 ## 实验 B：控制额外教师监督，比较观测来源
@@ -55,12 +57,39 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 \
 
 ## 实现、预算与执行顺序
 
-需扩展的现有入口如下，不重新实现推理或训练：
+现有入口的实现状态如下，不重新实现推理或训练：
 
-1. `rl/capture_onpolicy.py`：新增仅由新协议开启的完整候选采集，记录回合内查询位置；候选与最终 `sample_*.pt` 分开，避免训练器误读全部候选。
-2. `eval/run_recovery_eval.py::configure_capture_environment/finalize_capture_samples`：读取新采样设置，完成成功标注、两份视图选择和来源映射；v12 默认行为保持原样。
-3. `rl/opd_probe_cache.py`：明确支持捕获的演示状态类型，并验证端点来自指定 QAD；保留教师/学生状态来源，不能把教师样本改名伪装成学生 rollout。
-4. 继续使用 `rl/lora_qad.py` 与 `ProbeAnchor`；新增臂均在同一补充协议内运行，不修改旧 adapter 元数据绕过身份检查。
+1. 已实现 `rl/capture_onpolicy.py` 的完整候选模式：记录每回合每次查询，持续保存 `candidate_*.pt`；安全容量耗尽会记错并停止，不能当作完整采集。
+2. 已实现 `eval/run_recovery_eval.py` 的显式协议开关及完整候选最终化；未配置时维持 v12 前缀采样。`rl/capture_sampling.py` 校验逐回合计数、reset 身份、标签及源文件哈希，再确定性选择两份视图。`exp/derive_capture_views.py` 检查十任务完整日志、协议和原始结果，生成等预算视图及来源映射，不生成新的评测结果。
+3. 待接入现有正式训练来源审计器。新视图明确标为 `legacy_audit_compatible=false`；已有 `sample_*.pt` 只说明张量可读取，不代表通过当前训练调度的来源审计，不能改名为旧格式绕过检查。
+4. 待扩展 `rl/opd_probe_cache.py`，明确支持捕获的演示状态类型，并验证端点来自指定 QAD；保留教师/学生状态来源，不能把教师样本改名伪装成学生 rollout。
+5. 继续使用 `rl/lora_qad.py` 与 `ProbeAnchor`；新增臂均在同一补充协议内运行，不修改旧 adapter 元数据绕过身份检查。
+
+## 新接口的使用与验证范围
+
+新协议的 `teacher_supervision` / `collection` 分区可显式加入以下字段；这只是接口示例，不是已冻结的实验协议。开发和测试分区禁止打开此开关。启动前会检查与协议中已声明的 development、heldout、smoke 的初态和 reset seed 隔离；这不能替代跨历史实验的初态使用账本。
+
+```json
+"capture_sampling": {
+  "mode": "full_trajectory_candidates",
+  "every_server_calls": 4,
+  "safety_candidates_per_episode": 192
+}
+```
+
+192 是拒绝异常运行的安全容量，不是每回合选窗数。它覆盖 720 步回合中即使每步都请求策略的候选上限；正常每次执行八步动作时会保存更少候选。只支持一个环境和逐回合 reset 事件。捕获不额外运行 collator 或模型；CPU 桩模型测试验证了动作张量及 Python、NumPy、Torch RNG 状态不变，实际 GR00T 的同输入验证仍待 GPU 空闲后执行。
+
+完成新的候选采集后，在仓库根目录执行以下 CPU 命令生成两份视图；路径由操作者填入新协议的实际采集输出，命令不启动 rollout 或训练：
+
+```bash
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PYTHON" \
+  exp/derive_capture_views.py \
+  --source "$FULL_CAPTURE_RUN" \
+  --out "$CAPTURE_VIEWS_OUT" \
+  --windows-per-episode 4
+```
+
+输出为 `head/observations/<task>/`、`stratified/observations/<task>/`、成对选择计划和 `views_manifest.json`。源候选保持原样；教师失败回合输出为 `rejected_*.pt`，学生失败状态仍保留为可训练样本。输出目录必须全新且位于源评测目录以外。若日志被改动、候选缺失、计数不全、协议身份不一致或任一任务未完成，工具拒绝生成完成收据。它证明查询序列覆盖和来源一致，不能证明抓取或放置等语义阶段已经覆盖。
 
 完整上限是五次训练、共 10,000 次更新，加 80 个采集回合和 250 个开发评测回合。若两份 QAD 数据各为 148 窗，沿用当前加载与尾批规则，五臂合计 148,000 次演示窗口读取，两个 KD 臂合计 59,200 次额外探针前向/反传。实际预算必须由新样本数和训练收据计算；不能把匹配更新次数称为相同总 GPU 成本。
 

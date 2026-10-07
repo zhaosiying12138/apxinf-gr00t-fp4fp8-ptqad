@@ -35,13 +35,21 @@ def policy_input_precision(value):
 
 
 def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=160,
-                    event_file=None, capture_metadata=None, per_episode=None):
+                    event_file=None, capture_metadata=None, per_episode=None,
+                    sampling_mode="prefix"):
     from gr00t.model.gr00t_n1d7.gr00t_n1d7 import Gr00tN1d7
     from gr00t.model.gr00t_n1d7.processing_gr00t_n1d7 import Gr00tN1d7DataCollator
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
-    if list(directory.glob("sample_*.pt")):
+    if any(directory.glob("sample_*.pt")) or any(directory.glob("candidate_*.pt")):
         raise FileExistsError(f"Capture directory already contains observations: {directory}")
+    if sampling_mode not in {"prefix", "full_trajectory_candidates"}:
+        raise ValueError(f"Unsupported capture sampling mode: {sampling_mode}")
+    full_trajectory = sampling_mode == "full_trajectory_candidates"
+    if full_trajectory and not event_file:
+        raise ValueError("Full-trajectory capture requires reset events")
+    if full_trajectory and (type(per_episode) is not int or per_episode < 1):
+        raise ValueError("Full-trajectory capture requires a positive integer per_episode safety bound")
     if min(every, per_task, limit) < 1:
         raise ValueError("Capture intervals and budgets must be positive")
     if per_episode is not None and (type(per_episode) is not int or per_episode < 1 or not event_file):
@@ -51,6 +59,7 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
     capture_metadata = dict(capture_metadata or {})
     event_path = Path(event_file).resolve() if event_file else None
     source_kind = capture_metadata.get("source_kind", "student_rollout")
+    sample_prefix = "candidate" if full_trajectory else "sample"
     metadata = {"student_checkpoint": str(checkpoint),
                 "student_config_sha256": file_sha256(checkpoint / "config.json"),
                 "student_statistics_sha256": file_sha256(checkpoint / "statistics.json"),
@@ -67,13 +76,19 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
                                           "init_state_bank_sha256"],
                 "observation_float_dtype": "bfloat16", "action_mask": action_spec}
     metadata.update(capture_metadata)
+    # These are runtime facts, not caller-overridable descriptive metadata.
+    metadata.update({"sampling_mode": sampling_mode, "candidate_prefix": sample_prefix + "_",
+                     "sampling_interval_basis": "episode_call" if full_trajectory else "server_call"})
+    if full_trajectory:
+        metadata.update({"n_envs": 1, "budget_semantics": "raise_before_exceeding_safety_bounds"})
     (directory / "capture_manifest.json").write_text(json.dumps(metadata, indent=2) + "\n")
     original_collate = Gr00tN1d7DataCollator.__call__
     original_action = Gr00tN1d7.get_action
     pending = {}
     counts = {}
     episode_counts = {}
-    state = {"calls": 0, "saved": 0}
+    episode_query_counts = {}
+    state = {"calls": 0, "saved": 0, "safety_limit_hit": False}
     event_state = {"offset": 0, "current": None}
 
     def consume_reset_events():
@@ -111,6 +126,9 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
             previous = event_state["current"]
             if previous is not None and record["episode_index"] < previous["episode_index"]:
                 raise RuntimeError("Reset event episode index moved backwards")
+            if (full_trajectory and previous is not None
+                    and record["episode_index"] == previous["episode_index"] and record != previous):
+                raise RuntimeError("Reset identity changed within one episode")
             event_state["current"] = record
         event_state["offset"] = offset + consumed
         return event_state["current"]
@@ -119,20 +137,36 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
         result = original_collate(self, features)
         pending["features"] = features
         pending["collator"] = self
+        if full_trajectory:
+            # A single environment already has exactly the batch we need.
+            # Reusing it avoids another potentially random collator invocation.
+            pending["collated_inputs"] = result["inputs"]
         return result
+
+    def write_counts():
+        payload = {"calls": state["calls"], "saved": state["saved"], "per_task": counts,
+                   "per_episode": episode_counts}
+        if full_trajectory:
+            payload.update({"sampling_mode": sampling_mode,
+                            "episode_query_counts": episode_query_counts,
+                            "candidates_saved": state["saved"], "safety_limit_hit": state["safety_limit_hit"]})
+        (directory / "capture_counts.json").write_text(json.dumps(payload, indent=2) + "\n")
 
     def get_action(self, inputs, *args, **kwargs):
         features = pending.pop("features", None)
         collator = pending.pop("collator", None)
+        collated_inputs = pending.pop("collated_inputs", None)
         result = original_action(self, inputs, *args, **kwargs)
         state["calls"] += 1
-        if state["saved"] >= limit or (state["calls"] - 1) % every:
+        if not full_trajectory and (state["saved"] >= limit or (state["calls"] - 1) % every):
             return result
         if features is None or collator is None:
             raise RuntimeError("Capture needs the policy's raw per-environment collator features")
         actions = result["action_pred"]
         if len(features) != actions.shape[0]:
             raise ValueError("Captured observation/action batch mismatch")
+        if full_trajectory and (len(features) != 1 or actions.shape[0] != 1):
+            raise ValueError("Full-trajectory capture requires exactly one environment")
         # Rotate environment slot rather than always observing slot zero.
         slot = ((state["calls"] - 1) // every) % len(features)
         feature = features[slot]
@@ -140,7 +174,7 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
         if not text:
             raise ValueError("Cannot identify the rollout task without instruction text")
         task = hashlib.sha256(text.encode()).hexdigest()
-        if counts.get(task, 0) >= per_task:
+        if not full_trajectory and counts.get(task, 0) >= per_task:
             return result
         reset = consume_reset_events()
         if event_path is not None and reset is None:
@@ -155,12 +189,37 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
                     f"{capture_metadata['task_name']!r}"
                 )
         episode_key = f"{task}:{reset['episode_index']}" if reset is not None else None
-        if per_episode is not None and episode_counts.get(episode_key, 0) >= per_episode:
+        episode_call = None
+        if full_trajectory:
+            episode_index = reset["episode_index"]
+            if type(episode_index) is not int or episode_index < 0:
+                raise ValueError("Full-trajectory capture requires nonnegative integer episode indices")
+            episode_id = str(episode_index)
+            episode_call = episode_query_counts.get(episode_id, 0) + 1
+            episode_query_counts[episode_id] = episode_call
+            # Count every query, including the last query of an episode when
+            # it falls between capture intervals. Safety failures still raise.
+            write_counts()
+            if (episode_call - 1) % every:
+                return result
+            exceeded = [name for name, hit in (
+                ("total", state["saved"] >= limit),
+                ("per_task", counts.get(task, 0) >= per_task),
+                ("per_episode", per_episode is not None and episode_counts.get(episode_key, 0) >= per_episode),
+            ) if hit]
+            if exceeded:
+                state["safety_limit_hit"] = True
+                write_counts()
+                raise RuntimeError("Full-trajectory capture safety bound exceeded: " + ", ".join(exceeded))
+        elif per_episode is not None and episode_counts.get(episode_key, 0) >= per_episode:
             return result
         # Executed inside the caller's inference_mode: leave it before cloning,
         # so saved inputs can later participate in an autograd-enabled forward.
         with torch.inference_mode(False):
-            single = tensor_tree(policy_input_precision(original_collate(collator, [feature])["inputs"]))
+            if full_trajectory:
+                single = tensor_tree(policy_input_precision(collated_inputs))
+            else:
+                single = tensor_tree(policy_input_precision(original_collate(collator, [feature])["inputs"]))
             single["action"] = actions[slot:slot + 1].detach().float().cpu().clone()
             single["action_mask"] = action_mask(single["action"], action_spec)
         sample = {"source_kind": metadata["source_kind"], "inputs": single,
@@ -181,14 +240,14 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
                   "episode_success": None,
                   "environment_slot": slot,
                   "server_call": state["calls"], "capture_index": state["saved"]}
-        torch.save(sample, directory / f"sample_{state['saved']:06d}.pt")
+        if full_trajectory:
+            sample.update({"episode_call": episode_call, "sampling_mode": sampling_mode})
+        torch.save(sample, directory / f"{sample_prefix}_{state['saved']:06d}.pt")
         state["saved"] += 1
         counts[task] = counts.get(task, 0) + 1
         if episode_key is not None:
             episode_counts[episode_key] = episode_counts.get(episode_key, 0) + 1
-        (directory / "capture_counts.json").write_text(json.dumps(
-            {"calls": state["calls"], "saved": state["saved"], "per_task": counts,
-             "per_episode": episode_counts}, indent=2) + "\n")
+        write_counts()
         print(f"[onpolicy-capture] saved={state['saved']} task={task[:12]} "
               f"task_count={counts[task]} slot={slot} call={state['calls']}", flush=True)
         return result

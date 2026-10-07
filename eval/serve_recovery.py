@@ -50,7 +50,8 @@ def main():
                         event_file=os.environ.get("FP4VLA_CAPTURE_EVENT_FILE"),
                         capture_metadata=capture_metadata,
                         per_episode=(int(os.environ["OPD_CAPTURE_PER_EPISODE"])
-                                     if os.environ.get("OPD_CAPTURE_PER_EPISODE") else None))
+                                     if os.environ.get("OPD_CAPTURE_PER_EPISODE") else None),
+                        sampling_mode=os.environ.get("FP4VLA_CAPTURE_SAMPLING_MODE", "prefix"))
     script = Path(__file__).with_name("run_gr00t_server_fp4vla.py")
     sys.argv[0] = str(script)
     runpy.run_path(str(script), run_name="__main__")

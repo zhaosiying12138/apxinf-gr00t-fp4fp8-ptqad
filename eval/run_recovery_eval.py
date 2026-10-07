@@ -14,6 +14,7 @@ import signal
 import shutil
 import socket
 import subprocess
+import sys
 import time
 
 TASKS = [
@@ -161,6 +162,63 @@ def stop(process):
             process.wait()
 
 
+def capture_sampling_config(partition, purpose, episodes, max_episode_steps=720):
+    """Opt in to full candidates only in an explicit training partition.
+
+    The safety capacity covers even one policy query per environment step,
+    plus the initial observation. It is not a quota for dataset selection.
+    Absent configuration preserves the frozen prefix-capture contract.
+    """
+    config = (partition or {}).get("capture_sampling")
+    if config is None:
+        return None
+    if purpose not in ("teacher_supervision", "collection"):
+        raise ValueError("capture_sampling is only allowed in training capture partitions")
+    allowed = {"mode", "every_server_calls", "safety_candidates_per_episode"}
+    if not isinstance(config, dict) or set(config) != allowed:
+        raise ValueError(f"capture_sampling must specify exactly {sorted(allowed)}")
+    if config["mode"] != "full_trajectory_candidates":
+        raise ValueError("Explicit capture_sampling must use full_trajectory_candidates")
+    every, safety = config["every_server_calls"], config["safety_candidates_per_episode"]
+    if any(type(x) is not int or x <= 0 for x in (every, safety, episodes, max_episode_steps)):
+        raise ValueError("Capture interval, safety bound and episode limits must be positive integers")
+    minimum = (max_episode_steps + 1 + every - 1) // every
+    if safety < minimum:
+        raise ValueError(f"Candidate safety capacity must be at least {minimum} per episode")
+    return {**config, "safety_candidates_per_task": safety * episodes,
+            "n_envs": 1, "max_episode_steps": max_episode_steps,
+            "capacity_basis": "at most one query per environment step plus initial observation"}
+
+
+def validate_capture_partition_separation(path, purpose):
+    """Check all declared evaluation partitions; teacher/student training may overlap.
+
+    This verifies this protocol's partition ledger, not the independent-test
+    status of bank indices across every historical study.
+    """
+    protocol = json.loads(Path(path).read_text())
+    partitions = protocol.get("partitions", protocol)
+    capture = protocol_entry(path, purpose)
+    if type(capture.get("seed")) is not int:
+        raise ValueError("Full-candidate capture requires an explicit integer partition seed")
+    indices = capture["init_state_indices"]
+    for name in ("development", "heldout", "smoke"):
+        if name not in partitions:
+            continue
+        evaluation = protocol_entry(path, name)
+        if set(indices) & set(evaluation["init_state_indices"]):
+            raise ValueError(f"Capture and {name} bank indices overlap")
+        if type(evaluation.get("seed")) is not int:
+            raise ValueError(f"Partition {name} must declare an integer seed")
+        # Include the terminal auto-reset, as in the held-out runner contract.
+        train_seeds = {capture["seed"] + 1000 * task + episode
+                       for task in range(10) for episode in range(len(indices) + 1)}
+        eval_seeds = {evaluation["seed"] + 1000 * task + episode
+                      for task in range(10) for episode in range(len(evaluation["init_state_indices"]) + 1)}
+        if train_seeds & eval_seeds:
+            raise ValueError(f"Capture and {name} reset seeds overlap")
+
+
 def configure_capture_environment(env, output, task, purpose, manifest, seed, indices):
     """Configure optional rollout capture variables for one task.
 
@@ -170,6 +228,7 @@ def configure_capture_environment(env, output, task, purpose, manifest, seed, in
     would therefore disable capture for every fresh output directory.
     """
     env.pop("OPD_CAPTURE_DIR", None)
+    env.pop("FP4VLA_CAPTURE_SAMPLING_MODE", None)
     if purpose not in ("teacher_supervision", "collection"):
         return None
 
@@ -194,11 +253,28 @@ def configure_capture_environment(env, output, task, purpose, manifest, seed, in
         "OPD_CAPTURE_PER_TASK": "16",
         "OPD_CAPTURE_LIMIT": "160",
         "OPD_CAPTURE_PER_EPISODE": "4",
+        "FP4VLA_CAPTURE_SAMPLING_MODE": "prefix",
     })
+    config = manifest.get("capture_sampling")
+    if config is not None:
+        # Validate even for direct helper callers; do not trust inherited env.
+        verified = capture_sampling_config(
+            {"capture_sampling": {key: config[key] for key in (
+                "mode", "every_server_calls", "safety_candidates_per_episode")}},
+            purpose, len(indices), manifest.get("max_episode_steps", 720))
+        if config != verified:
+            raise ValueError("Capture manifest configuration differs from derived safety capacity")
+        env.update({
+            "FP4VLA_CAPTURE_SAMPLING_MODE": config["mode"],
+            "OPD_CAPTURE_EVERY": str(config["every_server_calls"]),
+            "OPD_CAPTURE_PER_EPISODE": str(config["safety_candidates_per_episode"]),
+            "OPD_CAPTURE_PER_TASK": str(config["safety_candidates_per_task"]),
+            "OPD_CAPTURE_LIMIT": str(config["safety_candidates_per_task"]),
+        })
     return capture_dir
 
 
-def finalize_capture_samples(directory, task_name, result, purpose):
+def finalize_capture_samples(directory, task_name, result, purpose, sampling_mode="prefix"):
     """Bind captured inputs to scored episodes and retain successful samples.
 
     The policy server records reset identity while the rollout is still
@@ -208,6 +284,18 @@ def finalize_capture_samples(directory, task_name, result, purpose):
     to successful episodes: rejected samples are renamed (and preserved) so a
     recursive ``QAD_CAPTURE_DATASET`` cannot accidentally train on failures.
     """
+    manifest_file = Path(directory) / "capture_manifest.json"
+    recorded_mode = (json.loads(manifest_file.read_text()).get("sampling_mode", "prefix")
+                     if manifest_file.is_file() else "prefix")
+    if recorded_mode != sampling_mode:
+        raise ValueError("Recorded capture mode differs from evaluation configuration")
+    if sampling_mode == "full_trajectory_candidates":
+        if not __package__:
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from rl.capture_sampling import finalize_candidates
+        return finalize_candidates(directory, task_name, result, purpose)
+    if sampling_mode != "prefix":
+        raise ValueError(f"Unknown capture mode: {sampling_mode}")
     paths = sorted(Path(directory).rglob("sample_*.pt"))
     if not paths:
         return {"total_samples": 0, "accepted_samples": 0, "rejected_samples": 0,
@@ -330,6 +418,9 @@ def main():
         ap.error("task-count must be 1..10 and episodes 1..999")
     if args.task_count != 10 and args.purpose != "smoke":
         ap.error("Development, collection and heldout protocols require all 10 tasks")
+    sampling_config = capture_sampling_config(protocol_data, args.purpose, args.episodes)
+    if sampling_config is not None:
+        validate_capture_partition_separation(protocol_path, args.purpose)
     output = Path(args.out).resolve()
     if output.exists():
         raise FileExistsError(f"New evidence requires a new output directory: {output}")
@@ -403,6 +494,8 @@ def main():
                      "recovery_contract": recovery_contract})
     manifest["protocol_file"] = str(protocol_path)
     manifest["protocol_sha256"] = hashlib.sha256(protocol_path.read_bytes()).hexdigest()
+    if sampling_config is not None:
+        manifest["capture_sampling"] = sampling_config
     (output / "eval_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     results = {}
     started = time.time()
@@ -470,7 +563,8 @@ def main():
                 validate_resets(result, seed, indices)
                 if args.purpose in ("teacher_supervision", "collection"):
                     capture_summary = finalize_capture_samples(
-                        output / "observations" / task, task, result, args.purpose)
+                        output / "observations" / task, task, result, args.purpose,
+                        sampling_mode=sampling_config["mode"] if sampling_config else "prefix")
                     result["capture"] = capture_summary
                     # Rewrite task_results after the join so its provenance
                     # records exactly how many usable teacher samples remain.
