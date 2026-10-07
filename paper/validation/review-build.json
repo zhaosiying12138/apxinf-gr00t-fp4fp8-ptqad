@@ -74,13 +74,13 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "8e93c7e5e18df8cc0795285b71889244406019fde2f2dcc8e89f82fafad01f4b",
-      "bytes": 4846658
+      "sha256": "8a07b03e7412cf98d7aac34970e64ccdf480b25426dab163e7ec540ef7ddea80",
+      "bytes": 4868207
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "310fffd27a49273d2ee432aa7ac36ae28a1cd1d103bdf2ce43c8d3b166d30337",
-      "bytes": 130357
+      "sha256": "b7fea2ca3b08a49aff1f2f244467d42b0fd49774c57184d030e8bfa2bc9305a7",
+      "bytes": 137118
     },
     {
       "path": "meta.json",
@@ -94,13 +94,13 @@
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "sha256": "f31d291018f27fe172e9f75e1ae81595763ddfb6ff5913ca5b6330dc03543d47",
-      "bytes": 3820
+      "sha256": "9447d859eb8664002f62b2f3b2090ff8cd8c4a64c363be343bf4974dae8c6efe",
+      "bytes": 5882
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "sha256": "e29900906366b8dd14c00ea24104ab2c60be55027e58cada3a09354611f56bb3",
-      "bytes": 15001
+      "sha256": "78fc2b492745c3fc78250877282101cc0f41205a1b12f18c7e108cdf761678a1",
+      "bytes": 19509
     },
     {
       "path": "sections/03-方法.md",
@@ -109,8 +109,8 @@
     },
     {
       "path": "sections/04-实验.md",
-      "sha256": "91b22f3b5bcaee11039789f674f0033627ace433cc7296cedc6d4275916f121b",
-      "bytes": 6748
+      "sha256": "8a2ef6ef502c24b3847cfc98c2a555f019924f90fa48bb9ee4ce36055530b760",
+      "bytes": 6939
     },
     {
       "path": "sections/05-讨论与结论.md",
