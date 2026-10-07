@@ -63,7 +63,7 @@ QVLA 的实验不是只有表 1 的平均成功率。它至少有六层互相支
 | 项目 | QVLA | 本项目 v12 |
 |---|---|---|
 | 四位的含义 | 指定量化层内，每输出通道从 `0/2/4/8/16` 选择，按通道等权计算平均整数权重位宽；目标路径激活使用统一 INT4/INT8，受保护模块保持 BF16 | 权重为 NVFP4 E2M1；每 16 元素共享 E4M3 块尺度，每权重张量共享一个 FP32 二级尺度；激活用 NVFP4 QDQ |
-| 覆盖范围 | 主要量化 vision backbone 与 language module；projector、action head 保持 BF16，公开脚本还排除 `lm_head` | 479 个 eligible 权重张量全部 NVFP4；469 个 ordinary Linear 和 7 个 category Linear 安装 A4 QDQ；QAD 只训练 468 个 ordinary Linear 的 BF16 LoRA，category 层冻结 |
+| 覆盖范围 | 量化 vision backbone 与 language backbone 中的卷积/线性层；projector、action head 保持 BF16，公开脚本还排除 `language_model.lm_head` | 479 个 eligible 权重张量全部 NVFP4；469 个 ordinary Linear 和 7 个 category Linear 安装 A4 QDQ；QAD 只训练 468 个 ordinary Linear 的 BF16 LoRA，category 层冻结 |
 | 结果口径 | OpenVLA-OFT：BF16 97.1% → W4A4 96.0%，显存 15.4 → 4.5 GB，1.49×；RTX 4090、LIBERO 四套件 | GR00T N1.7、LIBERO-10、RTX 5090 Laptop；正式评测为十任务、五臂各 160 个配对回合；编码预算计入块尺度、padding、未量化参数和 LoRA |
 
 QVLA 的 `98.9%` 是 `96.0/97.1` 的相对性能保留率，不是 98.9% 的绝对成功率；其 W4A4 也不是“每个张量固定四位”。这些数字只能作文献参照，不能与本文直接排名。
