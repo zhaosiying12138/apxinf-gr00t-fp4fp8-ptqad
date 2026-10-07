@@ -1,12 +1,12 @@
 {
   "status": "passed",
   "scope": "Complete tests/ unittest discovery and all paper/validation/test_*.py CPU suites. Synthetic fixtures do not provide model accuracy, GPU parity or publication approval.",
-  "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 /home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python /home/zhaosiying/codebase/fp4vla/paper/run_cpu_checks.py --out /tmp/fp4vla_cpu_20261007_uv_declared_b3fd4aa",
+  "command": "CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 GR00T_REPO=/home/zhaosiying/codebase/fp4vla/third_party/Isaac-GR00T NO_ALBUMENTATIONS_UPDATE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 /home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python /home/zhaosiying/codebase/fp4vla/paper/run_cpu_checks.py --out /tmp/fp4vla_cpu_20261007_uv_final_receipt",
   "command_argv": [
-    "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+    "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
     "/home/zhaosiying/codebase/fp4vla/paper/run_cpu_checks.py",
     "--out",
-    "/tmp/fp4vla_cpu_20261007_uv_declared_b3fd4aa"
+    "/tmp/fp4vla_cpu_20261007_uv_final_receipt"
   ],
   "cwd": "/home/zhaosiying/codebase/fp4vla",
   "environment": {
@@ -19,17 +19,17 @@
     "TRANSFORMERS_OFFLINE": "1"
   },
   "python_version": "Python 3.12.14",
-  "source_head_before": "b3fd4aac6a5c55099ebb99b51c6727a3ee4df091",
-  "started_utc": "2026-10-07T00:16:13.077796+00:00",
-  "completed_utc": "2026-10-07T00:16:46.934940+00:00",
+  "source_head_before": "2cc08254a82c40021c8d58a9d0d829325423cf7b",
+  "started_utc": "2026-10-07T00:20:39.636388+00:00",
+  "completed_utc": "2026-10-07T00:21:11.839236+00:00",
   "returncode": 0,
   "suites": [
     {
       "suite": "unittest-discovery",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -m unittest discover -s tests -v",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -m unittest discover -s tests -v",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-m",
         "unittest",
         "discover",
@@ -47,12 +47,12 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:13.097125+00:00",
-      "completed_utc": "2026-10-07T00:16:44.108554+00:00",
+      "started_utc": "2026-10-07T00:20:39.656471+00:00",
+      "completed_utc": "2026-10-07T00:21:08.963470+00:00",
       "returncode": 0,
       "tests": 407,
-      "unittest_elapsed_seconds": 29.674,
-      "process_wall_seconds": 31.01143402897287,
+      "unittest_elapsed_seconds": 27.948,
+      "process_wall_seconds": 29.30699591198936,
       "test_files": [
         "tests/test_action_chunk_diagnostics.py",
         "tests/test_activation_checkpoint.py",
@@ -116,7 +116,7 @@
         "tests/test_weight_identity.py"
       ],
       "log": "unittest-discovery.log",
-      "log_sha256": "438cbd57c14fe172f3eb5b96c8cc40d06fc93a22d30dc03f5e34ec9b3276206a",
+      "log_sha256": "9e7b9a67e18b2656ffc2eb901251102491ec524dacec6cc5fd4495da58733d0e",
       "failures": 0,
       "errors": 0,
       "skipped": 1,
@@ -126,9 +126,9 @@
     {
       "suite": "activation-evidence",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_activation_evidence.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_activation_evidence.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_activation_evidence.py"
       ],
@@ -142,17 +142,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:44.109673+00:00",
-      "completed_utc": "2026-10-07T00:16:44.173146+00:00",
+      "started_utc": "2026-10-07T00:21:08.964573+00:00",
+      "completed_utc": "2026-10-07T00:21:09.044571+00:00",
       "returncode": 0,
       "tests": 7,
-      "unittest_elapsed_seconds": 0.01,
-      "process_wall_seconds": 0.06348216196056455,
+      "unittest_elapsed_seconds": 0.009,
+      "process_wall_seconds": 0.08000843902118504,
       "test_files": [
         "paper/validation/test_activation_evidence.py"
       ],
       "log": "activation-evidence.log",
-      "log_sha256": "209637c5270ea62667d3505f25f6e8e713fd220b3020983b799e40ff6ae4138a",
+      "log_sha256": "4190e6532da5d52050bd5ea71ff40310f4ffe0846610b4b159650675a5a9c2b2",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -162,9 +162,9 @@
     {
       "suite": "capture-support-files",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_capture_support_files.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_capture_support_files.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_capture_support_files.py"
       ],
@@ -178,17 +178,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:44.174934+00:00",
-      "completed_utc": "2026-10-07T00:16:44.255250+00:00",
+      "started_utc": "2026-10-07T00:21:09.044748+00:00",
+      "completed_utc": "2026-10-07T00:21:09.123118+00:00",
       "returncode": 0,
       "tests": 6,
-      "unittest_elapsed_seconds": 0.028,
-      "process_wall_seconds": 0.08032457099761814,
+      "unittest_elapsed_seconds": 0.027,
+      "process_wall_seconds": 0.07838048203848302,
       "test_files": [
         "paper/validation/test_capture_support_files.py"
       ],
       "log": "capture-support-files.log",
-      "log_sha256": "f21885a116cf524e2f05a0c65c73d81df86691262486284296c2bd7b5eb9178f",
+      "log_sha256": "b10f8ec805bedb16b54a53229994fc9b1f1c9d642f96a38ca91861f0a18585c2",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -198,9 +198,9 @@
     {
       "suite": "evaluation-environment",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_evaluation_environment.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_evaluation_environment.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_evaluation_environment.py"
       ],
@@ -214,17 +214,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:44.255409+00:00",
-      "completed_utc": "2026-10-07T00:16:44.331815+00:00",
+      "started_utc": "2026-10-07T00:21:09.123282+00:00",
+      "completed_utc": "2026-10-07T00:21:09.194139+00:00",
       "returncode": 0,
       "tests": 9,
-      "unittest_elapsed_seconds": 0.021,
-      "process_wall_seconds": 0.0764160678954795,
+      "unittest_elapsed_seconds": 0.02,
+      "process_wall_seconds": 0.07086761796381325,
       "test_files": [
         "paper/validation/test_evaluation_environment.py"
       ],
       "log": "evaluation-environment.log",
-      "log_sha256": "a6b12591f11b4893e523bc642d6688916af7a94ad5dd5db97ba732eab2779cd3",
+      "log_sha256": "7431ecae4ff43644d09bf35f6005eb0cc1fa03b8b19d86f5c7a24bd13bda3446",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -234,9 +234,9 @@
     {
       "suite": "frontier-layout",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_frontier_layout.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_frontier_layout.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_frontier_layout.py"
       ],
@@ -250,17 +250,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:44.331981+00:00",
-      "completed_utc": "2026-10-07T00:16:45.125911+00:00",
+      "started_utc": "2026-10-07T00:21:09.194356+00:00",
+      "completed_utc": "2026-10-07T00:21:10.001091+00:00",
       "returncode": 0,
       "tests": 7,
-      "unittest_elapsed_seconds": 0.726,
-      "process_wall_seconds": 0.7939422610215843,
+      "unittest_elapsed_seconds": 0.752,
+      "process_wall_seconds": 0.8067459649173543,
       "test_files": [
         "paper/validation/test_frontier_layout.py"
       ],
       "log": "frontier-layout.log",
-      "log_sha256": "5b0953a137a56e1fa79c9bfcb168a8773cae363dc3f5dd27618a19114b008825",
+      "log_sha256": "dc1a59d79531d00675d2d21eed0b1e0872a6ea114c09033b934aea4673407418",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -270,9 +270,9 @@
     {
       "suite": "frontier-publication",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_frontier_publication.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_frontier_publication.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_frontier_publication.py"
       ],
@@ -286,17 +286,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:45.126103+00:00",
-      "completed_utc": "2026-10-07T00:16:46.055370+00:00",
+      "started_utc": "2026-10-07T00:21:10.001270+00:00",
+      "completed_utc": "2026-10-07T00:21:10.970677+00:00",
       "returncode": 0,
       "tests": 15,
-      "unittest_elapsed_seconds": 0.876,
-      "process_wall_seconds": 0.9292780469404534,
+      "unittest_elapsed_seconds": 0.906,
+      "process_wall_seconds": 0.969419208006002,
       "test_files": [
         "paper/validation/test_frontier_publication.py"
       ],
       "log": "frontier-publication.log",
-      "log_sha256": "fe0aff5c30d17f76b66139290367ab22fcc15a58775075464ff172f486dc9823",
+      "log_sha256": "7915383371bc0f5eb2985847322c59357fba44ce6c1c0f97ef7351e31d56bf08",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -306,9 +306,9 @@
     {
       "suite": "install-final-evidence",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_install_final_evidence.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_install_final_evidence.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_install_final_evidence.py"
       ],
@@ -322,17 +322,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:46.055562+00:00",
-      "completed_utc": "2026-10-07T00:16:46.189074+00:00",
+      "started_utc": "2026-10-07T00:21:10.970855+00:00",
+      "completed_utc": "2026-10-07T00:21:11.109904+00:00",
       "returncode": 0,
       "tests": 9,
-      "unittest_elapsed_seconds": 0.08,
-      "process_wall_seconds": 0.13352379796560854,
+      "unittest_elapsed_seconds": 0.087,
+      "process_wall_seconds": 0.1390600249869749,
       "test_files": [
         "paper/validation/test_install_final_evidence.py"
       ],
       "log": "install-final-evidence.log",
-      "log_sha256": "c6d4a1ad85b23a9f763b37962e04a75d310b95682983715803e2c48bbb246884",
+      "log_sha256": "d041de1238c0ff86f970a1ff7932c08b9ea56782fc94936eb6589c72421feaf7",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -342,9 +342,9 @@
     {
       "suite": "protocol-portability",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_protocol_portability.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_protocol_portability.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_protocol_portability.py"
       ],
@@ -358,12 +358,12 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:46.189247+00:00",
-      "completed_utc": "2026-10-07T00:16:46.241212+00:00",
+      "started_utc": "2026-10-07T00:21:11.110083+00:00",
+      "completed_utc": "2026-10-07T00:21:11.169136+00:00",
       "returncode": 0,
       "tests": 6,
       "unittest_elapsed_seconds": 0.002,
-      "process_wall_seconds": 0.0519755519926548,
+      "process_wall_seconds": 0.05906385509297252,
       "test_files": [
         "paper/validation/test_protocol_portability.py"
       ],
@@ -378,9 +378,9 @@
     {
       "suite": "publication-guards",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_publication_guards.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_publication_guards.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_publication_guards.py"
       ],
@@ -394,17 +394,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:46.241377+00:00",
-      "completed_utc": "2026-10-07T00:16:46.472935+00:00",
+      "started_utc": "2026-10-07T00:21:11.169304+00:00",
+      "completed_utc": "2026-10-07T00:21:11.389936+00:00",
       "returncode": 0,
       "tests": 27,
-      "unittest_elapsed_seconds": 0.171,
-      "process_wall_seconds": 0.23156885302159935,
+      "unittest_elapsed_seconds": 0.159,
+      "process_wall_seconds": 0.22064468206372112,
       "test_files": [
         "paper/validation/test_publication_guards.py"
       ],
       "log": "publication-guards.log",
-      "log_sha256": "233ec985a59e74866b7f5f22e87c66251f3ebe8feb36e24c47d516f47937fc25",
+      "log_sha256": "28ac0e37c2e147b0c43e9196c3a34d24802a05634e1deeb13bcdb3f797f75534",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -414,9 +414,9 @@
     {
       "suite": "search-cost-binding",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_search_cost_binding.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_search_cost_binding.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_search_cost_binding.py"
       ],
@@ -430,17 +430,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:46.473109+00:00",
-      "completed_utc": "2026-10-07T00:16:46.730518+00:00",
+      "started_utc": "2026-10-07T00:21:11.390119+00:00",
+      "completed_utc": "2026-10-07T00:21:11.646164+00:00",
       "returncode": 0,
       "tests": 18,
-      "unittest_elapsed_seconds": 0.222,
-      "process_wall_seconds": 0.25741911702789366,
+      "unittest_elapsed_seconds": 0.223,
+      "process_wall_seconds": 0.2560536109376699,
       "test_files": [
         "paper/validation/test_search_cost_binding.py"
       ],
       "log": "search-cost-binding.log",
-      "log_sha256": "45423d9f806c69acb7921e4ec989bc11ef0007060c5d85e2d7eaeb0b7485569e",
+      "log_sha256": "ef022bb5414b775dec2ad94e428256a9db6f436e27dbdce7aa3a2ddb243a1e68",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -450,9 +450,9 @@
     {
       "suite": "search-cost-publication",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_search_cost_publication.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_search_cost_publication.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_search_cost_publication.py"
       ],
@@ -466,17 +466,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:46.730687+00:00",
-      "completed_utc": "2026-10-07T00:16:46.797118+00:00",
+      "started_utc": "2026-10-07T00:21:11.646319+00:00",
+      "completed_utc": "2026-10-07T00:21:11.709439+00:00",
       "returncode": 0,
       "tests": 6,
-      "unittest_elapsed_seconds": 0.006,
-      "process_wall_seconds": 0.06644273700658232,
+      "unittest_elapsed_seconds": 0.005,
+      "process_wall_seconds": 0.06313066300936043,
       "test_files": [
         "paper/validation/test_search_cost_publication.py"
       ],
       "log": "search-cost-publication.log",
-      "log_sha256": "be16fd54008e0d9b143ef0beb73fbc96f3c9b1a5e3e3135c3ea334e842619aae",
+      "log_sha256": "1f59ffa61b9a5e1e84665f3601a631abba1a3698c640d933150b9222d36e6656",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -486,9 +486,9 @@
     {
       "suite": "training-publication",
       "status": "passed",
-      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python -O paper/validation/test_training_publication.py",
+      "command": "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python -O paper/validation/test_training_publication.py",
       "command_argv": [
-        "/home/zhaosiying/.cache/uv/builds-v0/.tmp409MRH/bin/python",
+        "/home/zhaosiying/.cache/uv/builds-v0/.tmpFN3lPt/bin/python",
         "-O",
         "paper/validation/test_training_publication.py"
       ],
@@ -502,17 +502,17 @@
         "TRANSFORMERS_OFFLINE": "1"
       },
       "cwd": "/home/zhaosiying/codebase/fp4vla",
-      "started_utc": "2026-10-07T00:16:46.797297+00:00",
-      "completed_utc": "2026-10-07T00:16:46.916531+00:00",
+      "started_utc": "2026-10-07T00:21:11.709819+00:00",
+      "completed_utc": "2026-10-07T00:21:11.821480+00:00",
       "returncode": 0,
       "tests": 16,
-      "unittest_elapsed_seconds": 0.068,
-      "process_wall_seconds": 0.11924719694070518,
+      "unittest_elapsed_seconds": 0.06,
+      "process_wall_seconds": 0.11167239595670253,
       "test_files": [
         "paper/validation/test_training_publication.py"
       ],
       "log": "training-publication.log",
-      "log_sha256": "b7ea9e459c647c6373d68e9a673ebb375febd5c511b834b15829940bc7344156",
+      "log_sha256": "42f7ff72cb961647888f0beecd7a34e61ee91ce2690f11a8a7787e0d6b1067f5",
       "failures": 0,
       "errors": 0,
       "skipped": 0,
@@ -521,8 +521,8 @@
     }
   ],
   "tests": 533,
-  "unittest_elapsed_seconds": 31.884,
-  "process_wall_seconds": 33.85714932100382,
+  "unittest_elapsed_seconds": 30.198,
+  "process_wall_seconds": 32.202853644033894,
   "gpu_execution": false,
   "publication_zip_generated": false,
   "test_file_sha256": {
@@ -1273,7 +1273,7 @@
   "log": "cpu-tests.log",
   "log_path_base": "receipt directory",
   "log_scope": "cpu-tests.log embeds every suite payload and receipt; per-suite logs are convenience copies",
-  "log_sha256": "593660e32543885ebe6655a20544e26c156b0125cca265b540b65b52986d1c0c",
+  "log_sha256": "d74180a7cdcfac0378fb0e13fa8843975cadeec728799c6fd392bd9ed816b311",
   "failures": 0,
   "errors": 0,
   "skipped": 1,
