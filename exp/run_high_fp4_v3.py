@@ -296,6 +296,42 @@ def validate_teacher_capture(path: Path, protocol_file: Path, teacher: Path, pyt
     return report
 
 
+def validate_endpoint_training(protocol_file: Path, weight: float, environment: dict[str, str],
+                               python: Path) -> dict[str, Any] | None:
+    """Reuse the trainer's complete matched-cache audit in its CPU environment."""
+    command = (
+        "import json,sys; sys.path.insert(0,sys.argv[1]); "
+        "from rl.endpoint_cache_guard import prepare_endpoint_training; "
+        "print(json.dumps(prepare_endpoint_training(sys.argv[2],json.loads(sys.argv[3]),"
+        "json.loads(sys.argv[4])),sort_keys=True))"
+    )
+    try:
+        result = subprocess.run(
+            [str(python), "-c", command, str(ROOT), str(protocol_file),
+             json.dumps(weight, allow_nan=False), json.dumps(environment, sort_keys=True)],
+            check=True, capture_output=True, text=True,
+            env={**os.environ, "CUDA_VISIBLE_DEVICES": ""},
+        )
+        report = json.loads(result.stdout)
+    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as exc:
+        details = getattr(exc, "stderr", None) or str(exc)
+        raise OrchestrationError("endpoint training CPU audit failed: " + details[-4000:]) from exc
+    role = environment.get("QAD_ENDPOINT_ROLE")
+    if report is None:
+        if role is not None:
+            raise OrchestrationError("endpoint training CPU audit omitted the explicit role")
+        return None
+    if (not isinstance(report, dict) or report.get("status") != "verified"
+            or report.get("schema") != "fp4vla_endpoint_training_cache_audit_v1"
+            or report.get("protocol_sha256") != sha(protocol_file)
+            or report.get("role") != role):
+        raise OrchestrationError("endpoint training CPU audit identity differs")
+    bundle = environment.get("QAD_ENDPOINT_BUNDLE")
+    if bundle is not None and report.get("endpoint_bundle", {}).get("root") != str(Path(bundle).expanduser().resolve()):
+        raise OrchestrationError("endpoint training CPU audit uses a different explicit bundle")
+    return report
+
+
 def _candidate_fp4_fraction(path: Path) -> float:
     """Read the final checkpoint's NVFP4 fraction with category precedence."""
     category = path / "category_ptq_recipe.json"
@@ -544,11 +580,29 @@ def resolve_ptq_selection(path: Path, protocol: dict[str, Any]) -> dict[str, Any
     return validate_ptq(path, protocol)
 
 
+STATE_DISTILLATION_SCOPE = "state_distillation_development"
+STATE_DISTILLATION_ROLES = {"continued": "continued_qad", "teacher": "teacher_state_kd", "student": "student_state_opd"}
+
+
+def check_state_distillation_scope(protocol, execution_scope):
+    if execution_scope != STATE_DISTILLATION_SCOPE:
+        raise OrchestrationError("unknown explicit Driver execution scope")
+    expected = {"scope": "development_only", "arms": list(STATE_DISTILLATION_ROLES.values()),
+                "source": "frozen_stratified_qad_endpoint_bundle",
+                "allowed_stages": ["train", "merge", "development", "paired_summary"]}
+    if protocol["data"].get("state_distillation_execution") != expected:
+        raise OrchestrationError("protocol does not authorize the bounded state-distillation execution scope")
+
+
 class Driver:
-    def __init__(self,a:argparse.Namespace):
+    def __init__(self,a:argparse.Namespace, *, execution_scope=None):
         self.a=a; self.protocol_path=need(a.protocol_file,"protocol")
         self.protocol=load_protocol(self.protocol_path)
-        check_ptq_reference_stage(self.protocol, getattr(a, "until", "all"), getattr(a, "validate_only", False))
+        self.execution_scope = execution_scope
+        if execution_scope is None:
+            check_ptq_reference_stage(self.protocol, getattr(a, "until", "all"), getattr(a, "validate_only", False))
+        else:
+            check_state_distillation_scope(self.protocol, execution_scope)
         self.selection_path=need(a.ptq_selection,"PTQ selection")
         self.selection=resolve_ptq_selection(self.selection_path,self.protocol)
         self.run_dir=Path(a.run_dir).expanduser().resolve()
@@ -658,9 +712,12 @@ class Driver:
                    "teacher_capture_identity":self.teacher_capture_identity,
                    "w4a4":self.w4a4,
                    "orchestrator_source_sha256":current_source_sha256,
-                   "reference_provenance":self.selection.get("reference_provenance")}
+                   "reference_provenance":self.selection.get("reference_provenance"),
+                   "execution_scope":getattr(self, "execution_scope", None)}
             if "reference_provenance" in self.selection:
                 fixed["selection_protocol_sha256"] = self.selection["protocol_sha256"]
+            if getattr(self, "execution_scope", None) is not None:
+                fixed["execution_scope_declaration"] = self.protocol["data"]["state_distillation_execution"]
             for k,v in fixed.items():
                 if state.get(k)!=v: raise OrchestrationError(f"resume identity changed: {k}")
             if migrated_source:
@@ -690,6 +747,9 @@ class Driver:
                "stages":{},"selection_uses_heldout":False,
                "implementation_sha256":sha(Path(__file__)),
                "orchestrator_source_sha256":sha(Path(__file__))}
+        if getattr(self, "execution_scope", None) is not None:
+            state["execution_scope"] = self.execution_scope
+            state["execution_scope_declaration"] = self.protocol["data"]["state_distillation_execution"]
         jwrite(man,state)
         for p in (self.art,self.work,self.logs,self.stages,self.receipts): p.mkdir(parents=True,exist_ok=True)
         return state
@@ -722,6 +782,12 @@ class Driver:
         evidence. An unmarked output is incomplete and cannot be reused unless
         --adopt-complete is explicitly supplied and every verifier passes.
         """
+        if getattr(self, "execution_scope", None) is not None:
+            check_state_distillation_scope(self.protocol, self.execution_scope)
+            allowed = {f"{prefix}_{arm}" for prefix in ("train", "merge", "dev")
+                       for arm in STATE_DISTILLATION_ROLES.values()} | {"paired_summary"}
+            if name not in allowed:
+                raise OrchestrationError("stage is outside the explicit state-distillation development scope")
         self.freeze_check()
         marker=self.stages/(sn(name)+".json")
         legacy_work=self.work/sn(name)
@@ -779,7 +845,16 @@ class Driver:
         if r.returncode: raise OrchestrationError(f"{name} failed ({r.returncode}); inspect {log}")
         return summary
 
-    def train(self,work,name,base,lr,steps,initial=None,weight=0.,cache=None):
+    def _endpoint_training_identity(self, weight, environment):
+        declared = self.protocol.get("data", {})
+        if ("endpoint_distillation" not in declared and "state_distillation" not in declared
+                and not environment.get("QAD_ENDPOINT_ROLE") and not environment.get("QAD_ENDPOINT_BUNDLE")):
+            return None
+        return validate_endpoint_training(self.protocol_path, weight, environment, self.py)
+
+    def training_environment(self,work,base,lr,steps,initial=None,weight=0.,cache=None,
+                             *, endpoint_role=None, endpoint_bundle=None):
+        """Build the same numerical invocation for CPU preflight and actual training."""
         e={"GR00T_BASE_CKPT":str(base),"QAD_DATASET":str(self.dataset),"QAD_OUT":str(work),
            "QAD_STEPS":str(steps),"QAD_SAVE_STEPS":str(min(100, steps)),
            "QAD_SAVE_TOTAL_LIMIT":"2","QAD_GLOBAL_BATCH":str(self.batch),
@@ -808,24 +883,50 @@ class Driver:
                     json.dumps(self.teacher_capture_identity, sort_keys=True).encode()).hexdigest()
         if initial: e["QAD_INIT_ADAPTER"]=str(initial)
         if cache: e["OPD_CACHE_PATH"]=str(cache)
-        jwrite(work/"orchestrator_training_request.json",{
+        if endpoint_role is not None:
+            if endpoint_role not in ("continued", "teacher", "student"):
+                raise OrchestrationError("unknown endpoint training role")
+            e["QAD_ENDPOINT_ROLE"] = endpoint_role
+        if endpoint_bundle is not None:
+            if endpoint_role is None:
+                raise OrchestrationError("explicit endpoint bundle requires an endpoint training role")
+            e["QAD_ENDPOINT_BUNDLE"] = str(Path(endpoint_bundle).expanduser().resolve())
+        return e
+
+    def train(self,work,name,base,lr,steps,initial=None,weight=0.,cache=None,
+              *, endpoint_role=None, endpoint_bundle=None):
+        if getattr(self, "execution_scope", None) is not None:
+            expected_arm = STATE_DISTILLATION_ROLES.get(endpoint_role)
+            if expected_arm is None or name != "train_" + expected_arm:
+                raise OrchestrationError("scoped state-distillation training requires its explicit matched arm")
+        e = self.training_environment(work,base,lr,steps,initial,weight,cache,
+                                      endpoint_role=endpoint_role, endpoint_bundle=endpoint_bundle)
+        endpoint_identity = self._endpoint_training_identity(weight, e)
+        request = {
             "environment":e,"base_identity":model_id(base),
             "initial_adapter_identity":model_id(initial) if initial else None,
             "cache_identity":identity(cache) if cache else None,
             "capture_dataset_identity":self.capture_dataset_identity,
             "teacher_capture_identity":self.teacher_capture_identity,
             "protocol_sha256":self.protocol["sha256"],
-            "environment_summary":environment_summary(e)})
+            "environment_summary":environment_summary(e)}
+        if endpoint_identity is not None:
+            request["endpoint_training_identity"] = endpoint_identity
+        jwrite(work/"orchestrator_training_request.json",request)
         self.run_logged(name,[str(self.py),str(ROOT/"rl/lora_qad.py")],self.groot,e)
         produced_manifest = work / "recovery_manifest.json"
         recorded = jread(produced_manifest) if produced_manifest.is_file() else {}
-        return {"base":str(base),"learning_rate":lr,"optimizer_steps":steps,"opd_weight":weight,
+        result = {"base":str(base),"learning_rate":lr,"optimizer_steps":steps,"opd_weight":weight,
                 "initial_adapter":str(initial) if initial else None,"teacher_cache":str(cache) if cache else None,
                 "environment_summary":environment_summary(e),
                 "max_grad_norm": recorded.get("max_grad_norm"),
                 "f16_activation_saturation": recorded.get("f16_activation_saturation")}
+        if endpoint_identity is not None:
+            result["endpoint_training_identity"] = endpoint_identity
+        return result
 
-    def train_verify(self,p,steps,initial=None,lr=None,weight=0.,cache=None):
+    def train_verify(self,p,steps,initial=None,lr=None,weight=0.,cache=None,
+                     *, endpoint_role=None, endpoint_bundle=None):
         m=jread(p/"runtime_metrics.json"); rec=jread(p/"recovery_manifest.json")
         if m.get("status")!="completed" or m.get("global_steps")!=steps or m.get("requested_optimizer_steps")!=steps:
             raise OrchestrationError(f"training does not prove {steps} steps: {p}")
@@ -864,6 +965,15 @@ class Driver:
                 rec.get("capture_dataset_sha256") != expected_capture_sha):
             raise OrchestrationError("training did not use the frozen capture dataset")
         request=jread(p/"orchestrator_training_request.json")
+        environment = request.get("environment", {})
+        expected_bundle = str(Path(endpoint_bundle).expanduser().resolve()) if endpoint_bundle is not None else None
+        if (environment.get("QAD_ENDPOINT_ROLE") != endpoint_role
+                or environment.get("QAD_ENDPOINT_BUNDLE") != expected_bundle):
+            raise OrchestrationError("training endpoint role/bundle differs from the explicit stage request")
+        endpoint_identity = self._endpoint_training_identity(weight, environment)
+        if (request.get("endpoint_training_identity") != endpoint_identity
+                or rec.get("endpoint_training_identity") != endpoint_identity):
+            raise OrchestrationError("training endpoint identity differs from the request, trainer or current audit")
         # v11 requires the invocation receipt to carry the same numerical
         # environment summary as the recovery manifest.  Older v3 fixtures do
         # not have this field and remain readable for CPU regression tests.
@@ -885,9 +995,12 @@ class Driver:
         checkpoint=p/f"checkpoint-{steps}"
         if sha(checkpoint/"recovery_manifest.json")!=sha(p/"recovery_manifest.json"):
             raise OrchestrationError("saved checkpoint recovery manifest differs from training")
-        return {"checkpoint_identity":model_id(checkpoint),"recovery_manifest_sha256":sha(p/"recovery_manifest.json"),
+        result = {"checkpoint_identity":model_id(checkpoint),"recovery_manifest_sha256":sha(p/"recovery_manifest.json"),
                 "training_request_identity":identity(p/"orchestrator_training_request.json"),
                 "runtime_identity":identity(p/"runtime_metrics.json")}
+        if endpoint_identity is not None:
+            result["endpoint_training_identity"] = endpoint_identity
+        return result
 
     def merge(self,work,name,base,ckpt,steps):
         self.run_logged(name,[str(self.py),str(ROOT/"rl/lora_merge_bake.py"),"--base",str(base),"--ckpt",str(ckpt),
@@ -911,6 +1024,8 @@ class Driver:
         return {"model_identity":model_id(p),"merge_manifest_sha256":sha(p/"merge_manifest.json")}
 
     def evaluate(self,work,name,ckpt,purpose,offset=0,collection=None):
+        if getattr(self, "execution_scope", None) is not None and purpose != "development":
+            raise OrchestrationError("state-distillation scope permits development evaluation only")
         part=self.protocol["partitions"][purpose]
         c=[str(self.py),str(ROOT/"eval/run_recovery_eval.py"),"--checkpoint",str(ckpt),"--out",str(work),
            "--purpose",purpose,"--seed",str(part["seed"]),"--episodes",str(part["episodes_per_task"]),
@@ -1319,6 +1434,8 @@ class Driver:
         return {"selection_identity":identity(p/"selection.json")}
 
     def run(self,until):
+        if getattr(self, "execution_scope", None) is not None:
+            raise OrchestrationError("explicit state-distillation scope requires its dedicated development entry point")
         check_ptq_reference_stage(self.protocol, until, self.a.validate_only)
         if self.a.validate_only:
             return {"status":"validated_only","protocol_sha256":self.protocol["sha256"],"selection_sha256":self.selection["selection_sha256"],

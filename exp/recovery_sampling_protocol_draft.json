@@ -202,6 +202,12 @@
     "learning_rate": 0.00005,
     "max_grad_norm": 0.25
   },
+  "state_distillation_execution": {
+    "scope": "development_only",
+    "arms": ["continued_qad", "teacher_state_kd", "student_state_opd"],
+    "source": "frozen_stratified_qad_endpoint_bundle",
+    "allowed_stages": ["train", "merge", "development", "paired_summary"]
+  },
   "capture_views": {
     "modes": [
       "head",

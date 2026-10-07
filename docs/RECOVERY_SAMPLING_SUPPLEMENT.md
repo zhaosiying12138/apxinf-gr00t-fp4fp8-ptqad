@@ -1,6 +1,6 @@
 # QAD/OPD 时间覆盖与状态分布补充实验
 
-日期：2026-10-07。状态：完整候选采集、成对视图、QAD 训练来源检查、原 PTQ 证据的显式复用、阶段 B 配对计划、共用 QAD 的端点生成入口及教师缓存/训练准入已在独立分支 `experiment/full-trajectory-capture` 实现。[补充协议草案](../exp/recovery_sampling_protocol_draft.json)尚未冻结，GPU 补充实验尚未启动；阶段 B 的串行调度与真实推理、缓存、三臂训练仍待完成。本方案不修改正在运行的 v12 协议、训练代码或数据。它用于定位恢复不足的原因，不预设任一实验臂胜出。
+日期：2026-10-07。状态：完整候选采集、成对视图、QAD 训练来源检查、原 PTQ 证据的显式复用、阶段 B 配对计划、共用 QAD 的端点生成、教师缓存/训练准入及三臂串行开发入口已在独立分支 `experiment/full-trajectory-capture` 实现。[补充协议草案](../exp/recovery_sampling_protocol_draft.json)尚未冻结，GPU 补充实验尚未启动；真实推理、缓存、三臂训练仍待完成。本方案不修改正在运行的 v12 协议、训练代码或数据。它用于定位恢复不足的原因，不预设任一实验臂胜出。
 
 ## 已核实的输入限制
 
@@ -69,6 +69,7 @@ CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 \
 6. 已实现 `exp/probe_endpoint_bundle.py`：复用正式服务加载器和 `infer_chunk`，在两个来源的观测上由同一 QAD 生成完整动作端点；逐对核对实际初始噪声，而非只核对 seed。保留原始来源和有效掩码，pad 端点也完整保存。任何中断、来源变更或额外文件都会使数据包无法通过加载检查。尚未执行真实 GR00T GPU 端点生成。
 7. 已扩展 `rl/opd_probe_cache.py` 的显式 `--endpoint-bundle` / `--endpoint-role` 接口；按计划使用全部样本和各自速度重放 seed，拒绝截断数量或覆盖 seed。演示状态仍标为 `teacher_rollout`，学生状态仍标为 `student_rollout`；动作端点策略另行记录，不能改写观测来源。
 8. 已实现 `rl/endpoint_cache_guard.py` 并接入现有 `lora_qad.py` / `ProbeAnchor`。三个续训臂均检查同 QAD 起点、演示数据和追加预算；两个蒸馏臂再逐张量核对缓存输入、端点、种子和标注源码。检查在权重分支前执行，不能以误设零权重绕过。新缓存按审计 SHA 核验实际读入字节，再反序列化。旧 v12 协议不增加这些来源要求。
+9. 新增 `exp/run_state_distillation_dev.py`，复用原 Driver 的训练、导出、开发评测与完成收据。它在首臂训练前预审三组输入，核对端点 QAD 使用的基座与原 PTQ 选择一致；只运行三项固定续训，不选择赢家、不执行 held-out。协议必须另行显式声明 `state_distillation_execution`；旧 `run_high_fp4_v3.py --until qad_dev` 的边界保持不变。
 
 ## 新接口的使用与验证范围
 
@@ -153,11 +154,44 @@ cd "$PTQAD_GR00T"
 cd "$PTQAD_SOURCE_ROOT"
 ```
 
-上述变量均应使用绝对路径。缓存不接受 `--count` 或 `--seed`，避免两组预算被单独改变。训练继续复用 `rl/lora_qad.py`；新协议的 `state_distillation` 固定两个 KD 臂权重 0.25、追加 2,000 步、学习率 `5e-5` 和梯度裁剪 0.25。续训环境需声明 `QAD_ENDPOINT_ROLE=continued/teacher/student`。continued 臂通过 `QAD_ENDPOINT_BUNDLE` 绑定共同起点但不读取教师速度标签；另外两臂从 `OPD_CACHE_PATH` 追溯同一包。完整三臂调度命令要待调度接口完成并经过验证后再提供，不能沿用旧调度器隐含的学生缓存分支。
+上述变量均应使用绝对路径。缓存不接受 `--count` 或 `--seed`，避免两组预算被单独改变。训练继续复用 `rl/lora_qad.py`；新协议的 `state_distillation` 固定两个 KD 臂权重 0.25、追加 2,000 步、学习率 `5e-5` 和梯度裁剪 0.25。续训环境需声明 `QAD_ENDPOINT_ROLE=continued/teacher/student`。continued 臂通过 `QAD_ENDPOINT_BUNDLE` 绑定共同起点但不读取教师速度标签；另外两臂从 `OPD_CACHE_PATH` 追溯同一包。新入口会显式写入这些变量，不能只在调用者 shell 中导出后交给旧分支。
+
+## 三臂开发入口
+
+完成全时域采集、两份 QAD、学生采集、端点包和两个教师缓存后，先运行下面的 CPU 检查。`SOURCE_PTQ_SELECTION` 指向草案已经绑定的原选择文件，`STATE_DEV_OUT` 必须是源证据和模型目录之外的独立输出；检查会创建运行清单，但不会训练或评测。
+
+```bash
+STATE_DEV_ARGS=(
+  --run-dir "$STATE_DEV_OUT"
+  --protocol-file "$SAMPLING_PROTOCOL"
+  --ptq-selection "$SOURCE_PTQ_SELECTION"
+  --endpoint-bundle "$ENDPOINT_BUNDLE_OUT"
+  --teacher-cache "$TEACHER_STATE_CACHE"
+  --student-cache "$STUDENT_STATE_CACHE"
+  --gr00t-repo "$PTQAD_GR00T"
+  --python "$PTQAD_PYTHON"
+  --rollout-python "$LIBERO_PYTHON"
+  --dataset "$PTQAD_DEMO_DATASET"
+)
+CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PYTHON" \
+  exp/run_state_distillation_dev.py "${STATE_DEV_ARGS[@]}" --validate-only
+```
+
+主链结束、协议已冻结且 CPU 检查通过后，再使用相同参数串行执行。该命令尚未在真实 GPU 产物上运行：
+
+```bash
+"$PTQAD_PYTHON" exp/run_state_distillation_dev.py "${STATE_DEV_ARGS[@]}"
+```
+
+入口固定执行 `continued_qad → teacher_state_kd → student_state_opd`，每臂依次训练、导出并在同一 development 分区评测；最后写入 `artifacts/paired_summary/paired_comparison.json`。报告含三臂逐任务计数和三组逐回合配对比较，全部标记为开发证据，不据此发布正式成功率。continued 与两个 KD 臂的额外 GPU 成本仍分别记录。
+
+已完成阶段会重新核验证据后复用；无完成收据的中断产物会报错，不能假定自动恢复训练成功。`--adopt-complete` 只接纳通过完整验收的既有产物。原 PTQ 分数保留源协议 SHA；新入口的开发执行范围、共同 QAD、端点与缓存另外写入运行清单，不能冒称原分数是在补充协议下重新测得。独立 planner 只验证 QAD 来源链自洽，所选 PTQ 基座的对应关系还由此入口核验。
 
 [流匹配重放审计](OPD_FLOW_REPLAY_AUDIT_20261007.md)未发现当前教师与学生辅助前向的 noise/time 错位。它验证的是相同缓存输入下的速度监督；不要求与主演示损失共享随机样本，也没有证明整个 CUDA 前向数值一致。统一端点生成策略去除了一项混杂因素，后续结论仍限定在匹配身份与预算下的状态来源效果。
 
-本次 218 项 CPU 集成测试通过，覆盖完整候选采集、原始与派生来源审计、真实训练 Dataset/Collator 接线、PTQ 参考复用、端点计划与生成、教师缓存、训练准入、调度请求和既有收据兼容。端点串联测试仅用轻量模型代替完整 GR00T 加载，仍执行真实来源检查和完整动作采样入口；60 对观测均进入缓存与训练审计，30 个失败学生窗口保留。它不是机器人实验结果。测试还拒绝只重写收据协议 SHA 的跨协议复用，以及缓存检查后的文件替换。对现有真实教师数据的只读复查仍为十任务、148 个样本通过。另有十项旧 `exp.test_high_fp4_v3_cpu` 夹具错误在未修改的 HEAD driver 上同样复现：九项缺少未跟踪的历史 v8 协议文件，一项续训夹具缺少已有数值开关。它们未被计入本次通过项，也未通过放宽检查来修正。
+此前 218 项 CPU 集成测试通过，覆盖完整候选采集、原始与派生来源审计、真实训练 Dataset/Collator 接线、PTQ 参考复用、端点计划与生成、教师缓存、训练准入、调度请求和既有收据兼容。端点串联测试仅用轻量模型代替完整 GR00T 加载，仍执行真实来源检查和完整动作采样入口；60 对观测均进入缓存与训练审计，30 个失败学生窗口保留。它不是机器人实验结果。测试还拒绝只重写收据协议 SHA 的跨协议复用，以及缓存检查后的文件替换。对现有真实教师数据的只读复查仍为十任务、148 个样本通过。另有十项旧 `exp.test_high_fp4_v3_cpu` 夹具错误在未修改的 HEAD driver 上同样复现：九项缺少未跟踪的历史 v8 协议文件，一项续训夹具缺少已有数值开关。它们未被计入本次通过项，也未通过放宽检查来修正。
+
+三臂入口新增 12 项 CPU 测试，Driver 接线另有 12 项；共 24 项通过。测试替换实际训练、完整模型加载和机器人环境，在真实阶段收据及日志审计上验证执行顺序、共同输入、配对统计、续跑和篡改拒绝。CLI 可在不导入 Torch 的系统 Python 中显示帮助。它们验证调度行为，不代表真实 GPU 恢复已经完成。
 
 完整上限是五次训练、共 10,000 次更新，加 80 个采集回合和 250 个开发评测回合。若两份 QAD 数据各为 148 窗，沿用当前加载与尾批规则，五臂合计 148,000 次演示窗口读取，两个 KD 臂合计 59,200 次额外探针前向/反传。实际预算必须由新样本数和训练收据计算；不能把匹配更新次数称为相同总 GPU 成本。
 
