@@ -24,7 +24,21 @@ def main():
         match=re.fullmatch(r'([\w./-]+\.(?:py|rs|cu|cuh))(?:::(\w+))?',token)
         if not match:continue
         relative,symbol=match.groups()
-        candidates=[p for p in known if p.as_posix().endswith('/'+relative)]
+        # Evidence packages intentionally retain byte-identical source copies
+        # for provenance.  They must not make a literal project reference
+        # ambiguous: prefer the canonical checkout path, then fall back to the
+        # APXInf source tree for paths that live outside the project root.
+        canonical = ROOT / relative
+        if canonical.is_file():
+            candidates = [canonical.resolve()]
+        else:
+            # A few appendix references intentionally omit their directory
+            # (for example ``probe_distill.py``).  Resolve those against the
+            # checked-out source tree, while excluding provenance copies under
+            # paper/evidence that are not executable project sources.
+            candidates=[p for p in known
+                        if '/paper/evidence/' not in p.as_posix()
+                        and p.as_posix().endswith('/'+relative)]
         if len(candidates)!=1:
             missing.append({'token':token,'candidate_count':len(candidates)});continue
         path=candidates[0];key=path.relative_to(ROOT).as_posix()
