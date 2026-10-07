@@ -280,51 +280,132 @@ def plan_capture_view(directory, task_name, *, mode, windows_per_episode=4):
             "coverage_scope": "query-rank sampling across recorded candidates; no semantic-phase coverage claim"}
 
 
-def materialize_capture_view(plan, output_directory):
-    """Write a new per-task view; all input tensors and source/reset identities are retained."""
-    import torch
+def _capture_view_paths(plan, output_directory):
+    """Recompute the source plan and resolve a separate destination."""
     _require(isinstance(plan, dict) and plan.get("schema") == PLAN_SCHEMA, "Unknown view plan")
     fresh = plan_capture_view(plan["source_directory"], plan["task_name"],
                               mode=plan["mode"], windows_per_episode=plan["windows_per_episode"])
-    _require(plan == fresh, "View plan or source evidence changed")
+    _require(_json_sha(plan) == _json_sha(fresh), "View plan or source evidence changed")
+    _require(not Path(output_directory).is_symlink(), "View destination must not be a symlink")
     output = Path(output_directory).resolve()
-    source = Path(plan["source_directory"])
+    source = Path(plan["source_directory"]).resolve()
     _require(output != source and source not in output.parents and output not in source.parents,
              "View destination must be separate from source")
-    if output.exists():
-        raise FileExistsError(f"Refusing existing view directory: {output}")
-    output.mkdir(parents=True)
-    records = []
-    for entry in plan["selected"]:
-        sample = torch.load(source / entry["source_filename"], map_location="cpu", weights_only=True)
-        sample.update(source_capture_index=entry["source_capture_index"],
-                      source_server_call=entry["source_server_call"],
-                      capture_index=entry["capture_index"],
-                      source_candidate_filename=entry["source_filename"],
-                      source_candidate_sha256=entry["source_sha256"],
-                      capture_view_mode=plan["mode"])
-        path = output / entry["output_filename"]
-        torch.save(sample, path)
-        records.append({**entry, "output_sha256": _sha(path), "output_bytes": path.stat().st_size})
-    raw_manifest = _read(source / "capture_manifest.json")
+    return source, output
+
+
+def _view_sample(sample, entry, mode):
+    """The complete allowlist of deterministic changes made by a data view."""
+    return {**sample, "source_capture_index": entry["source_capture_index"],
+            "source_server_call": entry["source_server_call"], "capture_index": entry["capture_index"],
+            "source_candidate_filename": entry["source_filename"],
+            "source_candidate_sha256": entry["source_sha256"], "capture_view_mode": mode}
+
+
+def _view_documents(plan, raw_manifest, records):
+    """Use the same manifest/count rules for writing and independent verification."""
     accepted = sum(row["accepted_for_training"] for row in records)
     view = {key: value for key, value in raw_manifest.items() if key not in (
         "candidates", "pre_finalization_candidates", "capture_counts_sha256", "finalization_summary")}
     view.update(schema=VIEW_SCHEMA, sampling_mode="derived_training_view", selection_mode=plan["mode"],
-                source_directory=str(source), source_manifest_sha256=plan["source_manifest_sha256"],
+                source_directory=plan["source_directory"], source_manifest_sha256=plan["source_manifest_sha256"],
                 source_counts_sha256=plan["source_counts_sha256"], plan_sha256=_json_sha(plan),
                 data_view="derived from one finalized rollout; this view is not a new evaluation run",
                 legacy_audit_compatible=False, per_episode_limit=plan["windows_per_episode"],
                 total_samples=len(records), accepted_samples=accepted, rejected_samples=len(records) - accepted,
                 unsuccessful_samples=sum(not row["episode_success"] for row in records),
                 selected_sources=records, episodes=plan["episodes"], coverage_scope=plan["coverage_scope"])
-    _write(output / "selection_plan.json", plan)
-    _write(output / "capture_manifest.json", view)
-    _write(output / "capture_counts.json", {
+    counts = {
         "schema": VIEW_SCHEMA, "saved": len(records), "accepted_samples": accepted,
         "rejected_samples": len(records) - accepted, "selection_mode": plan["mode"],
         "source_actual_queries": sum(row["actual_queries"] for row in plan["episodes"]),
         "source_counts_sha256": plan["source_counts_sha256"],
         "per_episode_selected": {str(row["episode_index"]): row["selected_count"] for row in plan["episodes"]},
-        "data_view": "selected files only; no inference calls were made"})
+        "data_view": "selected files only; no inference calls were made"}
+    return view, counts
+
+
+def _require_same_sample(actual, expected, location):
+    """Compare contents independently of the output's self-reported file hash."""
+    import torch
+    if torch.is_tensor(expected):
+        _require(torch.is_tensor(actual) and actual.dtype == expected.dtype
+                 and actual.shape == expected.shape and actual.layout == expected.layout,
+                 "View tensor dtype/shape/layout differs from source: " + location)
+        # These captures contain dense tensors. Comparing raw values also preserves
+        # NaN payloads and signed zero if either occurs in the source evidence.
+        _require(actual.layout == torch.strided, "Unsupported capture tensor layout: " + location)
+        _require(torch.equal(actual.contiguous().reshape(-1).view(torch.uint8),
+                             expected.contiguous().reshape(-1).view(torch.uint8)),
+                 "View tensor values differ from source: " + location)
+        return
+    _require(type(actual) is type(expected), "View value type differs from source: " + location)
+    if isinstance(expected, dict):
+        _require(actual.keys() == expected.keys(), "View dictionary keys differ from source: " + location)
+        for key in expected:
+            _require_same_sample(actual[key], expected[key], location + "." + str(key))
+    elif isinstance(expected, (list, tuple)):
+        _require(len(actual) == len(expected), "View sequence length differs from source: " + location)
+        for index, (value, original) in enumerate(zip(actual, expected)):
+            _require_same_sample(value, original, f"{location}[{index}]")
+    else:
+        _require(actual == expected, "View value differs from source: " + location)
+
+
+def materialize_capture_view(plan, output_directory):
+    """Write a new per-task view; all input tensors and source/reset identities are retained."""
+    import torch
+    source, output = _capture_view_paths(plan, output_directory)
+    if output.exists():
+        raise FileExistsError(f"Refusing existing view directory: {output}")
+    output.mkdir(parents=True)
+    records = []
+    for entry in plan["selected"]:
+        sample = torch.load(source / entry["source_filename"], map_location="cpu", weights_only=True)
+        path = output / entry["output_filename"]
+        torch.save(_view_sample(sample, entry, plan["mode"]), path)
+        records.append({**entry, "output_sha256": _sha(path), "output_bytes": path.stat().st_size})
+    view, counts = _view_documents(plan, _read(source / "capture_manifest.json"), records)
+    _write(output / "selection_plan.json", plan)
+    _write(output / "capture_manifest.json", view)
+    _write(output / "capture_counts.json", counts)
+    return view
+
+
+def verify_capture_view(plan, directory):
+    """Read-only replay of a view's selection, filtering, file inventory and tensor contents.
+
+    The source plan is recomputed from finalized candidates. All selected output
+    tensors are compared with those source tensors, even when an output file and
+    its recorded hash have both been changed. No legacy compatibility is inferred.
+    """
+    import torch
+    source, output = _capture_view_paths(plan, directory)
+    _require(output.is_dir(), "View directory does not exist")
+    expected_files = {entry["output_filename"] for entry in plan["selected"]}
+    expected_files.update(("selection_plan.json", "capture_manifest.json", "capture_counts.json"))
+    paths = list(output.rglob("*"))
+    _require(not any(path.is_symlink() for path in paths), "View inventory contains a symlink")
+    _require(not any(path.name.endswith(".tmp") for path in paths), "Unfinished view write exists")
+    _require(all(path.is_file() for path in paths)
+             and {path.relative_to(output).as_posix() for path in paths} == expected_files,
+             "View file inventory differs from plan")
+    _require(_json_sha(_read(output / "selection_plan.json")) == _json_sha(plan),
+             "Stored selection plan differs from verified plan")
+    records = []
+    for entry in plan["selected"]:
+        source_file = source / entry["source_filename"]
+        _require(_sha(source_file) == entry["source_sha256"], "Source candidate changed during verification")
+        original = torch.load(source_file, map_location="cpu", weights_only=True)
+        path = output / entry["output_filename"]
+        actual = torch.load(path, map_location="cpu", weights_only=True)
+        _require_same_sample(actual, _view_sample(original, entry, plan["mode"]), path.name)
+        records.append({**entry, "output_sha256": _sha(path), "output_bytes": path.stat().st_size})
+    _require(_sha(source / "capture_manifest.json") == plan["source_manifest_sha256"],
+             "Source manifest changed during verification")
+    expected_view, expected_counts = _view_documents(plan, _read(source / "capture_manifest.json"), records)
+    view = _read(output / "capture_manifest.json")
+    _require(_json_sha(view) == _json_sha(expected_view), "View manifest differs from verified source and outputs")
+    _require(_json_sha(_read(output / "capture_counts.json")) == _json_sha(expected_counts),
+             "View counts differ from verified selection")
     return view

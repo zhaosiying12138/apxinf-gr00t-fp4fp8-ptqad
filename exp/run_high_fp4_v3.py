@@ -773,6 +773,10 @@ class Driver:
             e["QAD_CAPTURE_DATASET"] = str(self.capture_dataset)
             e["QAD_CAPTURE_DATASET_SHA256"] = hashlib.sha256(
                 json.dumps(self.capture_dataset_identity, sort_keys=True).encode()).hexdigest()
+            if (self.teacher_capture_identity or {}).get("format") == "derived_teacher_replay_audit_v1":
+                e["QAD_CAPTURE_TEACHER"] = str(self.base)
+                e["QAD_CAPTURE_AUDIT_SHA256"] = hashlib.sha256(
+                    json.dumps(self.teacher_capture_identity, sort_keys=True).encode()).hexdigest()
         if initial: e["QAD_INIT_ADAPTER"]=str(initial)
         if cache: e["OPD_CACHE_PATH"]=str(cache)
         jwrite(work/"orchestrator_training_request.json",{

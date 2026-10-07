@@ -35,14 +35,32 @@ def require(condition, reason):
 
 
 def audit_replay(root, protocol_file, teacher, minimum_episodes=2):
-    import torch
     root, protocol_file, teacher = (Path(x).resolve() for x in (root, protocol_file, teacher))
+    require(type(minimum_episodes) is int and minimum_episodes > 0, "Invalid minimum episode count")
+    # A paired output contains two alternative training inputs; accepting its
+    # root would silently concatenate both. Only one named view may be trained.
+    require(not (root / "views_manifest.json").is_file(),
+            "Choose one head or stratified training view, not the paired view root")
+    view = root.parent if root.name == "observations" else root
+    paired_manifest = view.parent / "views_manifest.json"
+    if view.name in ("head", "stratified") and paired_manifest.is_file():
+        require(read(paired_manifest).get("schema") == "fp4vla_paired_capture_views_v1",
+                "Unknown paired capture view schema")
+        # Recognition does not attest provenance. The dedicated CPU auditor
+        # verifies selected bytes, original candidates, rollout, and protocol.
+        if __package__:
+            from .derive_capture_views import audit_training_view
+        else:
+            from derive_capture_views import audit_training_view
+        return audit_training_view(root, protocol_file, teacher, minimum_episodes)
+    require(not any(root.rglob("candidate_*.pt")),
+            "Raw candidate directories are not training views; derive head or stratified first")
+    import torch
     # Accept the evaluation directory or its observations child, and bind both
     # to their original evaluation. Arbitrary piles of .pt files are invalid.
     evaluation = root if (root / "eval_manifest.json").is_file() else root.parent
     observations = evaluation / "observations"
     require(root in (evaluation, observations), "Replay root must be teacher evaluation or observations directory")
-    require(type(minimum_episodes) is int and minimum_episodes > 0, "Invalid minimum episode count")
     protocol, manifest = read(protocol_file), read(evaluation / "eval_manifest.json")
     part = protocol["partitions"]["teacher_supervision"]
     protocol_sha = digest(protocol_file)

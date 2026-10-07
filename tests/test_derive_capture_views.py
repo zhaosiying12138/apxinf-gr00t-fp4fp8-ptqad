@@ -37,7 +37,8 @@ class DeriveCaptureViewsTests(unittest.TestCase):
         self.root = Path(temporary.name)
         self.fixture_count = 0
 
-    def fixture(self, purpose="teacher_supervision", finalized=True):
+    def fixture(self, purpose="teacher_supervision", finalized=True, formal_teacher=False,
+                success=(True, False)):
         """Make ten synthetic task logs and call the real runner finalizer route."""
         self.fixture_count += 1
         directory = self.root / f"source_{self.fixture_count}"
@@ -46,14 +47,29 @@ class DeriveCaptureViewsTests(unittest.TestCase):
         partition = {"seed": 950000, "episodes_per_task": 2, "init_state_indices": [20, 21],
                      "capture_sampling": {"mode": MODE, "every_server_calls": 4,
                                           "safety_candidates_per_episode": 181}}
-        write_json(protocol, {"partitions": {purpose: partition}})
+        protocol_data = {"partitions": {purpose: partition}}
+        if formal_teacher:
+            protocol_data["capture_views"] = {"modes": ["head", "stratified"], "windows_per_episode": 4}
+            protocol_data["partitions"]["heldout"] = {
+                "seed": 970000, "episodes_per_task": 2, "init_state_indices": [24, 25]}
+        write_json(protocol, protocol_data)
         config = capture_sampling_config(partition, purpose, 2)
-        checkpoint = str(self.root / "frozen_checkpoint")
+        checkpoint_path = self.root / (f"frozen_checkpoint_{self.fixture_count}" if formal_teacher else "frozen_checkpoint")
+        checkpoint = str(checkpoint_path)
+        if formal_teacher:
+            checkpoint_path.mkdir()
+            write_json(checkpoint_path / "config.json", {"fixture": "identity-only"})
+            write_json(checkpoint_path / "statistics.json", {"fixture": "normalization identity"})
+            (checkpoint_path / "model.safetensors").write_bytes(b"hash-only fixture; never model-loaded")
         kind = "teacher_rollout" if purpose == "teacher_supervision" else "student_rollout"
         manifest = {"purpose": purpose, "tasks": TASKS, "n_envs": 1, "episodes": 2,
                     "protocol_file": str(protocol), "protocol_sha256": digest(protocol),
                     "init_state_indices": [20, 21], "seed": 950000, "max_episode_steps": 720,
                     "checkpoint": checkpoint, "capture_sampling": config}
+        if formal_teacher:
+            manifest["environment_summary"] = {"variables": {key: "0" for key in (
+                "FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
+                "FP4VLA_SATURATE_F16_ACTIVATIONS")}}
         write_json(directory / "eval_manifest.json", manifest)
         task_results = {}
         for task_index, task in enumerate(TASKS):
@@ -66,6 +82,10 @@ class DeriveCaptureViewsTests(unittest.TestCase):
                        "n_envs": 1, "every_server_calls": 4, "per_episode_limit": 181,
                        "per_task_limit": 362, "total_limit": 362,
                        "sampling_interval_basis": "episode_call", "candidate_prefix": "candidate_"}
+            if formal_teacher:
+                capture.update(checkpoint_role="teacher" if purpose == "teacher_supervision" else "student",
+                               student_config_sha256=digest(checkpoint_path / "config.json"),
+                               student_statistics_sha256=digest(checkpoint_path / "statistics.json"))
             write_json(capture_dir / "capture_manifest.json", capture)
             resets = [{"task_name": task, "episode_index": episode, "seed": seed + episode,
                        "init_state_index": 20 + episode, "settle_steps": 10,
@@ -73,7 +93,7 @@ class DeriveCaptureViewsTests(unittest.TestCase):
                        "init_state_bank_sha256": "c" * 64} for episode in range(2)]
             log = directory / f"{task}.log"
             log.write_text("".join("FP4VLA_EPISODE_RESET " + json.dumps(reset) + "\n" for reset in resets)
-                           + f"results: ('libero_sim/{task}', [True, False])\n", encoding="utf-8")
+                           + f"results: ('libero_sim/{task}', {list(success)!r})\n", encoding="utf-8")
             result = {**parse_log(log), "seed": seed, "returncode": 0}
             saved = 0
             prefix = 0
@@ -87,6 +107,17 @@ class DeriveCaptureViewsTests(unittest.TestCase):
                               "server_call": prefix + episode_call,
                               "inputs": {"state": torch.tensor([[task_index, saved]], dtype=torch.bfloat16),
                                          "input_ids": torch.tensor([[task_index, saved]], dtype=torch.int64)}}
+                    if formal_teacher:
+                        sample.update(checkpoint_role=capture["checkpoint_role"],
+                                      student_statistics_sha256=capture["student_statistics_sha256"])
+                        sample["inputs"].update({
+                            "embodiment_id": torch.zeros(1, dtype=torch.int64),
+                            "attention_mask": torch.ones(1, 2, dtype=torch.int64),
+                            "pixel_values": torch.zeros(4, 3, dtype=torch.bfloat16),
+                            "image_grid_thw": torch.tensor([[1, 2, 2]], dtype=torch.int64),
+                            "action": torch.zeros(1, 16, 32, dtype=torch.bfloat16),
+                            "action_mask": torch.cat((torch.ones(1, 16, 7), torch.zeros(1, 16, 25)), dim=-1),
+                        })
                     torch.save(sample, capture_dir / f"candidate_{saved:06d}.pt")
                     saved += 1
                 prefix += queries
@@ -98,7 +129,7 @@ class DeriveCaptureViewsTests(unittest.TestCase):
             task_results[task] = result
         write_json(directory / "task_results.json", task_results)
         write_json(directory / "summary.json", {"tasks_complete": 10, "total_episodes": 20,
-                                                "total_successes": 10, "purpose": purpose})
+                                                "total_successes": 10 * sum(success), "purpose": purpose})
         return directory
 
     def test_runner_route_and_matched_teacher_views_preserve_source_and_tensors(self):

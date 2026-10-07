@@ -45,6 +45,7 @@ import torch, torch.nn as nn
 from probe_distill import file_sha256, install_sequential_probe, require_full_model
 from lora_scope import SCOPES, in_scope as module_in_scope
 from recovery_batch import resolve_batch
+from derived_replay_guard import prepare_derived_replay
 from gr00t_runtime import configure_libero_data, verify_libero_statistics, libero_action_spec, restore_checkpoint_model_config
 from runtime_metrics import cuda_memory_peaks, parameter_storage
 
@@ -112,12 +113,15 @@ class CapturedStateDataset(torch.utils.data.Dataset):
 
     def __init__(self, root):
         self.root = Path(root).expanduser().resolve()
-        self.paths = sorted(self.root.rglob("sample_*.pt"))
+        self.derived_guard = prepare_derived_replay(self.root, PROTOCOL_FILE)
+        self.paths = (self.derived_guard.paths if self.derived_guard is not None
+                      else sorted(self.root.rglob("sample_*.pt")))
         if not self.paths:
             raise ValueError(f"QAD_CAPTURE_DATASET has no sample_*.pt files: {self.root}")
         self.samples = []
         for path in self.paths:
-            sample = torch.load(path, map_location="cpu", weights_only=True)
+            sample = (self.derived_guard.load_sample(path) if self.derived_guard is not None
+                      else torch.load(path, map_location="cpu", weights_only=True))
             inputs = sample.get("inputs")
             if not isinstance(inputs, dict):
                 raise ValueError(f"Captured sample lacks inputs: {path}")
@@ -424,6 +428,7 @@ def install_trainer_hooks():
         recovery_sources = [
             PROJECT / "rl" / filename for filename in (
                 "lora_qad.py", "probe_distill.py", "lora_scope.py", "recovery_batch.py",
+                "derived_replay_guard.py",
                 "gr00t_runtime.py", "activation_checkpoint.py", "runtime_metrics.py",
                 "w4a4_lora.py")]
         if W4A4:

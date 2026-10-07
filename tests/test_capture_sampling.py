@@ -13,7 +13,8 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "rl"))
 from capture_sampling import (CANDIDATE_SCHEMA, VIEW_SCHEMA, finalize_candidates,
-                              materialize_capture_view, plan_capture_view, select_indices)
+                              materialize_capture_view, plan_capture_view, select_indices,
+                              verify_capture_view)
 
 
 class CaptureSamplingTests(unittest.TestCase):
@@ -124,11 +125,187 @@ class CaptureSamplingTests(unittest.TestCase):
 
     def test_collection_keeps_failed_selected_inputs_for_training(self):
         directory, _, _, _ = self.finalize(purpose="collection")
-        view = materialize_capture_view(plan_capture_view(directory, "task", mode="stratified"),
-                                        self.root / "collection_view")
+        plan = plan_capture_view(directory, "task", mode="stratified")
+        view = materialize_capture_view(plan, self.root / "collection_view")
         self.assertEqual(view["accepted_samples"], 7)
         self.assertEqual(view["rejected_samples"], 0)
         self.assertEqual(view["unsuccessful_samples"], 3)
+        self.assertEqual(verify_capture_view(plan, self.root / "collection_view"), view)
+
+    def test_verify_both_views_is_read_only_and_rechecks_source(self):
+        directory, _, _, _ = self.finalize()
+        source_before = self.hashes(directory)
+        for mode in ("head", "stratified"):
+            plan = plan_capture_view(directory, "task", mode=mode)
+            output = self.root / mode
+            view = materialize_capture_view(plan, output)
+            before = self.hashes(output)
+            self.assertEqual(verify_capture_view(plan, output), view)
+            self.assertEqual(self.hashes(output), before)
+        self.assertEqual(self.hashes(directory), source_before)
+        candidate = directory / plan["selected"][0]["source_filename"]
+        sample = torch.load(candidate, weights_only=True)
+        sample["inputs"]["state"] += 1
+        torch.save(sample, candidate)
+        with self.assertRaisesRegex(ValueError, "changed after finalization"):
+            verify_capture_view(plan, output)
+
+    def rewrite_output_hash(self, output, filename):
+        path = output / "capture_manifest.json"
+        manifest = json.loads(path.read_text())
+        for record in manifest["selected_sources"]:
+            if record["output_filename"] == filename:
+                record["output_sha256"] = hashlib.sha256((output / filename).read_bytes()).hexdigest()
+                record["output_bytes"] = (output / filename).stat().st_size
+        self.write(path, manifest)
+
+    def test_verify_rejects_tensor_changes_even_with_rewritten_hash(self):
+        directory, _, _, _ = self.finalize()
+        plan = plan_capture_view(directory, "task", mode="stratified")
+        for change in ("values", "dtype", "shape"):
+            with self.subTest(change=change):
+                output = self.root / change
+                materialize_capture_view(plan, output)
+                filename = plan["selected"][0]["output_filename"]
+                sample = torch.load(output / filename, weights_only=True)
+                state = sample["inputs"]["state"]
+                sample["inputs"]["state"] = {"values": state + 1,
+                                             "dtype": state.float(),
+                                             "shape": state.flatten()}[change]
+                torch.save(sample, output / filename)
+                self.rewrite_output_hash(output, filename)
+                with self.assertRaisesRegex(ValueError, "View tensor"):
+                    verify_capture_view(plan, output)
+
+    def test_verify_checks_nested_metadata_and_declared_remapping(self):
+        directory, result, purpose = self.fixture()
+        candidate = directory / "candidate_000000.pt"
+        sample = torch.load(candidate, weights_only=True)
+        sample["nested"] = [{"mask": torch.tensor([True, False])}, ("tag", 2, None)]
+        torch.save(sample, candidate)
+        finalize_candidates(directory, "task", result, purpose)
+        plan = plan_capture_view(directory, "task", mode="head")
+        for change in ("nested", "source_capture_index", "episode_success", "extra"):
+            with self.subTest(change=change):
+                output = self.root / change
+                materialize_capture_view(plan, output)
+                self.assertEqual(verify_capture_view(plan, output)["accepted_samples"], 4)
+                filename = plan["selected"][0]["output_filename"]
+                sample = torch.load(output / filename, weights_only=True)
+                if change == "nested":
+                    sample["nested"][1] = ("changed", 2, None)
+                elif change == "source_capture_index":
+                    sample[change] += 1
+                elif change == "episode_success":
+                    sample[change] = False
+                else:
+                    sample[change] = "unplanned metadata"
+                torch.save(sample, output / filename)
+                self.rewrite_output_hash(output, filename)
+                with self.assertRaisesRegex(ValueError, "View (value|dictionary)"):
+                    verify_capture_view(plan, output)
+
+    def test_verify_rejects_manifest_filter_provenance_and_counts_changes(self):
+        directory, _, _, _ = self.finalize()
+        plan = plan_capture_view(directory, "task", mode="head")
+        output = self.root / "view"
+        view = materialize_capture_view(plan, output)
+        changes = ({"accepted_samples": 7, "rejected_samples": 0},
+                   {"selection_mode": "stratified"}, {"source_manifest_sha256": "a" * 64},
+                   {"legacy_audit_compatible": True}, {"accepted_samples": 4.0})
+        for change in changes:
+            with self.subTest(change=change):
+                self.write(output / "capture_manifest.json", {**view, **change})
+                with self.assertRaisesRegex(ValueError, "View manifest differs"):
+                    verify_capture_view(plan, output)
+        self.write(output / "capture_manifest.json", view)
+        changed = copy.deepcopy(view)
+        changed["selected_sources"][-1]["accepted_for_training"] = True
+        self.write(output / "capture_manifest.json", changed)
+        with self.assertRaisesRegex(ValueError, "View manifest differs"):
+            verify_capture_view(plan, output)
+        self.write(output / "capture_manifest.json", view)
+        counts_path = output / "capture_counts.json"
+        counts = json.loads(counts_path.read_text())
+        counts["accepted_samples"] += 1
+        self.write(counts_path, counts)
+        with self.assertRaisesRegex(ValueError, "View counts differ"):
+            verify_capture_view(plan, output)
+
+    def test_verify_rejects_stale_output_hash_and_forged_stored_plan(self):
+        directory, _, _, _ = self.finalize()
+        plan = plan_capture_view(directory, "task", mode="head")
+        output = self.root / "view"
+        view = materialize_capture_view(plan, output)
+        changed = copy.deepcopy(view)
+        changed["selected_sources"][0]["output_sha256"] = "0" * 64
+        self.write(output / "capture_manifest.json", changed)
+        with self.assertRaisesRegex(ValueError, "View manifest differs"):
+            verify_capture_view(plan, output)
+        self.write(output / "capture_manifest.json", view)
+        forged = copy.deepcopy(plan)
+        forged["selected"][0]["accepted_for_training"] = 1
+        self.write(output / "selection_plan.json", forged)
+        with self.assertRaisesRegex(ValueError, "Stored selection plan differs"):
+            verify_capture_view(plan, output)
+        with self.assertRaisesRegex(ValueError, "View plan or source evidence changed"):
+            verify_capture_view(forged, output)
+
+    def test_verify_rejects_extra_nested_or_partial_files_and_missing_samples(self):
+        directory, _, _, _ = self.finalize()
+        plan = plan_capture_view(directory, "task", mode="head")
+        for extra in ("sample_999999.pt", ".hidden/sample_999999.pt", "sample_000000.pt.tmp",
+                      "unrelated.json"):
+            with self.subTest(extra=extra):
+                output = self.root / ("view_" + str(len(list(self.root.iterdir()))))
+                materialize_capture_view(plan, output)
+                path = output / extra
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"unplanned data")
+                before = path.read_bytes()
+                with self.assertRaisesRegex(ValueError, "inventory|Unfinished"):
+                    verify_capture_view(plan, output)
+                self.assertEqual(path.read_bytes(), before)
+        output = self.root / "missing"
+        materialize_capture_view(plan, output)
+        (output / plan["selected"][0]["output_filename"]).unlink()
+        with self.assertRaisesRegex(ValueError, "inventory"):
+            verify_capture_view(plan, output)
+
+    def test_verify_rejects_promoting_failed_teacher_episode_to_sample_file(self):
+        directory, _, _, _ = self.finalize()
+        plan = plan_capture_view(directory, "task", mode="head")
+        output = self.root / "view"
+        view = materialize_capture_view(plan, output)
+        rejected = next(entry for entry in plan["selected"] if not entry["accepted_for_training"])
+        old_name = rejected["output_filename"]
+        new_name = old_name.replace("rejected_", "sample_")
+        (output / old_name).rename(output / new_name)
+        for entry in view["selected_sources"]:
+            if entry["output_filename"] == old_name:
+                entry.update(output_filename=new_name, accepted_for_training=True)
+        view["accepted_samples"] += 1
+        view["rejected_samples"] -= 1
+        self.write(output / "capture_manifest.json", view)
+        with self.assertRaisesRegex(ValueError, "inventory"):
+            verify_capture_view(plan, output)
+
+    def test_verify_rejects_source_overlap_and_output_symlinks(self):
+        directory, _, _, _ = self.finalize()
+        plan = plan_capture_view(directory, "task", mode="head")
+        for overlap in (directory, directory / "child", self.root):
+            with self.subTest(overlap=overlap):
+                with self.assertRaisesRegex(ValueError, "separate from source"):
+                    verify_capture_view(plan, overlap)
+        output = self.root / "view"
+        materialize_capture_view(plan, output)
+        link = output / "hidden_link"
+        try:
+            link.symlink_to(directory, target_is_directory=True)
+        except (NotImplementedError, OSError) as error:
+            self.skipTest("Symlinks unavailable: " + str(error))
+        with self.assertRaisesRegex(ValueError, "symlink"):
+            verify_capture_view(plan, output)
 
     def test_incomplete_last_interval_fails_before_modifying_candidates(self):
         directory, result, purpose = self.fixture()
