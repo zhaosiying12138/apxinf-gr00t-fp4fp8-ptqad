@@ -264,13 +264,13 @@
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "bytes": 5976,
-      "sha256": "63bf38179fc0ae7e5956249ea9f0ee1c5e694e2bd813051e7836f055b14b2ed3"
+      "bytes": 6017,
+      "sha256": "775a769a77bd6ca15563ae18c7bc0a0decd0f0ff7b075672b42f03c9fad95f9b"
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "bytes": 19346,
-      "sha256": "28656f410f5dfaed5a8aafed32e07ac4c669fc681e1bf1912370458705c2ed31"
+      "bytes": 13813,
+      "sha256": "32665052bdc8e54ab907bffb4fa8d6fa54852a8f86abada4ae8084027511b9e7"
     },
     {
       "path": "sections/03-方法.md",
@@ -310,10 +310,10 @@
   ],
   "output": {
     "path": "paper.html",
-    "bytes": 4868151,
-    "sha256": "d1334ad015678849ff860333c7cbdbe0025ceaf76d6d42571425296014883dc9"
+    "bytes": 4858268,
+    "sha256": "07dd6e9f094faf73794fd9bfaffc59e8e64de77f9b4a7bfdfafd40e60b75903b"
   },
-  "math_expressions": 220,
+  "math_expressions": 216,
   "figures": 24,
   "screenshot_slots": 17,
   "screenshots": 10,
