@@ -47,7 +47,7 @@ QVLA 的实验矩阵同时包含 W8A8、W4A4 以及权重为主的 W8A16/W4A16�
 | OpenVLA | 76.5% | 63.2% | 73.3% | 76.0% | 4.3 GB / 1.47× |
 | OpenVLA-OFT | 97.1% | 73.4% | 93.9% | 96.0% | 4.5 GB / 1.49× |
 
-这里的平均值来自 LIBERO-Spatial、Object、Goal、Long 四个套件；QVLA 使用 RTX 4090，本文使用 GR00T N1.7 的 LIBERO-10 十任务。模型、套件、硬件和成功率分母均不同，且文献表格没有提供与本文相同的配对区间或完整计时边界，因此这些点估计只能作为机制参照，不能与本文结果组成排行榜。QVLA 的消融也说明了参照方法的必要性：在 OpenVLA 的权重为主消融中，INT4 的 channel-wise 分配为 76.5%，layer-wise 为 74.8%；INT8 的 channel-wise 为 76.8%，layer-wise 为 74.9%；在整体 INT8 预算下，不带 pruning 的 channel-wise {2,4,8,16} 为 76.7%，uniform-bit 为 74.6%，channel-wise 加 pruning 为 76.8%。这些消融不是本文复现实验。
+这里的平均值来自 LIBERO-Spatial、Object、Goal、Long 四个套件；QVLA 使用 RTX 4090，本文使用 GR00T N1.7 的 LIBERO-10 十任务。OpenVLA-OFT 的 W4A4 QVLA 逐套件成功率为 96.2%/97.6%/96.4%/93.8%，平均值 96.0%；这些分母和配对关系仍未公开到本文的审计粒度。模型、套件、硬件和成功率分母均不同，且文献表格没有提供与本文相同的配对区间或完整计时边界，因此这些点估计只能作为机制参照，不能与本文结果组成排行榜。QVLA 的消融也说明了参照方法的必要性：在 OpenVLA 的权重为主消融中，INT4 的 channel-wise 分配为 76.5%，layer-wise 为 74.8%；INT8 的 channel-wise 为 76.8%，layer-wise 为 74.9%；在整体 INT8 预算下，不带 pruning 的 channel-wise {2,4,8,16} 为 76.7%，uniform-bit 为 74.6%，channel-wise 加 pruning 为 76.8%。这些消融不是本文复现实验。
 QVLA 的 98.9% 是 96.0/97.1 的相对保留率；相对 SmoothQuant 的差值 22.6 是百分点。上述文献结果与本文不使用相同模型、任务和后端，不能直接排名。
 
 QVLA 的校准集来自 LIBERO 合并训练轨迹，主实验随机取 512 条轨迹，并加入少量仅含指令的样本；论文没有给出后者的数量。它用 teacher-forcing 下的单步 Action-MSE 做位宽分配，再用短 rollout 的累计动作偏差、末端偏差和最终成功率交叉验证排序；因此“单步指标用于筛选、短时闭环用于验证”是两个不同层次的证据。其 W8A16 校准规模消融在 128/256/512/1024 条轨迹下的平均成功率分别为 96.4%/96.8%/97.0%/96.7%，512 是该消融的最高点。512 条轨迹不等于 512 条完整输入记录，公开读取器的 max_samples 也不能直接复现该抽样。本文的 148 个窗口来自成功教师回合的恢复监督，既不是 512 条 PTQ 校准轨迹，也没有声称复现 QVLA 的校准规模消融。
@@ -180,9 +180,11 @@ $s_{l,c}^{(b)}=\mathbb{E}\|\tilde A_{l,c}^{(b)}-A^*\|_2^2$
 $S_{l,c}^{(b)}=\mathbb{E}\sum_t\|\tilde A_{l,c}^{(b)}(t)-A^*(t)\|_2$
 检查时间累积。它用局部一阶近似把量化噪声与动作 Jacobian 增益相乘，先获得全局排序，再从 16 位开始沿 $16\rightarrow8\rightarrow4\rightarrow2\rightarrow0$ 的相邻步骤，把“每节省一位带来的误差增量”最小的通道逐个降位；0 位表示剪枝。在 W4A4 子实验中，activation 统一为 4 bit；W8A8、W8A16 和 W4A16 行分别使用对应的 activation 设置。projector 与 action head 保持 BF16，平均位宽只在指定量化层内计算，论文没有把这一路径声明为 NVFP4。公开 fake-quant 入口还跳过 language_model.lm_head，因此“指定量化层”不等于整个模型参数。
 
+实现细节也决定了它与本文的差异：QVLA 的激活采用统一位宽和分布感知校准，权重按输出行保存独立 scale/zero-point，访问时反量化，避免按通道分支破坏执行路径；最后的 $2\rightarrow0$ 剪枝阶段还加入双阈值与 $L_0$ 约束。因而“逐通道分配”不是简单地把每层改成同一个整数位宽。
+
 QVLA 的 OpenVLA/OFT 结果、channel-wise 与 layer-wise 消融、uniform-bit 与 pruning 对照、512 条轨迹及校准规模消融，均属于外部文献证据，已在 §1.2 列出其中与本文最接近的 W4A4 数字。这里的消融同时说明两个因素：OpenVLA 上 INT4 的 channel-wise 为 76.5%，layer-wise 为 74.8%；INT8 的 channel-wise 为 76.8%，layer-wise 为 74.9%；在 INT8 总预算下，不带 pruning 的 channel-wise {2,4,8,16} 为 76.7%，统一 8 bit 为 74.6%，加入 0-bit pruning 后为 76.8%。这些数字不能被压缩成“只要剪枝就有效”。其 UniVLA、CALVIN 和真实机器人结果也不能替代本文 GR00T 的闭环评测：UniVLA 报告了 W4A16/W8A8，CALVIN 与实机量化采用 W8A16，而不是 W4A4。固定观测动作误差也不能单独给出闭环成功率保证。公开代码中的层输入 Hessian proxy 和 weight-only fake quant 入口与论文的动作 Jacobian 理论并不等价，复现边界见附录 B；附录表格中的 AutoQVLA 与正文 QVLA 指同一方法。
 
-QVLA 的理想目标写成动作分布之间的 KL 散度，但实际分配使用 teacher-forcing 的单步 Action-MSE，再用短 rollout 的累计动作和末端偏差验证。本文的 QAD/OPD 优化的是 flow-matching 速度 MSE，动作诊断比较完整 endpoint，闭环指标是环境成功率；三者不是同一个损失，不能互相替代。QVLA 图 3 的 Ours 曲线是 8-bit 示例，不能直接当作 W4A4 的固定输入对照。QVLA 的一阶 proxy 还依赖局部线性、零均值且各向同性的量化噪声假设，因此是条件性的排序工具，不是动作敏感度本身，更不是闭环成功率保证。
+QVLA 的理想目标写成动作分布之间的 KL 散度，但实际分配使用 teacher-forcing 的单步 Action-MSE，再用短 rollout 的累计动作和末端偏差验证。本文的 QAD/OPD 优化的是 flow-matching 速度 MSE，动作诊断比较完整 endpoint，闭环指标是环境成功率；三者不是同一个损失，不能互相替代。QVLA 图 3 的 Ours 曲线是 8-bit 示例，不能直接当作 W4A4 的固定输入对照。QVLA 的一阶 proxy 还依赖局部线性、零均值且各向同性的量化噪声假设，因此是条件性的排序工具，不是动作敏感度本身，更不是闭环成功率保证。还要区分两个公式：正文式 (5) 的累计量是逐时刻二范数之和，附录理论推导中的真实敏感度使用期望平方二范数；二者不能统称为同一个累计 MSE。
 
 这套设计有明确的实证动机：在 OpenVLA 上，QVLA 观察到视觉编码器相对稳定，语言模块更敏感，projector 与 action head 最敏感；同一层内不同输出通道的敏感度也并不均匀。附录随机抽取约 1,000 个通道比较单步与累计敏感度排序，论文只以散点图描述约 80% 的点靠近对角线，没有给出相关系数或显著性检验，因此这不是定量一致率。本文故意把 GR00T 动作路径纳入全覆盖 NVFP4 W4A4，目的是制造可测的压力并研究恢复，而不是把 OpenVLA 的敏感度结论外推为 GR00T 的最优位宽分配。
 
