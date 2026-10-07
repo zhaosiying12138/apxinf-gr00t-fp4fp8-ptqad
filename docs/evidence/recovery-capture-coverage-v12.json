@@ -1,0 +1,3170 @@
+{
+  "format": "capture_coverage_audit_v1",
+  "source": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean",
+  "purpose": "teacher_supervision",
+  "device": "cpu",
+  "cuda_initialized": false,
+  "source_files": [
+    {
+      "path": "eval_manifest.json",
+      "bytes": 2657,
+      "sha256": "029892d008d1f09a679dc14f8a170066d466ba45c23c0ed6b296fffc31ab0c3b"
+    },
+    {
+      "path": "task_results.json",
+      "bytes": 31708,
+      "sha256": "87230a4e2699adb74cf3bd92bde04386f91ce99d9dfd355cc924b3729447c9da"
+    }
+  ],
+  "metadata_fields": [
+    "capture_index",
+    "checkpoint_role",
+    "environment_slot",
+    "episode_index",
+    "episode_result_index",
+    "episode_result_source",
+    "episode_seed",
+    "episode_success",
+    "init_state_index",
+    "inputs",
+    "instruction_sha256",
+    "reset_identity",
+    "server_call",
+    "source_kind",
+    "student_checkpoint",
+    "student_statistics_sha256",
+    "task_name",
+    "task_name_sha256",
+    "task_sha256",
+    "task_text"
+  ],
+  "interpretation_limits": [
+    "accepted_windows means sample_*.pt retained for training; collection includes failed episodes",
+    "manifest.accepted_samples counts successful windows, not all retained collection windows",
+    "server_call is task-global; capture_index counts saved windows within a task",
+    "no episode-relative action step or manipulation stage is inferred from server_call",
+    "episode_lengths are verified against the hashed original rollout log results tuple",
+    "capture_counts.calls only updates when saving a window and is not the full trajectory length"
+  ],
+  "summary": {
+    "tasks": 10,
+    "accepted_windows": 148,
+    "rejected_windows": 12,
+    "successful_windows": 148,
+    "scored_episodes": 40,
+    "successful_episodes": 37,
+    "accepted_source_episodes": 37,
+    "accepted_windows_per_episode_range": [
+      4,
+      4
+    ],
+    "all_episode_length_range": [
+      164,
+      720
+    ],
+    "successful_episode_length_range": [
+      164,
+      487
+    ],
+    "accepted_source_episode_length_range": [
+      164,
+      487
+    ],
+    "accepted_global_server_call_range": [
+      1,
+      253
+    ]
+  },
+  "tasks": [
+    {
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "source_files": [
+        {
+          "path": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
+          "bytes": 7370,
+          "sha256": "fea7252351b79d5858c5d1582de86fbe8884e4aea033180a579bb480780af55e"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/capture_manifest.json",
+          "bytes": 2327,
+          "sha256": "d56621b0c65bcb95523ecd884b387ff1a794a3bde5a88dfa881a7910956927b2"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/capture_counts.json",
+          "bytes": 461,
+          "sha256": "90c47fd0bfd1ff7550bd6af4d552dc0f02cb72e184bdbc5998336e7fcbe0342c"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/reset_events.jsonl",
+          "bytes": 2976,
+          "sha256": "023841c1ca16351d1860f8cbdaa306d170cb85c1dc4a30736df8f905bfdb49b0"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 253,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000000.pt",
+                "bytes": 1622795,
+                "sha256": "ad7054f676afe0b48c5a5d93929c57f4985e89a31afb894fe01228c00a88e6c9"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000001.pt",
+                "bytes": 1622795,
+                "sha256": "7084126841cf355702c00574ee8541c9a69dfdd79e04bf91251730a1931273f7"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000002.pt",
+                "bytes": 1622795,
+                "sha256": "021f9a7ebd6cb88d32961c4246d190d92d172aea708f4c472eb9d5faba251283"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000003.pt",
+                "bytes": 1622795,
+                "sha256": "78dc2f05e518b75780dba38c9faafaa16fc424b1c5cc7f746d7585a13b9662da"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 226,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000004.pt",
+                "bytes": 1622795,
+                "sha256": "2b1a49a3e45949adc309a1054b4105b761770f64276e57142d5cd0b2483bb3b4"
+              },
+              "server_call": 33,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000005.pt",
+                "bytes": 1622795,
+                "sha256": "29a9e7c061b1dd7971d789bdee0a66898bba22fad503a782a6129c59680e0ef2"
+              },
+              "server_call": 37,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000006.pt",
+                "bytes": 1622795,
+                "sha256": "2883682f74eb90b07583c694d92063c4117248c810b5c92966c821f64dfeb5e5"
+              },
+              "server_call": 41,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000007.pt",
+                "bytes": 1622795,
+                "sha256": "5965e347d9129e05adb2ac8bede673a03535d1529aa83300d179c316775e1b92"
+              },
+              "server_call": 45,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            33,
+            37,
+            41,
+            45
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 444,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000008.pt",
+                "bytes": 1622795,
+                "sha256": "b3eb9cc96c9bd6572a961c2a3bd481312edcb16ea93f6fc401c01b5642b53995"
+              },
+              "server_call": 65,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000009.pt",
+                "bytes": 1622795,
+                "sha256": "511e32edcf0b075cd05b6f4435192675ca6ba470d3c9476cafa5abb1cd1d9942"
+              },
+              "server_call": 69,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000010.pt",
+                "bytes": 1622795,
+                "sha256": "19a78374e37dc8725b11841007a142f28d5ce10910f5600490afb55ade051288"
+              },
+              "server_call": 73,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000011.pt",
+                "bytes": 1622795,
+                "sha256": "d223c32b5079636407682a9c55a4468f11a783084b829a6303d64fcc70561691"
+              },
+              "server_call": 77,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            65,
+            69,
+            73,
+            77
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 274,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000012.pt",
+                "bytes": 1622795,
+                "sha256": "e053d506073ec2e2bf3a9dcd2abe7fa93002d27c9cbc3ecfffa86125862ab2ba"
+              },
+              "server_call": 121,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000013.pt",
+                "bytes": 1622795,
+                "sha256": "10a50023b363fc42e8abe5996a44366fe601c06a2d68a67183050ca7461c52da"
+              },
+              "server_call": 125,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000014.pt",
+                "bytes": 1622795,
+                "sha256": "3443a92f55e4d17b984cba3753647e9c1556b675ae84f0af00cd05828c498a59"
+              },
+              "server_call": 129,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000015.pt",
+                "bytes": 1622795,
+                "sha256": "d0f2290650a98954120fceb687abaf4a462e149def05340530382431e648bb51"
+              },
+              "server_call": 133,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            121,
+            125,
+            129,
+            133
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "source_files": [
+        {
+          "path": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log",
+          "bytes": 7576,
+          "sha256": "543333747c75f1e831b80732c2e8836a332cf7630e2d96f70980faeb1d4ab96e"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/capture_manifest.json",
+          "bytes": 2373,
+          "sha256": "cfedd4dfceac4d63f20b071768196bf53d08bb052c74c6c2cf75f787de6db27b"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/capture_counts.json",
+          "bytes": 461,
+          "sha256": "f28a94397c1099659bfe0f6a8af5d69417d62a2a2732c22b72a6cbe07d53fa5e"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/reset_events.jsonl",
+          "bytes": 3114,
+          "sha256": "b42e8c6fce23f616525d8c0a07faec6b7c40b98d14a663040c1c936679f2d6b4"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 220,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000000.pt",
+                "bytes": 1622987,
+                "sha256": "1184b87ee6d587e8d60f0e939d08077d6134afa5a88886729a0970f0ff77f3e8"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000001.pt",
+                "bytes": 1622987,
+                "sha256": "92253f5165c191c812c0cf157659ee792bcee1da7ffa4497ec9b7465643a3253"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000002.pt",
+                "bytes": 1622987,
+                "sha256": "8c9257033099ec87963af4e637f9f6dec23c93e20caa7b3183f9ed84669e5671"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000003.pt",
+                "bytes": 1622987,
+                "sha256": "46da4355e29be9ae75269efb4154891dd244be48328cbd767000efdeda3b2f83"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 234,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000004.pt",
+                "bytes": 1622987,
+                "sha256": "0536b4c2bd1f2e9763b711eceecf9c27be820c224b6eb955b5198a7d4c8c073e"
+              },
+              "server_call": 29,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000005.pt",
+                "bytes": 1622987,
+                "sha256": "38065c01f1ac344903fc37019e2cec8f0492fa4f9768c7bd385f103482a7c4ef"
+              },
+              "server_call": 33,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000006.pt",
+                "bytes": 1622987,
+                "sha256": "4cef86654a196ef0102fbcd30e8da8c1ba0ad25f4a37fab000d6ee611e8f502f"
+              },
+              "server_call": 37,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000007.pt",
+                "bytes": 1622987,
+                "sha256": "c5ea762d69af43da242e36e20bce1f72b083521a2a93576cbfd0fde742072fd6"
+              },
+              "server_call": 41,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            29,
+            33,
+            37,
+            41
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 211,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000008.pt",
+                "bytes": 1622987,
+                "sha256": "12c0e5a6c8cdd323fb8eae86ae58780dbba29c6e3709efc3d1d5159249dcf1af"
+              },
+              "server_call": 61,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000009.pt",
+                "bytes": 1622987,
+                "sha256": "7e9a042d456a818e99391c00be90c94bec67e13dd147727d75afe9f4a98fe952"
+              },
+              "server_call": 65,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000010.pt",
+                "bytes": 1622987,
+                "sha256": "d10064e1ddd271a69376f0b73c0f566d09ab90ef85ed1b3b5d1afd6f744e8a01"
+              },
+              "server_call": 69,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000011.pt",
+                "bytes": 1622987,
+                "sha256": "45bdab05d4da2d53333dafce0804a333364fcf90ad1f8f199724b034f240c899"
+              },
+              "server_call": 73,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            61,
+            65,
+            69,
+            73
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 242,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000012.pt",
+                "bytes": 1622987,
+                "sha256": "e853cc386943fd68a503b7122ab06a518517305715505fade3c3b5eb99e60a0d"
+              },
+              "server_call": 89,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000013.pt",
+                "bytes": 1622987,
+                "sha256": "c46cbc50b7f8d8e4dd61a8872ad096ea85a20911a0eed644d5f502af9c1fff7b"
+              },
+              "server_call": 93,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000014.pt",
+                "bytes": 1622987,
+                "sha256": "00ff6418d8a45706c648ed70303100fb1b847dbf44bb3b9230ad0c75599a4a8e"
+              },
+              "server_call": 97,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000015.pt",
+                "bytes": 1622987,
+                "sha256": "3f05bc58b756f70bb567ce66d2f4fa6dbde692e0b82ad480308de6b8cbec3a04"
+              },
+              "server_call": 101,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            89,
+            93,
+            97,
+            101
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "source_files": [
+        {
+          "path": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log",
+          "bytes": 7496,
+          "sha256": "206d3d7cbe5074bfb8677210ecd6f32576706edd4d5fdac2d289b147c15731bc"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/capture_manifest.json",
+          "bytes": 2355,
+          "sha256": "3d850f0326018d50c79dda44e725e38e9b597e582447fa32026f0165dff45c16"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/capture_counts.json",
+          "bytes": 461,
+          "sha256": "60dcc09e82b33d15868a5e154a89cfa5087977faddf0895537abb5dddb54f044"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/reset_events.jsonl",
+          "bytes": 3060,
+          "sha256": "da8b39686b17758715c750f9d3880c819a725eefadee9cb7ae2c871d0cb83b18"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 291,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000000.pt",
+                "bytes": 1622795,
+                "sha256": "2f80193f6b2d6f1c96725b7d758aef70094680b20c755cb769a9657fb287d30e"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000001.pt",
+                "bytes": 1622795,
+                "sha256": "578ab48a7669b9a84bc8c7603d5ecec92d3d3d452d8431c6feee45611603010d"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000002.pt",
+                "bytes": 1622795,
+                "sha256": "dd505f923c864458e6f035143b1444c1cd367bc03c245edb1089dec1321f6b84"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000003.pt",
+                "bytes": 1622795,
+                "sha256": "3f2978d252c917ef746342a0b9b48d23708f95c91746f531a6ccb99c0cb96c82"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 400,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000004.pt",
+                "bytes": 1622795,
+                "sha256": "ffa0d07ebe37c28dca446491cf66326f4df36986baea642cb86ae1c57197e39c"
+              },
+              "server_call": 41,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000005.pt",
+                "bytes": 1622795,
+                "sha256": "54784df0d03ad25c42ed7050a56ce342841819032727b94b46361a342ca11f64"
+              },
+              "server_call": 45,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000006.pt",
+                "bytes": 1622795,
+                "sha256": "44806b7a8afa9a19610636e31c8847c5d7ceaa3fe049e58628bad29ad447fed6"
+              },
+              "server_call": 49,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000007.pt",
+                "bytes": 1622795,
+                "sha256": "d88b2264077e0ac85e0176ec7b8fd8acb1cc5fe65eac2044ae76708d8f322c06"
+              },
+              "server_call": 53,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            41,
+            45,
+            49,
+            53
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 311,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000008.pt",
+                "bytes": 1622795,
+                "sha256": "a660ae31c6d58d7946dd042928565347dab7c421e579dfd30cb0424e0c1df09f"
+              },
+              "server_call": 89,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000009.pt",
+                "bytes": 1622795,
+                "sha256": "f56718418255cf8ea7d66ba980a53257febd0dbb819bccfc7ed7a28eca4e495e"
+              },
+              "server_call": 93,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000010.pt",
+                "bytes": 1622795,
+                "sha256": "12cb816263f5b48d751ec49acc4b2a7fe36f03bec1a2bced41e86d323744f48a"
+              },
+              "server_call": 97,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000011.pt",
+                "bytes": 1622795,
+                "sha256": "3c26446e14183cb2617d3a91aa8bd46e625c9bbf9eccf65032c0cecf8160c6a0"
+              },
+              "server_call": 101,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            89,
+            93,
+            97,
+            101
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 425,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000012.pt",
+                "bytes": 1622795,
+                "sha256": "8a183d62ee86fe693e25a29c405c35abd09f85676c5eab993df1f7deccf6ab90"
+              },
+              "server_call": 129,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000013.pt",
+                "bytes": 1622795,
+                "sha256": "8f94366b00da70474f2b8d5fd4791a92b6c6bfb249ae279d48563f2f6f4b6f06"
+              },
+              "server_call": 133,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000014.pt",
+                "bytes": 1622795,
+                "sha256": "6eaadf5a784253490ec696e355866890cd6239df1f2501d85e6df3f0600c3293"
+              },
+              "server_call": 137,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000015.pt",
+                "bytes": 1622795,
+                "sha256": "c1862280200847ab4cb6047a3853eb3bef44c21152cd072f811ec877097174b9"
+              },
+              "server_call": 141,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            129,
+            133,
+            137,
+            141
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "source_files": [
+        {
+          "path": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log",
+          "bytes": 7254,
+          "sha256": "0b124269a41f879216317bc121bcc010996cbe60f1743f7d963b416cbba43d31"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/capture_manifest.json",
+          "bytes": 2286,
+          "sha256": "718a8d9ee8fdc16f9f7d5e894e74ed854834782635292dd338207f874effc67f"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/capture_counts.json",
+          "bytes": 461,
+          "sha256": "6896cacf9b60f861d44045dfa656f8d4b13360db5c9501f9f7b74dbabb8fc2f9"
+        },
+        {
+          "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/reset_events.jsonl",
+          "bytes": 2898,
+          "sha256": "8c15d6f421717e7f459343717c68735de1531f5bdde7e5708dee31d420547f38"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 8,
+      "rejected_windows": 8,
+      "successful_windows": 8,
+      "successful_episodes": 2,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": false,
+          "episode_length": 720,
+          "accepted_samples": [],
+          "rejected_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000000.pt",
+                "bytes": 1622795,
+                "sha256": "55621cb89c91b1879cae696b5f31a0d04767626b191e34193b53c7b80ea2b1d8"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": false,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000001.pt",
+                "bytes": 1622795,
+                "sha256": "f52e036831130eb16b2b5fa1141413ed88d1c69d4b657254a640d90ef0efcabe"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": false,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000002.pt",
+                "bytes": 1622795,
+                "sha256": "5f2d554413c3bba9b18f498bff53d7084e292b01e1290f6ad3b16b255b386bed"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": false,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000003.pt",
+                "bytes": 1622795,
+                "sha256": "106ed41a2a2da0896e3c826ad1b6165ba23e18b723df84a6fdbb03fc7eaa38ce"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": false,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "accepted_server_calls": [],
+          "rejected_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ]
+        },
+        {
+          "episode_index": 1,
+          "success": false,
+          "episode_length": 720,
+          "accepted_samples": [],
+          "rejected_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000004.pt",
+                "bytes": 1622795,
+                "sha256": "a7269007fde508c355356dc4156e307ca71575d48bd1a02f8d134c15e299c195"
+              },
+              "server_call": 93,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": false,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000005.pt",
+                "bytes": 1622795,
+                "sha256": "4e19bc428628d7705ab29b4f24e9a7341284b1c16caafc5cc3a8a1aaca75c837"
+              },
+              "server_call": 97,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": false,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000006.pt",
+                "bytes": 1622795,
+                "sha256": "bccaaffd0d877aad177dd696ece87c50a69c61d3e57ad8f0bcdcc49e2252cc3d"
+              },
+              "server_call": 101,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": false,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/rejected_000007.pt",
+                "bytes": 1622795,
+                "sha256": "5a4754fbba85e15d4f3ca438810588f17fd512b78592fe306268968f0d951bd1"
+              },
+              "server_call": 105,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": false,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "accepted_server_calls": [],
+          "rejected_server_calls": [
+            93,
+            97,
+            101,
+            105
+          ]
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 458,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000008.pt",
+                "bytes": 1622795,
+                "sha256": "0a6cae04df9e5d67b371c7a7dd0aa011a5762fbcf9d696163331d7fca2c241a3"
+              },
+              "server_call": 181,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000009.pt",
+                "bytes": 1622795,
+                "sha256": "ee79524a075d6dfe8e17d810f306d94dc7864e27eb4316878047ad60f379de4e"
+              },
+              "server_call": 185,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000010.pt",
+                "bytes": 1622795,
+                "sha256": "a72af74868bad6c2fe95efcd2f4993d4b75deec7e9923968445daa30fbd499fa"
+              },
+              "server_call": 189,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000011.pt",
+                "bytes": 1622795,
+                "sha256": "b1c0704608756cbc079bee257f36068cb025e42658a7b2c27cdc77bca21aea0b"
+              },
+              "server_call": 193,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            181,
+            185,
+            189,
+            193
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 487,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000012.pt",
+                "bytes": 1622795,
+                "sha256": "44a726ec88645f43d2a611c0b3d296fed521615b87a12ba16d10db74123c8fe4"
+              },
+              "server_call": 241,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000013.pt",
+                "bytes": 1622795,
+                "sha256": "7d39dbe2605c6900c682ef3aeefb81788b59e1a4961a59a74498a6ce28b1be80"
+              },
+              "server_call": 245,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000014.pt",
+                "bytes": 1622795,
+                "sha256": "364bd9e7b914eedc23063831237a650586d73297594c0a5f2cb4613a2073dbdb"
+              },
+              "server_call": 249,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000015.pt",
+                "bytes": 1622795,
+                "sha256": "d9e5051fa1aeb362edf01332d4c07e7cb3764ef96d5c76ee713f90a9c4a915c6"
+              },
+              "server_call": 253,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            241,
+            245,
+            249,
+            253
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "source_files": [
+        {
+          "path": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log",
+          "bytes": 7595,
+          "sha256": "6b8f0f633bb29b77af6704cf5035e71eb3bfbf37d2fe91b26f88b9aa653c6e6f"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/capture_manifest.json",
+          "bytes": 2377,
+          "sha256": "dd21ad70831b572e5f32b3b3f07ecda3702e446e45f5dea763e4e2360b73b51a"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/capture_counts.json",
+          "bytes": 461,
+          "sha256": "f831e46d569326994d8fce52f29642beb4bb5415dd825cc0fbca9797b10ddb4b"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/reset_events.jsonl",
+          "bytes": 3126,
+          "sha256": "5390767ad4e55743a02de604b85a19eefbf45fccae30d62a221b8c9579d33822"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 282,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000000.pt",
+                "bytes": 1622859,
+                "sha256": "b67f3f4c196b316a3209321bad926a2b684bcb911728ccb7cdcda6092d1fc476"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000001.pt",
+                "bytes": 1622859,
+                "sha256": "1b159f414069e074ecf9dcdf93997ccd078a03084b2d8a94afb59428570627f8"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000002.pt",
+                "bytes": 1622859,
+                "sha256": "7e531175b382a5bf8fbebcb0d80f447c762c515f62c8e10d50b2f04655d89a7b"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000003.pt",
+                "bytes": 1622859,
+                "sha256": "bd9f7c398267f8197a22516644faef32ab5692be03f48114f0836e065fdc301b"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 274,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000004.pt",
+                "bytes": 1622859,
+                "sha256": "352b25206e55b0dd05db006a394727434dc8417b78f4a7eef7730e98ada224fd"
+              },
+              "server_call": 37,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000005.pt",
+                "bytes": 1622859,
+                "sha256": "c0eef5df4b9ab3b381ee52e8ec86d7433ad27010c76e93557734640bf2054009"
+              },
+              "server_call": 41,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000006.pt",
+                "bytes": 1622859,
+                "sha256": "67eed515bd836cd091013098a9a4b3b098ebe98fa68568f761f22f445af6b3a2"
+              },
+              "server_call": 45,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000007.pt",
+                "bytes": 1622859,
+                "sha256": "15ab44b1e9d24266127baa326e344a7f9fd7ed3c6233e4ed82a039592bb5aa03"
+              },
+              "server_call": 49,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            37,
+            41,
+            45,
+            49
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 242,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000008.pt",
+                "bytes": 1622859,
+                "sha256": "f99c7b57519cb8f0b9ba43bacda0713894078a78fb49f5ef199d51b5600aa715"
+              },
+              "server_call": 73,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000009.pt",
+                "bytes": 1622859,
+                "sha256": "5923342c9e36cb1a8d7ca5c6809d668db094c042c9b7ae6cfcd7176c25ba4497"
+              },
+              "server_call": 77,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000010.pt",
+                "bytes": 1622859,
+                "sha256": "baa4d50022991581acb2a63f626acd7f6aa2bb36358c65eea5274e22ab8d0d2f"
+              },
+              "server_call": 81,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000011.pt",
+                "bytes": 1622859,
+                "sha256": "51c6174243d1a0a40f6fa6cfc145e1e90bc8bad03eb88e045cacdb330154cfd8"
+              },
+              "server_call": 85,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            73,
+            77,
+            81,
+            85
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 255,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000012.pt",
+                "bytes": 1622859,
+                "sha256": "9a32710111f1afa9ff28ce6620cf9d18b805b2b68e5aa2b595334305b4c52f47"
+              },
+              "server_call": 105,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000013.pt",
+                "bytes": 1622859,
+                "sha256": "d437104ba464e5087bba2243dbd541c98e9f1d07493049390554731080d53d98"
+              },
+              "server_call": 109,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000014.pt",
+                "bytes": 1622859,
+                "sha256": "7d36cc2d9f5c3bac894d264b5e3be24fac4bf3238e18de634fd5d56ace358834"
+              },
+              "server_call": 113,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000015.pt",
+                "bytes": 1622859,
+                "sha256": "a768c09206be87b37763490dbd52a7f15a5ca94ceaad886e8f8a04524dd748a4"
+              },
+              "server_call": 117,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            105,
+            109,
+            113,
+            117
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "source_files": [
+        {
+          "path": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log",
+          "bytes": 7559,
+          "sha256": "a02f909ae2cec55329594b986be27b7170abb1cd40ea28cd3ae89174f5f3449a"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/capture_manifest.json",
+          "bytes": 2369,
+          "sha256": "9b7e2060bf6d4b13a341cf68c547333b37a706f05bd263952e80ddd75d906d7e"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/capture_counts.json",
+          "bytes": 461,
+          "sha256": "c9670a33c393831530788c6dccf2490f409c42a2a7f0cb44d0fcdb39fbb2832e"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/reset_events.jsonl",
+          "bytes": 3102,
+          "sha256": "7a35e8119896647912359ab1ae9fc5635d44b81d548bb26794b6974cfafc3cf6"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 287,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000000.pt",
+                "bytes": 1622859,
+                "sha256": "221798c34374d41018df3fd11b9e89dba601d78a63ea08f39b2722dedae96fbb"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000001.pt",
+                "bytes": 1622859,
+                "sha256": "86cf932499b0df672c4c3577c7ff263f5f81691d9c9dcb46b4a9e1b171849fde"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000002.pt",
+                "bytes": 1622859,
+                "sha256": "8a0be20b907fd2a3d0f3fc9713629d2897bf37c3b92e73da630c4de8ffff657b"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000003.pt",
+                "bytes": 1622859,
+                "sha256": "59bfc8d07d80a426f768b9cee87f4b5be611d35aa0d17bed56d73fd05b3539a2"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 269,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000004.pt",
+                "bytes": 1622859,
+                "sha256": "1b4433447af16731dcf1312d475c99f78f1f06f0d9e374a64e6158555ae40d14"
+              },
+              "server_call": 37,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000005.pt",
+                "bytes": 1622859,
+                "sha256": "a3b362b5be9dad00d5b5150aeead9054514d0017e50632416cc4ab7e6fa7545b"
+              },
+              "server_call": 41,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000006.pt",
+                "bytes": 1622859,
+                "sha256": "f621fac43348581e9a2cd78ff9a01cb3e2ccef03f6b1f650100940a77a018341"
+              },
+              "server_call": 45,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000007.pt",
+                "bytes": 1622859,
+                "sha256": "4eb69554ed612acfb9b7305e067ca7499c714c08f2a8f5b36d8559f277d26217"
+              },
+              "server_call": 49,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            37,
+            41,
+            45,
+            49
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 261,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000008.pt",
+                "bytes": 1622859,
+                "sha256": "f59ba385742202c9cd77eac4490aaec957f1b377481640f7faa51312c854b93c"
+              },
+              "server_call": 73,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000009.pt",
+                "bytes": 1622859,
+                "sha256": "56d8d6c6e0d941d0a0ba87c68c7a7cbffbb02b4b3361915b79c8c9b9e2da32e5"
+              },
+              "server_call": 77,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000010.pt",
+                "bytes": 1622859,
+                "sha256": "dce3d0ca73fa73472036d7e38a028554957cf9cafb0ab64bbcd9cf334b275f3e"
+              },
+              "server_call": 81,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000011.pt",
+                "bytes": 1622859,
+                "sha256": "e2cdb940ebed562df75fc67e66bfda7c45eb36a25ea976b2dbb465f018e928c1"
+              },
+              "server_call": 85,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            73,
+            77,
+            81,
+            85
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 249,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000012.pt",
+                "bytes": 1622859,
+                "sha256": "97b355d81377a891e2e0b6c0b8d89c00493dc3c79d6a6b99973ba6edb105dce0"
+              },
+              "server_call": 105,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000013.pt",
+                "bytes": 1622859,
+                "sha256": "f69af92b825e509b28405b0f49526c70be0aac6666f803f0a8a0ac48f88087c2"
+              },
+              "server_call": 109,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000014.pt",
+                "bytes": 1622859,
+                "sha256": "6badaf122c76247d4508df188cddb74ed6bc74e477559fa78deb3f0ae3da007d"
+              },
+              "server_call": 113,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000015.pt",
+                "bytes": 1622859,
+                "sha256": "171917e3751ee94497bd3ebd338c541d27198f3072d899183d82d818a388193d"
+              },
+              "server_call": 117,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            105,
+            109,
+            113,
+            117
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "source_files": [
+        {
+          "path": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log",
+          "bytes": 7532,
+          "sha256": "94369709546ae553f1d2fb3575c48cc5f604090f3a1849a0a2fb06c1b186d3e8"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/capture_manifest.json",
+          "bytes": 2363,
+          "sha256": "02943b47870f81b8d08ea9388fedb7bb068d32c4f8745eb2deefd28bcded6d97"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/capture_counts.json",
+          "bytes": 461,
+          "sha256": "3524fad0d03e36b27f3a028d15d992d57a0292858bedbfba22db511358330e48"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/reset_events.jsonl",
+          "bytes": 3084,
+          "sha256": "aa0447dc0b92c3d8e0eaff3d1f4d26f706e0a6d3c301b34cc5368bcf7cb3d692"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 242,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000000.pt",
+                "bytes": 1622795,
+                "sha256": "48cf19ab5edd91f466997c3af74cedf96a2b45235cdd4a4efbc84ca7c8e59b15"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000001.pt",
+                "bytes": 1622795,
+                "sha256": "c1abf2af1563c83871029fce040485591617f4ddf6fc0a0847e1eb2076e2d2fc"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000002.pt",
+                "bytes": 1622795,
+                "sha256": "2e928d66b0a56feeaebc5671e1f63616bf4f53b79224a11ea51923bd1967651f"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000003.pt",
+                "bytes": 1622795,
+                "sha256": "669938f93c4e11e428cb99a44b9ad6814a3c5fdd417d7bbb414947a8bb397b05"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 252,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000004.pt",
+                "bytes": 1622795,
+                "sha256": "bb235a5dc9eb08f1c0d7513c7239a859f5e14bb6e8f60d1fdb582b8f1a9f3537"
+              },
+              "server_call": 33,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000005.pt",
+                "bytes": 1622795,
+                "sha256": "c324bdb5a44a253e3ecc4cd30ee2de07672e423ada0bb1ac9eb6d0ac7679c58e"
+              },
+              "server_call": 37,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000006.pt",
+                "bytes": 1622795,
+                "sha256": "fbf649f53a91697b4ca7b2e1299f3182dd2d86dab17df52ce20710e6f26e0d48"
+              },
+              "server_call": 41,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000007.pt",
+                "bytes": 1622795,
+                "sha256": "467fd0d4826ae619b14f1de8a59ce58d84f1c1ca256a001ac45b95d5e9aed9b1"
+              },
+              "server_call": 45,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            33,
+            37,
+            41,
+            45
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 247,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000008.pt",
+                "bytes": 1622795,
+                "sha256": "f41ae964b887f9e3d8fcd48a7a8fd000a23e54e99d72d67a61ceeaeabb8a7f36"
+              },
+              "server_call": 65,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000009.pt",
+                "bytes": 1622795,
+                "sha256": "6b3008e81572660f3090cd6c49150753462758c80e12a0966058a736479f26b3"
+              },
+              "server_call": 69,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000010.pt",
+                "bytes": 1622795,
+                "sha256": "eafc50b1b6ad9d5c9af543b62cdd1d0237de5dfea68da70548415543c2d102cc"
+              },
+              "server_call": 73,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000011.pt",
+                "bytes": 1622795,
+                "sha256": "19dc024572c54fb2de2a7e62e4b2c816c64bf97e9a834d362c375dfd33c46294"
+              },
+              "server_call": 77,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            65,
+            69,
+            73,
+            77
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 220,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000012.pt",
+                "bytes": 1622795,
+                "sha256": "c59b4b25284b781cbc7744f3bca3d21377a1d036942e9448b488070b7b626c0e"
+              },
+              "server_call": 97,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000013.pt",
+                "bytes": 1622795,
+                "sha256": "11344498999f5e2800933e7535b9ea3753aa1e96f1580a7d31523a97e080482f"
+              },
+              "server_call": 101,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000014.pt",
+                "bytes": 1622795,
+                "sha256": "75fc8ed3f100229fba9dfffd704dd1b691e9bbc502199cfc9df10036ab73e188"
+              },
+              "server_call": 105,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000015.pt",
+                "bytes": 1622795,
+                "sha256": "16eb4b54a88460223a31c536437fb161c64f4656c19b4ffbb44aa4a37e0fb3e8"
+              },
+              "server_call": 109,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            97,
+            101,
+            105,
+            109
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "source_files": [
+        {
+          "path": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log",
+          "bytes": 7795,
+          "sha256": "867607594de1565fb498929727bac586f3a74d8e56dfdfefacd86b82dea87ecd"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/capture_manifest.json",
+          "bytes": 2414,
+          "sha256": "e9e4a7bd52380267c780bb1207e86f592a9c609ed1bb347871cfa3b54291672a"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/capture_counts.json",
+          "bytes": 461,
+          "sha256": "193672ccfde5693d9971f2fe062e7d254d490216ab7ce3763a2cee72b49de103"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/reset_events.jsonl",
+          "bytes": 3258,
+          "sha256": "f76853d4e2055c8c6fe480b4b925beef8b21e42fee740bfa8e8192e016544fce"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 12,
+      "rejected_windows": 4,
+      "successful_windows": 12,
+      "successful_episodes": 3,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 239,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000000.pt",
+                "bytes": 1622987,
+                "sha256": "325324f290f375ec687c38b82ea74f25067b8aa754e39af94ad101871f38878d"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000001.pt",
+                "bytes": 1622987,
+                "sha256": "66726872e04f2cc15b8f44f49ac594ae4ecd04c9b26463bc50e38e2c8324b177"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000002.pt",
+                "bytes": 1622987,
+                "sha256": "46edde6f78f3136f3abf7a7b4fd6b7e6a7a94115875f39fdd9803adccae6feab"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000003.pt",
+                "bytes": 1622987,
+                "sha256": "7755b068ecbd840e79be2a26c860be658b8bdbf010df4cafe944f70c2d785e2c"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 200,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000004.pt",
+                "bytes": 1622987,
+                "sha256": "e0c4f2b705ed3441f09e90466e934af83f0501de8c9de61d02d5ccd87225de7d"
+              },
+              "server_call": 33,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000005.pt",
+                "bytes": 1622987,
+                "sha256": "0dca1a9aad2c361c044e83297d51861a6bc1bf5845cf42a49a248442ac3c75ac"
+              },
+              "server_call": 37,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000006.pt",
+                "bytes": 1622987,
+                "sha256": "ed30805399531e6aa53f5153b5651e14432f1282f220bfc916fa3baa119cdc36"
+              },
+              "server_call": 41,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000007.pt",
+                "bytes": 1622987,
+                "sha256": "0d0278868ab0417b2a5e3f9b7d8d98228cf601b0910fc8987bc5af366dae0353"
+              },
+              "server_call": 45,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            33,
+            37,
+            41,
+            45
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": false,
+          "episode_length": 720,
+          "accepted_samples": [],
+          "rejected_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/rejected_000008.pt",
+                "bytes": 1622987,
+                "sha256": "84051b4c87352852fe9e3ab3260f252d18c1d6f6780ab6137cc4517063ea5e11"
+              },
+              "server_call": 57,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": false,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/rejected_000009.pt",
+                "bytes": 1622987,
+                "sha256": "4ec74309569cb315906599bba4df4c185e953decc5579e11ccd99d3bcab6bb73"
+              },
+              "server_call": 61,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": false,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/rejected_000010.pt",
+                "bytes": 1622987,
+                "sha256": "bd166d112c1607b2f1f96fb27666cc8632a5fe30f3941f78272e020f842ce73e"
+              },
+              "server_call": 65,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": false,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/rejected_000011.pt",
+                "bytes": 1622987,
+                "sha256": "c72a5349825c36a8af915a23f2e0408f8c760782027f7aedecf5dcfa9c979f76"
+              },
+              "server_call": 69,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": false,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "accepted_server_calls": [],
+          "rejected_server_calls": [
+            57,
+            61,
+            65,
+            69
+          ]
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 217,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000012.pt",
+                "bytes": 1622987,
+                "sha256": "04ae2a494c72dd86759ebb78c0440c3acc394ec188c590640548c2ac76d6cbc1"
+              },
+              "server_call": 149,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000013.pt",
+                "bytes": 1622987,
+                "sha256": "626dae5f27a457bea0d5702582a3415df9eb0fb0e67c89fa00a5b7301c7b3f5a"
+              },
+              "server_call": 153,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000014.pt",
+                "bytes": 1622987,
+                "sha256": "bf4204a4f95fb6fc2e726e27efd6456154a54bfc885bc65e246f3a2a81310dca"
+              },
+              "server_call": 157,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000015.pt",
+                "bytes": 1622987,
+                "sha256": "7ba034c419aa081fa6aba42c717519443177ae06e8a49e613f7211bde57f9362"
+              },
+              "server_call": 161,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            149,
+            153,
+            157,
+            161
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "source_files": [
+        {
+          "path": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log",
+          "bytes": 7782,
+          "sha256": "87c8ff14bc0444e7287b4bc102744838201aa7851455b2dbf02c21477d833b89"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/capture_manifest.json",
+          "bytes": 2419,
+          "sha256": "470cc6b1fd9a848d8fa6ba6dd74ec7c8442b3f08c6aab38f83d3fb2f9764a958"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/capture_counts.json",
+          "bytes": 460,
+          "sha256": "99fca39291d80389ef746fe968f362e7d8fcca069e4df3e7509f7fa599ea470d"
+        },
+        {
+          "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/reset_events.jsonl",
+          "bytes": 3252,
+          "sha256": "d1acd9dcd8b64f1367719d72112a16e2644b71c61be6886ac1269bd174c7183d"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 214,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000000.pt",
+                "bytes": 1622987,
+                "sha256": "c4e06a31990ea037e6d9b1e6a26433306231dfd6149ee887780d5c657840340b"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000001.pt",
+                "bytes": 1622987,
+                "sha256": "66eee0bf33626f72c4077b3a2d90ee5e067658f2ac2bd2c3395c3ad96daf75c0"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000002.pt",
+                "bytes": 1622987,
+                "sha256": "9a05bbac7f6a444bf5b733edeb12951218c585447bb43607c50944413c446fae"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000003.pt",
+                "bytes": 1622987,
+                "sha256": "4d255eb76541655cf2cb3b4a58fd837cb30fc4b008297ddaf7b1b4be0b1d1cb2"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 196,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000004.pt",
+                "bytes": 1622987,
+                "sha256": "e28e3728ecc63c3ee7142f1b4139285bd0d25a1eebc3171b96d7bd6433b3b187"
+              },
+              "server_call": 29,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000005.pt",
+                "bytes": 1622987,
+                "sha256": "e8ad1bedc316f2460d4c6299ceb5a2e08bd683a22fc44affa91b752ebacf5826"
+              },
+              "server_call": 33,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000006.pt",
+                "bytes": 1622987,
+                "sha256": "eecd022945327503918a3805003661a44b98d64297ee4a4b537eb86f9a2637bc"
+              },
+              "server_call": 37,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000007.pt",
+                "bytes": 1622987,
+                "sha256": "632eb71a205397003cebd8e58a7a9121a55321ba9206350eead07b057fabebe3"
+              },
+              "server_call": 41,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            29,
+            33,
+            37,
+            41
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 240,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000008.pt",
+                "bytes": 1622987,
+                "sha256": "085cf7c76214cd3a83e5d67d12fa03eb1c5d31301f95d23413d2e18e3394dddc"
+              },
+              "server_call": 53,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000009.pt",
+                "bytes": 1622987,
+                "sha256": "21d33dde31ba521cb23b085a713088e05912f1e332bfabd9e0061d5c4850ba7e"
+              },
+              "server_call": 57,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000010.pt",
+                "bytes": 1622987,
+                "sha256": "f9c63ba6b5dee0268e33c0e6759c31c6da4daa95d8e12eee24fa9080c10e32bb"
+              },
+              "server_call": 61,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000011.pt",
+                "bytes": 1622987,
+                "sha256": "236aba995c1e9f0d30e7543b27259889da02628da4db8c4007a5898f9f4a23c0"
+              },
+              "server_call": 65,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            53,
+            57,
+            61,
+            65
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 260,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000012.pt",
+                "bytes": 1622987,
+                "sha256": "49fe34a3c42ec288aae805da5e11ab9b6e28824a8850451927582d53999e73e3"
+              },
+              "server_call": 85,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000013.pt",
+                "bytes": 1622987,
+                "sha256": "0e81ba448e97682a66da5a4a8d93c1851fb7838f800e706a2e4cfe09fd8a242d"
+              },
+              "server_call": 89,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000014.pt",
+                "bytes": 1622987,
+                "sha256": "de191f63754b3c9d35301eb2dd73199ec0416d35842cb5509a4bd493fbb07251"
+              },
+              "server_call": 93,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000015.pt",
+                "bytes": 1622987,
+                "sha256": "812cf0bd0833ced6937b8970d44e816ab6c8149f6c9021f19d21e81adda95f57"
+              },
+              "server_call": 97,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            85,
+            89,
+            93,
+            97
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    },
+    {
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "source_files": [
+        {
+          "path": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log",
+          "bytes": 7549,
+          "sha256": "270826b420aa9aacea2056d3872828d4f37d18d4c278c009576802ac2a26dc34"
+        },
+        {
+          "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/capture_manifest.json",
+          "bytes": 2367,
+          "sha256": "16a02416904b913112c52e4a26d301281a85947a860ec6bcb564ff3bcd47e6aa"
+        },
+        {
+          "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/capture_counts.json",
+          "bytes": 460,
+          "sha256": "dc1e6dad01e136405b2b7d00c17ec74383ecc7215c129533f6b885398571d63d"
+        },
+        {
+          "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/reset_events.jsonl",
+          "bytes": 3096,
+          "sha256": "0e4be0181f040cf788a827ef14a7bb5bf80e3ed4d190443139daaec44480c0b5"
+        }
+      ],
+      "episode_lengths_log_line": 43,
+      "capture_configuration": {
+        "every_server_calls": 4,
+        "per_task_limit": 16,
+        "total_limit": 160,
+        "per_episode_limit": 4,
+        "source_kind": "teacher_rollout",
+        "action_endpoint": "teacher_rollout normalized action_pred",
+        "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+      },
+      "accepted_windows": 16,
+      "rejected_windows": 0,
+      "successful_windows": 16,
+      "successful_episodes": 4,
+      "episodes": [
+        {
+          "episode_index": 0,
+          "success": true,
+          "episode_length": 200,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000000.pt",
+                "bytes": 1622987,
+                "sha256": "3c2378e4d9de3ab21b22c92b543ead581b8a6b8d3f4e1d66c11770bcb437c6c2"
+              },
+              "server_call": 1,
+              "capture_index": 0,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000001.pt",
+                "bytes": 1622987,
+                "sha256": "e62b1201d3017c28a0ba64fa8152142c287ca46b5f44cd91ff7971384978d09a"
+              },
+              "server_call": 5,
+              "capture_index": 1,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000002.pt",
+                "bytes": 1622987,
+                "sha256": "3d1a42fb1cea24c467a30fd56e7f20174660106fffee70cbfd440600da048e22"
+              },
+              "server_call": 9,
+              "capture_index": 2,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000003.pt",
+                "bytes": 1622987,
+                "sha256": "fc114bc29f113cbcdd2ec0927a13c4042f7a50b848a793b4df7facf3c6b91cbf"
+              },
+              "server_call": 13,
+              "capture_index": 3,
+              "episode_index": 0,
+              "episode_success": true,
+              "init_state_index": 20,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            1,
+            5,
+            9,
+            13
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 1,
+          "success": true,
+          "episode_length": 194,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000004.pt",
+                "bytes": 1622987,
+                "sha256": "2532264dad91fcb31e4b4ff374537f412a01ac2f825758f9121507706a54acef"
+              },
+              "server_call": 29,
+              "capture_index": 4,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000005.pt",
+                "bytes": 1622987,
+                "sha256": "f23c3bd5b3500eecfcb7b4580e04a0c69dbfb48e8093de08bf0575dc6e680851"
+              },
+              "server_call": 33,
+              "capture_index": 5,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000006.pt",
+                "bytes": 1622987,
+                "sha256": "94dc474b4811947356f673cd3e8cccddf45fe2487d827f5d63d9c491202f9dfb"
+              },
+              "server_call": 37,
+              "capture_index": 6,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000007.pt",
+                "bytes": 1622987,
+                "sha256": "5099a3335d356e0d690b29fde450e0bf38e4f5854c92136e2964f443fcb4fe00"
+              },
+              "server_call": 41,
+              "capture_index": 7,
+              "episode_index": 1,
+              "episode_success": true,
+              "init_state_index": 21,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            29,
+            33,
+            37,
+            41
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 2,
+          "success": true,
+          "episode_length": 164,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000008.pt",
+                "bytes": 1622987,
+                "sha256": "31a7d0af2b80b6e55aff5ef8bdca2cb3ddbc6f159d388db60770b2683c5094e2"
+              },
+              "server_call": 53,
+              "capture_index": 8,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000009.pt",
+                "bytes": 1622987,
+                "sha256": "ae9dfc84783758b6bc98eac8a71b2f6266b2a9ca7b39b921d8968af5cbefda6e"
+              },
+              "server_call": 57,
+              "capture_index": 9,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000010.pt",
+                "bytes": 1622987,
+                "sha256": "0bc97dd4549cb82fee493c0b1562f06573f871ff34b36999e927f243a82f6a94"
+              },
+              "server_call": 61,
+              "capture_index": 10,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000011.pt",
+                "bytes": 1622987,
+                "sha256": "181fefd8f0a44115aa6506a5e8a07a361ccd79542fbf15564f38d5db27df1d29"
+              },
+              "server_call": 65,
+              "capture_index": 11,
+              "episode_index": 2,
+              "episode_success": true,
+              "init_state_index": 22,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            53,
+            57,
+            61,
+            65
+          ],
+          "rejected_server_calls": []
+        },
+        {
+          "episode_index": 3,
+          "success": true,
+          "episode_length": 183,
+          "accepted_samples": [
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000012.pt",
+                "bytes": 1622987,
+                "sha256": "178af4fe8ad270e8feae042a68b8b983d73f4d5101d3a8c7bc2ffcbe85bae18b"
+              },
+              "server_call": 73,
+              "capture_index": 12,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000013.pt",
+                "bytes": 1622987,
+                "sha256": "a011efa144ff4d379073b4337fa59f4268610684f278699a6863350212b98ebb"
+              },
+              "server_call": 77,
+              "capture_index": 13,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000014.pt",
+                "bytes": 1622987,
+                "sha256": "27aab27cd60a281b9076b1060fd8fac56a9b2e28665d8fea6a537f01e92645be"
+              },
+              "server_call": 81,
+              "capture_index": 14,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            },
+            {
+              "file": {
+                "path": "observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000015.pt",
+                "bytes": 1622987,
+                "sha256": "a4c53adbdcad2c0761d55cd7b8f5a85c88974b243fb531c06ebb7cf58ae9bd88"
+              },
+              "server_call": 85,
+              "capture_index": 15,
+              "episode_index": 3,
+              "episode_success": true,
+              "init_state_index": 23,
+              "source_kind": "teacher_rollout"
+            }
+          ],
+          "rejected_samples": [],
+          "accepted_server_calls": [
+            73,
+            77,
+            81,
+            85
+          ],
+          "rejected_server_calls": []
+        }
+      ]
+    }
+  ]
+}

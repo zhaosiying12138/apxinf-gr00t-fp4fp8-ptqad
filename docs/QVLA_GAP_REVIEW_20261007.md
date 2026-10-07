@@ -127,7 +127,7 @@ QVLA 的 1.49× 是同一 OpenVLA-OFT 模型入口上的速度测量。本文目
 - 保留回合的原始 `episode_lengths` 为 164–487 步；当前观测采样仅到约前 96–120 个已执行动作步。样本中的 16 步动作端点仍是当次预测，不能把它当成完整轨迹后段的环境观测。
 - 学生 collection 尚未执行，但代码会沿用相同上限。`capture_counts.json` 只在保存样本时更新，其 `calls` 不是完整回合长度，应读取原始 rollout 日志。
 
-源码位置：[`run_recovery_eval.py`](../eval/run_recovery_eval.py) 的 `capture_environment` / `finalize_capture_samples`；[`capture_onpolicy.py`](../rl/capture_onpolicy.py) 的 `get_action`。本地只读复查脚本与逐文件摘要保存在 `paper/_build/qvla_followup_20261007/`，不作为闭环结果发布。
+源码位置：[`run_recovery_eval.py`](../eval/run_recovery_eval.py) 的 `configure_capture_environment` / `finalize_capture_samples`；[`capture_onpolicy.py`](../rl/capture_onpolicy.py) 的 `get_action`。可复用 CPU 检查已整理为 [`audit_capture_coverage.py`](../exp/audit_capture_coverage.py)，[真实来源审计](evidence/recovery-capture-coverage-v12.json)随仓保存，不作为闭环结果发布。[补充实验方案](RECOVERY_SAMPLING_SUPPLEMENT.md)给出复查命令和同四窗预算的时间覆盖对照。
 
 **这证明了观测采样偏前，尚未证明一定漏掉抓取或放置。** QVLA 附录 H 将这类阶段作为量化失败的观察重点，下一步应先标注我们自己的阶段覆盖。若确认关键阶段不足，在新的补充协议中保持窗口总数和训练预算，比较“前段四窗”与“覆盖全回合的分层四窗”；演示和学生缓存采用同一规则，避免同时增加数据量而混淆原因。当前冻结 v12 不在运行中更改。
 
