@@ -42,7 +42,7 @@ def render(report, *, detailed=False):
             + "\n\n各项先在任务内平均，再对十个任务取宏平均。平移和旋转两列分别是反归一化后的 "
             "x/y/z 与 roll/pitch/yaw 三项 MSE 的均值，表示控制器输入差异，不是实测末端位姿误差。"
             "夹爪比较使用 LIBERO 的三值指令，保留中性点；指令不一致不等于抓取失败。"
-            "这些误差也不替代闭环成功率。")
+            "这项固定观测诊断没有测量各策略独立 rollout 的累计偏差或首次失败阶段，也不替代闭环成功率。")
     if not detailed:
         return text
     metric_rows = ["| 指标（任务宏平均） | " + " | ".join(LABELS[a] for a in ARMS) + " |",
