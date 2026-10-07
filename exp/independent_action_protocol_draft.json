@@ -1,0 +1,56 @@
+{
+  "format": "independent_action_diagnostic_protocol_v1",
+  "status": "draft_not_executable",
+  "diagnostics": {
+    "reference_arm": "bf16",
+    "source_kind": "diagnostic_rollout",
+    "checkpoint_role": "diagnostic_reference",
+    "capture_every": 4,
+    "capture_max_per_episode": 0,
+    "success_only": false,
+    "windows_per_episode": 4,
+    "sampling": "stratified_time",
+    "noise_seeds": [
+      2026100700,
+      2026100701
+    ],
+    "training_allowed": false,
+    "model_selection_allowed": false,
+    "allowed_operations": [
+      "capture",
+      "action_inference",
+      "compare"
+    ],
+    "interpretation": "independent_observation_action_diagnostic_not_success_rate_or_new_task_generalization"
+  },
+  "partitions": {
+    "diagnostics": {
+      "seed": 990000,
+      "init_state_indices": [
+        29
+      ],
+      "episodes_per_task": 1,
+      "purpose": "independent diagnostic observations; never training or model selection",
+      "capture_sampling": {
+        "mode": "full_trajectory_candidates",
+        "every_server_calls": 4,
+        "safety_candidates_per_episode": 192
+      }
+    }
+  },
+  "tasks": [
+    "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+    "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+    "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+    "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+    "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+    "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+    "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+    "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+    "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+    "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it"
+  ],
+  "reference": null,
+  "evaluation_contract": null,
+  "quantization_scope": null
+}

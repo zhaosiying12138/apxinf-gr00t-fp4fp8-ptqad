@@ -66,8 +66,18 @@ def _load_candidates(directory, task_name, result, purpose):
     directory = Path(directory).resolve()
     manifest = _read(directory / "capture_manifest.json")
     counts = _read(directory / "capture_counts.json")
-    _require(purpose in ("teacher_supervision", "collection"), "Unsupported capture purpose")
-    expected_source = "teacher_rollout" if purpose == "teacher_supervision" else "student_rollout"
+    _require(purpose in ("teacher_supervision", "collection", "diagnostics"), "Unsupported capture purpose")
+    expected_source = {"teacher_supervision": "teacher_rollout", "collection": "student_rollout",
+                       "diagnostics": "diagnostic_rollout"}[purpose]
+    if purpose == "diagnostics":
+        reference = manifest.get("diagnostic_reference")
+        _require(manifest.get("checkpoint_role") == "diagnostic_reference"
+                 and manifest.get("training_eligible") is False
+                 and isinstance(reference, dict) and reference.get("status") == "verified"
+                 and reference.get("diagnostic_protocol_sha256") == manifest.get("protocol_sha256")
+                 and reference.get("allowed_teacher", {}).get("checkpoint") == manifest.get("student_checkpoint")
+                 and manifest.get("every_server_calls") == 4,
+                 "Diagnostic candidates lack their independent BF16 source identity")
     _require(manifest.get("sampling_mode") == MODE, "Not a full candidate capture")
     _require(type(manifest.get("n_envs")) is int and manifest["n_envs"] == 1,
              "Full candidate capture requires one environment")
@@ -89,6 +99,8 @@ def _load_candidates(directory, task_name, result, purpose):
     values, resets = result.get("results"), result.get("resets")
     _require(isinstance(values, list) and values and isinstance(resets, list)
              and len(values) == len(resets), "Scored results/reset count differs or is empty")
+    if purpose == "diagnostics":
+        _require(len(values) == 1, "Diagnostics requires one complete bank-29 episode per task")
     _require(all(type(x) is bool or (type(x) is int and x in (0, 1)) for x in values),
              "Scored outcomes must be bool or 0/1")
     query_counts = counts.get("episode_query_counts")
@@ -138,6 +150,11 @@ def _load_candidates(directory, task_name, result, purpose):
         for key, value in fields.items():
             _require(type(sample.get(key)) is type(value) and sample[key] == value,
                      f"Candidate {path.name} differs in {key}")
+        if purpose == "diagnostics":
+            _require(sample.get("purpose") == "diagnostics" and sample.get("training_eligible") is False
+                     and sample.get("diagnostic_reference_sha256") == _json_sha(manifest["diagnostic_reference"])
+                     and sample.get("init_state_index") == 29,
+                     "Diagnostic candidate changed its source or training exclusion")
         for key in ("student_checkpoint", "student_statistics_sha256", "checkpoint_role"):
             if key in manifest:
                 _require(sample.get(key) == manifest[key], f"Candidate {path.name} differs in {key}")
@@ -248,6 +265,8 @@ def plan_capture_view(directory, task_name, *, mode, windows_per_episode=4):
     """Plan without modifying source; selection uses query ranks, never tensor values."""
     select_indices(0, windows_per_episode, mode)
     directory, manifest, counts, loaded = _verify_finalized(directory, task_name)
+    _require(manifest["finalized_purpose"] in ("teacher_supervision", "collection"),
+             "Diagnostic observations cannot be materialized as training views")
     grouped = defaultdict(list)
     for path, sample in loaded:
         grouped[sample["episode_index"]].append((path, sample))

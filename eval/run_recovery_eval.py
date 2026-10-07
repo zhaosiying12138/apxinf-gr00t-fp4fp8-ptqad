@@ -163,7 +163,7 @@ def stop(process):
 
 
 def capture_sampling_config(partition, purpose, episodes, max_episode_steps=720):
-    """Opt in to full candidates only in an explicit training partition.
+    """Opt in to full candidates in an explicit training or diagnostic partition.
 
     The safety capacity covers even one policy query per environment step,
     plus the initial observation. It is not a quota for dataset selection.
@@ -171,9 +171,11 @@ def capture_sampling_config(partition, purpose, episodes, max_episode_steps=720)
     """
     config = (partition or {}).get("capture_sampling")
     if config is None:
+        if purpose == "diagnostics":
+            raise ValueError("Diagnostics requires explicit full-trajectory capture_sampling")
         return None
-    if purpose not in ("teacher_supervision", "collection"):
-        raise ValueError("capture_sampling is only allowed in training capture partitions")
+    if purpose not in ("teacher_supervision", "collection", "diagnostics"):
+        raise ValueError("capture_sampling is only allowed in training capture or diagnostic partitions")
     allowed = {"mode", "every_server_calls", "safety_candidates_per_episode"}
     if not isinstance(config, dict) or set(config) != allowed:
         raise ValueError(f"capture_sampling must specify exactly {sorted(allowed)}")
@@ -182,6 +184,8 @@ def capture_sampling_config(partition, purpose, episodes, max_episode_steps=720)
     every, safety = config["every_server_calls"], config["safety_candidates_per_episode"]
     if any(type(x) is not int or x <= 0 for x in (every, safety, episodes, max_episode_steps)):
         raise ValueError("Capture interval, safety bound and episode limits must be positive integers")
+    if purpose == "diagnostics" and (every != 4 or episodes != 1):
+        raise ValueError("Diagnostics requires every fourth query in one scored episode per task")
     minimum = (max_episode_steps + 1 + every - 1) // every
     if safety < minimum:
         raise ValueError(f"Candidate safety capacity must be at least {minimum} per episode")
@@ -202,7 +206,9 @@ def validate_capture_partition_separation(path, purpose):
     if type(capture.get("seed")) is not int:
         raise ValueError("Full-candidate capture requires an explicit integer partition seed")
     indices = capture["init_state_indices"]
-    for name in ("development", "heldout", "smoke"):
+    other_partitions = (tuple(name for name in partitions if name != "diagnostics")
+                        if purpose == "diagnostics" else ("development", "heldout", "smoke", "diagnostics"))
+    for name in other_partitions:
         if name not in partitions:
             continue
         evaluation = protocol_entry(path, name)
@@ -217,6 +223,20 @@ def validate_capture_partition_separation(path, purpose):
                       for task in range(10) for episode in range(len(evaluation["init_state_indices"]) + 1)}
         if train_seeds & eval_seeds:
             raise ValueError(f"Capture and {name} reset seeds overlap")
+
+
+def validate_diagnostic_capture(protocol_file, checkpoint):
+    """Audit the completed five-arm source on CPU before any policy initialization."""
+    if not protocol_file:
+        raise ValueError("Diagnostics requires an explicit independent protocol file")
+    if not __package__:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from exp.independent_action_protocol import validate_diagnostic_protocol
+    report = validate_diagnostic_protocol(protocol_file, checkpoint=checkpoint)
+    partition = protocol_entry(protocol_file, "diagnostics")
+    capture_sampling_config(partition, "diagnostics", partition.get("episodes_per_task"))
+    validate_capture_partition_separation(protocol_file, "diagnostics")
+    return report
 
 
 def _capture_checkpoint_files(checkpoint):
@@ -256,8 +276,18 @@ def configure_capture_environment(env, output, task, purpose, manifest, seed, in
     """
     env.pop("OPD_CAPTURE_DIR", None)
     env.pop("FP4VLA_CAPTURE_SAMPLING_MODE", None)
-    if purpose not in ("teacher_supervision", "collection"):
+    env.pop("FP4VLA_DIAGNOSTIC_REFERENCE_JSON", None)
+    env.pop("FP4VLA_CAPTURE_PROTOCOL_FILE", None)
+    if purpose not in ("teacher_supervision", "collection", "diagnostics"):
         return None
+    if purpose == "diagnostics":
+        reference = manifest.get("diagnostic_reference")
+        if (indices != [29] or not isinstance(reference, dict) or reference.get("status") != "verified"
+                or reference.get("diagnostic_protocol_sha256") != manifest.get("protocol_sha256")
+                or not manifest.get("protocol_file") or manifest.get("capture_sampling") is None):
+            raise ValueError("Diagnostics capture requires the audited independent protocol and bank 29")
+        env.update({"FP4VLA_CAPTURE_PROTOCOL_FILE": manifest["protocol_file"],
+                    "FP4VLA_DIAGNOSTIC_REFERENCE_JSON": json.dumps(reference, sort_keys=True)})
 
     capture_dir = Path(output) / "observations" / task
     capture_dir.mkdir(parents=True, exist_ok=True)
@@ -311,6 +341,8 @@ def finalize_capture_samples(directory, task_name, result, purpose, sampling_mod
     to successful episodes: rejected samples are renamed (and preserved) so a
     recursive ``QAD_CAPTURE_DATASET`` cannot accidentally train on failures.
     """
+    if purpose == "diagnostics" and sampling_mode != "full_trajectory_candidates":
+        raise ValueError("Diagnostics must preserve complete candidate captures")
     manifest_file = Path(directory) / "capture_manifest.json"
     recorded_mode = (json.loads(manifest_file.read_text()).get("sampling_mode", "prefix")
                      if manifest_file.is_file() else "prefix")
@@ -407,7 +439,7 @@ def main():
     ap.add_argument("--checkpoint", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--seed", required=True, type=int)
-    ap.add_argument("--purpose", required=True, choices=("development", "teacher_supervision", "collection", "heldout", "smoke"))
+    ap.add_argument("--purpose", required=True, choices=("development", "teacher_supervision", "collection", "heldout", "smoke", "diagnostics"))
     ap.add_argument("--protocol-file", help="Versioned protocol JSON supplying the bank partition; defaults to exp/recovery_protocol.json")
     ap.add_argument("--collection-manifest", help="Required for heldout: prove disjoint reset seeds")
     ap.add_argument("--episodes", type=int, help="Default 2 development/collection, 10 heldout, 1 smoke")
@@ -419,6 +451,8 @@ def main():
     ap.add_argument("--timeout", type=int, default=3600)
     ap.add_argument("--task-count", type=int, default=10, help="Only reduce for smoke, never a ten-task score")
     args = ap.parse_args()
+    if args.purpose == "diagnostics" and not args.protocol_file:
+        ap.error("diagnostics requires --protocol-file for an independent completed-run reference")
     validate_recovery_checkpoint(args.checkpoint)
     project = Path(__file__).resolve().parents[1]
     protocol_path = Path(args.protocol_file).resolve() if args.protocol_file else project / "exp/recovery_protocol.json"
@@ -448,6 +482,8 @@ def main():
     sampling_config = capture_sampling_config(protocol_data, args.purpose, args.episodes)
     if sampling_config is not None:
         validate_capture_partition_separation(protocol_path, args.purpose)
+    diagnostic_reference = (validate_diagnostic_capture(protocol_path, args.checkpoint)
+                            if args.purpose == "diagnostics" else None)
     output = Path(args.out).resolve()
     if output.exists():
         raise FileExistsError(f"New evidence requires a new output directory: {output}")
@@ -521,6 +557,9 @@ def main():
                      "recovery_contract": recovery_contract})
     manifest["protocol_file"] = str(protocol_path)
     manifest["protocol_sha256"] = hashlib.sha256(protocol_path.read_bytes()).hexdigest()
+    if diagnostic_reference is not None:
+        manifest["diagnostic_reference"] = diagnostic_reference
+        manifest["training_eligible"] = False
     if sampling_config is not None:
         manifest["capture_sampling"] = sampling_config
         record_capture_checkpoint(manifest)
@@ -589,7 +628,7 @@ def main():
                 if completed.returncode or result["episodes"] != args.episodes:
                     raise RuntimeError(f"Incomplete task {task}: rc={completed.returncode}, episodes={result['episodes']}")
                 validate_resets(result, seed, indices)
-                if args.purpose in ("teacher_supervision", "collection"):
+                if args.purpose in ("teacher_supervision", "collection", "diagnostics"):
                     capture_summary = finalize_capture_samples(
                         output / "observations" / task, task, result, args.purpose,
                         sampling_mode=sampling_config["mode"] if sampling_config else "prefix")
@@ -612,6 +651,11 @@ def main():
                "purpose": args.purpose, "seed": args.seed,
                "wall_seconds_including_server_loads": time.time() - started}
     verify_capture_checkpoint(manifest, summary)
+    if diagnostic_reference is not None:
+        if validate_diagnostic_capture(protocol_path, checkpoint_path) != diagnostic_reference:
+            raise ValueError("Diagnostic final source identity changed during observation collection")
+        summary.update(training_eligible=False, diagnostic_reference_verified_unchanged=True,
+                       interpretation="independent observation collection; not a success-rate benchmark")
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary), flush=True)
 

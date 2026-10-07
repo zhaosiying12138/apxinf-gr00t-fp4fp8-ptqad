@@ -37,6 +37,21 @@ def policy_input_precision(value):
 def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=160,
                     event_file=None, capture_metadata=None, per_episode=None,
                     sampling_mode="prefix"):
+    capture_metadata = dict(capture_metadata or {})
+    source_kind = capture_metadata.get("source_kind", "student_rollout")
+    diagnostic = (capture_metadata.get("purpose") == "diagnostics" or source_kind == "diagnostic_rollout"
+                  or capture_metadata.get("checkpoint_role") == "diagnostic_reference")
+    if diagnostic:
+        reference = capture_metadata.get("diagnostic_reference")
+        if (capture_metadata.get("purpose") != "diagnostics" or source_kind != "diagnostic_rollout"
+                or capture_metadata.get("checkpoint_role") != "diagnostic_reference"
+                or capture_metadata.get("training_eligible") is not False
+                or not isinstance(reference, dict) or reference.get("status") != "verified"
+                or reference.get("diagnostic_protocol_sha256") != capture_metadata.get("protocol_sha256")
+                or reference.get("allowed_teacher", {}).get("checkpoint") != str(Path(student_checkpoint).resolve())
+                or capture_metadata.get("init_state_indices") != "29"
+                or sampling_mode != "full_trajectory_candidates" or every != 4):
+            raise ValueError("Diagnostics capture requires an audited BF16 reference, bank 29 and complete candidates")
     from gr00t.model.gr00t_n1d7.gr00t_n1d7 import Gr00tN1d7
     from gr00t.model.gr00t_n1d7.processing_gr00t_n1d7 import Gr00tN1d7DataCollator
     directory = Path(directory)
@@ -56,9 +71,7 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
         raise ValueError("Per-episode capture quota requires a positive integer and reset events")
     checkpoint = Path(student_checkpoint).resolve()
     action_spec = libero_action_spec(checkpoint)
-    capture_metadata = dict(capture_metadata or {})
     event_path = Path(event_file).resolve() if event_file else None
-    source_kind = capture_metadata.get("source_kind", "student_rollout")
     sample_prefix = "candidate" if full_trajectory else "sample"
     metadata = {"student_checkpoint": str(checkpoint),
                 "student_config_sha256": file_sha256(checkpoint / "config.json"),
@@ -67,7 +80,8 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
                 "per_episode_limit": per_episode,
                 "source_kind": source_kind,
                 "action_endpoint": f"{source_kind} normalized action_pred",
-                "checkpoint_role": "teacher" if source_kind == "teacher_rollout" else "student",
+                "checkpoint_role": ("diagnostic_reference" if diagnostic else
+                                    "teacher" if source_kind == "teacher_rollout" else "student"),
                 "task_key": "sha256 of actual processed instruction text",
                 "reset_event_file": str(event_path) if event_path else None,
                 "reset_identity_fields": ["task_name", "episode_index", "seed",
@@ -242,6 +256,11 @@ def install_capture(directory, student_checkpoint, every=8, per_task=16, limit=1
                   "server_call": state["calls"], "capture_index": state["saved"]}
         if full_trajectory:
             sample.update({"episode_call": episode_call, "sampling_mode": sampling_mode})
+        if diagnostic:
+            sample.update(purpose="diagnostics", training_eligible=False,
+                diagnostic_reference_sha256=hashlib.sha256(json.dumps(
+                    metadata["diagnostic_reference"], sort_keys=True, separators=(",", ":"),
+                    allow_nan=False).encode()).hexdigest())
         torch.save(sample, directory / f"{sample_prefix}_{state['saved']:06d}.pt")
         state["saved"] += 1
         counts[task] = counts.get(task, 0) + 1

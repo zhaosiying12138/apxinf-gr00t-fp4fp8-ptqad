@@ -1,14 +1,15 @@
 """Seeded checkpoint server, optionally recording student-visited observations."""
 import argparse
+import json
 import os
 from pathlib import Path
 import runpy
 import sys
 
 if __package__:
-    from .run_recovery_eval import validate_recovery_checkpoint
+    from .run_recovery_eval import validate_diagnostic_capture, validate_recovery_checkpoint
 else:
-    from run_recovery_eval import validate_recovery_checkpoint
+    from run_recovery_eval import validate_diagnostic_capture, validate_recovery_checkpoint
 
 
 def main():
@@ -19,6 +20,15 @@ def main():
     checkpoint_args, _ = parser.parse_known_args()
     if checkpoint_args.model_path:
         validate_recovery_checkpoint(checkpoint_args.model_path)
+    diagnostic_reference = None
+    if os.environ.get("OPD_CAPTURE_DIR") and os.environ.get("FP4VLA_CAPTURE_PURPOSE") == "diagnostics":
+        if not checkpoint_args.model_path:
+            raise ValueError("Diagnostics capture requires explicit --model-path")
+        diagnostic_reference = validate_diagnostic_capture(
+            os.environ.get("FP4VLA_CAPTURE_PROTOCOL_FILE"), checkpoint_args.model_path)
+        expected = os.environ.get("FP4VLA_DIAGNOSTIC_REFERENCE_JSON")
+        if expected is not None and json.loads(expected) != diagnostic_reference:
+            raise ValueError("Diagnostic source identity changed before server initialization")
     sys.path.insert(0, os.getcwd())
     project = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(project / "rl"))
@@ -35,14 +45,18 @@ def main():
             key: value for key, value in {
                 "task_name": os.environ.get("FP4VLA_CAPTURE_TASK_NAME"),
                 "purpose": os.environ.get("FP4VLA_CAPTURE_PURPOSE"),
-                "source_kind": ("teacher_rollout" if os.environ.get("FP4VLA_CAPTURE_PURPOSE") == "teacher_supervision"
-                                 else "student_rollout"),
+                "source_kind": {"teacher_supervision": "teacher_rollout", "diagnostics": "diagnostic_rollout"}.get(
+                    os.environ.get("FP4VLA_CAPTURE_PURPOSE"), "student_rollout"),
                 "seed": (int(os.environ["FP4VLA_CAPTURE_SEED"])
                          if os.environ.get("FP4VLA_CAPTURE_SEED") else None),
                 "init_state_indices": (os.environ.get("FP4VLA_CAPTURE_INIT_STATE_INDICES")),
                 "protocol_sha256": os.environ.get("FP4VLA_CAPTURE_PROTOCOL_SHA256"),
             }.items() if value is not None
         }
+        if diagnostic_reference is not None:
+            capture_metadata.update(checkpoint_role="diagnostic_reference", training_eligible=False,
+                protocol_file=os.environ["FP4VLA_CAPTURE_PROTOCOL_FILE"],
+                diagnostic_reference=diagnostic_reference)
         install_capture(os.environ["OPD_CAPTURE_DIR"], checkpoint,
                         every=int(os.environ.get("OPD_CAPTURE_EVERY", "4")),
                         per_task=int(os.environ.get("OPD_CAPTURE_PER_TASK", "16")),

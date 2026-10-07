@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 from collections import defaultdict
 import inspect
+import io
 import json
 import os
 from pathlib import Path
@@ -17,6 +18,7 @@ import runpy
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "rl"))
 from checkpoint_identity import checkpoint_files
 from gr00t_runtime import action_mask, libero_action_spec
@@ -90,7 +92,7 @@ def freeze_inputs(capture_root, protocol_file, per_task, seed):
             "seed": seed, "samples": samples, "implementation_sha256": file_sha256(__file__)}
 
 
-def infer_chunk(model, raw_inputs, seed, spec):
+def infer_chunk(model, raw_inputs, seed, spec, *, record_trace=False):
     """Call production get_action, capturing its actual initial integration state."""
     import torch
     require(raw_inputs["action"].shape[0] == 1, "Expected independently collated batch of one")
@@ -99,25 +101,51 @@ def infer_chunk(model, raw_inputs, seed, spec):
     # Presence of action in action_input enables real-time chunking/inpainting.
     inputs = tensor_tree({k: v for k, v in raw_inputs.items() if k not in ("action", "action_mask")})
     noise, calls = [], []
+    states, times, velocities = [], [], []
 
     def capture_initial(module, args):
         calls.append(1)
         if not noise:
             noise.append(args[0].detach().cpu().clone())
+        if record_trace:
+            require(len(args) >= 2, "Trace requires the production action-encoder time input")
+            states.append(args[0].detach().cpu().clone())
+            times.append(args[1].detach().cpu().clone())
+
+    def capture_velocity(module, args, output):
+        require(torch.is_tensor(output) and output.ndim == 3, "Unexpected action decoder output")
+        velocities.append(output[:, -expected_mask.shape[1]:].detach().cpu().clone())
 
     hook = model.action_head.action_encoder.register_forward_pre_hook(capture_initial)
+    velocity_hook = None
     try:
+        if record_trace:
+            velocity_hook = model.action_head.action_decoder.register_forward_hook(capture_velocity)
         # Gr00tPolicy._get_action uses inference_mode with BF16 parameters and
         # no outer autocast. Preserve that convention instead of training's.
         with replay_context(model, seed, "none"), torch.inference_mode():
             output = model.get_action(inputs)["action_pred"].detach().float().cpu()
     finally:
         hook.remove()
+        if velocity_hook is not None:
+            velocity_hook.remove()
     steps = int(model.action_head.num_inference_timesteps)
     require(len(calls) == steps and len(noise) == 1, "Incomplete integration/noise trace")
     require(output.shape == expected_mask.shape == noise[0].shape, "Action/noise shape differs")
     require(bool(torch.isfinite(output).all()) and bool(torch.isfinite(noise[0]).all()), "Nonfinite inference")
-    return {"action_pred": output, "initial_noise": noise[0], "integration_steps": steps}
+    result = {"action_pred": output, "initial_noise": noise[0], "integration_steps": steps}
+    if record_trace:
+        require(len(states) == len(times) == len(velocities) == steps, "Incomplete integration trace")
+        require(all(x.shape == noise[0].shape and bool(torch.isfinite(x).all())
+                    for x in states + velocities), "Nonfinite or malformed integration trace")
+        buckets = int(model.action_head.num_timestep_buckets)
+        require(all(t.shape == (1,) and t.dtype == torch.int64 and t.item() == int(i / steps * buckets)
+                    for i, t in enumerate(times)), "Observed time buckets differ from production schedule")
+        result["integration_trace"] = {
+            "states": torch.stack(states), "time_buckets": torch.stack(times),
+            "velocities": torch.stack(velocities),
+            "scope": "Each policy's own integration states and velocities; not shared-state field error or robot rollout drift"}
+    return result
 
 
 def decode_chunk(policy, action, processor_config):
@@ -136,7 +164,18 @@ def bind_final_checkpoint(final_path, arm, inputs):
     """Resolve labels from the completed run and verify the weights it selected."""
     final = read(final_path)
     require(final.get("format") == "w4a4_recovery_v12_final_manifest", "Expected completed v12 final manifest")
-    require(final["protocol_sha256"] == inputs["protocol_sha256"], "Final and diagnostic protocols differ")
+    if inputs.get("format") == "gr00t_action_inputs_v2":
+        from exp.independent_action_protocol import validate_diagnostic_protocol
+        reference = validate_diagnostic_protocol(inputs["protocol_file"], final_manifest=final_path)
+        require(inputs.get("purpose") == "diagnostics"
+                and inputs["protocol_sha256"] == reference["diagnostic_protocol_sha256"]
+                and inputs.get("original_model_protocol_sha256") == reference["original_model_protocol_sha256"]
+                and inputs.get("final_reference") == reference["source_final"],
+                "Independent diagnostic model reference differs")
+        require(final["protocol_sha256"] == reference["original_model_protocol_sha256"],
+                "Original model protocol differs from diagnostic reference")
+    else:
+        require(final["protocol_sha256"] == inputs["protocol_sha256"], "Final and diagnostic protocols differ")
     require(file_sha256(final["selection_file"]) == final["selection_sha256"], "PTQ selection changed")
     selection = read(final["selection_file"])
     require(selection["protocol_sha256"] == final["protocol_sha256"], "Selection protocol differs")
@@ -173,6 +212,19 @@ def bind_final_checkpoint(final_path, arm, inputs):
     return checkpoint, files
 
 
+def validate_input_manifest(manifest):
+    """Reaudit either legacy training observations or separate diagnostic captures."""
+    if manifest.get("format") == "gr00t_action_inputs_v2":
+        from exp.independent_action_inputs import freeze_diagnostic_inputs
+        actual = freeze_diagnostic_inputs(manifest["capture_root"], manifest["protocol_file"])
+    else:
+        require(manifest.get("format") == "gr00t_action_inputs_v1", "Unknown input manifest")
+        actual = freeze_inputs(manifest["capture_root"], manifest["protocol_file"],
+                               manifest["samples_per_task"], manifest["seed"])
+    require(manifest == actual, "Frozen inputs no longer match their declared source/partition")
+    return manifest
+
+
 def collect(args):
     """One fresh process per arm; uses the same loader as formal evaluation."""
     import torch
@@ -180,10 +232,8 @@ def collect(args):
     out = Path(args.out).resolve()
     require(not out.exists(), f"Refusing to overwrite diagnostic output: {out}")
     manifest = read(manifest_path)
-    require(manifest.get("format") == "gr00t_action_inputs_v1", "Unknown input manifest")
-    require(manifest == freeze_inputs(manifest["capture_root"], manifest["protocol_file"],
-                                     manifest["samples_per_task"], manifest["seed"]),
-            "Frozen inputs no longer match their declared source/partition")
+    validate_input_manifest(manifest)
+    trace_enabled = manifest["format"] == "gr00t_action_inputs_v2"
     checkpoint, weights = bind_final_checkpoint(final_path, args.arm, manifest)
     require(manifest["statistics_sha256"] == file_sha256(checkpoint / "statistics.json"),
             "Checkpoint and observations use different normalization")
@@ -223,6 +273,9 @@ def collect(args):
                     ROOT / "rl/scoped_quant.py", ROOT / "rl/w4a4_deploy.py",
                     ROOT / "rl/w4a4_lora.py", ROOT / "quant/native_activation.py",
                     gr00t / "gr00t/eval/sim/LIBERO/libero_env.py"]
+    if trace_enabled:
+        source_paths.extend(ROOT / "exp" / name for name in (
+            "independent_action_inputs.py", "independent_action_protocol.py"))
 
     class LocalActionRunner:
         def __init__(self, *, policy, **kwargs):
@@ -253,8 +306,12 @@ def collect(args):
 
         def run(self):
             for sample in manifest["samples"]:
-                raw = torch.load(sample["path"], map_location="cpu", weights_only=True)
-                result = infer_chunk(self.policy.model, raw["inputs"], sample["seed"], action_spec)
+                content = Path(sample["path"]).read_bytes()
+                import hashlib
+                require(hashlib.sha256(content).hexdigest() == sample["sha256"], "Observation changed before inference")
+                raw = torch.load(io.BytesIO(content), map_location="cpu", weights_only=True)
+                result = infer_chunk(self.policy.model, raw["inputs"], sample["seed"], action_spec,
+                                     record_trace=trace_enabled)
                 result["decoded"] = decode_chunk(self.policy, result["action_pred"], processor_config)
                 records.append({"sample": sample, **result})
                 print(f"[action-diagnostic] {args.arm} {len(records)}/{len(manifest['samples'])}", flush=True)
@@ -270,6 +327,7 @@ def collect(args):
     finally:
         server_client.PolicyServer, sys.argv = original_server, original_argv
     require(len(records) == len(manifest["samples"]) > 0, "Incomplete diagnostic run")
+    require(checkpoint_files(checkpoint) == weights, "Checkpoint changed during diagnostic inference")
     out.mkdir(parents=True)
     sources = {str(p): file_sha256(p) for p in source_paths}
     final_sha = file_sha256(final_path)
@@ -285,6 +343,33 @@ def collect(args):
               "interpretation": manifest["interpretation"], "sample_count": len(records),
               "decoded_units": "processor output/controller coordinates; not measured end-effector displacement",
               "gripper_metric": "LIBERO -sign(2*x-1), preserving neutral x=0.5; not grasp success"})
+
+
+def integration_metrics(reference, candidate, mask):
+    """Describe own-path integration drift; never call it shared-state velocity error."""
+    import torch
+    left, right = reference.get("integration_trace"), candidate.get("integration_trace")
+    require((left is None) == (right is None), "Only one arm records integration traces")
+    if left is None:
+        return {}
+    steps = reference["integration_steps"]
+    expected_shape = (steps, *reference["action_pred"].shape)
+    for record, trace in ((reference, left), (candidate, right)):
+        require(set(trace) == {"states", "velocities", "time_buckets", "scope"}, "Unexpected integration trace fields")
+        require(trace["scope"] == "Each policy's own integration states and velocities; not shared-state field error or robot rollout drift",
+                "Integration trace has a different measurement scope")
+        for key in ("states", "velocities"):
+            require(trace[key].shape == expected_shape and bool(torch.isfinite(trace[key]).all()),
+                    "Malformed or nonfinite integration trace")
+        require(trace["time_buckets"].shape == (steps, 1) and trace["time_buckets"].dtype == torch.int64,
+                "Invalid integration time buckets")
+        require(trace["states"].dtype == record["initial_noise"].dtype
+                and torch.equal(trace["states"][0], record["initial_noise"]),
+                "Integration trace does not start at the recorded initial noise")
+    require(torch.equal(left["time_buckets"], right["time_buckets"]), "Integration time schedules differ")
+    return {f"integration_{label}_step_{i + 1}_mse": float(
+            (left[key][i].double() - right[key][i].double()).square()[mask].mean())
+            for i in range(steps) for key, label in (("states", "state"), ("velocities", "own_path_velocity"))}
 
 
 def compare(reference, candidate):
@@ -313,6 +398,10 @@ def compare(reference, candidate):
         mask = action_mask(a, spec).bool()
         squared = (a.double() - b.double()).square()
         values = {"normalized_mse": float(squared[mask].mean())}
+        if reference["input_manifest"].get("format") == "gr00t_action_inputs_v2":
+            require("integration_trace" in ref and "integration_trace" in cur,
+                    "Independent diagnostics require full integration traces")
+        values.update(integration_metrics(ref, cur, mask))
         offset = 0
         for key, width in zip(spec["keys"], spec["key_dimensions"]):
             group = squared[:, :spec["horizon"], offset:offset + width]
@@ -334,7 +423,8 @@ def compare(reference, candidate):
                 command_a = -(2 * da["gripper"] - 1).sign()
                 command_b = -(2 * db["gripper"] - 1).sign()
                 values["libero_gripper_command_disagreement"] = float((command_a != command_b).double().mean())
-        metrics.append({"task": sample["task"], "sample_sha256": sample["sha256"], "metrics": values})
+        metrics.append({"task": sample["task"], "sample_sha256": sample["sha256"],
+                        "seed": sample["seed"], "metrics": values})
     keys = set(metrics[0]["metrics"])
     require(all(set(m["metrics"]) == keys for m in metrics), "Inconsistent decoded coverage")
     per_task = defaultdict(list)
@@ -371,6 +461,10 @@ def main():
     freeze.add_argument("--per-task", type=int, default=8)
     freeze.add_argument("--seed", type=int, default=2026100600)
     freeze.add_argument("--out", required=True)
+    independent = subs.add_parser("freeze-independent")
+    independent.add_argument("--capture-root", required=True)
+    independent.add_argument("--protocol-file", required=True)
+    independent.add_argument("--out", required=True)
     run = subs.add_parser("collect")
     run.add_argument("--inputs", required=True)
     run.add_argument("--final-manifest", required=True)
@@ -384,6 +478,9 @@ def main():
     args = parser.parse_args()
     if args.command == "freeze":
         write_new(args.out, freeze_inputs(args.capture_root, args.protocol_file, args.per_task, args.seed))
+    elif args.command == "freeze-independent":
+        from exp.independent_action_inputs import freeze_diagnostic_inputs
+        write_new(args.out, freeze_diagnostic_inputs(args.capture_root, args.protocol_file))
     elif args.command == "collect":
         collect(args)
     else:

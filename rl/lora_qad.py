@@ -124,6 +124,10 @@ class CapturedStateDataset(torch.utils.data.Dataset):
         for path in self.paths:
             sample = (self.derived_guard.load_sample(path) if self.derived_guard is not None
                       else torch.load(path, map_location="cpu", weights_only=True))
+            if (sample.get("source_kind") == "diagnostic_rollout"
+                    or sample.get("checkpoint_role") == "diagnostic_reference"
+                    or sample.get("training_eligible") is False):
+                raise ValueError(f"Independent diagnostic observation cannot enter QAD training: {path}")
             inputs = sample.get("inputs")
             if not isinstance(inputs, dict):
                 raise ValueError(f"Captured sample lacks inputs: {path}")

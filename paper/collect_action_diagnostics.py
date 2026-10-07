@@ -31,6 +31,11 @@ REPLAY = {
     "producer_import": "rl/probe_distill.py",
     "checkpoint_identity": "rl/checkpoint_identity.py",
 }
+INDEPENDENT_REPLAY = {
+    "input_producer": "exp/independent_action_inputs.py",
+    "diagnostic_protocol": "exp/independent_action_protocol.py",
+    "capture_sampling": "rl/capture_sampling.py",
+}
 TENSOR_TAG = "__finite_torch_tensor_v1__"
 
 
@@ -236,25 +241,9 @@ def _validate_payload(payload, receipt, arm, inputs, inputs_sha, final_sha):
             "Diagnostic checkpoint/input normalization differs")
 
 
-def _final_binding(folder, manifest, external):
-    final = read(folder / "final_manifest.json")
-    selection = read(folder / "selection.json")
-    inputs = read(folder / "inputs.json")
-    final_sha = identity(folder / "final_manifest.json")["sha256"]
-    require(manifest["final_manifest_sha256"] == final_sha, "Archived final manifest identity differs")
-    if external is not None:
-        require(identity(external)["sha256"] == final_sha, "Installed final manifest identity differs")
-    require(final.get("format") == "w4a4_recovery_v12_final_manifest"
-            and final.get("selection_uses_heldout") is False
-            and set(final.get("required_arms", [])) == set(ARMS)
-            and final.get("selected_pressure_recipe") == "rtn_w4a4_category", "Final v12 five-arm selection is incomplete")
-    require(final["protocol_sha256"] == manifest["protocol_sha256"] == inputs["protocol_sha256"]
-            == identity(folder / "protocol.json")["sha256"] == PROTOCOL_SHA256, "Frozen v12 protocol differs")
-    require(final["selection_sha256"] == identity(folder / "selection.json")["sha256"]
-            and selection["protocol_sha256"] == PROTOCOL_SHA256, "Archived selection identity differs")
+def _legacy_inputs(inputs, protocol):
     require(inputs.get("format") == "gr00t_action_inputs_v1" and inputs.get("purpose") in
             ("teacher_supervision", "collection", "development"), "Undeclared or heldout diagnostic inputs")
-    protocol = read(folder / "protocol.json")
     allowed = set(protocol["partitions"][inputs["purpose"]]["init_state_indices"])
     require(not allowed.intersection(protocol["partitions"]["heldout"]["init_state_indices"]), "Diagnostic/heldout partitions overlap")
     require(all(s["init_state_index"] in allowed for s in inputs["samples"]), "Diagnostic sample outside partition")
@@ -268,6 +257,173 @@ def _final_binding(folder, manifest, external):
     require(len({s["path"] for s in inputs["samples"]}) == len(inputs["samples"]), "Repeated diagnostic sample")
     require([s["seed"] for s in inputs["samples"]] == list(range(inputs["seed"], inputs["seed"] + len(inputs["samples"]))),
             "Frozen diagnostic seed sequence differs")
+
+
+def _independent_inputs(folder, manifest, inputs, original, final, selection):
+    """Revalidate the independent protocol and sample ledger without live paths.
+
+    Camera tensors and model weights remain hash-only. Live collection audits
+    them before export; this portable layer checks the archived receipt chain,
+    declared time-rank selection and exact metric tensors, never reruns a model.
+    """
+    diagnostic = read(folder / "diagnostic_protocol.json")
+    diagnostic_sha = identity(folder / "diagnostic_protocol.json")["sha256"]
+    require(manifest.get("format") == "gr00t_action_publication_v2"
+            and inputs.get("purpose") == "diagnostics"
+            and inputs.get("interpretation") == "independent_observation_diagnostic_not_training_or_success_rate",
+            "Independent diagnostic interpretation differs")
+    require(inputs["protocol_sha256"] == manifest.get("diagnostic_protocol_sha256") == diagnostic_sha
+            and diagnostic_sha != PROTOCOL_SHA256
+            and inputs["original_model_protocol_sha256"] == PROTOCOL_SHA256,
+            "Independent/original protocol identities differ")
+    require(diagnostic.get("format") == "independent_action_diagnostic_protocol_v1"
+            and diagnostic.get("status") == "frozen", "Independent protocol is not frozen")
+    settings = diagnostic["diagnostics"]
+    expected_settings = {
+        "reference_arm": "bf16", "source_kind": "diagnostic_rollout", "checkpoint_role": "diagnostic_reference",
+        "capture_every": 4, "capture_max_per_episode": 0, "success_only": False,
+        "windows_per_episode": 4, "sampling": "stratified_time", "noise_seeds": [2026100700, 2026100701],
+        "training_allowed": False, "model_selection_allowed": False,
+        "allowed_operations": ["capture", "action_inference", "compare"],
+        "interpretation": "independent_observation_action_diagnostic_not_success_rate_or_new_task_generalization"}
+    require(settings == expected_settings, "Independent diagnostic allowed use or sampling differs")
+    partition = diagnostic["partitions"]["diagnostics"]
+    require(set(diagnostic["partitions"]) == {"diagnostics"}
+            and partition["init_state_indices"] == [29] and partition["episodes_per_task"] == 1,
+            "Independent diagnostic partition differs")
+    used = {i for part in original["partitions"].values() for i in part["init_state_indices"]}
+    for key in ("excluded_historical_heldout", "excluded_historical_smoke"):
+        used.update(original.get("ledger", {}).get(key, []))
+    require(29 not in used, "Independent diagnostic bank overlaps original partitions")
+    reference = diagnostic["reference"]
+    require(inputs["final_reference"] == reference["source_final"]
+            and reference["source_final"]["sha256"] == manifest["final_manifest_sha256"],
+            "Independent final reference differs")
+    for role, item in reference.items():
+        if role not in ("source_final", "source_selection", "source_run", "source_comparison", "original_model_protocol"):
+            continue
+        archived = manifest["diagnostic_reference_files"][role]
+        require(archived["source_path"] == item["path"]
+                and identity(_local(folder, archived["path"])) == {key: item[key] for key in ("bytes", "sha256")},
+                "Archived independent reference differs: " + role)
+    require(reference["original_model_protocol"]["sha256"] == PROTOCOL_SHA256
+            and reference["source_selection"]["sha256"] == final["selection_sha256"]
+            and reference["source_comparison"] == final["heldout_comparison"],
+            "Independent reference is not the original final selection")
+    require(read(_local(folder, manifest["diagnostic_reference_files"]["source_run"]["path"]))["status"] == "complete",
+            "Independent reference run is incomplete")
+    require(diagnostic["evaluation_contract"] == reference["evaluation_contract"]
+            and all(original["evaluation_contract"].get(k) == v for k, v in diagnostic["evaluation_contract"].items())
+            and diagnostic["quantization_scope"] == reference["quantization_scope"] == original["quantization_scope"],
+            "Independent/model inference contracts differ")
+    require(set(reference["arms"]) == set(ARMS), "Independent reference requires five arms")
+    for arm in ARMS:
+        selected = _selected(final, selection, arm)
+        item = reference["arms"][arm]
+        receipt = read(folder / "runs" / arm / "manifest.json")
+        require(item["model_identity"] == selected and item["checkpoint"] == receipt["checkpoint"]
+                and item["checkpoint_files"] == receipt["checkpoint_files"],
+                "Independent selected arm identity differs: " + arm)
+    sources = manifest["capture_sources"]
+    require(set(sources) == set(inputs["source_files"]), "Independent capture source inventory differs")
+    for origin, sha in inputs["source_files"].items():
+        record = sources[origin]
+        require(record["sha256"] == sha and identity(_local(folder, record["path"]))["sha256"] == sha,
+                "Independent capture source identity differs")
+    def captured(path):
+        require(str(path) in sources, "Independent capture receipt missing: " + str(path))
+        return read(_local(folder, sources[str(path)]["path"]))
+    capture_root = PurePosixPath(inputs["capture_root"])
+    capture_manifest = captured(capture_root.parent / "eval_manifest.json")
+    capture_summary = captured(capture_root.parent / "summary.json")
+    require(capture_manifest["purpose"] == "diagnostics" and capture_manifest["protocol_sha256"] == diagnostic_sha
+            and capture_manifest["checkpoint"] == reference["arms"]["bf16"]["checkpoint"]
+            and capture_manifest["checkpoint_files"] == reference["arms"]["bf16"]["checkpoint_files"]
+            and capture_manifest["init_state_indices"] == [29] and capture_manifest["episodes"] == 1
+            and capture_manifest["tasks"] == diagnostic["tasks"]
+            and capture_summary.get("checkpoint_files_verified_unchanged") is True,
+            "Independent observation capture identity differs")
+    tasks = diagnostic["tasks"]
+    require(len(tasks) == len(set(tasks)) == original["evaluation_contract"]["task_count"]
+            and set(inputs["temporal_coverage"]) == set(tasks), "Independent task coverage differs")
+    seeds = inputs["noise_seeds"]
+    require(seeds == settings["noise_seeds"] and inputs["seed"] == seeds[0]
+            and inputs["windows_per_episode"] == settings["windows_per_episode"]
+            and inputs["selection"] == "stratified query ranks; no success filtering",
+            "Independent input sampling declaration differs")
+    samples = inputs["samples"]
+    require(len(samples) == inputs["sample_count"] > 0
+            and len({(row["path"], row["seed"]) for row in samples}) == len(samples),
+            "Repeated diagnostic (path,seed) sample")
+    # Reuse the archived producer's rank function instead of inventing a
+    # second sampler. This source was fixed and checked before collection.
+    spec = importlib.util.spec_from_file_location("_archived_capture_sampling", folder / "sources/recompute/rl/capture_sampling.py")
+    sampling = importlib.util.module_from_spec(spec)
+    bytecode_before = sys.dont_write_bytecode
+    try:
+        sys.dont_write_bytecode = True
+        spec.loader.exec_module(sampling)
+    finally:
+        sys.dont_write_bytecode = bytecode_before
+    expected, observation_index = [], 0
+    for task in tasks:
+        capture = captured(capture_root / task / "capture_manifest.json")
+        counts_path = capture_root / task / "capture_counts.json"
+        counts = captured(counts_path)
+        require(capture.get("purpose") == capture.get("finalized_purpose") == "diagnostics"
+                and capture.get("finalized") is True
+                and capture.get("source_kind") == "diagnostic_rollout"
+                and capture.get("checkpoint_role") == "diagnostic_reference"
+                and capture["capture_counts_sha256"] == sources[str(counts_path)]["sha256"],
+                "Independent candidate receipt differs")
+        groups = {}
+        for row in capture["candidates"]:
+            groups.setdefault(row["episode_index"], []).append(row)
+        require(set(groups) == {0}, "Independent candidate episode coverage differs")
+        temporal = []
+        for episode, rows in sorted(groups.items()):
+            rows.sort(key=lambda row: row["episode_call"])
+            ranks = sampling.select_indices(len(rows), settings["windows_per_episode"], "stratified")
+            success = capture["scored_result"]["results"][episode]
+            temporal.append({"episode_index": episode, "candidate_count": len(rows),
+                "actual_queries": counts["episode_query_counts"][str(episode)],
+                "selected_ranks": ranks, "episode_success": success})
+            for rank in ranks:
+                row = rows[rank]
+                for noise_index, seed in enumerate(seeds):
+                    expected.append({"path": str(capture_root / task / row["filename"]), "sha256": row["sha256"],
+                        "task": task, "seed": seed, "noise_index": noise_index, "observation_index": observation_index,
+                        "init_state_index": 29, "episode_index": episode, "server_call": row["server_call"],
+                        "episode_call": row["episode_call"], "episode_success": success})
+                observation_index += 1
+        require(inputs["temporal_coverage"][task] == temporal, "Independent temporal selection differs")
+    require(samples == expected and inputs["unique_observations"] == observation_index
+            and len({row["path"] for row in samples}) == observation_index,
+            "Independent observations/noise pairing differs from candidate ledger")
+
+
+def _final_binding(folder, manifest, external):
+    final = read(folder / "final_manifest.json")
+    selection = read(folder / "selection.json")
+    inputs = read(folder / "inputs.json")
+    final_sha = identity(folder / "final_manifest.json")["sha256"]
+    require(manifest["final_manifest_sha256"] == final_sha, "Archived final manifest identity differs")
+    if external is not None:
+        require(identity(external)["sha256"] == final_sha, "Installed final manifest identity differs")
+    require(final.get("format") == "w4a4_recovery_v12_final_manifest"
+            and final.get("selection_uses_heldout") is False
+            and set(final.get("required_arms", [])) == set(ARMS)
+            and final.get("selected_pressure_recipe") == "rtn_w4a4_category", "Final v12 five-arm selection is incomplete")
+    require(final["protocol_sha256"] == manifest["protocol_sha256"]
+            == identity(folder / "protocol.json")["sha256"] == PROTOCOL_SHA256, "Frozen v12 protocol differs")
+    require(final["selection_sha256"] == identity(folder / "selection.json")["sha256"]
+            and selection["protocol_sha256"] == PROTOCOL_SHA256, "Archived selection identity differs")
+    protocol = read(folder / "protocol.json")
+    if inputs.get("format") == "gr00t_action_inputs_v2":
+        _independent_inputs(folder, manifest, inputs, protocol, final, selection)
+    else:
+        require(inputs["protocol_sha256"] == PROTOCOL_SHA256, "Frozen input protocol differs")
+        _legacy_inputs(inputs, protocol)
     require(manifest["inputs_sha256"] == identity(folder / "inputs.json")["sha256"], "Archived input manifest identity differs")
     evidence = read(folder / "final_evidence.json")
     require(evidence.get("status") == "complete" and evidence["source"]["final_manifest"]["sha256"] == final_sha,
@@ -280,7 +436,8 @@ def verify(folder, final_manifest=None):
     cpu_only()
     folder = Path(folder).resolve(strict=True)
     manifest = read(folder / "manifest.json")
-    require(manifest.get("format") == "gr00t_action_publication_v1" and manifest.get("status") == "complete",
+    require(manifest.get("format") in ("gr00t_action_publication_v1", "gr00t_action_publication_v2")
+            and manifest.get("status") == "complete",
             "Incomplete action publication archive")
     listed = manifest.get("files", {})
     require(isinstance(listed, dict) and listed, "Missing archive file inventory")
@@ -310,15 +467,20 @@ def verify(folder, final_manifest=None):
                     "Recorded inference source missing/changed: " + origin)
         payloads[arm] = payload
     replay_root = folder / "sources/recompute"
-    for role, relative in REPLAY.items():
+    independent = inputs.get("format") == "gr00t_action_inputs_v2"
+    dependencies = {**REPLAY, **(INDEPENDENT_REPLAY if independent else {})}
+    for role, relative in dependencies.items():
         recorded = manifest["recompute_dependencies"][role]
         require(recorded["path"] == "sources/recompute/" + relative
                 and identity(_local(folder, recorded["path"])) == {k: recorded[k] for k in ("bytes", "sha256")},
                 "CPU replay dependency differs")
     producer_sha = manifest["recompute_dependencies"]["producer"]["sha256"]
-    require(inputs["implementation_sha256"] == producer_sha, "Input producer source differs")
+    input_producer_sha = manifest["recompute_dependencies"]["input_producer"]["sha256"] if independent else producer_sha
+    require(inputs["implementation_sha256"] == input_producer_sha, "Input producer source differs")
     for arm in ARMS:
         require(producer_sha in payloads[arm]["source_files"].values(), "Inference producer not in source receipt")
+        if independent:
+            require(input_producer_sha in payloads[arm]["source_files"].values(), "Independent input producer not in source receipt")
     with comparator(replay_root) as module:
         comparisons = {arm: module.compare(payloads["bf16"], payloads[arm]) for arm in ARMS[1:]}
     summary = read(folder / "summary.json")
@@ -347,14 +509,20 @@ def collect(source_root, final_manifest, out):
     completed = extract(final_path.parent)
     final, inputs = read(final_path), read(source_root / "inputs.json")
     require(completed["source"]["final_manifest"]["sha256"] == identity(final_path)["sha256"], "Final changed during extraction")
-    require(inputs["protocol_sha256"] == final["protocol_sha256"] == PROTOCOL_SHA256, "Diagnostic final protocol differs")
+    independent = inputs.get("format") == "gr00t_action_inputs_v2"
+    model_protocol = inputs["original_model_protocol_sha256"] if independent else inputs["protocol_sha256"]
+    require(model_protocol == final["protocol_sha256"] == PROTOCOL_SHA256, "Diagnostic final protocol differs")
     initial_final = identity(final_path)
     initial_inputs = identity(source_root / "inputs.json")
     payloads, receipts, raw_records, log_paths = {}, {}, {}, {}
     with comparator(ROOT) as module:
-        require(inputs["implementation_sha256"] == identity(ROOT / REPLAY["producer"])["sha256"], "Frozen input producer differs")
-        require(inputs == module.freeze_inputs(inputs["capture_root"], inputs["protocol_file"],
-                                               inputs["samples_per_task"], inputs["seed"]), "Frozen input sources differ")
+        input_producer = INDEPENDENT_REPLAY["input_producer"] if independent else REPLAY["producer"]
+        require(inputs["implementation_sha256"] == identity(ROOT / input_producer)["sha256"], "Frozen input producer differs")
+        if independent:
+            module.validate_input_manifest(inputs)
+        else:
+            require(inputs == module.freeze_inputs(inputs["capture_root"], inputs["protocol_file"],
+                                                   inputs["samples_per_task"], inputs["seed"]), "Frozen input sources differ")
         for arm in ARMS:
             folder = source_root / arm
             raw_records[arm] = {"source_path": str(folder / "actions.pt"), **identity(folder / "actions.pt")}
@@ -378,6 +546,22 @@ def collect(source_root, final_manifest, out):
         _copy(final["selection_file"], stage, "selection.json")
         _copy(final["protocol_file"], stage, "protocol.json")
         _copy(source_root / "inputs.json", stage, "inputs.json")
+        capture_sources, diagnostic_reference_files = {}, {}
+        if independent:
+            _copy(inputs["protocol_file"], stage, "diagnostic_protocol.json")
+            diagnostic = read(inputs["protocol_file"])
+            for role in ("source_final", "source_selection", "source_run", "source_comparison", "original_model_protocol"):
+                record = diagnostic["reference"][role]
+                diagnostic_reference_files[role] = {"source_path": record["path"],
+                    **_copy(record["path"], stage, "diagnostic_reference/" + role + ".json")}
+            for origin, sha in inputs["source_files"].items():
+                require(Path(origin).suffix in (".json", ".log", ".txt"), "Only diagnostic text receipts may be archived")
+                require(identity(origin)["sha256"] == sha, "Diagnostic capture source changed before export")
+                relative = "capture_sources/" + sha + "/" + Path(origin).name
+                if (stage / relative).exists():
+                    capture_sources[origin] = {"path": relative, **identity(origin)}
+                else:
+                    capture_sources[origin] = _copy(origin, stage, relative)
         write(stage / "final_evidence.json", completed)
         sources = {}
         for origin, sha in payloads["bf16"]["source_files"].items():
@@ -388,7 +572,7 @@ def collect(source_root, final_manifest, out):
             else:
                 sources[origin] = _copy(origin, stage, relative)
         dependencies = {role: _copy(ROOT / relative, stage, "sources/recompute/" + relative)
-                        for role, relative in REPLAY.items()}
+                        for role, relative in {**REPLAY, **(INDEPENDENT_REPLAY if independent else {})}.items()}
         _copy(__file__, stage, "sources/recompute/paper/collect_action_diagnostics.py")
         for arm in ARMS:
             _copy(source_root / arm / "manifest.json", stage, "runs/" + arm + "/manifest.json")
@@ -402,13 +586,16 @@ def collect(source_root, final_manifest, out):
         write(stage / "summary.json", {"format": "gr00t_action_comparisons_v1",
               "final_manifest_sha256": initial_final["sha256"], "inputs_sha256": initial_inputs["sha256"],
               "comparisons": comparisons})
-        manifest = {"format": "gr00t_action_publication_v1", "status": "complete",
+        manifest = {"format": "gr00t_action_publication_v2" if independent else "gr00t_action_publication_v1", "status": "complete",
                     "final_manifest_sha256": initial_final["sha256"], "inputs_sha256": initial_inputs["sha256"],
                     "protocol_sha256": PROTOCOL_SHA256, "sources": sources, "recompute_dependencies": dependencies,
                     "arms": {arm: {"raw_actions": raw_records[arm]} for arm in ARMS},
                     "scope": "Exact finite-tensor metric replay; camera inputs and model weights are identified by hash only. Raw .pt bytes/hash are recorded, not copied.",
                     "replay_dependency_scope": "CPU helper sources are snapshotted at export; recorded inference source hashes retain their original collection identities.",
                     "files": {p.relative_to(stage).as_posix(): identity(p) for p in sorted(stage.rglob("*")) if p.is_file()}}
+        if independent:
+            manifest.update(diagnostic_protocol_sha256=inputs["protocol_sha256"], capture_sources=capture_sources,
+                            diagnostic_reference_files=diagnostic_reference_files)
         write(stage / "manifest.json", manifest)
         verify(stage, final_path)
         require(identity(final_path) == initial_final and identity(source_root / "inputs.json") == initial_inputs,
