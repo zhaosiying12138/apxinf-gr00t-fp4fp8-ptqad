@@ -150,6 +150,23 @@ def load_verified_inventory(final: dict) -> dict:
     return inventory
 
 
+def training_budget_text() -> str:
+    """Render training accounting from the selected v12 cost receipt."""
+    costs = load("training/costs.json")
+    training = costs.get("training", {})
+    rows = []
+    for name, label in (("qad", "QAD"), ("continued_qad", "continued-QAD"), ("qad_opd", "OPD")):
+        item = training.get(name, {})
+        steps = item.get("optimizer_steps")
+        draws = item.get("demonstration_window_draws")
+        if not (isinstance(steps, int) and steps > 0 and isinstance(draws, int) and draws > 0):
+            raise ValueError(f"Training receipt lacks verified budget for {name}")
+        extra = item.get("scheduled_teacher_backward_passes")
+        suffix = f"，教师探针反向 {extra:,} 次" if isinstance(extra, int) and extra > 0 else ""
+        rows.append(f"{label} 完成 {steps:,} 次优化器更新，演示窗口读取 {draws:,} 次{suffix}")
+    return "本轮训练预算由收据逐阶段给出：" + "；".join(rows) + "。这些是实际加载器预算和完成步数，不是名义样本数。"
+
+
 def render_main(final: dict, diagnostic_text: str, gptq_text: str, inventory: dict) -> dict[str, str]:
     """Fill the polished manuscript in memory, after the caller verifies evidence."""
     validate_inventory_name(final, inventory)
@@ -171,6 +188,7 @@ def render_main(final: dict, diagnostic_text: str, gptq_text: str, inventory: di
               "net_compression": compression,
               "opd_delta_pp": f"{final['uncertainty']['contrasts']['opd_vs_continued_qad']['difference_pp']:+.2f}",
               "action_diagnostics": diagnostic_text, "gptq_reference": gptq_text,
+              "training_budget": training_budget_text(),
               "conclusion": result_conclusion(final, compression)}
     rendered = {}
     for name in TEMPLATE_NAMES:
