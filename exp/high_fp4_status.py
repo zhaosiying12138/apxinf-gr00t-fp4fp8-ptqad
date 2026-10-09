@@ -98,16 +98,39 @@ def status(development, recovery):
                     log = recovery / "logs" / (folder.name + ".log")
                     if log.is_file():
                         with log.open("rb") as stream:
-                            stream.seek(max(0, log.stat().st_size - 65536))
+                            offset = max(0, log.stat().st_size - 65536)
+                            stream.seek(offset)
                             tail = stream.read().decode(errors="replace")
-                        progress = re.findall(r"\|\s*(\d+)/(\d+)\s*\[", tail)
+                        if offset:
+                            # A truncated loader prefix must not look like an
+                            # unlabelled training bar at the start of the tail.
+                            tail = re.sub(r"^[^\r\n]*", "", tail, count=1)
+                        request = load(folder / "orchestrator_training_request.json") or {}
+                        environment = request.get("environment")
+                        value = environment.get("QAD_STEPS") if isinstance(environment, dict) else None
+                        expected_steps = int(str(value)) if re.fullmatch(r"[0-9]+", str(value)) else 0
+                        # Only Trainer's unlabelled bar records optimizer steps.
+                        # Model loading and dataset initialization have labels.
+                        progress = []
+                        for line in tail.splitlines():
+                            match = re.match(
+                                r"[ \t]*\d{1,3}%\|[^\r\n]*?\|[ \t]*(\d+)/(\d+)[ \t]*\[",
+                                line,
+                            )
+                            if match:
+                                done, total = map(int, match.groups())
+                                if (0 <= done <= total and total > 0
+                                        and (expected_steps <= 0 or total == expected_steps)):
+                                    progress.append((done, total))
                         stages[folder.name] = {
                             "status": "incomplete",
                             "log": str(log),
                             "last_log_update_unix": log.stat().st_mtime,
                         }
+                        if expected_steps > 0:
+                            stages[folder.name]["requested_optimizer_steps"] = expected_steps
                         if progress:
-                            done, total = map(int, progress[-1])
+                            done, total = progress[-1]
                             stages[folder.name].update(
                                 logged_optimizer_steps=done,
                                 requested_optimizer_steps=total,
