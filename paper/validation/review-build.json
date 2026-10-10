@@ -74,33 +74,33 @@
   "files": [
     {
       "path": "paper.html",
-      "sha256": "7c0d7f7c58a984d1068128027c4962490203854eef5ca7ed4daac42d334a7d2f",
-      "bytes": 4883492
+      "sha256": "f461fe01fef029bfc23eaa13a3beaa1d35370260766eb704194eb25995707868",
+      "bytes": 4887405
     },
     {
       "path": "zhihu/article.md",
-      "sha256": "c3dc278812d312c5f3149bd573d2c615edcbe5d8f95a075a88ce82ffeeaeef87",
-      "bytes": 140911
+      "sha256": "94ebdd6b7bfb2e17127ff29e7ceb3e08cfa009ad4d7b732eea8e8d398eb4ea2a",
+      "bytes": 143200
     },
     {
       "path": "meta.json",
-      "sha256": "5d91ddf89f2c3218b27632b4dd619e7bad650067729f74d3f7b3a967066a7b2f",
+      "sha256": "0848bd09cdc2933dc19b31c0efe74a6e8bc750f7bcd8038c62a7b2de179664db",
       "bytes": 280
     },
     {
       "path": "figures.json",
-      "sha256": "234bfa30c0f5a34634123ae8de467c97f29d6952317742963731f08e3e800e2b",
-      "bytes": 8087
+      "sha256": "6fcf0a28db68dd7b27b42560c26fad7b2c2eef5624ffc93c007f2ba071117b0b",
+      "bytes": 8663
     },
     {
       "path": "sections/01-摘要与引言.md",
-      "sha256": "682e544e2cce620a6d154fe8b7978d5a5d42804061db031927a38d75bb8699cf",
-      "bytes": 10344
+      "sha256": "6c71d1aa2a8406045ed509de99cd691184b3270b22ec77427654427f356107ce",
+      "bytes": 10490
     },
     {
       "path": "sections/02-背景与相关工作.md",
-      "sha256": "99bfaeaa57d437c3e99bdac006401b9383ee5a220f54e4a11513c2ced3318a8e",
-      "bytes": 16906
+      "sha256": "f2fdc3cd42072a41c7f827b77e5b8827bfd7a72440a3d4dfaf37b5bf0cef530e",
+      "bytes": 18025
     },
     {
       "path": "sections/03-方法.md",
@@ -109,13 +109,13 @@
     },
     {
       "path": "sections/04-实验.md",
-      "sha256": "8a2ef6ef502c24b3847cfc98c2a555f019924f90fa48bb9ee4ce36055530b760",
-      "bytes": 6939
+      "sha256": "dfe7f00833908380eca451226db245b12ede3f4ad575edd5e44f567c80d62186",
+      "bytes": 6596
     },
     {
       "path": "sections/05-讨论与结论.md",
-      "sha256": "0217833e94fa714625434d55f133fdb6abd5a049442619f78b107f67dbb1f32d",
-      "bytes": 1295
+      "sha256": "b63d7c22c85643c0b7ed96ce1ca1b87f9ecd4cf8b3944e43a83b6ad45e970ebe",
+      "bytes": 1916
     },
     {
       "path": "sections/14-附录A-核心源码走读与APXInf框架解析.md",
@@ -124,8 +124,8 @@
     },
     {
       "path": "sections/15-附录B-复现与证据索引.md",
-      "sha256": "8f59aa83325ebba529c2834efad9ddcec738cffbc670db833c29a61dc8ee84a1",
-      "bytes": 23195
+      "sha256": "34755d5463d4a852074f06b1dd166b082a18535670e8d6719fd8ecfee98c12c7",
+      "bytes": 23363
     },
     {
       "path": "sections/15-附录C-执行基准与完整测量.md",

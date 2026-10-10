@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Prepare, but never run, the seven v12 W4A4 screenshot commands.
 
-The generated shell entry points call the repository's existing QAD, teacher
-cache, recovery server, and LIBERO rollout programs.  This CPU-only step
-rejects an incomplete v12 final manifest or missing input instead of falling
-back to an older experiment.
+The default verify-completed mode reads finalized original evidence without
+training, quantization, rollout or GPU execution. The original smoke renderer is
+retained only for provenance reconstruction via explicit legacy-smoke mode.
+Both preparation modes require a completed v12 final manifest.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -485,7 +486,7 @@ printf '%s\n' "$(date -u +%FT%TZ)" > "$OUT/completed_utc.txt"
         write_script(out / f"{name}.sh", text)
     script_files = {path.name: {"bytes": path.stat().st_size, "sha256": digest(path)}
                     for path in sorted(out.glob("*.sh"))}
-    plan = {"version": 3, "scope": "v12_w4a4_capture_preparation", "gpu_executed": False,
+    plan = {"version": 3, "scope": "v12_w4a4_capture_preparation", "capture_mode": "legacy-smoke", "gpu_executed": False,
             "final_manifest": str(bundle["final_path"]), "final_manifest_sha256": digest(bundle["final_path"]),
             "protocol": str(bundle["protocol_path"]), "protocol_sha256": digest(bundle["protocol_path"]),
             "scratch_root": str(out / "scratch"), "selected_qad_learning_rate": lr,
@@ -539,16 +540,83 @@ written inside that run's scratch directory and is required when
     return plan
 
 
+def render_completed_scripts(out, bundle, evidence_root):
+    """Prepare seven read-only commands; never invoke the legacy smoke path."""
+    helper = Path(__file__).with_name("verify_completed_capture.py")
+    spec = importlib.util.spec_from_file_location("completed_capture", helper)
+    audit = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(audit)
+    contract = audit.source_contract(evidence_root, digest(bundle["final_path"]))
+    need(contract["protocol_sha256"] == bundle["final"]["protocol_sha256"],
+         "capture evidence belongs to another protocol")
+    plan = {"version": 4, "scope": "v12_w4a4_capture_preparation",
+            "capture_mode": audit.MODE, "gpu_executed": False,
+            "final_manifest": str(bundle["final_path"]),
+            "final_manifest_sha256": digest(bundle["final_path"]),
+            "protocol": str(bundle["protocol_path"]),
+            **contract, "execution_order": list(audit.FIGURES),
+            "stages": audit.CAPTIONS,
+            "script_dependencies": {"all_entrypoints": [COMMON_SCRIPT, helper.name]},
+            "note": "Real CPU verification of completed original evidence; no live experiment replay. All 17 publication screenshot slots remain required."}
+    # Reject invalid completed stage records before writing any command set.
+    for figure in audit.FIGURES:
+        audit.audit(plan, figure)
+    out.mkdir(parents=True, exist_ok=False)
+    (out / helper.name).write_bytes(helper.read_bytes())
+    common = """#!/usr/bin/env bash
+set -euo pipefail
+export CUDA_VISIBLE_DEVICES= HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 PYTHONDONTWRITEBYTECODE=1
+CAPTURE_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+"""
+    write_script(out / COMMON_SCRIPT, common)
+    for figure in audit.FIGURES:
+        write_script(out / (figure + ".sh"), f"""#!/usr/bin/env bash
+set -euxo pipefail
+source "$(dirname "$0")/{COMMON_SCRIPT}"
+python3 -B "$CAPTURE_ROOT/{helper.name}" --plan "$CAPTURE_ROOT/plan_v12_completed.json" --figure {q(figure)}
+""")
+    plan["script_files"] = {path.name: {"bytes": path.stat().st_size, "sha256": digest(path)}
+                            for path in sorted(out.iterdir()) if path.suffix in (".sh", ".py")}
+    text = json.dumps(plan, ensure_ascii=False, indent=2) + "\n"
+    (out / "plan.json").write_text(text, encoding="utf-8")
+    (out / "plan_v12_completed.json").write_text(text, encoding="utf-8")
+    (out / "README.md").write_text("""# v12 completed-evidence screenshot commands
+
+Mode: `verify-completed`. These seven commands verify finalized original log and
+metadata bytes on CPU. They do not train, quantize, collect trajectories, build a
+cache, launch a policy server, or repeat an evaluation. No GPU status is polled.
+Screenshots document execution of this verification, not live model execution.
+
+Run the seven entrypoints through the approved screenshot wrapper. Keep the
+unfiltered verification output, window binding and taskbar-crop proof, inspect
+the actual screenshot, then register it with `paper/record_capture.py`.
+Archive `common_v12.sh`, `verify_completed_capture.py` and
+`plan_v12_completed.json` as supporting files for each screenshot. The plan binds
+every source file to the final release, and the verifier rejects modified bytes.
+All 17 publication screenshot slots remain required; this replaces seven slots.
+Large private tensor files are not reopened: relevant figures explicitly verify
+their previously recorded identities, not the tensors themselves.
+""", encoding="utf-8")
+    return plan
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--final-manifest", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--mode", choices=("verify-completed", "legacy-smoke"), default="verify-completed",
+                        help="Default reads completed evidence only; legacy-smoke reconstructs the prior GPU script provenance and must not be run during the frozen release")
+    parser.add_argument("--evidence-root", type=Path, default=ROOT / "paper/evidence",
+                        help="Installed final evidence, required by verify-completed mode")
     args = parser.parse_args(argv)
     if args.out.exists():
         raise FileExistsError("refusing existing preparation output; choose a new --out")
     bundle = validate_final(args.final_manifest)
-    values = validate_inputs(bundle)
-    plan = render_scripts(args.out.resolve(), bundle, values)
+    if args.mode == "verify-completed":
+        plan = render_completed_scripts(args.out.resolve(), bundle, args.evidence_root)
+    else:
+        values = validate_inputs(bundle)
+        plan = render_scripts(args.out.resolve(), bundle, values)
     print(json.dumps({"status": "prepared", "out": str(args.out.resolve()),
                       "gpu_executed": plan["gpu_executed"], "scripts": 7}, ensure_ascii=False))
     return 0

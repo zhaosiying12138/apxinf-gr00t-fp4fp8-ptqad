@@ -184,11 +184,11 @@ def capture_table() -> str:
     require(set(provenance["capture_rows"]) == set(CAPTURE_ORDER),
             "verified screenshot registry differs from README order")
     labels = {
-        "shot_bake": "RTN 配方与编码预算", "shot_collect": "BF16 教师轨迹采集",
+        "shot_bake": "已完成 RTN 配方与编码预算核验", "shot_collect": "已完成教师演示来源核验",
         "shot_packed": "π0.5 NVFP4 打包", "shot_probe": "探针和尾批梯度",
-        "shot_qad": "W4A4 QAD 训练", "shot_opdcache": "学生状态教师缓存",
-        "shot_opd": "QAD→OPD 续训", "shot_qat": "激活重算与 LoRA 梯度",
-        "shot_evalserver": "W4A4 服务健康 RPC", "shot_rollout": "LIBERO 闭环",
+        "shot_qad": "已完成 QAD 训练证据核验", "shot_opdcache": "已完成教师缓存证据核验",
+        "shot_opd": "已完成 OPD 续训证据核验", "shot_qat": "激活重算与 LoRA 梯度",
+        "shot_evalserver": "已完成正式评测服务日志核验", "shot_rollout": "已完成学生闭环采集证据核验",
         "shot_verify": "量化格点和 checkpoint 校验", "shot_fp8probe": "FP8 描述符探针",
         "shot_gemm": "9 种 GEMM 形状", "shot_opbench": "18 个实际层形状",
         "shot_gr00t": "GR00T BF16 执行", "shot_pi05": "π0.5 BF16 执行",
@@ -408,7 +408,7 @@ def main() -> None:
     for label, key in ARMS:
         item = arm(final, key)
         paper += f"| {label} | {item['successes']}/{item['episodes']}（{item['success_rate'] * 100:.2f}%） |\n"
-    paper += "\n主结果来自 `final_results.json`、`paired_comparison.json`、`final_manifest.json` 和每个 held-out 臂的原始 rollout/server 日志。`evidence/action_diagnostics/` 保存可复算的完整动作诊断，`evidence/gptq_reference/` 保存校准 GPTQ 参考的原始日志与独立配对统计。`validate_publication.py` 会拒绝缺失五臂或补充证据、旧协议 SHA、非 3840×2280 截图以及未完成状态。\n\n"
+    paper += "\n主结果来自 `final_results.json`、`paired_comparison.json`、`final_manifest.json` 和每个 held-out 臂的原始 rollout/server 日志。`evidence/action_diagnostics/` 保存可复算的完整动作诊断，`evidence/gptq_reference/` 保存绑定最终五臂清单的 GPTQ 未执行收据；不包含 GPTQ 结果。`validate_publication.py` 会拒绝缺失五臂、动作诊断或明确范围收据、旧协议 SHA、非 3840×2280 截图以及未完成状态。\n\n"
     paper += "截图登记见 [`evidence/captures.json`](evidence/captures.json) 与 [`evidence/retained_captures.json`](evidence/retained_captures.json)；图表和 HTML/知乎稿必须由根 README 的命令重建，不手工改生成文件。\n"
     (ROOT / "README.md").write_text(root, encoding="utf-8")
     (PAPER / "README.md").write_text(paper, encoding="utf-8")

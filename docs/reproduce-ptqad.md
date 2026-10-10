@@ -1,6 +1,6 @@
 # v12 NVFP4 W4A4：RTN-PTQ、QAD 与 OPD 复现
 
-本文档复现当前冻结的 v12 主线：**BF16 → 全覆盖 NVFP4 W4A4 RTN-PTQ → QAD → {continued-QAD，QAD+OPD}**。两个追加训练分支从同一 QAD 检查点分别开始，最后对五臂进行配对闭环评测。校准 GPTQ 是另列的同覆盖参考；主线 RTN 不采集 Hessian。
+本文档复现当前冻结的 v12 主线：**BF16 → 全覆盖 NVFP4 W4A4 RTN-PTQ → QAD → {continued-QAD，QAD+OPD}**。两个追加训练分支从同一 QAD 检查点分别开始，最后对五臂进行配对闭环评测。校准 GPTQ 对照未执行；主线 RTN 不采集 Hessian。下文训练和量化命令供独立复现，本轮发布已冻结这些阶段，不再重跑已完成实验。
 
 479 个可量化权重张量全部采用 NVFP4；运行时 469 个普通 Linear 与 7 个 CategorySpecificLinear 使用 W4A4 激活 QDQ，另外 3 个非 Linear 张量只做权重量化。QAD/OPD 使用独立的 BF16 LoRA 旁路，七个 category 银行保持冻结。这里的闭环执行器是 PyTorch 数值参考；原生 APXInf 算子和 π0.5 的验收单独进行。
 
@@ -129,6 +129,7 @@ export PROTOCOL_SRC="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"
 export PROTOCOL="$PROTOCOL_SRC"
 export RECOVERY="$RUN/recovery_v12"
 export PTQAD_ZMQ_TIMEOUT_MS=120000
+export PTQAD_SERVER_READY_TIMEOUT_S=600
 mkdir -p "$RUN"
 ```
 
@@ -234,11 +235,9 @@ python3 paper/install_final_evidence.py --verify paper/evidence
 python3 paper/collect_search_costs.py --run-dir "$RECOVERY" --out paper/evidence/search_costs
 python3 paper/collect_search_costs.py --verify paper/evidence/search_costs
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
-python3 paper/install_final_evidence.py --register-supplements paper/evidence --supplement-root paper/evidence
-python3 paper/install_final_evidence.py --verify paper/evidence
 ```
 
-安装器只迁移本轮科学证据和截图登记；上面的命令重新归档完整搜索成本。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
+安装器只迁移本轮科学证据和截图登记；上面的命令重新归档已完成的搜索成本。runtime、search_costs、action_diagnostics、GPTQ 未执行收据和 frontier_comparison 齐备后，再按下方补充证据步骤原子登记；缺项不会自动跳过。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
 
 ```bash
 "$PY" - "$RECOVERY" "$GR00T" "$PY" "$LIBERO_PY" <<'PY'
@@ -248,7 +247,8 @@ final = json.loads((pathlib.Path(run) / "final_manifest.json").read_text())
 round_dir = pathlib.Path(final["heldout_round"])
 command = [sys.executable, "paper/capture_runtime.py", "--run-dir", run,
            "--out", "paper/evidence/runtime", "--gr00t", groot,
-           "--server-python", server_python, "--rollout-python", rollout_python]
+           "--server-python", server_python, "--rollout-python", rollout_python,
+           "--source-file", "exp/source_snapshots/9615ab64fd4a9cba46defe31ab1d0d58a4dd344a9d1dac1cc40f03497af9f00a/run_recovery_eval.py"]
 for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd"):
     record = json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
     command += ["--checkpoint", f"{arm}={record['checkpoint']}"]
@@ -256,21 +256,27 @@ subprocess.run(command, check=True)
 PY
 ```
 
-### 补充动作诊断与校准 GPTQ
+### 补充证据与冻结范围
 
-以下步骤在主五臂全部完成、GPU 空闲后串行执行。它们使用独立输出，保留主实验的选模和评测协议。现有清单可复用，但采集、量化、评测及发布输出不得覆盖；遇到基础设施故障时先保留原日志，再按补充协议登记重试目录。
+本轮训练、新量化和搜索已于 2026 年 10 月 10 日冻结，未完成的 v12 开发集、held-out 正式评测与既定固定观测诊断可收尾。校准 GPTQ 补充未执行；不再收集 Hessian、不量化新权重、不启动 GPTQ 评测，不报告其成功率、配对统计或校准成本。范围决定保存在 [publication_scope_v12.json](../paper/publication_scope_v12.json)。
 
-```bash
+主五臂证据安装到 [paper/evidence/](../paper/evidence/) 后，用下面的 CPU 命令将该决定绑定到实际最终清单。它要求完整的当前五臂结果、准确的协议 SHA 和本次发布运行路径；已有目录、缺少范围决定或旧清单都会失败。
+
+~~~bash
+python3 paper/gptq_reference_publication.py --record-not-performed
+python3 paper/gptq_reference_publication.py --verify
+~~~
+
+动作诊断保留已授权的首次评测复现入口：主五臂全部结束、GPU 空闲后，对冻结的检查点按既定观测和噪声分别评测一次，不更新参数、不新建量化权重或搜索候选。已经冻结的 80 个观测清单可复用，不重新 rollout；已有输出禁止覆盖。执行顺序与来源核验保留如下。当前运行中的开发集与 held-out 评测享有优先权。
+
+~~~bash
 set -euo pipefail
 cd /home/zhaosiying/codebase/fp4vla
 PTQAD_ROOT="$PWD"
 PTQAD_GR00T=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
 PTQAD_PY="$PTQAD_GR00T/.venv/bin/python"
-PTQAD_BASE="$PTQAD_ROOT/weights/GR00T-N1.7-LIBERO/libero_10"
 PTQAD_RUN="$PTQAD_ROOT/results/reruns/rtn_w4a4_release_20261006_01"
 PTQAD_DIAG="$PTQAD_ROOT/paper/_build/w4a4_action_diagnostics_v12"
-PTQAD_CAL="$PTQAD_ROOT/paper/_build/captured_ptq_v12"
-PTQAD_GPTQ="$PTQAD_ROOT/results/supplement_gptq_capture_v12"
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 test -s "$PTQAD_RUN/recovery_v12/final_manifest.json"
 python3 - "$PTQAD_RUN/recovery_v12/run_manifest.json" <<'PY'
@@ -296,78 +302,28 @@ for arm in bf16 ptq qad continued_qad qad_opd; do
     --arm "$arm" --gr00t "$PTQAD_GR00T" --out "$PTQAD_DIAG/$arm" \
     > "$PTQAD_DIAG/$arm.log" 2>&1
 done
-if [ ! -e "$PTQAD_CAL/inputs.json" ]; then
-  CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
-    quant/ptq/captured_calibration.py \
-    --root "$PTQAD_RUN/teacher_supervision_v12_clean" \
-    --protocol-file exp/recovery_protocol_v12_rtn_w4a4.json \
-    --teacher "$PTQAD_BASE" --out "$PTQAD_CAL/inputs.json"
-fi
-python3 eval/compare_gptq_reference.py --preflight-only
-test ! -e "$PTQAD_GPTQ"
-mkdir -p "$PTQAD_GPTQ"
-(
-  cd "$PTQAD_GR00T"
-  OMP_NUM_THREADS=4 "$PTQAD_PY" "$PTQAD_ROOT/quant/ptq/collector.py" \
-    --base "$PTQAD_BASE" --out "$PTQAD_GPTQ/ordinary_h" \
-    --capture-manifest "$PTQAD_CAL/inputs.json" \
-    --recipe calib --windows 148 --batch 1 --seed 2026100601 \
-    --device cuda --cpu-threads 4
-) 2>&1 | tee "$PTQAD_GPTQ/ordinary_collect.log"
-CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
-  quant/ptq/verify_calibration.py \
-  --calib "$PTQAD_GPTQ/ordinary_h" --expected-windows 148
-OMP_NUM_THREADS=4 "$PTQAD_PY" quant/ptq/bake.py \
-  --base "$PTQAD_BASE" --out "$PTQAD_GPTQ/ordinary_parent" \
-  --recipe calib --calib "$PTQAD_GPTQ/ordinary_h/calib.pt" \
-  --calibration-mode required --gptq-damp 0.01 --device cuda \
-  2>&1 | tee "$PTQAD_GPTQ/ordinary_bake.log"
-(
-  cd "$PTQAD_GR00T"
-  OMP_NUM_THREADS=4 "$PTQAD_PY" "$PTQAD_ROOT/quant/ptq/collector_category.py" \
-    --parent "$PTQAD_GPTQ/ordinary_parent" --out "$PTQAD_GPTQ/category_h" \
-    --capture-manifest "$PTQAD_CAL/inputs.json" \
-    --windows 148 --batch 1 --seed 2026100601 --device cuda --cpu-threads 4
-) 2>&1 | tee "$PTQAD_GPTQ/category_collect.log"
-"$PTQAD_PY" exp/bake_gptq_reference_category.py
-export LIBERO_PYTHON="$PTQAD_GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python"
-export PTQAD_MEDIA_LIB=/home/zhaosiying/miniforge3/envs/media7/lib
-export PTQAD_ZMQ_TIMEOUT_MS=120000
-export FP4VLA_SCOPE=all
-"$PTQAD_PY" eval/run_recovery_eval.py \
-  --checkpoint "$PTQAD_GPTQ/w4a4_category" \
-  --out "$PTQAD_GPTQ/heldout_gptq" \
-  --protocol-file exp/recovery_protocol_v12_rtn_w4a4.json \
-  --purpose heldout --seed 970000 --episodes 16 --port 6980 \
-  --collection-manifest "$PTQAD_RUN/recovery_v12/artifacts/collection_qad/eval_manifest.json" \
-  --gr00t "$PTQAD_GR00T" --server-python "$PTQAD_PY" \
-  --rollout-python "$LIBERO_PYTHON"
-CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
-  eval/compare_gptq_reference.py --out "$PTQAD_GPTQ/paired_supplement.json"
-```
+~~~
 
-主证据安装到 `paper/evidence/` 后，将两项补充结果转换为可搬移证据。动作归档保存完整有限数值张量的 JSON，可重算动作误差；GPTQ 归档保存原始评测日志及统计源码，权重和 Hessian 以源端验收收据与哈希标识。两项均绑定同一个最终五臂清单。
+诊断完成后，以下 CPU 命令只归档已有输出。发布动作误差结论仍要求五臂的完整有限数值张量、实际噪声身份和指标重算全部通过。如果源输出不存在，发布门禁继续失败，不能以 GPTQ 的未执行决定跳过动作证据检查。
 
-```bash
-CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
-  paper/collect_action_diagnostics.py collect \
+~~~bash
+PTQAD_ROOT="$PWD"
+PTQAD_RUN="$PTQAD_ROOT/results/reruns/rtn_w4a4_release_20261006_01"
+PTQAD_DIAG="$PTQAD_ROOT/paper/_build/w4a4_action_diagnostics_v12"
+uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
+  python paper/collect_action_diagnostics.py collect \
   --source-root "$PTQAD_DIAG" \
   --final-manifest "$PTQAD_RUN/recovery_v12/final_manifest.json" \
   --out paper/evidence/action_diagnostics
-CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 "$PTQAD_PY" \
-  paper/collect_gptq_reference.py \
-  --report "$PTQAD_GPTQ/paired_supplement.json" \
-  --main-evidence paper/evidence --out paper/evidence/gptq_reference
 uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
   python paper/collect_action_diagnostics.py verify \
   --folder paper/evidence/action_diagnostics \
   --final-manifest paper/evidence/final_manifest.json
-uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
-  python paper/collect_gptq_reference.py \
-  --verify paper/evidence/gptq_reference --main-evidence paper/evidence
-```
+python3 paper/install_final_evidence.py --register-supplements paper/evidence --supplement-root paper/evidence
+python3 paper/install_final_evidence.py --verify paper/evidence
+~~~
 
-`requirements-evidence.txt` 固定 Ubuntu x86_64、Python 3.12 的官方 CPU PyTorch 2.9.0 wheel 及其 SHA，并使用 NumPy 1.26.4 重放指标；不需要 GPU，也不安装进正在训练的恢复环境。量化与推理仍使用安装章节中锁定的 GR00T 环境。
+补充登记仍要求 runtime、search_costs、action_diagnostics、gptq_reference 与 frontier_comparison 全部齐备；GPTQ 目录只含明确的未执行收据，禁止与测量结果混用。其余已声明的证据标准保持完整。requirements-evidence.txt 固定 Ubuntu x86_64、Python 3.12 的官方 CPU PyTorch 2.9.0 wheel 及 SHA，并使用 NumPy 1.26.4 重放指标；不需要 GPU，也不安装进恢复环境。
 
 ### 5. 截图登记
 
@@ -375,10 +331,14 @@ uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
 
 ```bash
 CAPTURE_ROOT="$(dirname "$RECOVERY")/captures/w4a4_final"
-python3 paper/prepare_w4a4_captures.py --final-manifest "$RECOVERY/final_manifest.json" --out "$CAPTURE_ROOT"
+python3 paper/prepare_w4a4_captures.py --mode verify-completed --final-manifest "$RECOVERY/final_manifest.json" --out "$CAPTURE_ROOT"
 ```
 
-按生成的 `plan.json` 顺序逐张执行：`shot_bake`、`shot_collect`、`shot_qad`、`shot_rollout`、`shot_opdcache`、`shot_opd`、`shot_evalserver`。其中前两张只做 CPU 来源核验；QAD/OPD 截图分别执行 2/4 次短训练，正式 2,000 步结果由完整日志证明。
+上一步已生成本轮只读截图脚本，下面直接执行；不要再次向同一输出目录运行生成器。
+
+按 `plan_v12_completed.json` 的顺序执行七张：`shot_bake`、`shot_collect`、`shot_qad`、`shot_rollout`、`shot_opdcache`、`shot_opd`、`shot_evalserver`。它们在 CPU 上核验已完成实验的原始日志、元数据与哈希；**不训练、不量化、不采集、不生成缓存、不启动策略服务、不重复评测，也不查询 GPU**。截图展示核验命令的真实完整输出，不能标为“正在训练”或“现场闭环执行”。原有其余十张截图保留，最终仍为 17 个图位。
+
+`legacy-smoke` 仅保留用于重建旧命令的来源记录；当前冻结发布不执行该模式，正式截图门禁也不接受它。只读模式不能在最终清单生成前截图，不接受上一轮结果作为回退。
 
 在 Windows PowerShell 中，设置实际 WSL 项目路径。下面使用作者运行位置；独立复现时替换为自己的路径。每次只改变 `$Figure`，执行并查看一张图片后再进行下一张。
 
@@ -412,11 +372,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Crop failed.' }
 export CAPTURE_WINDOWS_DIR="/mnt/c/Users/Admin1/shot/ptqad_v12_final"
 export APPROVED_SAMPLE_PNG="/mnt/c/Users/Admin1/shot/ptqad_20260929/sample_verified.png"
 FIGURE=shot_bake
-# 保存原始 plan 字节，并使用本批次独立名称。
-if test ! -e "$CAPTURE_ROOT/plan_v12.json"; then
-  cp "$CAPTURE_ROOT/plan.json" "$CAPTURE_ROOT/plan_v12.json"
-fi
-cmp "$CAPTURE_ROOT/plan.json" "$CAPTURE_ROOT/plan_v12.json"
+# 生成器已保存原始 plan 字节，登记前确认它未变化。
+cmp "$CAPTURE_ROOT/plan.json" "$CAPTURE_ROOT/plan_v12_completed.json"
 python3 paper/record_capture.py \
   --figure "$FIGURE" \
   --image "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.png" \
@@ -425,13 +382,14 @@ python3 paper/record_capture.py \
   --sidecar "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.json" \
   --crop-manifest "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.crop.json" \
   --support-file "$CAPTURE_ROOT/common_v12.sh" \
-  --support-file "$CAPTURE_ROOT/plan_v12.json" \
+  --support-file "$CAPTURE_ROOT/verify_completed_capture.py" \
+  --support-file "$CAPTURE_ROOT/plan_v12_completed.json" \
   --support-file "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.png.window-binding.json" \
   --approved-sample "$APPROVED_SAMPLE_PNG" \
   --visually-verified
 ```
 
-每次登记都校验截图与裁剪链，最后的发布校验还会核对 17 张图和本轮协议。截图短跑的分数和耗时不进入正式结果表。
+每次登记都校验截图与裁剪链，最后的发布校验还会核对 17 张图和本轮协议。核验过程的耗时不进入实验性能表；图中的指标只从最终原始证据读取。大体积观测和教师缓存张量不随轻量证据包公开；相关截图明确区分“核对已记录身份”与“重新检查张量字节”。
 
 截图登记完毕后，再从同一套证据生成文稿与发布包。先前的输出目录或临时文件若已存在，工具会拒绝覆盖；复跑时使用新的 staging 名称并保留来源记录。
 

@@ -1,4 +1,8 @@
-按生成的 `plan.json` 顺序逐张执行：`shot_bake`、`shot_collect`、`shot_qad`、`shot_rollout`、`shot_opdcache`、`shot_opd`、`shot_evalserver`。其中前两张只做 CPU 来源核验；QAD/OPD 截图分别执行 2/4 次短训练，正式 2,000 步结果由完整日志证明。
+上一步已生成本轮只读截图脚本，下面直接执行；不要再次向同一输出目录运行生成器。
+
+按 `plan_v12_completed.json` 的顺序执行七张：`shot_bake`、`shot_collect`、`shot_qad`、`shot_rollout`、`shot_opdcache`、`shot_opd`、`shot_evalserver`。它们在 CPU 上核验已完成实验的原始日志、元数据与哈希；**不训练、不量化、不采集、不生成缓存、不启动策略服务、不重复评测，也不查询 GPU**。截图展示核验命令的真实完整输出，不能标为“正在训练”或“现场闭环执行”。原有其余十张截图保留，最终仍为 17 个图位。
+
+`legacy-smoke` 仅保留用于重建旧命令的来源记录；当前冻结发布不执行该模式，正式截图门禁也不接受它。只读模式不能在最终清单生成前截图，不接受上一轮结果作为回退。
 
 在 Windows PowerShell 中，设置实际 WSL 项目路径。下面使用作者运行位置；独立复现时替换为自己的路径。每次只改变 `$Figure`，执行并查看一张图片后再进行下一张。
 
@@ -32,11 +36,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Crop failed.' }
 export CAPTURE_WINDOWS_DIR="/mnt/c/Users/Admin1/shot/ptqad_v12_final"
 export APPROVED_SAMPLE_PNG="/mnt/c/Users/Admin1/shot/ptqad_20260929/sample_verified.png"
 FIGURE=shot_bake
-# 保存原始 plan 字节，并使用本批次独立名称。
-if test ! -e "$CAPTURE_ROOT/plan_v12.json"; then
-  cp "$CAPTURE_ROOT/plan.json" "$CAPTURE_ROOT/plan_v12.json"
-fi
-cmp "$CAPTURE_ROOT/plan.json" "$CAPTURE_ROOT/plan_v12.json"
+# 生成器已保存原始 plan 字节，登记前确认它未变化。
+cmp "$CAPTURE_ROOT/plan.json" "$CAPTURE_ROOT/plan_v12_completed.json"
 python3 paper/record_capture.py \
   --figure "$FIGURE" \
   --image "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.png" \
@@ -45,10 +46,11 @@ python3 paper/record_capture.py \
   --sidecar "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.json" \
   --crop-manifest "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.crop.json" \
   --support-file "$CAPTURE_ROOT/common_v12.sh" \
-  --support-file "$CAPTURE_ROOT/plan_v12.json" \
+  --support-file "$CAPTURE_ROOT/verify_completed_capture.py" \
+  --support-file "$CAPTURE_ROOT/plan_v12_completed.json" \
   --support-file "$CAPTURE_WINDOWS_DIR/${FIGURE}_v12.png.window-binding.json" \
   --approved-sample "$APPROVED_SAMPLE_PNG" \
   --visually-verified
 ```
 
-每次登记都校验截图与裁剪链，最后的发布校验还会核对 17 张图和本轮协议。截图短跑的分数和耗时不进入正式结果表。
+每次登记都校验截图与裁剪链，最后的发布校验还会核对 17 张图和本轮协议。核验过程的耗时不进入实验性能表；图中的指标只从最终原始证据读取。大体积观测和教师缓存张量不随轻量证据包公开；相关截图明确区分“核对已记录身份”与“重新检查张量字节”。

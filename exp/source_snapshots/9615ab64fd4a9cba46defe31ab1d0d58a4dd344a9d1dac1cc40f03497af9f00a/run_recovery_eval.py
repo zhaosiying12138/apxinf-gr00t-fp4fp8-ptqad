@@ -304,12 +304,6 @@ def main():
     ap.add_argument("--timeout", type=int, default=3600)
     ap.add_argument("--task-count", type=int, default=10, help="Only reduce for smoke, never a ten-task score")
     args = ap.parse_args()
-    try:
-        server_ready_timeout_s = int(os.environ.get("PTQAD_SERVER_READY_TIMEOUT_S", "180"))
-    except ValueError:
-        ap.error("PTQAD_SERVER_READY_TIMEOUT_S must be an integer number of seconds")
-    if server_ready_timeout_s < 1:
-        ap.error("PTQAD_SERVER_READY_TIMEOUT_S must be positive")
     validate_recovery_checkpoint(args.checkpoint)
     project = Path(__file__).resolve().parents[1]
     protocol_path = Path(args.protocol_file).resolve() if args.protocol_file else project / "exp/recovery_protocol.json"
@@ -396,7 +390,6 @@ def main():
                               "n_action_steps": 8, "max_episode_steps": 720}
     manifest.update({"initial_state_protocol": "libero10_official_bank_v1",
                      "init_state_indices": indices, "settle_steps": 10,
-                     "server_ready_timeout_s": server_ready_timeout_s,
                      "ffmpeg_executable": ffmpeg, "media_library_dir": media,
                      "video_root": str(output / "videos"),
                      "paired_scope": "environment initial states; policy noise is seeded per task",
@@ -447,7 +440,7 @@ def main():
             server = subprocess.Popen(server_cmd, cwd=gr00t, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             try:
                 ready = False
-                for _ in range(server_ready_timeout_s):
+                for _ in range(180):
                     if server.poll() is not None:
                         raise RuntimeError(f"Server exited; see {log.name}")
                     try:

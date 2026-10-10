@@ -10,3 +10,12 @@ The same relative path is retained under `source/` in portable evidence archives
 
 An initialization snapshot does not prove which source a later resumed process
 imported. Invocation receipts retain that separate provenance.
+
+## Evaluation readiness amendment
+
+- `9615ab64fd4a9cba46defe31ab1d0d58a4dd344a9d1dac1cc40f03497af9f00a/run_recovery_eval.py`
+  preserves the exact pre-amendment evaluation runner from commit
+  `051165de0583f48bf91aa5000ffeed17168bfa7b` (28,351 bytes). It is a historical
+  source snapshot, not an execution entry point or retrospective execution
+  attestation. See `docs/server_readiness_timeout_2026-10-10.md` for the preserved
+  startup failure and final publication identity requirements.

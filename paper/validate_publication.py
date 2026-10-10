@@ -634,9 +634,20 @@ def check_gptq_reference(package_inputs):
     from gptq_reference_publication import load_verified, render
     supplement = load_verified(P)
     require(render(supplement) in (P / 'sections/04-实验.md').read_text(),
-            'Article GPTQ reference tables are absent or stale')
+            'Article GPTQ reference results or explicit non-performance statement are absent or stale')
     require(render(supplement, detailed=True) in (P.parent / 'README.md').read_text(),
-            'README GPTQ reference tables are absent or stale')
+            'README GPTQ reference results or explicit non-performance statement are absent or stale')
+    if supplement.get('status') == 'not_performed':
+        # The exact generated limitation must replace the entire result slot;
+        # an omission receipt cannot license leftover GPTQ result claims.
+        import re
+        for path, heading, detailed in (
+                (P / 'sections/04-实验.md', r'^## 4\.6 [^\n]+\n', False),
+                (P.parent / 'README.md', r'^### 同覆盖的校准 GPTQ 参考\n', True)):
+            text = path.read_text()
+            match = re.search(heading + r'([\s\S]*?)(?=^#{1,3} |\Z)', text, re.M)
+            require(match is not None and match.group(1).strip() == render(supplement, detailed=detailed),
+                    'Unperformed GPTQ section contains unsupported results or stale prose')
     package_inputs.update(supplement['files'])
     package_inputs.update((P / 'collect_gptq_reference.py', P / 'gptq_reference_publication.py',
                            P.parent / 'docs/CAPTURED_PTQ_CALIBRATION.md'))
@@ -774,6 +785,7 @@ def validate(write_report=True,protocol_file=None):
     report={'passed':True,'source_sections':len(sections),'figures':len(figures),'required_figure_references':len(required),
             'action_diagnostics_recomputed': True,
             'action_diagnostic_comparisons': list(action_diagnostics['comparisons']),
+            'gptq_reference_status': gptq_reference.get('status', 'verified'),
             'gptq_reference_raw_logs_replayed': gptq_reference['raw_logs_replayed'],
             'gptq_reference_statistics_recomputed': gptq_reference['paired_statistics_recomputed'],
             'gptq_tensor_contents_reverified_offline': gptq_reference['tensor_contents_reverified_offline'],

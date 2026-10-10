@@ -13,6 +13,7 @@ export PROTOCOL_SRC="$PROJECT/exp/recovery_protocol_v12_rtn_w4a4.json"
 export PROTOCOL="$PROTOCOL_SRC"
 export RECOVERY="$RUN/recovery_v12"
 export PTQAD_ZMQ_TIMEOUT_MS=120000
+export PTQAD_SERVER_READY_TIMEOUT_S=600
 mkdir -p "$RUN"
 ```
 
@@ -118,11 +119,9 @@ python3 paper/install_final_evidence.py --verify paper/evidence
 python3 paper/collect_search_costs.py --run-dir "$RECOVERY" --out paper/evidence/search_costs
 python3 paper/collect_search_costs.py --verify paper/evidence/search_costs
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
-python3 paper/install_final_evidence.py --register-supplements paper/evidence --supplement-root paper/evidence
-python3 paper/install_final_evidence.py --verify paper/evidence
 ```
 
-安装器只迁移本轮科学证据和截图登记；上面的命令重新归档完整搜索成本，并在 runtime、search_costs、action_diagnostics、gptq_reference 和 frontier_comparison 生成后原子登记这些补充证据。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
+安装器只迁移本轮科学证据和截图登记；上面的命令重新归档已完成的搜索成本。runtime、search_costs、action_diagnostics、GPTQ 未执行收据和 frontier_comparison 齐备后，再按下方补充证据步骤原子登记；缺项不会自动跳过。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
 
 ```bash
 "$PY" - "$RECOVERY" "$GR00T" "$PY" "$LIBERO_PY" <<'PY'
@@ -132,7 +131,8 @@ final = json.loads((pathlib.Path(run) / "final_manifest.json").read_text())
 round_dir = pathlib.Path(final["heldout_round"])
 command = [sys.executable, "paper/capture_runtime.py", "--run-dir", run,
            "--out", "paper/evidence/runtime", "--gr00t", groot,
-           "--server-python", server_python, "--rollout-python", rollout_python]
+           "--server-python", server_python, "--rollout-python", rollout_python,
+           "--source-file", "exp/source_snapshots/9615ab64fd4a9cba46defe31ab1d0d58a4dd344a9d1dac1cc40f03497af9f00a/run_recovery_eval.py"]
 for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd"):
     record = json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
     command += ["--checkpoint", f"{arm}={record['checkpoint']}"]
@@ -148,7 +148,7 @@ PY
 
 ```bash
 CAPTURE_ROOT="$(dirname "$RECOVERY")/captures/w4a4_final"
-python3 paper/prepare_w4a4_captures.py --final-manifest "$RECOVERY/final_manifest.json" --out "$CAPTURE_ROOT"
+python3 paper/prepare_w4a4_captures.py --mode verify-completed --final-manifest "$RECOVERY/final_manifest.json" --out "$CAPTURE_ROOT"
 ```
 
 <!-- include: readme_v12_capture_commands.md -->

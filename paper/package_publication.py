@@ -50,7 +50,7 @@ def publication_files():
     require({p.name for p in (P/'figs').iterdir() if p.is_file()} == expected_figs,
             'Unexpected or missing figure asset; no unregistered figures may enter publication')
     files = [P/name for name in ('paper.html','README.md','meta.json','figures.json','requirements-build.txt','requirements-evidence.txt',
-                                'analysis_plan_w4a4.json')]
+                                'analysis_plan_w4a4.json','publication_scope_v12.json')]
     files.extend((P/'sections').glob('*.md'))
     files.extend(P/name for name in DOCUMENT_TEMPLATES)
     files.extend((P/'templates/v12').glob('*.md'))

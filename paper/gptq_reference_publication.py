@@ -1,7 +1,12 @@
 """Tables from the independently verified captured-calibration GPTQ archive."""
 from __future__ import annotations
 
+import argparse
+import hashlib
+import json
 from pathlib import Path
+
+from v12_publication_contract import PROTOCOL_SHA256, validate_v12_results
 
 ARMS = ("bf16", "ptq", "gptq", "qad", "continued_qad", "qad_opd")
 LABELS = {"bf16": "BF16", "ptq": "RTN W4A4 PTQ", "gptq": "校准 GPTQ W4A4 PTQ",
@@ -11,12 +16,121 @@ CONTRASTS = {"gptq_vs_rtn": ("GPTQ − RTN", "ptq", "gptq"),
              "opd_vs_gptq": ("OPD − GPTQ", "gptq", "qad_opd")}
 
 
+SCOPE_FILE = "publication_scope_v12.json"
+RELEASE_RUN = "results/reruns/rtn_w4a4_release_20261006_01/recovery_v12"
+OMISSION_FILE = "not_performed.json"
+NOT_PERFORMED_TEXT = (
+    "主实验采用同一 RTN W4A4 基座，以比较 QAD 与 OPD 的恢复作用。"
+    "本文未执行同覆盖校准 GPTQ 对照，因此不能据此判断恢复方法是否优于校准 PTQ。"
+    "未执行范围及最终清单绑定见 "
+    "[paper/publication_scope_v12.json](paper/publication_scope_v12.json) 和 "
+    "[paper/evidence/gptq_reference/not_performed.json](paper/evidence/gptq_reference/not_performed.json)。"
+)
+
+
+def _need(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def _identity(path):
+    _need(path.is_file() and not path.is_symlink(), "Missing regular GPTQ scope input: " + str(path))
+    content = path.read_bytes()
+    return {"bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()}
+
+
+def _read(path):
+    _identity(path)
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def omission_receipt(paper: Path):
+    """Bind the explicit user decision to complete, current v12 evidence."""
+    scope_path = paper / SCOPE_FILE
+    scope = _read(scope_path)
+    _need(set(scope) == {"format", "protocol_sha256", "run_dir", "decision_date",
+                         "decision_source", "gptq_reference"},
+          "Unexpected publication scope fields")
+    _need(scope["format"] == "v12_publication_scope_v1" and
+          scope["protocol_sha256"] == PROTOCOL_SHA256 and scope["run_dir"] == RELEASE_RUN,
+          "GPTQ scope is not the frozen v12 release")
+    _need(scope["decision_source"] == "user_instruction" and
+          scope["decision_date"] == "2026-10-10",
+          "GPTQ scope requires the explicit user freeze decision")
+    decision = scope["gptq_reference"]
+    _need(isinstance(decision, dict) and
+          set(decision) == {"status", "reason_code", "reason"} and
+          decision["status"] == "not_performed" and
+          decision["reason_code"] == "training_quantization_and_search_frozen" and
+          isinstance(decision["reason"], str) and bool(decision["reason"].strip()),
+          "Unrecognized GPTQ non-performance decision")
+    final_path = paper / "evidence/final_manifest.json"
+    results_path = paper / "evidence/final_results.json"
+    results = _read(results_path)
+    validate_v12_results(results, root=paper.parent)
+    original = results["source"]
+    _need(Path(original.get("run_dir", "")).as_posix().endswith("/" + RELEASE_RUN),
+          "GPTQ decision belongs to another release run")
+    identity = _identity(final_path)
+    _need(all(original.get("final_manifest", {}).get(k) == v for k, v in identity.items()),
+          "GPTQ receipt final manifest differs from extracted results")
+    final = _read(final_path)
+    _need(final.get("format") == "w4a4_recovery_v12_final_manifest" and
+          final.get("protocol_sha256") == PROTOCOL_SHA256 and
+          final.get("selection_uses_heldout") is False and
+          set(final.get("required_arms", [])) == {"bf16", "ptq", "qad", "continued_qad", "qad_opd"},
+          "GPTQ non-performance receipt requires complete v12 final evidence")
+    return {
+        "format": "gptq_reference_not_performed_v1",
+        "status": "not_performed",
+        "protocol_sha256": PROTOCOL_SHA256,
+        "run_dir": RELEASE_RUN,
+        "decision": {"path": SCOPE_FILE, **_identity(scope_path)},
+        "reason_code": decision["reason_code"],
+        "final_manifest": identity,
+        "final_results": _identity(results_path),
+    }
+
+
+def record_not_performed(paper: Path):
+    """Create an omission receipt only; never manufacture a measured archive."""
+    receipt = omission_receipt(paper)
+    folder = paper / "evidence/gptq_reference"
+    _need(not folder.exists() and not folder.is_symlink(),
+          "Refusing an existing GPTQ supplement directory")
+    folder.mkdir()
+    (folder / OMISSION_FILE).write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n",
+                                       encoding="utf-8")
+    return receipt
+
+
 def load_verified(paper: Path):
+    scope_path = paper / SCOPE_FILE
+    if scope_path.exists() or scope_path.is_symlink():
+        expected = omission_receipt(paper)
+        folder = paper / "evidence/gptq_reference"
+        _need(folder.is_dir() and not folder.is_symlink(),
+              "Explicit GPTQ decision requires its registered non-performance receipt")
+        _need({path.name for path in folder.iterdir()} == {OMISSION_FILE},
+              "GPTQ non-performance receipt cannot coexist with measured or unknown artifacts")
+        receipt_path = folder / OMISSION_FILE
+        _need(_read(receipt_path) == expected, "GPTQ non-performance receipt is stale or changed")
+        return {"status": "not_performed", "decision": expected,
+                "raw_logs_replayed": False, "paired_statistics_recomputed": False,
+                "tensor_contents_reverified_offline": False,
+                "files": [scope_path, receipt_path, paper / "evidence/final_manifest.json",
+                          paper / "evidence/final_results.json"]}
+    # There is no missing-evidence fallback. Actual measured references retain
+    # their original full raw-log, provenance and statistical replay checks.
     from collect_gptq_reference import verify
     return verify(paper / "evidence/gptq_reference", main_evidence=paper / "evidence")
 
 
 def render(report, *, detailed=False):
+    if report.get("status") == "not_performed":
+        _need(report.get("decision", {}).get("status") == "not_performed",
+              "Missing explicit GPTQ non-performance decision")
+        return NOT_PERFORMED_TEXT
     data = report['comparison']
     if (set(data['arms']) != set(ARMS) or set(data['contrasts']) != set(CONTRASTS)
             or any(row['episodes'] != 160 or len(row['per_task']) != 10 for row in data['arms'].values())):
@@ -79,3 +193,21 @@ def render(report, *, detailed=False):
             '这些阶段计时不包含全部实验搜索和闭环评测成本，缺失项不按零处理。完整统计、方法分配、'
             '校准元数据与计时范围见 [`paper/evidence/gptq_reference/`](paper/evidence/gptq_reference/)。'
             '发布包可以从原始日志重算统计；未携带的权重和 Hessian 仅保留源端验收收据及字节哈希。')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--record-not-performed", action="store_true",
+                        help="Bind the explicit frozen scope to installed complete final evidence")
+    parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--paper", type=Path, default=Path(__file__).resolve().parent)
+    args = parser.parse_args()
+    if args.record_not_performed == args.verify:
+        parser.error("choose exactly one of --record-not-performed or --verify")
+    report = record_not_performed(args.paper) if args.record_not_performed else load_verified(args.paper)
+    print(json.dumps({key: value for key, value in report.items() if key != "files"},
+                     ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,12 @@
+{
+  "format": "v12_publication_scope_v1",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
+  "run_dir": "results/reruns/rtn_w4a4_release_20261006_01/recovery_v12",
+  "decision_source": "user_instruction",
+  "gptq_reference": {
+    "status": "not_performed",
+    "reason_code": "training_quantization_and_search_frozen",
+    "reason": "The user froze training, new quantization and search. The unfinished v12 development and held-out evaluations and the previously planned fixed-observation diagnostics may finish. The planned GPTQ supplemental calibration, quantization and evaluation were not performed."
+  },
+  "decision_date": "2026-10-10"
+}

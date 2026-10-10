@@ -131,7 +131,7 @@ def result_conclusion(final: dict, compression: str) -> str:
     lines = [f"{label}的配对差值为 {contrasts[key]['difference_pp']:+.2f} 个百分点，"
              + contrast_assessment(contrasts[key]) + "。" for key, label in descriptions]
     return ("".join(lines) + f"含 BF16 低秩旁路的净编码压缩比为 **{compression}**。"
-            "校准 GPTQ 参考和完整动作诊断分别见 §4.6 与 §4.5；它们限定比较范围，"
+            "GPTQ 未执行范围说明和完整动作诊断分别见 §4.6 与 §4.5；本轮没有 GPTQ 比较结果，"
             "不构成优于所有 PTQ 方法或实现原生 GR00T 加速的证据。")
 
 
@@ -424,7 +424,7 @@ development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合
                 "不属于本文 GR00T 五臂闭环",
             )
 
-        stale = re.search(r"(?i)v11|all_nvfp4_gptq_category|20261003|43\.4%|99\.0%|86/100|89/100|145/160|90\.62%|待回填|待实拍|审阅稿|xxx%", text)
+        stale = re.search(r"(?i)v11|all_nvfp4_gptq_category|20261003|43\.4%|99\.0%|86/100|89/100|待回填|待实拍|审阅稿|xxx%", text)
         if stale:
             raise ValueError(f"Refusing stale appendix content in {path.name}: {stale.group(0)}")
         path.write_text(text, encoding="utf-8")
@@ -460,7 +460,7 @@ def main() -> None:
     documents = render_main(final, diagnostic_text, gptq_text, load_verified_inventory(final))
     meta_path = PAPER / "meta.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    meta["status"] = "v12 RTN W4A4 完整五臂评测与发布证据已核验"
+    meta["status"] = "v12 RTN W4A4 五臂证据已核验；GPTQ 补充未执行"
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     rewrite_main(documents)
     rewrite_other_sources()

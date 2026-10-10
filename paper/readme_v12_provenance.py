@@ -156,6 +156,26 @@ def _release_binding(row: dict[str, Any], paper: Path, manifest_sha: str,
         require(identity.get("sha256") == publication.sha(source) and
                 identity.get("bytes") == source.stat().st_size,
                 f"Capture shared script differs from release plan: {name}")
+    require(plan.get("capture_mode") == "verify-completed",
+            "Frozen release requires completed-evidence verification captures, not experiment replays")
+    from verify_completed_capture import audit, CAPTIONS
+    require(plan.get("stages", {}).get(row["figure"]) == CAPTIONS[row["figure"]],
+            "Completed-evidence capture caption differs")
+    require("verify_completed_capture.py" in dependencies,
+            "Read-only capture verifier is not an archived dependency")
+    result = audit(plan, row["figure"], paper / "evidence")
+    expected = {key: value for key, value in result.items()
+                if key not in ("details", "caption", "execution_scope")}
+    receipts = []
+    for line in (paper / row["raw_log"]).read_text(encoding="utf-8").splitlines():
+        try:
+            item = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(item, dict) and item.get("capture_audit") == "completed_evidence_verified":
+            receipts.append(item)
+    require(receipts == [expected],
+            "Capture log lacks one matching completed-evidence verification receipt")
     return path
 
 
