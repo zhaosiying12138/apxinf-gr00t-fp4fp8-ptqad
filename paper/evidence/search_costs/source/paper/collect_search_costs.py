@@ -15,7 +15,10 @@ import json
 from pathlib import Path
 import re
 
-import collect_training_costs as costs
+try:
+    from . import collect_training_costs as costs
+except ImportError:  # direct CLI invocation
+    import collect_training_costs as costs
 
 ROOT = Path(__file__).resolve().parents[1]
 FORMAT = "w4a4_completed_search_costs_v1"
@@ -36,6 +39,50 @@ def checked_identity(record):
     need(costs.identity(path) == {k: record[k] for k in ("bytes", "sha256")},
          "Recorded input changed: " + str(path))
     return path
+
+
+def training_receipt_configuration(record, request, lr, weight, steps, protocol_sha):
+    """Require matching configuration even when an adopted receipt omits it."""
+    expected = {"QAD_LR": str(float(lr)), "QAD_OPD_MSE_W": str(float(weight)),
+                "QAD_STEPS": str(steps)}
+    need(request.get("protocol_sha256") == protocol_sha and
+         all(request.get("environment", {}).get(key) == value for key, value in expected.items()),
+         "Hash-bound training request configuration differs")
+    # train_verify() emits identities when adopting a completed stage, without
+    # the launcher's redundant scalar fields. The original request is mandatory.
+    for key, value in (("learning_rate", lr), ("opd_weight", weight), ("optimizer_steps", steps)):
+        if key not in record:
+            need(record.get("adopted") is True, "Training stage configuration is missing: " + key)
+        else:
+            need(record[key] == value, "Training stage configuration differs: " + key)
+
+
+def audit_training_stage_receipt(record, folder, lr, weight, steps, protocol_sha):
+    """Bind live request/runtime identities to the declared artifact folder."""
+    request_path = checked_identity(record["training_request_identity"])
+    runtime_path = checked_identity(record["runtime_identity"])
+    need(request_path == (folder / "orchestrator_training_request.json").resolve() and
+         runtime_path == (folder / "runtime_metrics.json").resolve(),
+         "Training stage identities point outside their declared artifact folder")
+    training_receipt_configuration(record, read(request_path), lr, weight, steps, protocol_sha)
+
+
+def archived_training_configuration(record, stage, role, protocol, protocol_sha):
+    """Use only copied request/runtime bytes; never follow private receipt paths."""
+    for key, name in (("training_request_identity", "orchestrator_training_request.json"),
+                      ("runtime_identity", "runtime_metrics.json")):
+        need(costs.identity(stage / name) == {k: record[key][k] for k in ("bytes", "sha256")},
+             "Archived training identity differs: " + name)
+    request = read(stage / "orchestrator_training_request.json")
+    env = request["environment"]
+    lr, weight, steps = float(env["QAD_LR"]), float(env["QAD_OPD_MSE_W"]), int(env["QAD_STEPS"])
+    selection = protocol["selection"]
+    need(lr in selection["qad_learning_rates"] and
+         weight in (selection["opd_weights"] if role == "qad_opd" else [0.]) and
+         steps == selection["qad_optimizer_steps" if role == "qad" else "continuation_optimizer_steps"],
+         "Archived training configuration differs from frozen candidate budgets")
+    training_receipt_configuration(record, request, lr, weight, steps, protocol_sha)
+    return lr, weight, steps
 
 
 class ScopedEvidence:
@@ -87,6 +134,12 @@ def copy_evaluation(evidence, folder, target, protocol, purpose, evaluation, pro
 def summarize(root):
     """Recompute every displayed cost from copied raw files, without private paths."""
     index = read(root / "inputs.json")
+    protocol_path = root / "protocol/recovery_protocol.json"
+    protocol = read(protocol_path)
+    protocol_sha = costs.identity(protocol_path)["sha256"]
+    need(index.get("protocol_sha256") == protocol_sha and
+         costs.frozen_w4a4_protocol_matches(protocol, protocol_sha),
+         "Search costs do not match a supported frozen W4A4 protocol")
     rows = {}
     for name, spec in index["candidates"].items():
         base = root / "candidates" / name
@@ -95,11 +148,13 @@ def summarize(root):
         manifest = read(stage / "recovery_manifest.json")
         state = read(stage / "checkpoint/trainer_state.json")
         receipt = read(base / "receipt.json")
+        lr, weight, requested_steps = archived_training_configuration(
+            receipt, stage, spec["role"], protocol, protocol_sha)
         steps = metrics["global_steps"]
         need(metrics["status"] == "completed" and metrics["error"] is None and
              receipt["status"] == "complete" and
              steps == metrics["requested_optimizer_steps"] == state["global_step"] ==
-             state["max_steps"] == receipt["optimizer_steps"], "Incomplete training: " + name)
+             state["max_steps"] == requested_steps, "Incomplete training: " + name)
         draws = sum(costs.microbatches_per_update(manifest, steps)) * manifest["micro_batch"]
         need(abs(draws / manifest["capture_dataset_samples"] - state["epoch"]) < 1e-8,
              "Training epoch/tail-batch accounting differs")
@@ -110,7 +165,7 @@ def summarize(root):
              "Incomplete export or development evaluation")
         rows[name] = {
             "role": spec["role"], "selected": name in index["selected"].values(),
-            "learning_rate": receipt["learning_rate"], "opd_weight": receipt["opd_weight"],
+            "learning_rate": lr, "opd_weight": weight,
             "optimizer_steps": steps, "demonstration_window_draws": draws, **probe,
             "wall_seconds": costs.positive(metrics["wall_seconds"], "training elapsed"),
             "timing_scope": metrics["timing_scope"],
@@ -203,8 +258,12 @@ def collect(run_dir, out):
     state = json.loads(state_bytes)
     protocol = evidence.json(state["protocol_file"], "protocol/recovery_protocol.json")
     protocol_sha = costs.identity(state["protocol_file"])["sha256"]
-    need(state["protocol_sha256"] == protocol_sha and protocol.get("id") == "w4a4-recovery-v11-category",
-         "Only the frozen v11 W4A4 protocol is supported")
+    need(state["protocol_sha256"] == protocol_sha and
+         costs.frozen_w4a4_protocol_matches(protocol, protocol_sha),
+         "Search costs require the archived v11 or frozen v12 W4A4 protocol")
+    if protocol.get("version") == 12:
+        need(state.get("selected_recipe") == "rtn_w4a4_category",
+             "v12 search costs require the selected RTN W4A4 recipe")
     evaluation = costs.evaluation_helpers(ROOT / "eval/run_recovery_eval.py")
     for relative in ("paper/collect_training_costs.py", "paper/collect_search_costs.py", "eval/run_recovery_eval.py"):
         evidence.add(ROOT / relative, "source/" + relative, "collector_time_source")
@@ -245,14 +304,11 @@ def collect(run_dir, out):
     for name, role, lr, weight in names:
         scoped = ScopedEvidence(evidence, "candidates/" + name)
         rec = receipt(name, "candidates/" + name + "/receipt.json")
-        need(rec["learning_rate"] == lr and rec["opd_weight"] == weight, "Training stage configuration differs")
-        for key in ("runtime_identity", "training_request_identity"):
-            checked_identity(rec[key])
         derived = costs.normalized_protocol(protocol, {"selected_qad_learning_rate": lr,
                                                      "selected_opd_weight": weight or selected_weight})
         folder = run / "artifacts" / name
         expected_steps = protocol["selection"]["qad_optimizer_steps" if role == "qad" else "continuation_optimizer_steps"]
-        need(rec["optimizer_steps"] == expected_steps, "Stage update count differs from frozen budget")
+        audit_training_stage_receipt(rec, folder, lr, weight, expected_steps, protocol_sha)
         stage, meta, checkpoint = costs.audit_stage(folder, role, expected_steps, derived,
             protocol_sha, scoped, None if role == "qad" else initial,
             source_snapshots=run / "operations/opd-tail-fix/source_snapshots")

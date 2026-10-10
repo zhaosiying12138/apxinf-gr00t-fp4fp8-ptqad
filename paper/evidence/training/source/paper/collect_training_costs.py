@@ -25,9 +25,10 @@ TRAIN_SOURCES = tuple("rl/" + name for name in (
 ARCH = {"language_layers": 16, "dit_layers": 32, "vl_layers": 4}
 TRAIN_SCOPE = "script import through training and checkpoint serialization"
 TEACHER_SCOPE = "checkpoint loading and teacher labeling, before cache serialization"
-# Exact v11 support does not admit arbitrary future W4A4 schemas. Archived
-# formats remain readable; the frozen protocol and completed receipts decide scope.
-FINAL_FORMAT_RE = re.compile(r"(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7|w4a4_recovery_v11)_final_manifest\Z")
+# Enumerate supported rounds; a future version must not inherit a release gate.
+# Keep this module self-contained for archived --verify-published invocations.
+V12_PROTOCOL_SHA256 = "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
+FINAL_FORMAT_RE = re.compile(r"(?:high_fp4_[a-z0-9_]+|mixed_pressure_v7|w4a4_recovery_v(?:11|12))_final_manifest\Z")
 DTYPE_BYTES = {"bfloat16":2,"float16":2,"float32":4,"float64":8,"int8":1,"uint8":1,"bool":1,"int16":2,"int32":4,"int64":8}
 SHARED_KEYS = ("base", "rank", "alpha", "scope", "base_config_sha256", "base_statistics_sha256", "base_recipe_sha256",
     "parameter_dtype", "compute_dtype", "seed", "micro_batch", "effective_global_batch", "gradient_accumulation_steps",
@@ -66,10 +67,10 @@ def is_orchestrated_protocol(protocol):
 def orchestrator_source(protocol, state=None, source_root=None):
     """Resolve the source identity recorded when run_manifest was initialized.
 
-    New run manifests should record ``implementation_path``. For the first
-    published orchestrator that field was absent, so derive a checked-in
-    snapshot filename from its recorded implementation hash. This hash is not
-    retroactive proof of the driver imported by later resumed invocations.
+    Prefer content-addressed initialization bytes in either the checkout or a
+    portable archive's ``source/`` root. Legacy manifests can instead resolve
+    their declared path or one of the historical filenames by exact hash. This
+    is not proof of the driver imported by later resumed invocations.
     """
     state = state or {}
     source_root = Path(source_root).resolve() if source_root is not None else ROOT
@@ -77,6 +78,16 @@ def orchestrator_source(protocol, state=None, source_root=None):
     need(isinstance(expected, str) and re.fullmatch(r'[0-9a-f]{64}', expected),
          'Missing/invalid initialization implementation SHA')
     relative = state.get('implementation_path')
+    if relative is not None:
+        need(isinstance(relative, str), 'Invalid orchestrator implementation path')
+        declared = Path(relative)
+        need(not declared.is_absolute() and '..' not in declared.parts and
+             declared.parts[:1] == ('exp',), 'Invalid orchestrator implementation path')
+    snapshot = Path('exp/source_snapshots') / expected / 'run_high_fp4_v3.py'
+    if (source_root / snapshot).exists():
+        # Once archived at its declared content address, corrupt or escaping
+        # bytes must fail below instead of falling back to a mutable checkout.
+        relative = snapshot.as_posix()
     if relative is None:
         # Older receipts omitted the path. Resolve only exact initialization
         # bytes; later orchestrator_source_sha256 amendments describe resumed
@@ -142,10 +153,27 @@ def partition_budget(protocol, purpose):
     return tasks, episodes
 
 
-def final_format_matches(final, protocol):
+def frozen_w4a4_protocol_matches(protocol, protocol_sha):
+    """Recognize archived v11 or the exact frozen v12 RTN protocol bytes."""
+    if protocol.get('w4a4') is not True:
+        return False
+    if protocol.get('version') == 11:
+        return protocol.get('id') == 'w4a4-recovery-v11-category'
+    return (protocol.get('version') == 12 and
+            protocol.get('id') == 'w4a4-recovery-v12-rtn' and
+            protocol_sha == V12_PROTOCOL_SHA256)
+
+
+def final_format_matches(final, protocol, protocol_sha=None):
     value = final.get('format')
     if not isinstance(value, str) or not FINAL_FORMAT_RE.fullmatch(value):
         return False
+    if (protocol.get('version') == 12 or protocol.get('id') == 'w4a4-recovery-v12-rtn' or
+            value == 'w4a4_recovery_v12_final_manifest'):
+        return (value == 'w4a4_recovery_v12_final_manifest' and
+                frozen_w4a4_protocol_matches(protocol, protocol_sha) and
+                final.get('protocol_sha256') == V12_PROTOCOL_SHA256 and
+                final.get('selected_pressure_recipe') == 'rtn_w4a4_category')
     if value == 'w4a4_recovery_v11_final_manifest':
         return (protocol.get('id') == 'w4a4-recovery-v11-category' and
                 protocol.get('version') == 11 and protocol.get('w4a4') is True)
@@ -795,7 +823,7 @@ def orchestrator_layout(run_dir,protocol,protocol_sha,evidence):
     run=Path(run_dir).resolve(strict=True)
     final=evidence.json(run/'final_manifest.json','orchestration/final_manifest.json','completed_orchestrator')
     state=evidence.json(run/'run_manifest.json','orchestration/run_manifest.json','completed_orchestrator')
-    need(final_format_matches(final, protocol) and
+    need(final_format_matches(final, protocol, protocol_sha) and
          state.get('status')=='complete' and
          state.get('output_layout')=='stable_paths_v2' and
          final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and
@@ -1024,7 +1052,7 @@ def verify_published(directory):
     final=None
     if is_orchestrated_protocol(raw_protocol):
         final=read('orchestration/final_manifest.json');state=read('orchestration/run_manifest.json')
-        need(final_format_matches(final, raw_protocol) and
+        need(final_format_matches(final, raw_protocol, protocol_sha) and
              state.get('status')=='complete' and
              state.get('output_layout')=='stable_paths_v2' and
              final.get('protocol_sha256')==state.get('protocol_sha256')==protocol_sha and

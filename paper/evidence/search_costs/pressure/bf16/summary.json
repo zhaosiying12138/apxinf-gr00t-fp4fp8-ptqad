@@ -7,5 +7,5 @@
   "score_definition": "macro_success_rate=unweighted mean of ten task rates; micro_success_rate=total successes/episodes",
   "purpose": "development",
   "seed": 940000,
-  "wall_seconds_including_server_loads": 1947.5772864818573
+  "wall_seconds_including_server_loads": 1956.5503566265106
 }

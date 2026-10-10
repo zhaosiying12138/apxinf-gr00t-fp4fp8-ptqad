@@ -6,6 +6,7 @@ sees the same eval flags. RNG state is restored even when a forward fails.
 from collections.abc import Mapping
 from contextlib import contextmanager
 import hashlib
+import operator
 from pathlib import Path
 
 import torch
@@ -164,15 +165,30 @@ def install_sequential_probe(trainer_cls, cache_path, weight, every=4):
     def training_step(self, model, inputs, *args, **kwargs):
         # The integration has only been audited for HF Trainer + Accelerator on
         # one device. Do not silently invent scaling for FSDP/DeepSpeed/Apex.
-        accelerator_accumulation = int(getattr(self.accelerator,
-                                               "gradient_accumulation_steps", 1) or 1)
-        trainer_accumulation = int(getattr(self.args,
-                                           "gradient_accumulation_steps", 1) or 1)
+        def accumulation_count(value):
+            # Reject zero, fractional, and boolean counts instead of silently
+            # falling back or truncating them before an irreversible backward.
+            try:
+                count = operator.index(value)
+            except TypeError as exc:
+                raise ValueError("Probe hook saw an unexpected gradient accumulation count") from exc
+            if isinstance(value, bool) or count < 1:
+                raise ValueError("Probe hook saw an unexpected gradient accumulation count")
+            return count
+
+        accelerator_accumulation = accumulation_count(getattr(
+            self.accelerator, "gradient_accumulation_steps", 1))
+        trainer_accumulation = accumulation_count(getattr(
+            self.args, "gradient_accumulation_steps", 1))
+        accumulation = accumulation_count(getattr(
+            self, "current_gradient_accumulation_steps", trainer_accumulation))
+        if accumulation > trainer_accumulation:
+            raise ValueError("Probe hook saw an unexpected gradient accumulation count")
         # Transformers versions differ in where accumulation is represented:
         # some leave Accelerator at one and let Trainer accumulate, while
         # others pass the configured value through Accelerator.  Divide here
-        # only when Trainer owns accumulation; Accelerator.backward() already
-        # applies the divisor when it owns it.
+        # by the actual update's microbatch count, compensating for the divisor
+        # that Accelerator.backward() applies itself (including short tails).
         if (getattr(self, "use_apex", False) or
             getattr(self.accelerator, "num_processes", 1) != 1 or
             accelerator_accumulation not in (1, trainer_accumulation) or
@@ -187,16 +203,15 @@ def install_sequential_probe(trainer_cls, cache_path, weight, every=4):
             return result
         micro = getattr(self, "_probe_micro_step", 0)
         sample = anchor.samples[micro % len(anchor.samples)]
-        accumulation = int(getattr(self, "current_gradient_accumulation_steps",
-                                   trainer_accumulation) or trainer_accumulation)
-        if accumulation not in (1, trainer_accumulation):
-            raise ValueError("Probe hook saw an unexpected gradient accumulation count")
         with replay_context(model, sample["seed"], anchor.meta["autocast_dtype"]):
             mse = anchor.loss(model, micro)
-            backward_divisor = accumulation if accelerator_accumulation == 1 else 1
-            scaled = weight * mse / backward_divisor
-            self.accelerator.backward(scaled)
-            extra = scaled.detach()
+            # For n actual microbatches and Accelerator divisor a, backward
+            # receives a * weight * mse / n so its final gradient is exactly
+            # weight * grad(mse) / n.  Reporting uses the normalized objective,
+            # not the pre-Accelerator compensated value.
+            normalized = weight * mse / accumulation
+            self.accelerator.backward(normalized * accelerator_accumulation)
+            extra = normalized.detach()
         self._probe_micro_step = micro + 1
         if step % max(every, 20) == every - 1:
             print(f"[opd] step={step + 1} probe={micro % len(anchor.samples)} "

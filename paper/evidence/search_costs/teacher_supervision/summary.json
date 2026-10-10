@@ -7,5 +7,5 @@
   "score_definition": "macro_success_rate=unweighted mean of ten task rates; micro_success_rate=total successes/episodes",
   "purpose": "teacher_supervision",
   "seed": 950000,
-  "wall_seconds_including_server_loads": 1616.3195326328278
+  "wall_seconds_including_server_loads": 1587.6665444374084
 }

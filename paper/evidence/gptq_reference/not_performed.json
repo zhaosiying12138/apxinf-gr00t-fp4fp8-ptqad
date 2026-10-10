@@ -1,0 +1,20 @@
+{
+  "format": "gptq_reference_not_performed_v1",
+  "status": "not_performed",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
+  "run_dir": "results/reruns/rtn_w4a4_release_20261006_01/recovery_v12",
+  "decision": {
+    "path": "publication_scope_v12.json",
+    "bytes": 685,
+    "sha256": "c85bb66b13acf867fb129e52a7de61c7da4c0876eb8184bcad12e05a2da576f3"
+  },
+  "reason_code": "training_quantization_and_search_frozen",
+  "final_manifest": {
+    "bytes": 98445,
+    "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+  },
+  "final_results": {
+    "bytes": 15347,
+    "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+  }
+}

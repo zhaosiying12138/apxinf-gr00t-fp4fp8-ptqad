@@ -1,21 +1,21 @@
 {
-  "schema_version": "v11-selected-all-nvfp4-category",
+  "schema_version": "w4a4-selected-all-nvfp4-category-v12",
   "kind": "CPU shape-derived encoding budget for the frozen W4A4 all-NVFP4 recipe; not measured disk size or latency",
   "base": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
-  "recipe": "all_nvfp4_gptq_category",
+  "recipe": "rtn_all",
   "selected_recipe_artifacts": {
     "memory": "paper/evidence/selected_recipe/category_memory.json",
     "ptq_recipe": "paper/evidence/selected_recipe/category_ptq_recipe.json",
     "bake_manifest": "paper/evidence/selected_recipe/category_bake_manifest.json"
   },
-  "source_recipe_sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
-  "source_bake_manifest_sha256": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
+  "source_recipe_sha256": "4dfe0d34b8a42fe3b0af3cadc6cf84d23c2095237315899b401b128714da3b4d",
+  "source_bake_manifest_sha256": "f38bf9ce76f897f2ed18e857d7f080e8e5de98e593d231582d502454439c74d9",
   "tied_aliases": {
     "backbone.model.lm_head.weight": "backbone.model.model.language_model.embed_tokens.weight"
   },
   "eligible_predicate": "479 eligible weight tensors: 472 rank-2 tensors and seven rank-3 category tensors; 469 ordinary and seven category Linear operators use W4A4, while three embedding/position tensors are weight-only",
   "recipes": {
-    "all_nvfp4_gptq_category": {
+    "rtn_all": {
       "all_checkpoint_params": 3455180928,
       "linear_params": 3452239872,
       "eligible_tensor_count": 479,
@@ -90,7 +90,7 @@
     }
   },
   "ladder": [
-    "all_nvfp4_gptq_category"
+    "rtn_all"
   ],
   "recovery_residual": {
     "kind": "shape_derived_independent_bf16_lora_encoding_budget",
@@ -104,36 +104,36 @@
     "target_bytes": 145997824,
     "source_index_sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59",
     "source_config_sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97",
-    "linear_coverage_source": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000/recovery_manifest.json",
-    "linear_coverage_sha256": "8b124540de45238b0b0221d544ec3c009b091b8d36f085166636142c51666dc7",
+    "linear_coverage_source": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/merge_opd_025/recovery_manifest.json",
+    "linear_coverage_sha256": "c06861d902202e7b7f2863ac810232c223fde0e6fd6e2c086cd58a06429c25fe",
     "note": "独立保存的 BF16 LoRA A/B 旁路预算；不把它误写成 packed W4A4 checkpoint 文件大小。"
   },
   "source_identities": {
     "category_recipe": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/category_ptq_recipe.json",
-      "bytes": 337442,
-      "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category/category_ptq_recipe.json",
+      "bytes": 304029,
+      "sha256": "4dfe0d34b8a42fe3b0af3cadc6cf84d23c2095237315899b401b128714da3b4d"
     },
     "category_bake_manifest": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/category_bake_manifest.json",
-      "bytes": 13219,
-      "sha256": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category/category_bake_manifest.json",
+      "bytes": 13178,
+      "sha256": "f38bf9ce76f897f2ed18e857d7f080e8e5de98e593d231582d502454439c74d9"
     },
     "parent_recipe": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/ptq_recipe.json",
-      "bytes": 468909,
-      "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category/ptq_recipe.json",
+      "bytes": 383282,
+      "sha256": "4c94ae6668d3b241023deb46de0f3fdf14c2ee58720a2d31b25fb46643bc8688"
     },
     "parent_bake_manifest": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category/bake_manifest.json",
-      "bytes": 1213,
-      "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category/bake_manifest.json",
+      "bytes": 1214,
+      "sha256": "60540377c368be6114ec99f926a626147ad6dd9584d47e6edeecb1386a7a47c5"
     },
     "recovery_manifest": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/train_qad_lr_0.0001/checkpoint-2000/recovery_manifest.json",
-      "bytes": 3170,
-      "sha256": "8b124540de45238b0b0221d544ec3c009b091b8d36f085166636142c51666dc7"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/merge_opd_025/recovery_manifest.json",
+      "bytes": 4717,
+      "sha256": "c06861d902202e7b7f2863ac810232c223fde0e6fd6e2c086cd58a06429c25fe"
     }
   },
-  "publication_note": "v11 只公开全 NVFP4 W4A4 PTQ 基座及其 QAD/OPD BF16 residual 旁路；FP8 是同一分配器支持的回退格式，本次选择中为 0 元素。"
+  "publication_note": "v12 公开全 NVFP4 W4A4 RTN 压力基座及其 QAD/OPD BF16 residual 旁路；FP8 是同一分配器支持的回退格式，本次选择中为 0 元素。"
 }

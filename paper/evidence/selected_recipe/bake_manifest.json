@@ -12,7 +12,7 @@
     }
   },
   "recipe_version": "corrected-allocation-v2",
-  "elapsed_seconds": 527.2130403518677,
+  "elapsed_seconds": 19.001219511032104,
   "implementation_sha256": {
     "quant/ptq/bake.py": "e8815aa6b2f6b8370480931cc938cbf154e3456c89c3a872ff60340c6bf33bae",
     "quant/ptq/quantizers.py": "e7310601f5cb0a80d13c7a7be79714bc8ea4a85b03866968ef493646df6acfd2",
@@ -21,11 +21,11 @@
   "output_weight_files": {
     "model-00001-of-00002.safetensors": {
       "bytes": 4990519232,
-      "sha256": "d56aee188feaa4275f780852a218a1998180556fe49c2032ac30f969c1b9f5c9"
+      "sha256": "e4f757c59651a88d22661c0feab544ab25d5c20e7ae70eaef8d264c31e34cc57"
     },
     "model-00002-of-00002.safetensors": {
       "bytes": 1919980184,
-      "sha256": "ff8d3d38d7e05ffb21ac11762b2ba96e463e7c2a382e02defe906c753984713c"
+      "sha256": "285357c193c4a91f025352797b963eec198e4f7a66bcf907b80d52e21003bf2d"
     }
   }
 }

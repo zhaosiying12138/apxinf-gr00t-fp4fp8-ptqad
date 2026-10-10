@@ -66,7 +66,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "279f47a219e801163a993afe89780a8ce93a75f0c7d06f95d836dc248b174215",
+    "log_sha256": "95935e53d3fa02570f4ad856bced7b43b3903e5e23e38e90c3631e627b2cfb0a",
     "returncode": 0,
     "seed": 960000,
     "capture": {
@@ -149,7 +149,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "11c87dfcb4bc447631d70544db4e04408ea355db54b8049d115bd59824b16591",
+    "log_sha256": "2291d8533da5537353346ed70374bf1713197db901a145ce518f638d5bd0584e",
     "returncode": 0,
     "seed": 961000,
     "capture": {
@@ -232,7 +232,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "ca5e2e6c97c7a9012781cd19487d30e7b2c8f599b18a07f4417b8298ba56832f",
+    "log_sha256": "6225fe0de7e8a56ab0c8e0f166358d0ed8e3773338b155993fe0b9d992207d9c",
     "returncode": 0,
     "seed": 962000,
     "capture": {
@@ -315,7 +315,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "56a98cae6201cdcf6965be3b0ce9a74d9cc8c33ca350065f386d05ba1523faea",
+    "log_sha256": "7250fddf1fa6858b91432264048f8e8f84482c71d7a487ba3445357849393c69",
     "returncode": 0,
     "seed": 963000,
     "capture": {
@@ -333,14 +333,14 @@
   },
   "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
     "results": [
-      true,
+      false,
       true,
       true,
       true
     ],
-    "successes": 4,
+    "successes": 3,
     "episodes": 4,
-    "success_rate": 1.0,
+    "success_rate": 0.75,
     "resets": [
       {
         "event": "reset",
@@ -398,16 +398,15 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "56e780c24cc8e2a492b83dab698b0d303a99747044f08e70c09e8e6b34247cb8",
+    "log_sha256": "8ad6362e1f71fd9eac3fa75870d2aa388ec19d262ad0aa133351ada3cdc0118f",
     "returncode": 0,
     "seed": 964000,
     "capture": {
       "total_samples": 16,
-      "accepted_samples": 16,
+      "accepted_samples": 12,
       "rejected_samples": 0,
-      "unsuccessful_samples": 0,
+      "unsuccessful_samples": 4,
       "successful_episode_indices": [
-        0,
         1,
         2,
         3
@@ -481,7 +480,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "6397885337242f88d5ded0d7bafc786a5ebade90e6d236a2ef225312ea4fae4b",
+    "log_sha256": "cb8d67688c77babdb16c1e8bc66825c646f220b85c83c35bb37ef6e48e3d2a41",
     "returncode": 0,
     "seed": 965000,
     "capture": {
@@ -499,14 +498,14 @@
   },
   "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
     "results": [
-      true,
+      false,
       true,
       true,
       false
     ],
-    "successes": 3,
+    "successes": 2,
     "episodes": 4,
-    "success_rate": 0.75,
+    "success_rate": 0.5,
     "resets": [
       {
         "event": "reset",
@@ -564,16 +563,15 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "26d91a2487c1494ef65a52076de2d1b8e9c7517667dec83cadbbb5b4ba697f94",
+    "log_sha256": "2c5a04fadaed34183e65d02d746171a9197ecb67826626687901681a8de88146",
     "returncode": 0,
     "seed": 966000,
     "capture": {
       "total_samples": 16,
-      "accepted_samples": 12,
+      "accepted_samples": 8,
       "rejected_samples": 0,
-      "unsuccessful_samples": 4,
+      "unsuccessful_samples": 8,
       "successful_episode_indices": [
-        0,
         1,
         2
       ]
@@ -581,9 +579,9 @@
   },
   "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
     "results": [
-      true,
-      true,
       false,
+      true,
+      true,
       true
     ],
     "successes": 3,
@@ -646,7 +644,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "3985667713e6036bfbebd7dc91935e9be0c4b8d80499d39dd6e989dc69221b7f",
+    "log_sha256": "714ee72cc881ea6f9fe5fa2e44ba4056fc457f5b1d8d4129a0ddbfd0b2ea76ff",
     "returncode": 0,
     "seed": 967000,
     "capture": {
@@ -655,8 +653,8 @@
       "rejected_samples": 0,
       "unsuccessful_samples": 4,
       "successful_episode_indices": [
-        0,
         1,
+        2,
         3
       ]
     }
@@ -664,13 +662,13 @@
   "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
     "results": [
       true,
-      false,
       true,
-      false
+      true,
+      true
     ],
-    "successes": 2,
+    "successes": 4,
     "episodes": 4,
-    "success_rate": 0.5,
+    "success_rate": 1.0,
     "resets": [
       {
         "event": "reset",
@@ -728,17 +726,19 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "041d7e02f0ba8e525ebca56ebda4c4bac677fe654a3c486fab6a507d71484f43",
+    "log_sha256": "1852ac70baa1196a2e57cbc95936921c3b59fb79d5c1cf92972e2db4ca3ce5a2",
     "returncode": 0,
     "seed": 968000,
     "capture": {
       "total_samples": 16,
-      "accepted_samples": 8,
+      "accepted_samples": 16,
       "rejected_samples": 0,
-      "unsuccessful_samples": 8,
+      "unsuccessful_samples": 0,
       "successful_episode_indices": [
         0,
-        2
+        1,
+        2,
+        3
       ]
     }
   },
@@ -747,11 +747,11 @@
       true,
       true,
       true,
-      false
+      true
     ],
-    "successes": 3,
+    "successes": 4,
     "episodes": 4,
-    "success_rate": 0.75,
+    "success_rate": 1.0,
     "resets": [
       {
         "event": "reset",
@@ -809,18 +809,19 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "c4c8bb5554938c490b97181b6a2cbcde9f82b1d2409b281c3846ee896c78f780",
+    "log_sha256": "e27e12f88390910c597792520dbcc3e1f66bef71ae32dc50dc7537ac1328175c",
     "returncode": 0,
     "seed": 969000,
     "capture": {
       "total_samples": 16,
-      "accepted_samples": 12,
+      "accepted_samples": 16,
       "rejected_samples": 0,
-      "unsuccessful_samples": 4,
+      "unsuccessful_samples": 0,
       "successful_episode_indices": [
         0,
         1,
-        2
+        2,
+        3
       ]
     }
   }

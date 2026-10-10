@@ -1,9 +1,9 @@
 {
   "version": "category-k-axis-nvfp4-v1",
   "recipe": "category_nvfp4_extension",
-  "parent": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq",
-  "parent_recipe_sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
-  "parent_bake_manifest_sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef",
+  "parent": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn",
+  "parent_recipe_sha256": "4c94ae6668d3b241023deb46de0f3fdf14c2ee58720a2d31b25fb46643bc8688",
+  "parent_bake_manifest_sha256": "60540377c368be6114ec99f926a626147ad6dd9584d47e6edeecb1386a7a47c5",
   "source_base": {
     "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
     "weights": {
@@ -59,7 +59,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.811863899230957,
           "best_rtn_objective": 3.811863899230957,
@@ -73,7 +73,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -97,7 +97,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.794584274291992,
           "best_rtn_objective": 3.794584274291992,
@@ -111,7 +111,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -132,64 +132,24 @@
           "source_sha256": "3c497ead0bd62595e5c0b5aa396ac1a37e168dfa1345efe4ff41e31a1432217e"
         },
         {
-          "method": "nvfp4_gptq",
-          "calibrated": true,
+          "method": "nvfp4_rtn",
+          "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
-          "objective": "tr(delta H delta.T)",
-          "selected_objective": 50.178062438964844,
-          "best_rtn_objective": 3612.260009765625,
-          "gptq_objective": 50.178062438964844,
+          "selection_rule": "forced RTN pressure arm",
+          "objective": "weight squared error",
+          "selected_objective": 3.82902455329895,
+          "best_rtn_objective": 3.82902455329895,
+          "gptq_objective": null,
           "candidates": [
             {
               "method": "nvfp4_rtn",
               "clip": 1.0,
-              "objective": 3612.260009765625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.95,
-              "objective": 4058.153076171875
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.9,
-              "objective": 5609.94482421875
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.85,
-              "objective": 8867.6015625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.8,
-              "objective": 14024.791015625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.7,
-              "objective": 32498.310546875
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.6,
-              "objective": 69040.28125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.5,
-              "objective": 132573.796875
-            },
-            {
-              "method": "nvfp4_gptq",
-              "clip": 1.0,
-              "objective": 50.178062438964844
+              "objective": 3.82902455329895
             }
           ],
-          "calibration_rows": 5248,
-          "calibration_calls": 128,
-          "uncalibrated_reason": null,
+          "calibration_rows": 0,
+          "calibration_calls": 0,
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -200,8 +160,8 @@
           ],
           "padding_k": 0,
           "tensor_scale": 0.0002321515785297379,
-          "output_sha256": "af77b9337e754e1b2fee7908c8cfecb720f89b0a0f2ee2674052b3772986c0b7",
-          "weight_mse_after_cast": 4.892770448350348e-06,
+          "output_sha256": "d997a970a7b0d834443e7e386e6de41037e75e13af0431b5f5969ffeb2b694a2",
+          "weight_mse_after_cast": 3.6516426007437985e-06,
           "bank": 2,
           "source_key": "action_head.action_decoder.layer1.W",
           "source_dtype": "torch.bfloat16",
@@ -213,7 +173,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.77484130859375,
           "best_rtn_objective": 3.77484130859375,
@@ -227,7 +187,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -251,7 +211,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.775928497314453,
           "best_rtn_objective": 3.775928497314453,
@@ -265,7 +225,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -289,7 +249,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.801746129989624,
           "best_rtn_objective": 3.801746129989624,
@@ -303,7 +263,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -327,7 +287,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8346662521362305,
           "best_rtn_objective": 3.8346662521362305,
@@ -341,7 +301,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -365,7 +325,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.7885937690734863,
           "best_rtn_objective": 3.7885937690734863,
@@ -379,7 +339,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -403,7 +363,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8068795204162598,
           "best_rtn_objective": 3.8068795204162598,
@@ -417,7 +377,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -441,7 +401,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8030951023101807,
           "best_rtn_objective": 3.8030951023101807,
@@ -455,7 +415,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -479,7 +439,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8088347911834717,
           "best_rtn_objective": 3.8088347911834717,
@@ -493,7 +453,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -517,7 +477,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.788851261138916,
           "best_rtn_objective": 3.788851261138916,
@@ -531,7 +491,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -555,7 +515,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8071448802948,
           "best_rtn_objective": 3.8071448802948,
@@ -569,7 +529,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -593,7 +553,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.7998228073120117,
           "best_rtn_objective": 3.7998228073120117,
@@ -607,7 +567,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -631,7 +591,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.818235397338867,
           "best_rtn_objective": 3.818235397338867,
@@ -645,7 +605,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -669,7 +629,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.79640531539917,
           "best_rtn_objective": 3.79640531539917,
@@ -683,7 +643,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -707,7 +667,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8037497997283936,
           "best_rtn_objective": 3.8037497997283936,
@@ -721,7 +681,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -745,7 +705,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.788700580596924,
           "best_rtn_objective": 3.788700580596924,
@@ -759,7 +719,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -783,7 +743,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.808359384536743,
           "best_rtn_objective": 3.808359384536743,
@@ -797,7 +757,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -821,7 +781,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.804804563522339,
           "best_rtn_objective": 3.804804563522339,
@@ -835,7 +795,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -859,7 +819,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8002395629882812,
           "best_rtn_objective": 3.8002395629882812,
@@ -873,7 +833,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -897,7 +857,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.7856833934783936,
           "best_rtn_objective": 3.7856833934783936,
@@ -911,7 +871,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -935,7 +895,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.7985048294067383,
           "best_rtn_objective": 3.7985048294067383,
@@ -949,7 +909,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -973,7 +933,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.802675247192383,
           "best_rtn_objective": 3.802675247192383,
@@ -987,7 +947,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1011,7 +971,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 4.489053726196289,
           "best_rtn_objective": 4.489053726196289,
@@ -1025,7 +985,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1049,7 +1009,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 4.312713623046875,
           "best_rtn_objective": 4.312713623046875,
@@ -1063,7 +1023,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1087,7 +1047,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 4.022791385650635,
           "best_rtn_objective": 4.022791385650635,
@@ -1101,7 +1061,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1125,7 +1085,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 4.145305633544922,
           "best_rtn_objective": 4.145305633544922,
@@ -1139,7 +1099,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1163,7 +1123,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.826978921890259,
           "best_rtn_objective": 3.826978921890259,
@@ -1177,7 +1137,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1201,7 +1161,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.795057535171509,
           "best_rtn_objective": 3.795057535171509,
@@ -1215,7 +1175,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1239,7 +1199,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.8026139736175537,
           "best_rtn_objective": 3.8026139736175537,
@@ -1253,7 +1213,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1277,7 +1237,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.7976796627044678,
           "best_rtn_objective": 3.7976796627044678,
@@ -1291,7 +1251,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1024
@@ -1324,7 +1284,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48278623819351196,
           "best_rtn_objective": 0.48278623819351196,
@@ -1338,7 +1298,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1362,7 +1322,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4972842037677765,
           "best_rtn_objective": 0.4972842037677765,
@@ -1376,7 +1336,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1397,64 +1357,24 @@
           "source_sha256": "41d0f534ea8320c65692ef1567c3a53fa5f23ee228037ed7f152cd40d977b5ba"
         },
         {
-          "method": "nvfp4_gptq",
-          "calibrated": true,
+          "method": "nvfp4_rtn",
+          "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
-          "objective": "tr(delta H delta.T)",
-          "selected_objective": 8.187548637390137,
-          "best_rtn_objective": 292.3898620605469,
-          "gptq_objective": 8.187548637390137,
+          "selection_rule": "forced RTN pressure arm",
+          "objective": "weight squared error",
+          "selected_objective": 0.4824577569961548,
+          "best_rtn_objective": 0.4824577569961548,
+          "gptq_objective": null,
           "candidates": [
             {
               "method": "nvfp4_rtn",
               "clip": 1.0,
-              "objective": 292.3898620605469
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.95,
-              "objective": 316.765869140625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.9,
-              "objective": 417.03668212890625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.85,
-              "objective": 645.522705078125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.8,
-              "objective": 947.1150512695312
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.7,
-              "objective": 2194.0048828125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.6,
-              "objective": 4469.57568359375
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.5,
-              "objective": 8666.712890625
-            },
-            {
-              "method": "nvfp4_gptq",
-              "clip": 1.0,
-              "objective": 8.187548637390137
+              "objective": 0.4824577569961548
             }
           ],
-          "calibration_rows": 5248,
-          "calibration_calls": 128,
-          "uncalibrated_reason": null,
+          "calibration_rows": 0,
+          "calibration_calls": 0,
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1465,8 +1385,8 @@
           ],
           "padding_k": 0,
           "tensor_scale": 0.00021907260816078633,
-          "output_sha256": "348e680dc0d0244d60dc44f09f77dee168858d9d18774a0cad0a92e5ba52f639",
-          "weight_mse_after_cast": 8.535833330824971e-06,
+          "output_sha256": "39f84cdb1b1d7ab603060fad3ebc4f833609956c6d5330994943d478f64fbb15",
+          "weight_mse_after_cast": 3.569319233065471e-06,
           "bank": 2,
           "source_key": "action_head.action_decoder.layer2.W",
           "source_dtype": "torch.bfloat16",
@@ -1478,7 +1398,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.486396461725235,
           "best_rtn_objective": 0.486396461725235,
@@ -1492,7 +1412,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1516,7 +1436,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48325830698013306,
           "best_rtn_objective": 0.48325830698013306,
@@ -1530,7 +1450,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1554,7 +1474,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.490132212638855,
           "best_rtn_objective": 0.490132212638855,
@@ -1568,7 +1488,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1592,7 +1512,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4905197024345398,
           "best_rtn_objective": 0.4905197024345398,
@@ -1606,7 +1526,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1630,7 +1550,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.49067986011505127,
           "best_rtn_objective": 0.49067986011505127,
@@ -1644,7 +1564,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1668,7 +1588,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.489364892244339,
           "best_rtn_objective": 0.489364892244339,
@@ -1682,7 +1602,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1706,7 +1626,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.49014538526535034,
           "best_rtn_objective": 0.49014538526535034,
@@ -1720,7 +1640,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1744,7 +1664,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4848218858242035,
           "best_rtn_objective": 0.4848218858242035,
@@ -1758,7 +1678,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1782,7 +1702,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.49055397510528564,
           "best_rtn_objective": 0.49055397510528564,
@@ -1796,7 +1716,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1820,7 +1740,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.49144119024276733,
           "best_rtn_objective": 0.49144119024276733,
@@ -1834,7 +1754,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1858,7 +1778,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4901459217071533,
           "best_rtn_objective": 0.4901459217071533,
@@ -1872,7 +1792,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1896,7 +1816,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48556065559387207,
           "best_rtn_objective": 0.48556065559387207,
@@ -1910,7 +1830,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1934,7 +1854,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48780497908592224,
           "best_rtn_objective": 0.48780497908592224,
@@ -1948,7 +1868,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -1972,7 +1892,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4906408190727234,
           "best_rtn_objective": 0.4906408190727234,
@@ -1986,7 +1906,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2010,7 +1930,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.49805939197540283,
           "best_rtn_objective": 0.49805939197540283,
@@ -2024,7 +1944,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2048,7 +1968,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48376911878585815,
           "best_rtn_objective": 0.48376911878585815,
@@ -2062,7 +1982,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2086,7 +2006,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4925074577331543,
           "best_rtn_objective": 0.4925074577331543,
@@ -2100,7 +2020,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2124,7 +2044,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48340904712677,
           "best_rtn_objective": 0.48340904712677,
@@ -2138,7 +2058,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2162,7 +2082,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.49057668447494507,
           "best_rtn_objective": 0.49057668447494507,
@@ -2176,7 +2096,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2200,7 +2120,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4937071204185486,
           "best_rtn_objective": 0.4937071204185486,
@@ -2214,7 +2134,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2238,7 +2158,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.485979825258255,
           "best_rtn_objective": 0.485979825258255,
@@ -2252,7 +2172,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2276,7 +2196,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.5100207924842834,
           "best_rtn_objective": 0.5100207924842834,
@@ -2290,7 +2210,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2314,7 +2234,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.519823431968689,
           "best_rtn_objective": 0.519823431968689,
@@ -2328,7 +2248,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2352,7 +2272,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.5091325044631958,
           "best_rtn_objective": 0.5091325044631958,
@@ -2366,7 +2286,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2390,7 +2310,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4992193281650543,
           "best_rtn_objective": 0.4992193281650543,
@@ -2404,7 +2324,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2428,7 +2348,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4921812117099762,
           "best_rtn_objective": 0.4921812117099762,
@@ -2442,7 +2362,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2466,7 +2386,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4875127673149109,
           "best_rtn_objective": 0.4875127673149109,
@@ -2480,7 +2400,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2504,7 +2424,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.494137167930603,
           "best_rtn_objective": 0.494137167930603,
@@ -2518,7 +2438,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2542,7 +2462,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4898623824119568,
           "best_rtn_objective": 0.4898623824119568,
@@ -2556,7 +2476,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             132
@@ -2589,7 +2509,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7256091237068176,
           "best_rtn_objective": 0.7256091237068176,
@@ -2603,7 +2523,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2627,7 +2547,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7296836376190186,
           "best_rtn_objective": 0.7296836376190186,
@@ -2641,7 +2561,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2662,64 +2582,24 @@
           "source_sha256": "28dce32850bb360dbbcecd6d0d4ee417daaa1727c398ae7331cb39067c9c3194"
         },
         {
-          "method": "nvfp4_gptq",
-          "calibrated": true,
+          "method": "nvfp4_rtn",
+          "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
-          "objective": "tr(delta H delta.T)",
-          "selected_objective": 1952.501220703125,
-          "best_rtn_objective": 2003.114013671875,
-          "gptq_objective": 1952.501220703125,
+          "selection_rule": "forced RTN pressure arm",
+          "objective": "weight squared error",
+          "selected_objective": 0.9583015441894531,
+          "best_rtn_objective": 0.9583015441894531,
+          "gptq_objective": null,
           "candidates": [
             {
               "method": "nvfp4_rtn",
               "clip": 1.0,
-              "objective": 2003.114013671875
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.95,
-              "objective": 2064.58251953125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.9,
-              "objective": 2534.3388671875
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.85,
-              "objective": 3492.89990234375
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.8,
-              "objective": 4942.41552734375
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.7,
-              "objective": 9773.5146484375
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.6,
-              "objective": 17871.55078125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.5,
-              "objective": 30266.994140625
-            },
-            {
-              "method": "nvfp4_gptq",
-              "clip": 1.0,
-              "objective": 1952.501220703125
+              "objective": 0.9583015441894531
             }
           ],
-          "calibration_rows": 5120,
-          "calibration_calls": 128,
-          "uncalibrated_reason": null,
+          "calibration_rows": 0,
+          "calibration_calls": 0,
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2730,8 +2610,8 @@
           ],
           "padding_k": 12,
           "tensor_scale": 0.00034005302586592734,
-          "output_sha256": "31fd10495038f1de2d5034237a6b82a78f79ca3687dacf91a4bef5576e92c015",
-          "weight_mse_after_cast": 4.847336640523281e-06,
+          "output_sha256": "a86cb08958127ce5c3ded54c7a372b7d966cd57e9d05b72549ed2e6b8207ad17",
+          "weight_mse_after_cast": 4.726471161120571e-06,
           "bank": 2,
           "source_key": "action_head.action_encoder.W1.W",
           "source_dtype": "torch.bfloat16",
@@ -2743,7 +2623,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7291009426116943,
           "best_rtn_objective": 0.7291009426116943,
@@ -2757,7 +2637,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2781,7 +2661,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7237940430641174,
           "best_rtn_objective": 0.7237940430641174,
@@ -2795,7 +2675,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2819,7 +2699,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7286977767944336,
           "best_rtn_objective": 0.7286977767944336,
@@ -2833,7 +2713,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2857,7 +2737,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7267723083496094,
           "best_rtn_objective": 0.7267723083496094,
@@ -2871,7 +2751,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2895,7 +2775,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7290721535682678,
           "best_rtn_objective": 0.7290721535682678,
@@ -2909,7 +2789,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2933,7 +2813,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7264906167984009,
           "best_rtn_objective": 0.7264906167984009,
@@ -2947,7 +2827,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -2971,7 +2851,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7296255230903625,
           "best_rtn_objective": 0.7296255230903625,
@@ -2985,7 +2865,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3009,7 +2889,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7284677624702454,
           "best_rtn_objective": 0.7284677624702454,
@@ -3023,7 +2903,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3047,7 +2927,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7228821516036987,
           "best_rtn_objective": 0.7228821516036987,
@@ -3061,7 +2941,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3085,7 +2965,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7235000729560852,
           "best_rtn_objective": 0.7235000729560852,
@@ -3099,7 +2979,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3123,7 +3003,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7196789979934692,
           "best_rtn_objective": 0.7196789979934692,
@@ -3137,7 +3017,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3161,7 +3041,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7286916375160217,
           "best_rtn_objective": 0.7286916375160217,
@@ -3175,7 +3055,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3199,7 +3079,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7249607443809509,
           "best_rtn_objective": 0.7249607443809509,
@@ -3213,7 +3093,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3237,7 +3117,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7316259145736694,
           "best_rtn_objective": 0.7316259145736694,
@@ -3251,7 +3131,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3275,7 +3155,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7250157594680786,
           "best_rtn_objective": 0.7250157594680786,
@@ -3289,7 +3169,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3313,7 +3193,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7252283692359924,
           "best_rtn_objective": 0.7252283692359924,
@@ -3327,7 +3207,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3351,7 +3231,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7276170253753662,
           "best_rtn_objective": 0.7276170253753662,
@@ -3365,7 +3245,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3389,7 +3269,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7179978489875793,
           "best_rtn_objective": 0.7179978489875793,
@@ -3403,7 +3283,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3427,7 +3307,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7229135036468506,
           "best_rtn_objective": 0.7229135036468506,
@@ -3441,7 +3321,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3465,7 +3345,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7201983332633972,
           "best_rtn_objective": 0.7201983332633972,
@@ -3479,7 +3359,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3503,7 +3383,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7174477577209473,
           "best_rtn_objective": 0.7174477577209473,
@@ -3517,7 +3397,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3541,7 +3421,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 1.5480204820632935,
           "best_rtn_objective": 1.5480204820632935,
@@ -3555,7 +3435,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3579,7 +3459,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 2.916842222213745,
           "best_rtn_objective": 2.916842222213745,
@@ -3593,7 +3473,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3617,7 +3497,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 3.2034573554992676,
           "best_rtn_objective": 3.2034573554992676,
@@ -3631,7 +3511,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3655,7 +3535,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 2.2900941371917725,
           "best_rtn_objective": 2.2900941371917725,
@@ -3669,7 +3549,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3693,7 +3573,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7320741415023804,
           "best_rtn_objective": 0.7320741415023804,
@@ -3707,7 +3587,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3731,7 +3611,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7190779447555542,
           "best_rtn_objective": 0.7190779447555542,
@@ -3745,7 +3625,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3769,7 +3649,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7281651496887207,
           "best_rtn_objective": 0.7281651496887207,
@@ -3783,7 +3663,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3807,7 +3687,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.7273420095443726,
           "best_rtn_objective": 0.7273420095443726,
@@ -3821,7 +3701,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1536
@@ -3854,7 +3734,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.143024444580078,
           "best_rtn_objective": 17.143024444580078,
@@ -3868,7 +3748,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -3892,7 +3772,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.080533981323242,
           "best_rtn_objective": 17.080533981323242,
@@ -3906,7 +3786,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -3927,64 +3807,24 @@
           "source_sha256": "c2c30e50b3bf3de743469ef4062d61d49e6ec89e206a78b14eaa76f665f4b453"
         },
         {
-          "method": "nvfp4_gptq",
-          "calibrated": true,
+          "method": "nvfp4_rtn",
+          "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
-          "objective": "tr(delta H delta.T)",
-          "selected_objective": 256.2932434082031,
-          "best_rtn_objective": 24748.53125,
-          "gptq_objective": 256.2932434082031,
+          "selection_rule": "forced RTN pressure arm",
+          "objective": "weight squared error",
+          "selected_objective": 28.1757755279541,
+          "best_rtn_objective": 28.1757755279541,
+          "gptq_objective": null,
           "candidates": [
             {
               "method": "nvfp4_rtn",
               "clip": 1.0,
-              "objective": 24748.53125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.95,
-              "objective": 32240.677734375
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.9,
-              "objective": 56781.625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.85,
-              "objective": 100858.375
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.8,
-              "objective": 170996.078125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.7,
-              "objective": 456838.28125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.6,
-              "objective": 1046559.0625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.5,
-              "objective": 2134558.5
-            },
-            {
-              "method": "nvfp4_gptq",
-              "clip": 1.0,
-              "objective": 256.2932434082031
+              "objective": 28.1757755279541
             }
           ],
-          "calibration_rows": 5120,
-          "calibration_calls": 128,
-          "uncalibrated_reason": null,
+          "calibration_rows": 0,
+          "calibration_calls": 0,
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -3995,8 +3835,8 @@
           ],
           "padding_k": 0,
           "tensor_scale": 0.00030081611475907266,
-          "output_sha256": "d73f43b12720a18f4bf319c77bc0403fb366d2d95ac35b938e66ea1da8879929",
-          "weight_mse_after_cast": 8.769111445872113e-06,
+          "output_sha256": "c938fb014a54de988e3c5e6f5d6cd9db6767869580d784d21ce45115bbd7ab96",
+          "weight_mse_after_cast": 5.971224709355738e-06,
           "bank": 2,
           "source_key": "action_head.action_encoder.W2.W",
           "source_dtype": "torch.bfloat16",
@@ -4008,7 +3848,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.116790771484375,
           "best_rtn_objective": 17.116790771484375,
@@ -4022,7 +3862,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4046,7 +3886,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.032331466674805,
           "best_rtn_objective": 17.032331466674805,
@@ -4060,7 +3900,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4084,7 +3924,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.087539672851562,
           "best_rtn_objective": 17.087539672851562,
@@ -4098,7 +3938,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4122,7 +3962,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.056373596191406,
           "best_rtn_objective": 17.056373596191406,
@@ -4136,7 +3976,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4160,7 +4000,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.101211547851562,
           "best_rtn_objective": 17.101211547851562,
@@ -4174,7 +4014,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4198,7 +4038,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.11125373840332,
           "best_rtn_objective": 17.11125373840332,
@@ -4212,7 +4052,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4236,7 +4076,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.11664581298828,
           "best_rtn_objective": 17.11664581298828,
@@ -4250,7 +4090,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4274,7 +4114,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.13751220703125,
           "best_rtn_objective": 17.13751220703125,
@@ -4288,7 +4128,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4312,7 +4152,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.19891357421875,
           "best_rtn_objective": 17.19891357421875,
@@ -4326,7 +4166,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4350,7 +4190,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.086376190185547,
           "best_rtn_objective": 17.086376190185547,
@@ -4364,7 +4204,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4388,7 +4228,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.080190658569336,
           "best_rtn_objective": 17.080190658569336,
@@ -4402,7 +4242,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4426,7 +4266,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.075891494750977,
           "best_rtn_objective": 17.075891494750977,
@@ -4440,7 +4280,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4464,7 +4304,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.088294982910156,
           "best_rtn_objective": 17.088294982910156,
@@ -4478,7 +4318,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4502,7 +4342,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.069316864013672,
           "best_rtn_objective": 17.069316864013672,
@@ -4516,7 +4356,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4540,7 +4380,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.091583251953125,
           "best_rtn_objective": 17.091583251953125,
@@ -4554,7 +4394,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4578,7 +4418,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.127723693847656,
           "best_rtn_objective": 17.127723693847656,
@@ -4592,7 +4432,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4616,7 +4456,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.183900833129883,
           "best_rtn_objective": 17.183900833129883,
@@ -4630,7 +4470,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4654,7 +4494,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.149459838867188,
           "best_rtn_objective": 17.149459838867188,
@@ -4668,7 +4508,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4692,7 +4532,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.12154769897461,
           "best_rtn_objective": 17.12154769897461,
@@ -4706,7 +4546,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4730,7 +4570,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.09811782836914,
           "best_rtn_objective": 17.09811782836914,
@@ -4744,7 +4584,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4768,7 +4608,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.092411041259766,
           "best_rtn_objective": 17.092411041259766,
@@ -4782,7 +4622,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4806,7 +4646,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 32.53754425048828,
           "best_rtn_objective": 32.53754425048828,
@@ -4820,7 +4660,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4844,7 +4684,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 38.66284942626953,
           "best_rtn_objective": 38.66284942626953,
@@ -4858,7 +4698,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4882,7 +4722,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 48.131683349609375,
           "best_rtn_objective": 48.131683349609375,
@@ -4896,7 +4736,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4920,7 +4760,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 39.029502868652344,
           "best_rtn_objective": 39.029502868652344,
@@ -4934,7 +4774,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4958,7 +4798,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.104148864746094,
           "best_rtn_objective": 17.104148864746094,
@@ -4972,7 +4812,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -4996,7 +4836,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.01633071899414,
           "best_rtn_objective": 17.01633071899414,
@@ -5010,7 +4850,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -5034,7 +4874,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.08589744567871,
           "best_rtn_objective": 17.08589744567871,
@@ -5048,7 +4888,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -5072,7 +4912,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 17.088581085205078,
           "best_rtn_objective": 17.088581085205078,
@@ -5086,7 +4926,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             3072,
             1536
@@ -5119,7 +4959,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.564515113830566,
           "best_rtn_objective": 8.564515113830566,
@@ -5133,7 +4973,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5157,7 +4997,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.585360527038574,
           "best_rtn_objective": 8.585360527038574,
@@ -5171,7 +5011,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5192,64 +5032,24 @@
           "source_sha256": "ef5cc87fef85c0d32c9a91ac97baa88812a0a2e091e0c10a76d7da0182a3de48"
         },
         {
-          "method": "nvfp4_gptq",
-          "calibrated": true,
+          "method": "nvfp4_rtn",
+          "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
-          "objective": "tr(delta H delta.T)",
-          "selected_objective": 2075.1435546875,
-          "best_rtn_objective": 116253.65625,
-          "gptq_objective": 2075.1435546875,
+          "selection_rule": "forced RTN pressure arm",
+          "objective": "weight squared error",
+          "selected_objective": 9.477779388427734,
+          "best_rtn_objective": 9.477779388427734,
+          "gptq_objective": null,
           "candidates": [
             {
               "method": "nvfp4_rtn",
               "clip": 1.0,
-              "objective": 116253.65625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.95,
-              "objective": 170161.625
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.9,
-              "objective": 308824.25
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.85,
-              "objective": 597205.8125
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.8,
-              "objective": 1049970.5
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.7,
-              "objective": 2934097.25
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.6,
-              "objective": 6991960.5
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.5,
-              "objective": 15062921.0
-            },
-            {
-              "method": "nvfp4_gptq",
-              "clip": 1.0,
-              "objective": 2075.1435546875
+              "objective": 9.477779388427734
             }
           ],
-          "calibration_rows": 5120,
-          "calibration_calls": 128,
-          "uncalibrated_reason": null,
+          "calibration_rows": 0,
+          "calibration_calls": 0,
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5260,8 +5060,8 @@
           ],
           "padding_k": 0,
           "tensor_scale": 0.00028555732569657266,
-          "output_sha256": "a2fe102372714bf4c794f7b30a6561df934079f7cdbe9827653758eafad533d1",
-          "weight_mse_after_cast": 5.517729732673615e-06,
+          "output_sha256": "085e81b5208072fd28981cd07b7cf2d40771e4cc6bd834d85b981e6988a0bd4d",
+          "weight_mse_after_cast": 4.017206265416462e-06,
           "bank": 2,
           "source_key": "action_head.action_encoder.W3.W",
           "source_dtype": "torch.bfloat16",
@@ -5273,7 +5073,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.597289085388184,
           "best_rtn_objective": 8.597289085388184,
@@ -5287,7 +5087,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5311,7 +5111,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.551863670349121,
           "best_rtn_objective": 8.551863670349121,
@@ -5325,7 +5125,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5349,7 +5149,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.53293514251709,
           "best_rtn_objective": 8.53293514251709,
@@ -5363,7 +5163,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5387,7 +5187,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.58713436126709,
           "best_rtn_objective": 8.58713436126709,
@@ -5401,7 +5201,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5425,7 +5225,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.610671043395996,
           "best_rtn_objective": 8.610671043395996,
@@ -5439,7 +5239,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5463,7 +5263,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.559845924377441,
           "best_rtn_objective": 8.559845924377441,
@@ -5477,7 +5277,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5501,7 +5301,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.549290657043457,
           "best_rtn_objective": 8.549290657043457,
@@ -5515,7 +5315,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5539,7 +5339,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.545614242553711,
           "best_rtn_objective": 8.545614242553711,
@@ -5553,7 +5353,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5577,7 +5377,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.585966110229492,
           "best_rtn_objective": 8.585966110229492,
@@ -5591,7 +5391,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5615,7 +5415,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.54326343536377,
           "best_rtn_objective": 8.54326343536377,
@@ -5629,7 +5429,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5653,7 +5453,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.563764572143555,
           "best_rtn_objective": 8.563764572143555,
@@ -5667,7 +5467,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5691,7 +5491,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.55563735961914,
           "best_rtn_objective": 8.55563735961914,
@@ -5705,7 +5505,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5729,7 +5529,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.553850173950195,
           "best_rtn_objective": 8.553850173950195,
@@ -5743,7 +5543,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5767,7 +5567,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.543869972229004,
           "best_rtn_objective": 8.543869972229004,
@@ -5781,7 +5581,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5805,7 +5605,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.555093765258789,
           "best_rtn_objective": 8.555093765258789,
@@ -5819,7 +5619,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5843,7 +5643,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.49199104309082,
           "best_rtn_objective": 8.49199104309082,
@@ -5857,7 +5657,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5881,7 +5681,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.524423599243164,
           "best_rtn_objective": 8.524423599243164,
@@ -5895,7 +5695,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5919,7 +5719,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.553352355957031,
           "best_rtn_objective": 8.553352355957031,
@@ -5933,7 +5733,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5957,7 +5757,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.555161476135254,
           "best_rtn_objective": 8.555161476135254,
@@ -5971,7 +5771,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -5995,7 +5795,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.534160614013672,
           "best_rtn_objective": 8.534160614013672,
@@ -6009,7 +5809,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6033,7 +5833,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.568077087402344,
           "best_rtn_objective": 8.568077087402344,
@@ -6047,7 +5847,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6071,7 +5871,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 9.816481590270996,
           "best_rtn_objective": 9.816481590270996,
@@ -6085,7 +5885,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6109,7 +5909,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 10.822698593139648,
           "best_rtn_objective": 10.822698593139648,
@@ -6123,7 +5923,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6147,7 +5947,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 10.35896110534668,
           "best_rtn_objective": 10.35896110534668,
@@ -6161,7 +5961,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6185,7 +5985,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 9.91836929321289,
           "best_rtn_objective": 9.91836929321289,
@@ -6199,7 +5999,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6223,7 +6023,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.62554931640625,
           "best_rtn_objective": 8.62554931640625,
@@ -6237,7 +6037,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6261,7 +6061,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.529226303100586,
           "best_rtn_objective": 8.529226303100586,
@@ -6275,7 +6075,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6299,7 +6099,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.551025390625,
           "best_rtn_objective": 8.551025390625,
@@ -6313,7 +6113,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6337,7 +6137,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.584066390991211,
           "best_rtn_objective": 8.584066390991211,
@@ -6351,7 +6151,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1536,
             1536
@@ -6384,7 +6184,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4785674810409546,
           "best_rtn_objective": 0.4785674810409546,
@@ -6398,7 +6198,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6422,7 +6222,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48459115624427795,
           "best_rtn_objective": 0.48459115624427795,
@@ -6436,7 +6236,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6457,64 +6257,24 @@
           "source_sha256": "32684fc0f0dae4c631e34481184c5c457ca50703131a25ea5256b30fc62f6189"
         },
         {
-          "method": "nvfp4_gptq",
-          "calibrated": true,
+          "method": "nvfp4_rtn",
+          "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
-          "objective": "tr(delta H delta.T)",
-          "selected_objective": 0.7303000688552856,
-          "best_rtn_objective": 1.3121323585510254,
-          "gptq_objective": 0.7303000688552856,
+          "selection_rule": "forced RTN pressure arm",
+          "objective": "weight squared error",
+          "selected_objective": 0.4839309751987457,
+          "best_rtn_objective": 0.4839309751987457,
+          "gptq_objective": null,
           "candidates": [
             {
               "method": "nvfp4_rtn",
               "clip": 1.0,
-              "objective": 1.3121323585510254
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.95,
-              "objective": 1.3466558456420898
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.9,
-              "objective": 1.850412368774414
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.85,
-              "objective": 2.658634901046753
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.8,
-              "objective": 3.8644838333129883
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.7,
-              "objective": 7.3254876136779785
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.6,
-              "objective": 13.234867095947266
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.5,
-              "objective": 21.72911834716797
-            },
-            {
-              "method": "nvfp4_gptq",
-              "clip": 1.0,
-              "objective": 0.7303000688552856
+              "objective": 0.4839309751987457
             }
           ],
-          "calibration_rows": 128,
-          "calibration_calls": 128,
-          "uncalibrated_reason": null,
+          "calibration_rows": 0,
+          "calibration_calls": 0,
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6525,8 +6285,8 @@
           ],
           "padding_k": 12,
           "tensor_scale": 0.000213623046875,
-          "output_sha256": "bb8bece73f72a491be10489cc24076d298e23ae1b6f4aa6aca0f0f1d4d8b3a25",
-          "weight_mse_after_cast": 0.0003748132148757577,
+          "output_sha256": "848d4f2026c9d0211dfd52d64115e17e844b513505db30a953668ccd8ab17778",
+          "weight_mse_after_cast": 3.580218617571518e-06,
           "bank": 2,
           "source_key": "action_head.state_encoder.layer1.W",
           "source_dtype": "torch.bfloat16",
@@ -6538,7 +6298,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4853445887565613,
           "best_rtn_objective": 0.4853445887565613,
@@ -6552,7 +6312,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6576,7 +6336,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4834774136543274,
           "best_rtn_objective": 0.4834774136543274,
@@ -6590,7 +6350,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6614,7 +6374,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48555946350097656,
           "best_rtn_objective": 0.48555946350097656,
@@ -6628,7 +6388,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6652,7 +6412,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4859875440597534,
           "best_rtn_objective": 0.4859875440597534,
@@ -6666,7 +6426,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6690,7 +6450,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48536044359207153,
           "best_rtn_objective": 0.48536044359207153,
@@ -6704,7 +6464,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6728,7 +6488,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.47798874974250793,
           "best_rtn_objective": 0.47798874974250793,
@@ -6742,7 +6502,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6766,7 +6526,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.47829753160476685,
           "best_rtn_objective": 0.47829753160476685,
@@ -6780,7 +6540,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6804,7 +6564,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48447853326797485,
           "best_rtn_objective": 0.48447853326797485,
@@ -6818,7 +6578,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6842,7 +6602,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48716044425964355,
           "best_rtn_objective": 0.48716044425964355,
@@ -6856,7 +6616,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6880,7 +6640,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4783443808555603,
           "best_rtn_objective": 0.4783443808555603,
@@ -6894,7 +6654,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6918,7 +6678,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48368895053863525,
           "best_rtn_objective": 0.48368895053863525,
@@ -6932,7 +6692,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6956,7 +6716,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48481181263923645,
           "best_rtn_objective": 0.48481181263923645,
@@ -6970,7 +6730,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -6994,7 +6754,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4833713471889496,
           "best_rtn_objective": 0.4833713471889496,
@@ -7008,7 +6768,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7032,7 +6792,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48025867342948914,
           "best_rtn_objective": 0.48025867342948914,
@@ -7046,7 +6806,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7070,7 +6830,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48187291622161865,
           "best_rtn_objective": 0.48187291622161865,
@@ -7084,7 +6844,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7108,7 +6868,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48574182391166687,
           "best_rtn_objective": 0.48574182391166687,
@@ -7122,7 +6882,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7146,7 +6906,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48240751028060913,
           "best_rtn_objective": 0.48240751028060913,
@@ -7160,7 +6920,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7184,7 +6944,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4822215437889099,
           "best_rtn_objective": 0.4822215437889099,
@@ -7198,7 +6958,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7222,7 +6982,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48080793023109436,
           "best_rtn_objective": 0.48080793023109436,
@@ -7236,7 +6996,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7260,7 +7020,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4774278700351715,
           "best_rtn_objective": 0.4774278700351715,
@@ -7274,7 +7034,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7298,7 +7058,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.48106828331947327,
           "best_rtn_objective": 0.48106828331947327,
@@ -7312,7 +7072,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7336,7 +7096,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.5169254541397095,
           "best_rtn_objective": 0.5169254541397095,
@@ -7350,7 +7110,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7374,7 +7134,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.6105743646621704,
           "best_rtn_objective": 0.6105743646621704,
@@ -7388,7 +7148,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7412,7 +7172,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.6672585010528564,
           "best_rtn_objective": 0.6672585010528564,
@@ -7426,7 +7186,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7450,7 +7210,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.5012357831001282,
           "best_rtn_objective": 0.5012357831001282,
@@ -7464,7 +7224,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7488,7 +7248,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4874922037124634,
           "best_rtn_objective": 0.4874922037124634,
@@ -7502,7 +7262,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7526,7 +7286,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.4847034811973572,
           "best_rtn_objective": 0.4847034811973572,
@@ -7540,7 +7300,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7564,7 +7324,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.47373610734939575,
           "best_rtn_objective": 0.47373610734939575,
@@ -7578,7 +7338,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7602,7 +7362,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 0.481622576713562,
           "best_rtn_objective": 0.481622576713562,
@@ -7616,7 +7376,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             132,
             1024
@@ -7649,7 +7409,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.682808876037598,
           "best_rtn_objective": 5.682808876037598,
@@ -7663,7 +7423,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7687,7 +7447,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.696934700012207,
           "best_rtn_objective": 5.696934700012207,
@@ -7701,7 +7461,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7722,64 +7482,24 @@
           "source_sha256": "2e0390a1065e205d43f003a1978711c8b5d1154031b8bcc5581073dbe65f6f22"
         },
         {
-          "method": "nvfp4_gptq",
-          "calibrated": true,
+          "method": "nvfp4_rtn",
+          "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
-          "objective": "tr(delta H delta.T)",
-          "selected_objective": 0.001473110169172287,
-          "best_rtn_objective": 0.21449682116508484,
-          "gptq_objective": 0.001473110169172287,
+          "selection_rule": "forced RTN pressure arm",
+          "objective": "weight squared error",
+          "selected_objective": 6.58621883392334,
+          "best_rtn_objective": 6.58621883392334,
+          "gptq_objective": null,
           "candidates": [
             {
               "method": "nvfp4_rtn",
               "clip": 1.0,
-              "objective": 0.21449682116508484
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.95,
-              "objective": 0.28002214431762695
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.9,
-              "objective": 0.44164082407951355
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.85,
-              "objective": 0.7405040860176086
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.8,
-              "objective": 1.2388960123062134
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.7,
-              "objective": 3.2082467079162598
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.6,
-              "objective": 7.0836029052734375
-            },
-            {
-              "method": "nvfp4_rtn",
-              "clip": 0.5,
-              "objective": 14.280119895935059
-            },
-            {
-              "method": "nvfp4_gptq",
-              "clip": 1.0,
-              "objective": 0.001473110169172287
+              "objective": 6.58621883392334
             }
           ],
-          "calibration_rows": 128,
-          "calibration_calls": 128,
-          "uncalibrated_reason": null,
+          "calibration_rows": 0,
+          "calibration_calls": 0,
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7790,8 +7510,8 @@
           ],
           "padding_k": 0,
           "tensor_scale": 0.0002593994140625,
-          "output_sha256": "a8c42c44ca87edffe62dd9b40888358768894beecc8e2325cbbb138e57636de2",
-          "weight_mse_after_cast": 1.2245648576936219e-05,
+          "output_sha256": "56c441bb340d45daa731d368952bb2b37de70d6d9ce2319759b4e70cc8dab725",
+          "weight_mse_after_cast": 4.18740501118009e-06,
           "bank": 2,
           "source_key": "action_head.state_encoder.layer2.W",
           "source_dtype": "torch.bfloat16",
@@ -7803,7 +7523,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.713389873504639,
           "best_rtn_objective": 5.713389873504639,
@@ -7817,7 +7537,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7841,7 +7561,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.703679084777832,
           "best_rtn_objective": 5.703679084777832,
@@ -7855,7 +7575,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7879,7 +7599,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.679586410522461,
           "best_rtn_objective": 5.679586410522461,
@@ -7893,7 +7613,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7917,7 +7637,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.692575454711914,
           "best_rtn_objective": 5.692575454711914,
@@ -7931,7 +7651,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7955,7 +7675,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.7049384117126465,
           "best_rtn_objective": 5.7049384117126465,
@@ -7969,7 +7689,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -7993,7 +7713,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.7066521644592285,
           "best_rtn_objective": 5.7066521644592285,
@@ -8007,7 +7727,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8031,7 +7751,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.680647850036621,
           "best_rtn_objective": 5.680647850036621,
@@ -8045,7 +7765,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8069,7 +7789,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.68105936050415,
           "best_rtn_objective": 5.68105936050415,
@@ -8083,7 +7803,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8107,7 +7827,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.704945087432861,
           "best_rtn_objective": 5.704945087432861,
@@ -8121,7 +7841,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8145,7 +7865,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.724320411682129,
           "best_rtn_objective": 5.724320411682129,
@@ -8159,7 +7879,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8183,7 +7903,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.719997406005859,
           "best_rtn_objective": 5.719997406005859,
@@ -8197,7 +7917,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8221,7 +7941,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.72193717956543,
           "best_rtn_objective": 5.72193717956543,
@@ -8235,7 +7955,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8259,7 +7979,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.709481716156006,
           "best_rtn_objective": 5.709481716156006,
@@ -8273,7 +7993,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8297,7 +8017,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.691786766052246,
           "best_rtn_objective": 5.691786766052246,
@@ -8311,7 +8031,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8335,7 +8055,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.707639694213867,
           "best_rtn_objective": 5.707639694213867,
@@ -8349,7 +8069,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8373,7 +8093,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.679205894470215,
           "best_rtn_objective": 5.679205894470215,
@@ -8387,7 +8107,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8411,7 +8131,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.682721138000488,
           "best_rtn_objective": 5.682721138000488,
@@ -8425,7 +8145,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8449,7 +8169,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.702569007873535,
           "best_rtn_objective": 5.702569007873535,
@@ -8463,7 +8183,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8487,7 +8207,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.684540271759033,
           "best_rtn_objective": 5.684540271759033,
@@ -8501,7 +8221,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8525,7 +8245,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.717667579650879,
           "best_rtn_objective": 5.717667579650879,
@@ -8539,7 +8259,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8563,7 +8283,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.743048667907715,
           "best_rtn_objective": 5.743048667907715,
@@ -8577,7 +8297,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8601,7 +8321,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.307217597961426,
           "best_rtn_objective": 8.307217597961426,
@@ -8615,7 +8335,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8639,7 +8359,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 9.198407173156738,
           "best_rtn_objective": 9.198407173156738,
@@ -8653,7 +8373,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8677,7 +8397,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 9.791540145874023,
           "best_rtn_objective": 9.791540145874023,
@@ -8691,7 +8411,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8715,7 +8435,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 8.020102500915527,
           "best_rtn_objective": 8.020102500915527,
@@ -8729,7 +8449,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8753,7 +8473,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.690793991088867,
           "best_rtn_objective": 5.690793991088867,
@@ -8767,7 +8487,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8791,7 +8511,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.702714920043945,
           "best_rtn_objective": 5.702714920043945,
@@ -8805,7 +8525,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8829,7 +8549,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.71763801574707,
           "best_rtn_objective": 5.71763801574707,
@@ -8843,7 +8563,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8867,7 +8587,7 @@
           "method": "nvfp4_rtn",
           "calibrated": false,
           "clip": 1.0,
-          "selection_rule": "min same-H objective after original-dtype cast; RTN wins ties",
+          "selection_rule": "forced RTN pressure arm",
           "objective": "weight squared error",
           "selected_objective": 5.693000316619873,
           "best_rtn_objective": 5.693000316619873,
@@ -8881,7 +8601,7 @@
           ],
           "calibration_rows": 0,
           "calibration_calls": 0,
-          "uncalibrated_reason": "embodiment bank not observed in LIBERO calibration",
+          "uncalibrated_reason": "rtn_all pressure arm",
           "source_shape": [
             1024,
             1536
@@ -8977,7 +8697,7 @@
     },
     "storage_note": "Target FP4 payload plus E4M3 scale/16 and FP32 scale per category; includes internal K padding. FP8 uses FP32 row scales. Excludes runtime alignment/activations/LoRA residuals. Checkpoint shards remain original dtype. Inactive categories do not contribute to LIBERO execution."
   },
-  "active_bank_method": "gptq_active",
+  "active_bank_method": "rtn_all",
   "rtn_clip": 1.0,
   "source_category_sha256": {
     "action_head.action_decoder.layer1.W": "c8d151f97d5ba625ab47a1e19f40bf012e99cc3a3d49b4264864db61315d7459",
@@ -8988,218 +8708,7 @@
     "action_head.state_encoder.layer1.W": "83aaeac654da4c29e9f611481acf512b1c0d03e4e5349b799275045144ce0c2d",
     "action_head.state_encoder.layer2.W": "03b11637cb60146156102c03548824b35f7df73a0b1ba242c6aebffaee81ebc4"
   },
-  "calibration": {
-    "cache": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/category_calibration_current/calib.pt",
-      "bytes": 59944401,
-      "sha256": "cf26e9f7d993b8306c4b4c33d162e1962eab3b66b4f589e931da70b0441fa757"
-    },
-    "metadata": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/category_calibration_current/calib_meta.json",
-      "bytes": 9882,
-      "sha256": "fdb9329c3466522da7eb6200b31bf0067cc4e3460efb6915df1c470275d9f88c"
-    }
-  },
-  "calibration_metadata": {
-    "version": "category-bank-hessian-v1",
-    "status": "complete",
-    "parent": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq",
-    "provenance": {
-      "parent": {
-        "parent": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq",
-          "weights": {
-            "model-00001-of-00002.safetensors": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model-00001-of-00002.safetensors",
-              "bytes": 4990519232,
-              "sha256": "d56aee188feaa4275f780852a218a1998180556fe49c2032ac30f969c1b9f5c9"
-            },
-            "model-00002-of-00002.safetensors": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model-00002-of-00002.safetensors",
-              "bytes": 1919980184,
-              "sha256": "ff8d3d38d7e05ffb21ac11762b2ba96e463e7c2a382e02defe906c753984713c"
-            }
-          },
-          "metadata": {
-            "config.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/config.json",
-              "bytes": 2266,
-              "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
-            },
-            "statistics.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/statistics.json",
-              "bytes": 4298413,
-              "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
-            },
-            "processor_config.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/processor_config.json",
-              "bytes": 26935,
-              "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
-            },
-            "embodiment_id.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/embodiment_id.json",
-              "bytes": 2145,
-              "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
-            },
-            "model.safetensors.index.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model.safetensors.index.json",
-              "bytes": 104985,
-              "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
-            },
-            "ptq_recipe.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/ptq_recipe.json",
-              "bytes": 468909,
-              "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
-            },
-            "bake_manifest.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/bake_manifest.json",
-              "bytes": 1213,
-              "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
-            }
-          }
-        },
-        "root_bf16": {
-          "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
-          "weights": {
-            "model-00001-of-00002.safetensors": {
-              "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00001-of-00002.safetensors",
-              "bytes": 4990519232,
-              "sha256": "39b7beaadd9a06c87502f2b741a36f939b84941f37fef757c6177e54e34a5eff"
-            },
-            "model-00002-of-00002.safetensors": {
-              "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model-00002-of-00002.safetensors",
-              "bytes": 1919980184,
-              "sha256": "8c4fa56f1b4f25a1a842c811e8a12d2bf6d77d73942f9a04f5b876a11bd6d703"
-            }
-          },
-          "metadata": {
-            "config.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/config.json",
-              "bytes": 2266,
-              "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
-            },
-            "statistics.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/statistics.json",
-              "bytes": 4298413,
-              "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
-            },
-            "processor_config.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/processor_config.json",
-              "bytes": 26935,
-              "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
-            },
-            "embodiment_id.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/embodiment_id.json",
-              "bytes": 2145,
-              "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
-            },
-            "model.safetensors.index.json": {
-              "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10/model.safetensors.index.json",
-              "bytes": 104985,
-              "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
-            }
-          }
-        },
-        "category_source_sha256": {
-          "action_head.action_decoder.layer1.W": "c8d151f97d5ba625ab47a1e19f40bf012e99cc3a3d49b4264864db61315d7459",
-          "action_head.action_decoder.layer2.W": "5c4ed80f111155f56bfa2fc4826c2d3e40d36caa0a2239087b9982c9ab1696b7",
-          "action_head.action_encoder.W1.W": "07a20d62496fbd42e497d42d51f893a3dd65abea856f73ca4a2b204eb726a83a",
-          "action_head.action_encoder.W2.W": "96b4b45095c9cb3f838a096acac01d684ac0fd1dacc5becac40b8557d29ad6bd",
-          "action_head.action_encoder.W3.W": "bc8f44be915af44f20d38086760723fd9aa4911575a8998e39d24a66b78051c2",
-          "action_head.state_encoder.layer1.W": "83aaeac654da4c29e9f611481acf512b1c0d03e4e5349b799275045144ce0c2d",
-          "action_head.state_encoder.layer2.W": "03b11637cb60146156102c03548824b35f7df73a0b1ba242c6aebffaee81ebc4"
-        }
-      },
-      "parent_recipe_sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a",
-      "parent_bake_sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
-    },
-    "architecture": {
-      "language_layers": 16,
-      "dit_layers": 32,
-      "vl_layers": 4
-    },
-    "active_bank": 2,
-    "dataset": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo",
-    "model_dtype": "bfloat16",
-    "accumulation_dtype": "float32",
-    "accumulation_device": "cpu",
-    "tf32_matmul": false,
-    "windows_requested": 128,
-    "windows_consumed": 128,
-    "batch": 1,
-    "forwards": 128,
-    "seed": 20261003,
-    "n_layers": 7,
-    "layers": {
-      "action_head.state_encoder.layer1.W": {
-        "2": {
-          "rows": 128,
-          "calls": 128,
-          "H_sha256": "820b8b7a23e11b3718ff0da79c99f412bb5bc7a4f07ac7a04d3872ccaadb832a",
-          "abs_sha256": "19ad915c24a9c8a775b545beb9bf22c4450e6759299b22a9e29a71a78900465f"
-        }
-      },
-      "action_head.state_encoder.layer2.W": {
-        "2": {
-          "rows": 128,
-          "calls": 128,
-          "H_sha256": "aba29a6932391a70b7ba267de5dd3aed2ba3c68b0502f381f71e4804a8dceded",
-          "abs_sha256": "b53e11ca38be33f62a5f638e2e6444cbf4f60479daf571dc6f6f2d5a134c2632"
-        }
-      },
-      "action_head.action_encoder.W1.W": {
-        "2": {
-          "rows": 5120,
-          "calls": 128,
-          "H_sha256": "be17a5c6462632f0f105cdc22adbb96005f33a7826eb7a711490377ef457f2d5",
-          "abs_sha256": "641465c401c990c3553e4c06d273899b181516377a8105cbc6aaac196f01b281"
-        }
-      },
-      "action_head.action_encoder.W2.W": {
-        "2": {
-          "rows": 5120,
-          "calls": 128,
-          "H_sha256": "00996bd973b69193ce320f5bf374a5905bfc87938761ec6badd6315954aad8d1",
-          "abs_sha256": "ba5fbbca51279863f29919aa7518d0b8c5921dc004127c2b639b04fe70512b38"
-        }
-      },
-      "action_head.action_encoder.W3.W": {
-        "2": {
-          "rows": 5120,
-          "calls": 128,
-          "H_sha256": "abb56043c371f20fecb01c4a50e1b32b161099bbfa921798be7da15c15057194",
-          "abs_sha256": "4e84222cb173a164d9d65b83da4cbfd7f2c2b5e07080a2df1f77ce50ef82008d"
-        }
-      },
-      "action_head.action_decoder.layer1.W": {
-        "2": {
-          "rows": 5248,
-          "calls": 128,
-          "H_sha256": "c1e1b174156286bd721206bfc05a3f58712e771bf5345db888b737a3c14c43a7",
-          "abs_sha256": "83101a202a72ed982fdc2704b3793ae1aeceb65c2024a8da97ee82612e299e52"
-        }
-      },
-      "action_head.action_decoder.layer2.W": {
-        "2": {
-          "rows": 5248,
-          "calls": 128,
-          "H_sha256": "5c268a76d8f37cf16f73a8228e212d4d6f93777da90d20ca247e3af33d77a730",
-          "abs_sha256": "11096712b3f04237543d5a70d382fedf0d8c832f35b836f120699a11ddb06ce9"
-        }
-      }
-    },
-    "cache_sha256": "cf26e9f7d993b8306c4b4c33d162e1962eab3b66b4f589e931da70b0441fa757",
-    "source_category_sha256": {
-      "action_head.action_decoder.layer1.W": "c8d151f97d5ba625ab47a1e19f40bf012e99cc3a3d49b4264864db61315d7459",
-      "action_head.action_decoder.layer2.W": "5c4ed80f111155f56bfa2fc4826c2d3e40d36caa0a2239087b9982c9ab1696b7",
-      "action_head.action_encoder.W1.W": "07a20d62496fbd42e497d42d51f893a3dd65abea856f73ca4a2b204eb726a83a",
-      "action_head.action_encoder.W2.W": "96b4b45095c9cb3f838a096acac01d684ac0fd1dacc5becac40b8557d29ad6bd",
-      "action_head.action_encoder.W3.W": "bc8f44be915af44f20d38086760723fd9aa4911575a8998e39d24a66b78051c2",
-      "action_head.state_encoder.layer1.W": "83aaeac654da4c29e9f611481acf512b1c0d03e4e5349b799275045144ce0c2d",
-      "action_head.state_encoder.layer2.W": "03b11637cb60146156102c03548824b35f7df73a0b1ba242c6aebffaee81ebc4"
-    },
-    "implementation_sha256": "90e8be1989a88d478655d4ab4bf94de182811789480e229f01f60e61f6faf47f",
-    "elapsed_seconds": 56.91361474990845
-  },
+  "calibration": null,
+  "calibration_metadata": null,
   "implementation_sha256": "5a85c358616dc9d12255944a86845dc326774cbacb9e617fe2045bb0b497ec3a"
 }

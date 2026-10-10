@@ -5,7 +5,7 @@ flash_attn is not installed. Falling back to sdpa attention. Install flash-attn 
   self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
 Total number of DiT parameters:  1091722240
 Total number of SelfAttentionTransformer parameters:  201433088
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.95s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  4.01s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  4.00s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.43s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.43s/it]
 [probe-cache] 1/160 pred=(1, 40, 132)
 [probe-cache] 2/160 pred=(1, 40, 132)
 [probe-cache] 3/160 pred=(1, 40, 132)
@@ -166,9 +166,10 @@ Total number of SelfAttentionTransformer parameters:  201433088
 [probe-cache] 158/160 pred=(1, 40, 132)
 [probe-cache] 159/160 pred=(1, 40, 132)
 [probe-cache] 160/160 pred=(1, 40, 132)
-[probe-cache] saved /home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/teacher_cache/teacher_probes.pt source=student_rollout architecture={'language_layers': 16, 'dit_layers': 32, 'vl_layers': 4}
-UTC 2026-10-02T21:21:36Z
+[probe-cache] saved /home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/teacher_cache/teacher_probes.pt source=student_rollout architecture={'language_layers': 16, 'dit_layers': 32, 'vl_layers': 4}
+UTC 2026-10-07T07:59:05Z
 CWD /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
-COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python /home/zhaosiying/codebase/fp4vla/rl/opd_probe_cache.py --teacher /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10 --input-dir /home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/collection_qad/observations --count 160 --out /home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/teacher_cache/teacher_probes.pt --dataset /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo --seed 20261003
+COMMAND /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python /home/zhaosiying/codebase/fp4vla/rl/opd_probe_cache.py --teacher /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10 --input-dir /home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/collection_qad/observations --count 160 --out /home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/teacher_cache/teacher_probes.pt --dataset /home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/demo_data/libero_demo --seed 20261006
+ENV_SUMMARY {"variables": {"FP4VLA_QUANT": "0", "FP4VLA_SATURATE_F16_ACTIVATIONS": "0", "FP4VLA_W4A4": "0", "FP4VLA_W4A4_ADAPTER": "0", "HF_HUB_OFFLINE": "1", "OPD_EVERY": null, "PTQAD_ZMQ_TIMEOUT_MS": "120000", "QAD_ACTIVATION_CHECKPOINTING": null, "QAD_LORA_ALPHA": null, "QAD_LORA_R": null, "QAD_LORA_SCOPE": null, "QAD_LR": null, "QAD_MAX_GRAD_NORM": null, "QAD_OPD_MSE_W": null, "QAD_STEPS": null, "QAD_W4A4": null, "TRAIN_SEED": null, "TRANSFORMERS_OFFLINE": "1"}}
 RETURN_CODE 0
-COMPLETED_UTC 2026-10-02T21:22:35Z
+COMPLETED_UTC 2026-10-07T08:00:18Z

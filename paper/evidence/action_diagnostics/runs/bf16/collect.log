@@ -1,0 +1,96 @@
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+flash_attn is not installed. Falling back to sdpa attention. Install flash-attn for better performance: pip install flash-attn
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'compute_dtype' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.compute_dtype'.
+  embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
+/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'output_dim' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.output_dim'.
+  self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
+Starting GR00T inference server...
+  Embodiment tag: EmbodimentTag.LIBERO_PANDA
+  Model path: /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10
+  Device: cuda
+  Host: 0.0.0.0
+  Port: 5555
+Total number of DiT parameters:  1091722240
+Total number of SelfAttentionTransformer parameters:  201433088
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:32<00:32, 32.83s/it]Loading checkpoint shards: 100%|██████████| 2/2 [01:11<00:00, 36.33s/it]Loading checkpoint shards: 100%|██████████| 2/2 [01:11<00:00, 35.81s/it]
+[action-diagnostic] bf16 1/80
+[action-diagnostic] bf16 2/80
+[action-diagnostic] bf16 3/80
+[action-diagnostic] bf16 4/80
+[action-diagnostic] bf16 5/80
+[action-diagnostic] bf16 6/80
+[action-diagnostic] bf16 7/80
+[action-diagnostic] bf16 8/80
+[action-diagnostic] bf16 9/80
+[action-diagnostic] bf16 10/80
+[action-diagnostic] bf16 11/80
+[action-diagnostic] bf16 12/80
+[action-diagnostic] bf16 13/80
+[action-diagnostic] bf16 14/80
+[action-diagnostic] bf16 15/80
+[action-diagnostic] bf16 16/80
+[action-diagnostic] bf16 17/80
+[action-diagnostic] bf16 18/80
+[action-diagnostic] bf16 19/80
+[action-diagnostic] bf16 20/80
+[action-diagnostic] bf16 21/80
+[action-diagnostic] bf16 22/80
+[action-diagnostic] bf16 23/80
+[action-diagnostic] bf16 24/80
+[action-diagnostic] bf16 25/80
+[action-diagnostic] bf16 26/80
+[action-diagnostic] bf16 27/80
+[action-diagnostic] bf16 28/80
+[action-diagnostic] bf16 29/80
+[action-diagnostic] bf16 30/80
+[action-diagnostic] bf16 31/80
+[action-diagnostic] bf16 32/80
+[action-diagnostic] bf16 33/80
+[action-diagnostic] bf16 34/80
+[action-diagnostic] bf16 35/80
+[action-diagnostic] bf16 36/80
+[action-diagnostic] bf16 37/80
+[action-diagnostic] bf16 38/80
+[action-diagnostic] bf16 39/80
+[action-diagnostic] bf16 40/80
+[action-diagnostic] bf16 41/80
+[action-diagnostic] bf16 42/80
+[action-diagnostic] bf16 43/80
+[action-diagnostic] bf16 44/80
+[action-diagnostic] bf16 45/80
+[action-diagnostic] bf16 46/80
+[action-diagnostic] bf16 47/80
+[action-diagnostic] bf16 48/80
+[action-diagnostic] bf16 49/80
+[action-diagnostic] bf16 50/80
+[action-diagnostic] bf16 51/80
+[action-diagnostic] bf16 52/80
+[action-diagnostic] bf16 53/80
+[action-diagnostic] bf16 54/80
+[action-diagnostic] bf16 55/80
+[action-diagnostic] bf16 56/80
+[action-diagnostic] bf16 57/80
+[action-diagnostic] bf16 58/80
+[action-diagnostic] bf16 59/80
+[action-diagnostic] bf16 60/80
+[action-diagnostic] bf16 61/80
+[action-diagnostic] bf16 62/80
+[action-diagnostic] bf16 63/80
+[action-diagnostic] bf16 64/80
+[action-diagnostic] bf16 65/80
+[action-diagnostic] bf16 66/80
+[action-diagnostic] bf16 67/80
+[action-diagnostic] bf16 68/80
+[action-diagnostic] bf16 69/80
+[action-diagnostic] bf16 70/80
+[action-diagnostic] bf16 71/80
+[action-diagnostic] bf16 72/80
+[action-diagnostic] bf16 73/80
+[action-diagnostic] bf16 74/80
+[action-diagnostic] bf16 75/80
+[action-diagnostic] bf16 76/80
+[action-diagnostic] bf16 77/80
+[action-diagnostic] bf16 78/80
+[action-diagnostic] bf16 79/80
+[action-diagnostic] bf16 80/80

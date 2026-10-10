@@ -3,54 +3,54 @@
   "version": "category-k-axis-nvfp4-v1",
   "parent": {
     "parent": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq",
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn",
       "weights": {
         "model-00001-of-00002.safetensors": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model-00001-of-00002.safetensors",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/model-00001-of-00002.safetensors",
           "bytes": 4990519232,
-          "sha256": "d56aee188feaa4275f780852a218a1998180556fe49c2032ac30f969c1b9f5c9"
+          "sha256": "e4f757c59651a88d22661c0feab544ab25d5c20e7ae70eaef8d264c31e34cc57"
         },
         "model-00002-of-00002.safetensors": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model-00002-of-00002.safetensors",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/model-00002-of-00002.safetensors",
           "bytes": 1919980184,
-          "sha256": "ff8d3d38d7e05ffb21ac11762b2ba96e463e7c2a382e02defe906c753984713c"
+          "sha256": "285357c193c4a91f025352797b963eec198e4f7a66bcf907b80d52e21003bf2d"
         }
       },
       "metadata": {
         "config.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/config.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/config.json",
           "bytes": 2266,
           "sha256": "ce763f74ad1cda2ca9e67491229cbc5810d83cae675cb4dad839a69a9731fd97"
         },
         "statistics.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/statistics.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/statistics.json",
           "bytes": 4298413,
           "sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1"
         },
         "processor_config.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/processor_config.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/processor_config.json",
           "bytes": 26935,
           "sha256": "545bb44c7d8caaf5ac82df55b90831271a1469a4e48adcc9a5f469f064f4e121"
         },
         "embodiment_id.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/embodiment_id.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/embodiment_id.json",
           "bytes": 2145,
           "sha256": "abc4a749389837416a102d9455a8c089336f2e417afb18565703b9944974bc35"
         },
         "model.safetensors.index.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/model.safetensors.index.json",
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/model.safetensors.index.json",
           "bytes": 104985,
           "sha256": "407804ea5a62f4f8823f48811ae0edbb82fac101e9cf4d7273e6e2f692bb4d59"
         },
         "ptq_recipe.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/ptq_recipe.json",
-          "bytes": 468909,
-          "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/ptq_recipe.json",
+          "bytes": 383282,
+          "sha256": "4c94ae6668d3b241023deb46de0f3fdf14c2ee58720a2d31b25fb46643bc8688"
         },
         "bake_manifest.json": {
-          "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/bake_manifest.json",
-          "bytes": 1213,
-          "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
+          "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/bake_manifest.json",
+          "bytes": 1214,
+          "sha256": "60540377c368be6114ec99f926a626147ad6dd9584d47e6edeecb1386a7a47c5"
         }
       }
     },
@@ -107,14 +107,14 @@
     }
   },
   "parent_recipe": {
-    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/ptq_recipe.json",
-    "bytes": 468909,
-    "sha256": "64eed3cfc5ca735db7dd7e2550a33d66094589e673a0041a84a6da64a98a485a"
+    "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/ptq_recipe.json",
+    "bytes": 383282,
+    "sha256": "4c94ae6668d3b241023deb46de0f3fdf14c2ee58720a2d31b25fb46643bc8688"
   },
   "parent_bake_manifest": {
-    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261002/pressure_candidates/all_nvfp4_gptq/bake_manifest.json",
-    "bytes": 1213,
-    "sha256": "3e923776737a700fd7133f20686a20d7c5053f5deecebd8d561b1c4b47b90fef"
+    "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/pure_rtn/bake_manifest.json",
+    "bytes": 1214,
+    "sha256": "60540377c368be6114ec99f926a626147ad6dd9584d47e6edeecb1386a7a47c5"
   },
   "root_bf16": {
     "path": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
@@ -168,25 +168,24 @@
     "action_head.state_encoder.layer2.W": "03b11637cb60146156102c03548824b35f7df73a0b1ba242c6aebffaee81ebc4"
   },
   "output_category_sha256": {
-    "action_head.action_decoder.layer1.W": "af77b9337e754e1b2fee7908c8cfecb720f89b0a0f2ee2674052b3772986c0b7",
-    "action_head.action_decoder.layer2.W": "348e680dc0d0244d60dc44f09f77dee168858d9d18774a0cad0a92e5ba52f639",
-    "action_head.action_encoder.W1.W": "31fd10495038f1de2d5034237a6b82a78f79ca3687dacf91a4bef5576e92c015",
-    "action_head.action_encoder.W2.W": "d73f43b12720a18f4bf319c77bc0403fb366d2d95ac35b938e66ea1da8879929",
-    "action_head.action_encoder.W3.W": "a2fe102372714bf4c794f7b30a6561df934079f7cdbe9827653758eafad533d1",
-    "action_head.state_encoder.layer1.W": "bb8bece73f72a491be10489cc24076d298e23ae1b6f4aa6aca0f0f1d4d8b3a25",
-    "action_head.state_encoder.layer2.W": "a8c42c44ca87edffe62dd9b40888358768894beecc8e2325cbbb138e57636de2"
+    "action_head.action_decoder.layer1.W": "d997a970a7b0d834443e7e386e6de41037e75e13af0431b5f5969ffeb2b694a2",
+    "action_head.action_decoder.layer2.W": "39f84cdb1b1d7ab603060fad3ebc4f833609956c6d5330994943d478f64fbb15",
+    "action_head.action_encoder.W1.W": "a86cb08958127ce5c3ded54c7a372b7d966cd57e9d05b72549ed2e6b8207ad17",
+    "action_head.action_encoder.W2.W": "c938fb014a54de988e3c5e6f5d6cd9db6767869580d784d21ce45115bbd7ab96",
+    "action_head.action_encoder.W3.W": "085e81b5208072fd28981cd07b7cf2d40771e4cc6bd834d85b981e6988a0bd4d",
+    "action_head.state_encoder.layer1.W": "848d4f2026c9d0211dfd52d64115e17e844b513505db30a953668ccd8ab17778",
+    "action_head.state_encoder.layer2.W": "56c441bb340d45daa731d368952bb2b37de70d6d9ce2319759b4e70cc8dab725"
   },
   "category_recipe": {
-    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category.incomplete-u_jqeydj/category_ptq_recipe.json",
-    "bytes": 337442,
-    "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122"
+    "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category.incomplete-229uf9ql/category_ptq_recipe.json",
+    "bytes": 304029,
+    "sha256": "4dfe0d34b8a42fe3b0af3cadc6cf84d23c2095237315899b401b128714da3b4d"
   },
   "methods": {
-    "nvfp4_rtn": 217,
-    "nvfp4_gptq": 7
+    "nvfp4_rtn": 224
   },
   "active_libero_bank": 2,
-  "active_bank_method": "gptq_active",
+  "active_bank_method": "rtn_all",
   "rtn_clip": 1.0,
   "memory": {
     "all_checkpoint_params": 3455180928,
@@ -264,9 +263,9 @@
   "implementation_sha256": "5a85c358616dc9d12255944a86845dc326774cbacb9e617fe2045bb0b497ec3a",
   "output_weights": {
     "model-00002-of-00002.safetensors": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category.incomplete-u_jqeydj/model-00002-of-00002.safetensors",
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category.incomplete-229uf9ql/model-00002-of-00002.safetensors",
       "bytes": 1919980184,
-      "sha256": "69ff092038067087d178be66c69b2f6e27b25105e76023d259015c17ca40ef71"
+      "sha256": "3ffee49ea0f59e191034e1ad2a29c9313f828c5a77bcbd129a2aeb27f471600f"
     }
   }
 }

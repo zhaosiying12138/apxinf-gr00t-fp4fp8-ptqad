@@ -10,14 +10,14 @@ Starting GR00T inference server...
   Model path: /home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10
   Device: cuda
   Host: 0.0.0.0
-  Port: 5760
+  Port: 6917
 Total number of DiT parameters:  1091722240
 Total number of SelfAttentionTransformer parameters:  201433088
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.11s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.57s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.66s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.82s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.23s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.32s/it]
 
-✓ Server ready — listening on 0.0.0.0:5760
+✓ Server ready — listening on 0.0.0.0:6917
 
-Server is ready and listening on tcp://0.0.0.0:5760
+Server is ready and listening on tcp://0.0.0.0:6917
 [onpolicy-capture] saved=1 task=d97d77c3e8c6 task_count=1 slot=0 call=1
 [onpolicy-capture] saved=2 task=d97d77c3e8c6 task_count=2 slot=0 call=5
 [onpolicy-capture] saved=3 task=d97d77c3e8c6 task_count=3 slot=0 call=9

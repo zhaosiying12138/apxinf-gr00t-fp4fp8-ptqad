@@ -1,14 +1,14 @@
 {
   "stage": "dev_opd_025",
   "status": "complete",
-  "completed_utc": "2026-10-04T15:51:17Z",
-  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
-  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
-  "selection_sha256": "d6ca9c938b9d296e81882965c20aed3f78c8e44c40bf979649f98fa99ccce299",
-  "orchestrator_source_sha256": "9d5888bf96dc81191142f9ae1a896047176a5791c5d9c48aa932186cd084f9e7",
-  "output": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025",
+  "completed_utc": "2026-10-09T23:03:17Z",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v12_rtn_w4a4.json",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
+  "selection_sha256": "bafd1e191aaca65b36196f288495641f0589415ab163bd176a1b4c37e62f4671",
+  "orchestrator_source_sha256": "e781e1294cd6a897ecc4c8e2de88cf864bf2716d045f568ecfb0dd030f9857a8",
+  "output": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025",
   "adopted": false,
-  "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/merge_opd_025",
+  "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/merge_opd_025",
   "purpose": "development",
   "environment_summary": {
     "variables": {
@@ -24,78 +24,78 @@
   },
   "evaluation_identity": {
     "eval_manifest.json": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/eval_manifest.json",
-      "bytes": 2657,
-      "sha256": "6cc0c408e43a8c8fda64053262cab1c35f7c557e5e4bde75082072ab7f0468c8"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/eval_manifest.json",
+      "bytes": 2779,
+      "sha256": "1d8ea4f62f1f9e6af5a07f64cde354af23a2e127a0ef9c333043329dddedca80"
     },
     "task_results.json": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/task_results.json",
-      "bytes": 35683,
-      "sha256": "69a1ed84c1b87a8cd9af949a39aca7540455fdb6023124db869aa83a542e0f0d"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/task_results.json",
+      "bytes": 35687,
+      "sha256": "2ea73c33a7d03041464c74f7b43a7adb5dfe0b3c71abac7cfaaa20ea32f11c21"
     },
     "summary.json": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/summary.json",
-      "bytes": 378,
-      "sha256": "6e30a16b8b275415060475aa03d4010071bf061f7e4f8d79a5b624f7a6063c9b"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/summary.json",
+      "bytes": 379,
+      "sha256": "ffc00c339ccdd3ce1ace8586693d5dee8dfce5af81d44d398ea97ff2bf53133b"
     }
   },
   "raw_log_identities": {
     "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log",
-      "bytes": 8161,
-      "sha256": "a7cd68f0dbedd3423972b8e8a5835c5c10191e379df7aafc7625ab971f28fc87"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log",
+      "bytes": 8203,
+      "sha256": "485fd5174e4acfe6e270785be98478b3049d4b3f9d0a7de6859debc4bbe214cd"
     },
     "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log",
-      "bytes": 8127,
-      "sha256": "a5c221f6d9c645da08b9782837155a160a1d5eb9590e2b87aa7818d05c2d3780"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log",
+      "bytes": 8176,
+      "sha256": "f78c33f5ab2354147c1d07825b08b85bd899124bca3e0a7cf95b925189fc8b5e"
     },
     "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
-      "bytes": 7947,
-      "sha256": "dd9be9beb27aae931c1fe2fc20b5e2e6f01467dca05981536322d2d612a444a6"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log",
+      "bytes": 7998,
+      "sha256": "53ada5eeb19f8fd8436686836c5a9754e6ddac22acae1141f7a34aa8510adb14"
     },
     "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log",
-      "bytes": 8179,
-      "sha256": "4c9e48ccb743f9051103e8a8a400609d9ef870df9a9157b85336af3678e10e40"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log",
+      "bytes": 8228,
+      "sha256": "7184743540ab90b5fbb2fea807955a1ff1052ea029487d2de5c25be9dded90f9"
     },
     "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log",
-      "bytes": 8419,
-      "sha256": "5327838de798c39ba981b28408665b414307b1ad0084c0c432c66124c65fa062"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log",
+      "bytes": 8469,
+      "sha256": "68631afb0ebae42f21b283d1942136fe41230ba44fb845bb974b554dbf26a036"
     },
     "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log",
-      "bytes": 8147,
-      "sha256": "5ad86483c44cd670ec746b823da29445c64c49ed18e9912ac5364f9ba90b2c21"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log",
+      "bytes": 8193,
+      "sha256": "4563b206e4969b3190c4ab7a3a25d222a7b236baa4d629098a3a5c62df3f18a8"
     },
     "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log",
-      "bytes": 8406,
-      "sha256": "488add10595d850e9cb222ea616dde73aec0a2bd97553169527d4c06ae84af87"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log",
+      "bytes": 8453,
+      "sha256": "4bb8cb3e99797133056cf4f8be91961a4a0f6888452162c10e61b977367956bc"
     },
     "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log",
-      "bytes": 8197,
-      "sha256": "ba3f06057db943381d17e9c0e9441dc578df1761e85c6dbef7faef02b447de0a"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log",
+      "bytes": 8243,
+      "sha256": "e3261333c755ef9327bfa112dc3b6d97a7662a365658117e53e1a20ffffe5b73"
     },
     "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log",
-      "bytes": 7822,
-      "sha256": "ac9b3dced4c75dd467d41e4e6139373ed072fdf6a91bff7b37e79d93d01062f3"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log",
+      "bytes": 7870,
+      "sha256": "beca02934e673e82df6054a15dd5f02dbf9ebd4ac660ea6c35d82848e9741749"
     },
     "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
-      "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log",
-      "bytes": 8094,
-      "sha256": "3aa515b39c77634428ef889337bae93d8e4c7d99be1cb7e7217bfd8443832ff6"
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log",
+      "bytes": 8140,
+      "sha256": "cd0c20df95979bbe3dc80400c8a7e9205ac04f6fdeebe034ec9986b2ec58b7f8"
     }
   },
   "pairing_sha256": "7519fb0474d0f49ea81e6a177fe61a03f3cd48b711a1159d727db1303b6c71d7",
-  "successes": 46,
+  "successes": 42,
   "episodes": 50,
-  "macro_success_rate": 0.9199999999999999,
-  "micro_success_rate": 0.92,
+  "macro_success_rate": 0.8400000000000001,
+  "micro_success_rate": 0.84,
   "activation_installation": {
     "ordinary_total": 469,
     "ordinary_w4a4": 469,
@@ -108,44 +108,44 @@
     "report_count": 10,
     "server_logs": [
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log",
-        "sha256": "cb15ac154385bfdcf4b7b7efe412a827bfc769fc51277d81929135fc76f68ed9"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log",
+        "sha256": "d0a520740e39206f5fc768b865230d97c6a4ca15c6ed30b808100072254424e3"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log",
-        "sha256": "f50a7cad1594e3ffd5c84b20baf95c5152d58298439d766bd2dea2ca0cd727f7"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log",
+        "sha256": "f31559735080784b80dcb1a6980d15420b6519acc68728051ccb206a14dfa63f"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log",
-        "sha256": "1799b2bb44983c61bdca89267289fa837dfab42ceea88498eb0c79732abbb47a"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log",
+        "sha256": "f72397d9f414817eba8ef1c1b8b8379cb9b9bcf886c378377a9e6d99a7895e2c"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log",
-        "sha256": "97251863356b15a7b633f2a26363e82abbcbe13b1d91ea672af86fc94b44f2d1"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log",
+        "sha256": "1f4ef7a01dd9353a21d095f962700cc623f026d49d10a0580fe3c07c18106df5"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log",
-        "sha256": "20a9ca9338a6f244ed17c07bf53c61fb2c1088e9d654d8ca128f276b2c23c53f"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log",
+        "sha256": "f51851cdba34ca15080e14d249411b2ee562e3d69bc05ee0d587ecf15352f4de"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log",
-        "sha256": "699d56fc52c759cd640fa644bc2220f22d3669e5169f3162c863b8b64d64c078"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log",
+        "sha256": "35377607f06f19b313b4cca44db89ed7ffb28fd65012c07e98136443c6d5330b"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log",
-        "sha256": "46dc8d29727e50fffba6f098bc0b12a4ac444c5edfc2d6ff0bbb1e27e2a0006e"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log",
+        "sha256": "9683181da9b9db620ddafc0036e15a3011945ee1183e0522599e97bf34b1d6b6"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log",
-        "sha256": "54ac3a7a205d4bbede543ab0f7c570433313d4161f58ca0f3cd1f02d61adfd04"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log",
+        "sha256": "6e3563568258098163b022b263558f131368d022db8391dda853f89f5009c1fc"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log",
-        "sha256": "6ec0b0b55ff4cbc4a088c5ab26c44856fb512f243f6c2b3b3a6caa8aef86c3e8"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log",
+        "sha256": "1fa350c8fcabd0670254340f9b8a183f1813b9440d0414f76b500ae1240c6aa7"
       },
       {
-        "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/dev_opd_025/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log",
-        "sha256": "1926b8009663af2bba7a36a115111054a35da79b5c1dd535f39be93402ede676"
+        "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/dev_opd_025/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log",
+        "sha256": "f118e66eeec6e137a68787ab31654caeda06c70f01a4c11bc52b0272ca4197d8"
       }
     ]
   }

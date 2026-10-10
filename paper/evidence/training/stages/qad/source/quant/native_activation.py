@@ -7,11 +7,12 @@ scale for every 16 K-elements, then divide in FP32 and round to E2M1.
 The secondary tensor scale is fixed at 1. No dynamic scale or clipping
 policy is introduced here. CPU tests do not establish GPU/native parity.
 
-Nonfinite inputs, including overflow during the F16 cast, are rejected.
-The CUDA kernel does not define a useful model-level NaN/Inf contract; this
-reference deliberately fails closed instead of treating those as evidence
-of valid quantization. Finite F16 inputs may still saturate at +/-2688 or
-underflow through a zero E4M3 scale, exactly as this fixed-scale policy allows.
+Nonfinite inputs are rejected. By default, overflow during the F16 cast is
+also rejected. Recovery and evaluation can explicitly set
+``FP4VLA_SATURATE_F16_ACTIVATIONS=1``; finite values are then clamped to the
+largest finite F16 value before the cast, while NaN/Inf still fails closed.
+Finite F16 inputs may still saturate at +/-2688 or underflow through a zero
+E4M3 scale, exactly as this fixed-scale policy allows.
 
 ``native_activation_qdq(x)`` is a CPU-only building block for a future
 W4A4 base branch. Keep the original ``x`` for any high-precision LoRA branch:
@@ -22,9 +23,13 @@ weight quantization, or enable a model/service hook.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 
 import numpy as np
 import torch
+
+_SATURATE_F16 = os.environ.get("FP4VLA_SATURATE_F16_ACTIVATIONS", "0") == "1"
+_SATURATION_NOTICE_EMITTED = False
 
 try:  # package import (tests) and direct quant/ path import (GR00T runtime)
     from .fp4_quant import (
@@ -57,12 +62,25 @@ def _torch_native_activation_qdq(x: torch.Tensor) -> torch.Tensor:
         raise ValueError("activation must be nonempty with final K divisible by 16")
     if x.dtype not in (torch.float16, torch.bfloat16, torch.float32, torch.float64):
         raise TypeError("activation must have float16, bfloat16, float32 or float64 dtype")
-    # The CUDA contract casts to F16 before finding block maxima.  Fail closed
-    # on overflow: silently propagating infinities would make an invalid
-    # episode look like a valid quantized rollout.
+    # The CUDA contract casts to F16 before finding block maxima.  NaN/Inf
+    # remains fail-closed.  Recovery/evaluation may opt into the explicit
+    # finite saturation used at this cast boundary; this keeps the subsequent
+    # NVFP4 activation QDQ path defined for rare LoRA-amplified values.
+    if not bool(torch.isfinite(x).all()):
+        raise ValueError("activation contains nonfinite values")
     half = x.detach().to(torch.float16)
     if not bool(torch.isfinite(half).all()):
-        raise ValueError("activation overflows F16 or contains nonfinite values")
+        if not _SATURATE_F16:
+            raise ValueError("activation overflows F16 or contains nonfinite values")
+        global _SATURATION_NOTICE_EMITTED
+        if not _SATURATION_NOTICE_EMITTED:
+            print("[fp4vla] finite F16 activation saturation enabled before NVFP4 QDQ", flush=True)
+            _SATURATION_NOTICE_EMITTED = True
+        finite32 = x.detach().float().clamp(
+            min=-torch.finfo(torch.float16).max,
+            max=torch.finfo(torch.float16).max,
+        )
+        half = finite32.to(torch.float16)
     width = x.shape[-1]
     blocks = half.float().reshape(-1, width // 16, 16)
     amax = blocks.abs().amax(dim=-1)

@@ -1,7 +1,7 @@
 {
   "status": "completed",
   "error": null,
-  "wall_seconds": 34476.101168778,
+  "wall_seconds": 37196.890226916934,
   "timing_scope": "script import through training and checkpoint serialization",
   "global_steps": 2000,
   "requested_optimizer_steps": 2000,
@@ -9,10 +9,10 @@
     {
       "device_index": 0,
       "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
-      "max_memory_allocated_bytes": 15879192064,
-      "max_memory_reserved_bytes": 16055795712,
-      "memory_allocated_bytes_at_end": 13471189504,
-      "memory_reserved_bytes_at_end": 16055795712
+      "max_memory_allocated_bytes": 15904500224,
+      "max_memory_reserved_bytes": 16160653312,
+      "memory_allocated_bytes_at_end": 13473286656,
+      "memory_reserved_bytes_at_end": 16160653312
     }
   ],
   "cuda_peak_scope": "PyTorch allocator peaks for this training process; excludes other processes and driver-only allocations",

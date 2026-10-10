@@ -1,7 +1,7 @@
 {
   "format": "w4a4_completed_search_costs_v1",
   "scope": "Completed recovery search stages; no heldout results or end-to-end wall clock",
-  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
   "selected_stages": {
     "qad": "train_qad_lr_0.0001",
     "continued_qad": "train_continued_qad",
@@ -18,16 +18,16 @@
       "logged_teacher_backward_passes": 0,
       "scheduled_teacher_backward_passes": 0,
       "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
-      "wall_seconds": 34476.101168778,
+      "wall_seconds": 37196.890226916934,
       "timing_scope": "script import through training and checkpoint serialization",
       "cuda_peak_memory": [
         {
           "device_index": 0,
           "device_name": "NVIDIA GeForce RTX 5090 Laptop GPU",
-          "max_memory_allocated_bytes": 15879192064,
-          "max_memory_reserved_bytes": 16055795712,
-          "memory_allocated_bytes_at_end": 13471189504,
-          "memory_reserved_bytes_at_end": 16055795712
+          "max_memory_allocated_bytes": 15904500224,
+          "max_memory_reserved_bytes": 16160653312,
+          "memory_allocated_bytes_at_end": 13473286656,
+          "memory_reserved_bytes_at_end": 16160653312
         }
       ],
       "parameter_storage_by_dtype": {
@@ -38,9 +38,9 @@
           "trainable_parameters": 72998912
         }
       },
-      "development_wall_seconds": 4552.373344182968,
+      "development_wall_seconds": 5062.466024875641,
       "development_episodes": 50,
-      "export_reported_seconds": 42.191280364990234,
+      "export_reported_seconds": 54.54746341705322,
       "export_tensor_bytes": 6910361856,
       "export_tensor_count": 1031
     },
@@ -54,7 +54,7 @@
       "logged_teacher_backward_passes": 0,
       "scheduled_teacher_backward_passes": 0,
       "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
-      "wall_seconds": 34317.012404267996,
+      "wall_seconds": 36376.121610882925,
       "timing_scope": "script import through training and checkpoint serialization",
       "cuda_peak_memory": [
         {
@@ -74,9 +74,9 @@
           "trainable_parameters": 72998912
         }
       },
-      "development_wall_seconds": 4670.384633779526,
+      "development_wall_seconds": 5212.973687410355,
       "development_episodes": 50,
-      "export_reported_seconds": 46.5563850402832,
+      "export_reported_seconds": 100.03507542610168,
       "export_tensor_bytes": 6910361856,
       "export_tensor_count": 1031
     },
@@ -90,7 +90,7 @@
       "logged_teacher_backward_passes": 0,
       "scheduled_teacher_backward_passes": 0,
       "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
-      "wall_seconds": 36020.975146579,
+      "wall_seconds": 38025.76851642202,
       "timing_scope": "script import through training and checkpoint serialization",
       "cuda_peak_memory": [
         {
@@ -110,9 +110,9 @@
           "trainable_parameters": 72998912
         }
       },
-      "development_wall_seconds": 6520.182981014252,
+      "development_wall_seconds": 7047.511278390884,
       "development_episodes": 50,
-      "export_reported_seconds": 57.058204650878906,
+      "export_reported_seconds": 45.997872829437256,
       "export_tensor_bytes": 6910361856,
       "export_tensor_count": 1031
     },
@@ -124,9 +124,9 @@
       "optimizer_steps": 2000,
       "demonstration_window_draws": 29600,
       "logged_teacher_backward_passes": 1600,
-      "scheduled_teacher_backward_passes": 6800,
+      "scheduled_teacher_backward_passes": 29600,
       "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
-      "wall_seconds": 44281.18965431501,
+      "wall_seconds": 74993.78296762903,
       "timing_scope": "script import through training and checkpoint serialization",
       "cuda_peak_memory": [
         {
@@ -146,9 +146,9 @@
           "trainable_parameters": 72998912
         }
       },
-      "development_wall_seconds": 4783.81122469902,
+      "development_wall_seconds": 5738.319765090942,
       "development_episodes": 50,
-      "export_reported_seconds": 57.4845917224884,
+      "export_reported_seconds": 181.4978585243225,
       "export_tensor_bytes": 6910361856,
       "export_tensor_count": 1031
     },
@@ -160,9 +160,9 @@
       "optimizer_steps": 2000,
       "demonstration_window_draws": 29600,
       "logged_teacher_backward_passes": 1600,
-      "scheduled_teacher_backward_passes": 6800,
+      "scheduled_teacher_backward_passes": 29600,
       "teacher_schedule_note": "Source-derived count uses completed updates and actual capture-epoch tail batches when available; logger records only selected updates, not an independent counter of all probe calls.",
-      "wall_seconds": 44935.495960030006,
+      "wall_seconds": 86259.21812254505,
       "timing_scope": "script import through training and checkpoint serialization",
       "cuda_peak_memory": [
         {
@@ -182,9 +182,9 @@
           "trainable_parameters": 72998912
         }
       },
-      "development_wall_seconds": 5557.346901655197,
+      "development_wall_seconds": 5722.165909051895,
       "development_episodes": 50,
-      "export_reported_seconds": 65.33985161781311,
+      "export_reported_seconds": 94.51618552207947,
       "export_tensor_bytes": 6910361856,
       "export_tensor_count": 1031
     }
@@ -192,35 +192,35 @@
   "completed_search_totals_by_timing_scope": {
     "optimizer_steps": 10000,
     "demonstration_window_draws": 148000,
-    "scheduled_teacher_backward_passes": 13600,
-    "wall_seconds": 194030.77433397,
-    "development_wall_seconds": 26084.099085330963,
+    "scheduled_teacher_backward_passes": 59200,
+    "wall_seconds": 272851.78144439595,
+    "development_wall_seconds": 28783.436664819717,
     "development_episodes": 250,
-    "export_reported_seconds": 268.63031339645386
+    "export_reported_seconds": 476.59445571899414
   },
   "selected_qad_opd_training": {
     "optimizer_steps": 4000,
     "demonstration_window_draws": 59200,
-    "scheduled_teacher_backward_passes": 6800,
-    "wall_seconds": 78598.202058583
+    "scheduled_teacher_backward_passes": 29600,
+    "wall_seconds": 111369.90457851195
   },
-  "opd_over_continued_training_wall_ratio": 1.2293167931773912,
+  "opd_over_continued_training_wall_ratio": 1.972183229781189,
   "teacher_supervision": {
     "episodes": 40,
     "successful_trajectories": 37,
     "raw_captured_windows": 160,
     "training_windows": 148,
-    "wall_seconds": 1616.3195326328278,
+    "wall_seconds": 1587.6665444374084,
     "cuda_peak_memory": null
   },
   "student_collection": {
     "episodes": 40,
     "captured_observations": 160,
-    "wall_seconds": 3673.78284907341,
+    "wall_seconds": 4135.665266990662,
     "cuda_peak_memory": null
   },
   "teacher_labeling": {
-    "elapsed_seconds": 54.949952363967896,
+    "elapsed_seconds": 66.57539129257202,
     "timing_scope": "checkpoint loading and teacher labeling, before cache serialization",
     "model_dtype": "float32",
     "autocast_dtype": "bfloat16",
@@ -252,11 +252,11 @@
   "pressure_development": {
     "bf16": {
       "episodes": 50,
-      "wall_seconds": 1947.5772864818573
+      "wall_seconds": 1956.5503566265106
     },
-    "all_nvfp4_gptq_category": {
+    "rtn_w4a4_category": {
       "episodes": 50,
-      "wall_seconds": 4656.223735570908
+      "wall_seconds": 4756.364127635956
     }
   },
   "excluded": [

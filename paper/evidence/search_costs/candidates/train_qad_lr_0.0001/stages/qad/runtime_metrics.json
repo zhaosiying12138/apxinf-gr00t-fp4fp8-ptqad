@@ -1,7 +1,7 @@
 {
   "status": "completed",
   "error": null,
-  "wall_seconds": 34317.012404267996,
+  "wall_seconds": 36376.121610882925,
   "timing_scope": "script import through training and checkpoint serialization",
   "global_steps": 2000,
   "requested_optimizer_steps": 2000,

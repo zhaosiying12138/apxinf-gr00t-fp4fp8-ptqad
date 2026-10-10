@@ -3,13 +3,13 @@
     "results": [
       true,
       true,
-      true,
+      false,
       true,
       true
     ],
-    "successes": 5,
+    "successes": 4,
     "episodes": 5,
-    "success_rate": 1.0,
+    "success_rate": 0.8,
     "resets": [
       {
         "event": "reset",
@@ -80,7 +80,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "7444f56358b25687b59269fa01a62ce4cd60b8c24e7f4b1127ca8557ddbe17ed",
+    "log_sha256": "cea52b8533a91e9bb924ec7d6df66cf195e8e496a80d6bd955878e5164776c35",
     "returncode": 0,
     "seed": 940000
   },
@@ -90,11 +90,11 @@
       true,
       true,
       true,
-      true
+      false
     ],
-    "successes": 5,
+    "successes": 4,
     "episodes": 5,
-    "success_rate": 1.0,
+    "success_rate": 0.8,
     "resets": [
       {
         "event": "reset",
@@ -165,7 +165,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "db54d7894ec12ae298b5cc8d0c097836cc4e4471043d91ed7dffd5d4b5db200e",
+    "log_sha256": "70692b18eb77331c94c74b65c1c1990f583ced63dadeff260fcbf4abe9af2068",
     "returncode": 0,
     "seed": 941000
   },
@@ -250,7 +250,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "6734a10f2798bb2457cac16fb62d66700c611120b8157385535ca768893ac25d",
+    "log_sha256": "61f176f8e1cdbe3a5b942a1d64f950105dc7cc3102575513267409611747cd0a",
     "returncode": 0,
     "seed": 942000
   },
@@ -260,11 +260,11 @@
       true,
       true,
       true,
-      false
+      true
     ],
-    "successes": 4,
+    "successes": 5,
     "episodes": 5,
-    "success_rate": 0.8,
+    "success_rate": 1.0,
     "resets": [
       {
         "event": "reset",
@@ -335,17 +335,17 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "a95516f1aa86507ab7fc87cd7e15aaef90c61d83d0cb78423781e4f032fc8156",
+    "log_sha256": "03c4777a486e9b2463557e7c0ea5a9b8f25708edf8dbf193b47061005c0496e7",
     "returncode": 0,
     "seed": 943000
   },
   "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
     "results": [
       true,
-      false,
       true,
       true,
-      true
+      true,
+      false
     ],
     "successes": 4,
     "episodes": 5,
@@ -420,7 +420,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "9478a613aa44e8021aeb63dcc64e8895093fd34ae3bd0d534412ac6cde03592c",
+    "log_sha256": "bae7a785969e6f7f2fbdbdde6732faaa30975503fc14a7656afc22b4c47f6dbc",
     "returncode": 0,
     "seed": 944000
   },
@@ -505,7 +505,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "35777dfe7a17f630549294cbe8bf8480d35313775e5e481afbe1beb813a42a52",
+    "log_sha256": "b6be521684ff24c41d5b973a1fa9f42c7f3a416f172c780e742d86c6ec6b61b9",
     "returncode": 0,
     "seed": 945000
   },
@@ -513,13 +513,13 @@
     "results": [
       true,
       true,
-      true,
       false,
-      true
+      false,
+      false
     ],
-    "successes": 4,
+    "successes": 2,
     "episodes": 5,
-    "success_rate": 0.8,
+    "success_rate": 0.4,
     "resets": [
       {
         "event": "reset",
@@ -590,7 +590,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "e3f2c56781c1e5bfd02913028e6f4aaa223daa3495f74ddbdba2437c23263961",
+    "log_sha256": "123ef030e26b7e4e2280b3dc79c2d113acc27f590ac7c1ef3bd88d3da390233d",
     "returncode": 0,
     "seed": 946000
   },
@@ -675,21 +675,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "61d2e4b65cf5ffdc6f2d0c7edde51834422020fb97b5839d2633e516dab9bc5b",
+    "log_sha256": "de556daa25f8c171366e5cb6aad276be57d196b439bb74791471d63226b0196f",
     "returncode": 0,
     "seed": 947000
   },
   "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
     "results": [
       true,
-      false,
+      true,
       true,
       true,
       false
     ],
-    "successes": 3,
+    "successes": 4,
     "episodes": 5,
-    "success_rate": 0.6,
+    "success_rate": 0.8,
     "resets": [
       {
         "event": "reset",
@@ -760,15 +760,15 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "ea98d537b5d26c2bbe86d7e22be64739de7f668869b492e9cf48bdcedb166e80",
+    "log_sha256": "e9f32ae4eae0366a34d889d33275a40f63445954a714d6f6f5ff0080b4589ebe",
     "returncode": 0,
     "seed": 948000
   },
   "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
     "results": [
+      true,
+      true,
       false,
-      true,
-      true,
       true,
       true
     ],
@@ -845,7 +845,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "bb99902d420c4f6ff76151e45aac78dfcc0a2d08894397c2b426e94c52e26a94",
+    "log_sha256": "c988f2511bed4c0acacca5f67fd283fa941b0520638b5530a5a1bdf90f4b753a",
     "returncode": 0,
     "seed": 949000
   }

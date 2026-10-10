@@ -80,7 +80,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "6ee38de9f324c6a0c3da170922c756f2ea279a7446f75d54d834935697eab1a7",
+    "log_sha256": "5cfee2631317c45e028435a5837aeb8448080d8fe921fa6c6dfe329581712148",
     "returncode": 0,
     "seed": 940000
   },
@@ -90,11 +90,11 @@
       true,
       true,
       true,
-      true
+      false
     ],
-    "successes": 5,
+    "successes": 4,
     "episodes": 5,
-    "success_rate": 1.0,
+    "success_rate": 0.8,
     "resets": [
       {
         "event": "reset",
@@ -165,7 +165,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "a0e230019b7b2132450f9f34e1f3435f57c9d5eb2a406f739aaf9688469e9afa",
+    "log_sha256": "aa26960bd815a02965ed97f98370ae66c4e012e24612cad350f179cb94e360a4",
     "returncode": 0,
     "seed": 941000
   },
@@ -250,21 +250,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "65456428021ba9f7787af72e360d2320ee440a80b6834ddfca8b4510d94e0b41",
+    "log_sha256": "5a16a8505146478d766489ba0b0aab252c4be2c6a624ff268cfe4819fec9402b",
     "returncode": 0,
     "seed": 942000
   },
   "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
     "results": [
       true,
-      true,
-      true,
+      false,
+      false,
       true,
       true
     ],
-    "successes": 5,
+    "successes": 3,
     "episodes": 5,
-    "success_rate": 1.0,
+    "success_rate": 0.6,
     "resets": [
       {
         "event": "reset",
@@ -335,21 +335,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "7617cfe1635ab5abafefc8cecf4853e90652e01915adf268d6b35bbc78efc9ed",
+    "log_sha256": "ee5297ce0617d8b2bb410f2dfe3a0526f0edc3ecc1f0b710add72d090051ecd2",
     "returncode": 0,
     "seed": 943000
   },
   "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
     "results": [
+      true,
+      true,
+      true,
       false,
-      true,
-      true,
-      true,
-      true
+      false
     ],
-    "successes": 4,
+    "successes": 3,
     "episodes": 5,
-    "success_rate": 0.8,
+    "success_rate": 0.6,
     "resets": [
       {
         "event": "reset",
@@ -420,7 +420,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "27226da2a72e52f36452e4b30b6b2ce48c65abfe568ac15f634e38d4a4f54ffb",
+    "log_sha256": "675807890ea015ee6dd5c008aff1725dd8f3298bbeaff0fa0d71c8278ada1d67",
     "returncode": 0,
     "seed": 944000
   },
@@ -429,12 +429,12 @@
       true,
       true,
       true,
-      false,
+      true,
       true
     ],
-    "successes": 4,
+    "successes": 5,
     "episodes": 5,
-    "success_rate": 0.8,
+    "success_rate": 1.0,
     "resets": [
       {
         "event": "reset",
@@ -505,7 +505,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "f857dba5a2185f3409c7d524f7d25949f4eb3c57d4bfbb8e92d6a96d3ebadfbf",
+    "log_sha256": "5fef782403977cd6c5c12b185d1e95b94f7ed022b44e0d6732ce7dc937931ec6",
     "returncode": 0,
     "seed": 945000
   },
@@ -513,9 +513,9 @@
     "results": [
       true,
       true,
-      false,
       true,
-      true
+      true,
+      false
     ],
     "successes": 4,
     "episodes": 5,
@@ -590,7 +590,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "e923afd2ef369c8ed5bfb9afa2a4d0a60eedd2c83b395ea812cb188bc987beab",
+    "log_sha256": "41ba94424df0a6c973ac3a2cf10cf139853eff267db3a6ccacbcddbe76e58108",
     "returncode": 0,
     "seed": 946000
   },
@@ -675,7 +675,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "ea577d0c7fa89aeca01968c0a04968205f021116ffc6c4b5c0938418550c8892",
+    "log_sha256": "353a74c3ab5ee38d3cc218768628162057127d121c48cc42735fa50fc104fb5c",
     "returncode": 0,
     "seed": 947000
   },
@@ -760,7 +760,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "e146b7bd5bef5757506d29a5d4aad430008d4401cd61a025d9b07baf2633664d",
+    "log_sha256": "ae7f8410984f587fec0ff3744d428e8d699e313e3dd4a4c58dfac379d2878783",
     "returncode": 0,
     "seed": 948000
   },
@@ -845,7 +845,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "362d4be0017f2fb4f0fa795f0568f2b4829876632abbc22528dde03be638aa0a",
+    "log_sha256": "bfc9ceb2ec9e9442f742f9862c9d1a03811794c97ce3808ba50afa57b1bda664",
     "returncode": 0,
     "seed": 949000
   }

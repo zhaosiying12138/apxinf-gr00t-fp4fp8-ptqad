@@ -1,8 +1,8 @@
 {
-  "id": "w4a4-recovery-v11-category",
-  "version": 11,
+  "id": "w4a4-recovery-v12-rtn",
+  "version": 12,
   "w4a4": true,
-  "description": "Frozen full-coverage W4A4 numerical-emulation protocol. All 479 eligible weight tensors use NVFP4; 476 executable Linear operators (469 ordinary plus seven category banks) use W4A4 activation QDQ. Three positional/embedding tensors are weight-only because they are not Linear operators. QAD and OPD keep a separate BF16 residual branch.",
+  "description": "Frozen full-coverage W4A4 numerical-emulation protocol for an all-NVFP4 RTN pressure baseline. QAD and OPD remain BF16 residual adapters over all ordinary Linear operators.",
   "partitions": {
     "development": {
       "seed": 940000,
@@ -110,10 +110,10 @@
   "selection": {
     "development_only": true,
     "pressure_candidates": [
-      "all_nvfp4_gptq_category"
+      "rtn_w4a4_category"
     ],
     "pressure_candidate_checkpoints": {
-      "all_nvfp4_gptq_category": "results/ptqad_20261003/w4a4_full_category"
+      "rtn_w4a4_category": "results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category"
     },
     "pressure_rule": {
       "target_drop_from_bf16": [
@@ -127,7 +127,7 @@
       "no_qualifying_action": "report_no_recoverable_stress_window"
     },
     "qad_learning_rates": [
-      5e-05,
+      5E-05,
       0.0001
     ],
     "recovery_selection_metric": "macro_success_rate",
@@ -136,20 +136,22 @@
     "rank": 32,
     "alpha": 64,
     "effective_demo_batch": 16,
-    "opd_every": 4,
+    "opd_every": 1,
     "opd_weights": [
       0.25,
       1.0
     ],
     "same_budget_control": "continued_qad",
-    "train_seed": 20261003,
+    "train_seed": 20261006,
     "recovery_scope": "all_ordinary_linear",
-    "selection_note": "The selected checkpoint has 472 ordinary recipe tensors plus seven category-specific weight tensors, all NVFP4. Runtime activation installation reports 469 ordinary Linear operators plus seven category banks; three recipe tensors are embeddings/positional parameters and have no activation matmul."
+    "selection_note": "The selected checkpoint is an all-NVFP4 RTN W4A4 pressure arm: 472 ordinary recipe tensors plus seven category-specific weight tensors, all NVFP4; runtime activation installation reports 469 ordinary Linear operators plus seven category banks. QAD/OPD scope covers the 469 ordinary Linear operators; the seven category banks remain frozen."
   },
   "quantization_scope": {
     "weight_format": "NVFP4 E2M1 with E4M3 block scales and frozen PTQ tensor-scale contract",
     "activation_format": "NVFP4 E2M1 with fixed secondary scale 1.0",
-    "mode": "W4A4 numerical QDQ emulation; FP4 base matmul plus raw-BF16 LoRA residual",
+    "mode": "W4A4 numerical QDQ emulation; RTN FP4 base matmul plus raw-BF16 LoRA residual",
+    "recipe": "rtn_all",
+    "calibration_mode": "none",
     "ordinary_linear_eligible": 472,
     "category_linear_layers": 7,
     "native_parity_status": "GPU QDQ reference; APXInf native GR00T executor not claimed",
@@ -176,8 +178,8 @@
     },
     "primary_effect_minimum": {
       "ptq_drop": 0.05,
-      "qad_gain_over_ptq": 0.05,
       "opd_gain_over_qad": 0.05,
+      "qad_gain_over_ptq": 0.05,
       "note": "The 160 paired episodes support 10-point recovery claims as the preregistered minimum; smaller differences are exploratory."
     }
   }

@@ -66,7 +66,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "9834a829c0c76ea6648130bc936d3a9d3d4f982ffe0f263837bc5458ce2ddaab",
+    "log_sha256": "a02f909ae2cec55329594b986be27b7170abb1cd40ea28cd3ae89174f5f3449a",
     "returncode": 0,
     "seed": 950000,
     "capture": {
@@ -149,7 +149,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "0e8eea2679d261e8fd39d840929d75348dc6135523bb0fea1abbc16e189d48be",
+    "log_sha256": "94369709546ae553f1d2fb3575c48cc5f604090f3a1849a0a2fb06c1b186d3e8",
     "returncode": 0,
     "seed": 951000,
     "capture": {
@@ -232,7 +232,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "b5366ee31d17cef8930e958417ef8a265dbc8a7ea41c1dd1e7f09f748c6e4a05",
+    "log_sha256": "fea7252351b79d5858c5d1582de86fbe8884e4aea033180a579bb480780af55e",
     "returncode": 0,
     "seed": 952000,
     "capture": {
@@ -315,7 +315,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "5e1837db71ce4be703bd79645ae19b496e9aa5c14296b109d9b073434ae35e5e",
+    "log_sha256": "543333747c75f1e831b80732c2e8836a332cf7630e2d96f70980faeb1d4ab96e",
     "returncode": 0,
     "seed": 953000,
     "capture": {
@@ -398,7 +398,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "492088b677b988286a71074b574e64003e9f3b25a94d902bbb2bd04391a4a04f",
+    "log_sha256": "867607594de1565fb498929727bac586f3a74d8e56dfdfefacd86b82dea87ecd",
     "returncode": 0,
     "seed": 954000,
     "capture": {
@@ -480,7 +480,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "fa46b1f13c4eb2d6628e6dce7e99821b6a4ae18bc4d029e455ef7667766a1de1",
+    "log_sha256": "270826b420aa9aacea2056d3872828d4f37d18d4c278c009576802ac2a26dc34",
     "returncode": 0,
     "seed": 955000,
     "capture": {
@@ -563,7 +563,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "61d65b8e294fc7cef6645e408eab49c0bea8b7302f6a8d0675c53eda36538ee7",
+    "log_sha256": "87c8ff14bc0444e7287b4bc102744838201aa7851455b2dbf02c21477d833b89",
     "returncode": 0,
     "seed": 956000,
     "capture": {
@@ -646,7 +646,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "d3e02801d397c539874e572f3cd381699f8d366e2002dee510419417c156e660",
+    "log_sha256": "6b8f0f633bb29b77af6704cf5035e71eb3bfbf37d2fe91b26f88b9aa653c6e6f",
     "returncode": 0,
     "seed": 957000,
     "capture": {
@@ -729,7 +729,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "ce2208d230a1f7cb6142846c304bb95a63b3cbab6c425946cafacfd3fe3ce22d",
+    "log_sha256": "0b124269a41f879216317bc121bcc010996cbe60f1743f7d963b416cbba43d31",
     "returncode": 0,
     "seed": 958000,
     "capture": {
@@ -810,7 +810,7 @@
     "raw_reset_count": 6,
     "scored_reset_count": 4,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "ca053864046bd5e66775218ca2a82f317d465a54ede4d2cc21030ad3773efe89",
+    "log_sha256": "206d3d7cbe5074bfb8677210ecd6f32576706edd4d5fdac2d289b147c15731bc",
     "returncode": 0,
     "seed": 959000,
     "capture": {

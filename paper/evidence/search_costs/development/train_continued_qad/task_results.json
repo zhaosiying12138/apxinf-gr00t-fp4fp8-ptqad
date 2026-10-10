@@ -80,7 +80,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "e9db809394d82e3d99ecbe224654422fc6072c623bc5854931858ff08e1b1a0c",
+    "log_sha256": "ebc304e7b4330daf0856c8b7a0d827efe645d54a0fd0f45cd2222a19a35f16e4",
     "returncode": 0,
     "seed": 940000
   },
@@ -165,21 +165,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "7fb8f81c4655bc5ab95f95f55f86d57348ace0fbcb4a3ab10964ef95f0183915",
+    "log_sha256": "d646a5371aead556b17012216261bc254bfaef2d1cf515e5f22ce581e7f44604",
     "returncode": 0,
     "seed": 941000
   },
   "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
     "results": [
       true,
-      true,
+      false,
       true,
       true,
       true
     ],
-    "successes": 5,
+    "successes": 4,
     "episodes": 5,
-    "success_rate": 1.0,
+    "success_rate": 0.8,
     "resets": [
       {
         "event": "reset",
@@ -250,21 +250,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "ea89d6f727c69bea107b636f9aba8d4af3c2106770adc7f1706097d0d1d5202d",
+    "log_sha256": "4c8a6f5e5817bbb8d79898cfb2514136c6048bd47126df94839f26fed33b6958",
     "returncode": 0,
     "seed": 942000
   },
   "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
     "results": [
       true,
-      false,
+      true,
       true,
       true,
       true
     ],
-    "successes": 4,
+    "successes": 5,
     "episodes": 5,
-    "success_rate": 0.8,
+    "success_rate": 1.0,
     "resets": [
       {
         "event": "reset",
@@ -335,21 +335,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "0909168c34b57f3959652335468888a7ac34c13cb4b3140b59c27363c216f458",
+    "log_sha256": "48032025b39261a7981e5a5a90d057775528b8cfeb0850b3a1dac084b4b038c4",
     "returncode": 0,
     "seed": 943000
   },
   "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
     "results": [
       true,
+      true,
       false,
       false,
-      false,
-      false
+      true
     ],
-    "successes": 1,
+    "successes": 3,
     "episodes": 5,
-    "success_rate": 0.2,
+    "success_rate": 0.6,
     "resets": [
       {
         "event": "reset",
@@ -420,7 +420,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "6680ae129553ccf44add4c965d9d18e0633eac35928251b428e204f8f8e638f6",
+    "log_sha256": "b21fc3f29c375b84ede9deaee6870e6052c11aa51a98519fb4369ef815984a58",
     "returncode": 0,
     "seed": 944000
   },
@@ -505,21 +505,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "ece4feebc7218d90878f0f76fb1513af50df95e4b342d16ffa8412650536fd05",
+    "log_sha256": "41fb927ecb4a8794f944e60e1d3cf4b18c0a2286cc17ea8c145f40531041b18b",
     "returncode": 0,
     "seed": 945000
   },
   "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
     "results": [
+      true,
       false,
       false,
       true,
-      false,
-      false
+      true
     ],
-    "successes": 1,
+    "successes": 3,
     "episodes": 5,
-    "success_rate": 0.2,
+    "success_rate": 0.6,
     "resets": [
       {
         "event": "reset",
@@ -590,7 +590,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "bc44a9238ba9d428e1029f9f5ea7073e354fc216be028a264310058aa13916cb",
+    "log_sha256": "58137b56b1bdb0bd1c6191be8f0c919ff3d6729c3450ecec0f907f5125b23e51",
     "returncode": 0,
     "seed": 946000
   },
@@ -598,13 +598,13 @@
     "results": [
       true,
       true,
-      true,
+      false,
       true,
       false
     ],
-    "successes": 4,
+    "successes": 3,
     "episodes": 5,
-    "success_rate": 0.8,
+    "success_rate": 0.6,
     "resets": [
       {
         "event": "reset",
@@ -675,21 +675,21 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "5ad7812c6833fd8c61dd59790d530ba916ca440e72ca2c89847b1314c746086c",
+    "log_sha256": "da4f472a2580db3cf6098787514ce51140d07554c31a85e32eb8b97bda2c446f",
     "returncode": 0,
     "seed": 947000
   },
   "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
     "results": [
       false,
-      false,
-      false,
       true,
-      true
+      true,
+      true,
+      false
     ],
-    "successes": 2,
+    "successes": 3,
     "episodes": 5,
-    "success_rate": 0.4,
+    "success_rate": 0.6,
     "resets": [
       {
         "event": "reset",
@@ -760,7 +760,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "74e73a4086195714c44b3678ee7cc52eae23d7766d80f6e559e2023a6879f9bf",
+    "log_sha256": "b72711ef05e9fda176c7dbc2dddb947640871c771c8f6493ef7bc2af741e08b6",
     "returncode": 0,
     "seed": 948000
   },
@@ -768,13 +768,13 @@
     "results": [
       false,
       true,
-      true,
+      false,
       true,
       false
     ],
-    "successes": 3,
+    "successes": 2,
     "episodes": 5,
-    "success_rate": 0.6,
+    "success_rate": 0.4,
     "resets": [
       {
         "event": "reset",
@@ -845,7 +845,7 @@
     "raw_reset_count": 7,
     "scored_reset_count": 5,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "e26080ef2156847e7ae8a1d2d89c6a8b7f24fb41e65d885de50f11f62405e169",
+    "log_sha256": "8e54183c6421ff6483766ee99b4eeb0c7bdce06e487a5815998ee4ca9609b09f",
     "returncode": 0,
     "seed": 949000
   }

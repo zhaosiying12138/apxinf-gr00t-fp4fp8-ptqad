@@ -1,6 +1,6 @@
 {
   "format": "selected_category_recipe_memory_v2",
-  "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_full_category",
+  "checkpoint": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_pressure_20261006_01/rtn_category",
   "recipe": "category_nvfp4_extension",
   "memory": {
     "all_checkpoint_params": 3455180928,
@@ -76,7 +76,7 @@
     "storage_note": "Target FP4 payload plus E4M3 scale/16 and FP32 scale per category; includes internal K padding. FP8 uses FP32 row scales. Excludes runtime alignment/activations/LoRA residuals. Checkpoint shards remain original dtype. Inactive categories do not contribute to LIBERO execution."
   },
   "source_recipe": "category_ptq_recipe.json",
-  "source_recipe_sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
+  "source_recipe_sha256": "4dfe0d34b8a42fe3b0af3cadc6cf84d23c2095237315899b401b128714da3b4d",
   "weight_allocation": "nvfp4_only",
   "note": "Format fractions use the recorded eligible-element denominator; runtime storage and LoRA residuals are separate."
 }

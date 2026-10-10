@@ -1,0 +1,735 @@
+{
+  "format": "gr00t_action_inputs_v1",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v12_rtn_w4a4.json",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
+  "capture_root": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations",
+  "purpose": "teacher_supervision",
+  "interpretation": "training_distribution_fit_diagnostic",
+  "statistics_sha256": "cbd3765acaec31fb65109304fa0c2ebd637732ddbe1b3cab0cc11bf244a498e1",
+  "samples_per_task": 8,
+  "selection": "first filenames per task; frozen before action measurements",
+  "seed": 2026100600,
+  "samples": [
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000000.pt",
+      "sha256": "221798c34374d41018df3fd11b9e89dba601d78a63ea08f39b2722dedae96fbb",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100600,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000001.pt",
+      "sha256": "86cf932499b0df672c4c3577c7ff263f5f81691d9c9dcb46b4a9e1b171849fde",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100601,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000002.pt",
+      "sha256": "8a0be20b907fd2a3d0f3fc9713629d2897bf37c3b92e73da630c4de8ffff657b",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100602,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000003.pt",
+      "sha256": "59bfc8d07d80a426f768b9cee87f4b5be611d35aa0d17bed56d73fd05b3539a2",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100603,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000004.pt",
+      "sha256": "1b4433447af16731dcf1312d475c99f78f1f06f0d9e374a64e6158555ae40d14",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100604,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000005.pt",
+      "sha256": "a3b362b5be9dad00d5b5150aeead9054514d0017e50632416cc4ab7e6fa7545b",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100605,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000006.pt",
+      "sha256": "f621fac43348581e9a2cd78ff9a01cb3e2ccef03f6b1f650100940a77a018341",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100606,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 45
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/sample_000007.pt",
+      "sha256": "4eb69554ed612acfb9b7305e067ca7499c714c08f2a8f5b36d8559f277d26217",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "seed": 2026100607,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 49
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000000.pt",
+      "sha256": "48cf19ab5edd91f466997c3af74cedf96a2b45235cdd4a4efbc84ca7c8e59b15",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100608,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000001.pt",
+      "sha256": "c1abf2af1563c83871029fce040485591617f4ddf6fc0a0847e1eb2076e2d2fc",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100609,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000002.pt",
+      "sha256": "2e928d66b0a56feeaebc5671e1f63616bf4f53b79224a11ea51923bd1967651f",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100610,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000003.pt",
+      "sha256": "669938f93c4e11e428cb99a44b9ad6814a3c5fdd417d7bbb414947a8bb397b05",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100611,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000004.pt",
+      "sha256": "bb235a5dc9eb08f1c0d7513c7239a859f5e14bb6e8f60d1fdb582b8f1a9f3537",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100612,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 33
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000005.pt",
+      "sha256": "c324bdb5a44a253e3ecc4cd30ee2de07672e423ada0bb1ac9eb6d0ac7679c58e",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100613,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000006.pt",
+      "sha256": "fbf649f53a91697b4ca7b2e1299f3182dd2d86dab17df52ce20710e6f26e0d48",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100614,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/sample_000007.pt",
+      "sha256": "467fd0d4826ae619b14f1de8a59ce58d84f1c1ca256a001ac45b95d5e9aed9b1",
+      "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "seed": 2026100615,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 45
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000000.pt",
+      "sha256": "ad7054f676afe0b48c5a5d93929c57f4985e89a31afb894fe01228c00a88e6c9",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100616,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000001.pt",
+      "sha256": "7084126841cf355702c00574ee8541c9a69dfdd79e04bf91251730a1931273f7",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100617,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000002.pt",
+      "sha256": "021f9a7ebd6cb88d32961c4246d190d92d172aea708f4c472eb9d5faba251283",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100618,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000003.pt",
+      "sha256": "78dc2f05e518b75780dba38c9faafaa16fc424b1c5cc7f746d7585a13b9662da",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100619,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000004.pt",
+      "sha256": "2b1a49a3e45949adc309a1054b4105b761770f64276e57142d5cd0b2483bb3b4",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100620,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 33
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000005.pt",
+      "sha256": "29a9e7c061b1dd7971d789bdee0a66898bba22fad503a782a6129c59680e0ef2",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100621,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000006.pt",
+      "sha256": "2883682f74eb90b07583c694d92063c4117248c810b5c92966c821f64dfeb5e5",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100622,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/sample_000007.pt",
+      "sha256": "5965e347d9129e05adb2ac8bede673a03535d1529aa83300d179c316775e1b92",
+      "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "seed": 2026100623,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 45
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000000.pt",
+      "sha256": "1184b87ee6d587e8d60f0e939d08077d6134afa5a88886729a0970f0ff77f3e8",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100624,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000001.pt",
+      "sha256": "92253f5165c191c812c0cf157659ee792bcee1da7ffa4497ec9b7465643a3253",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100625,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000002.pt",
+      "sha256": "8c9257033099ec87963af4e637f9f6dec23c93e20caa7b3183f9ed84669e5671",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100626,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000003.pt",
+      "sha256": "46da4355e29be9ae75269efb4154891dd244be48328cbd767000efdeda3b2f83",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100627,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000004.pt",
+      "sha256": "0536b4c2bd1f2e9763b711eceecf9c27be820c224b6eb955b5198a7d4c8c073e",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100628,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 29
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000005.pt",
+      "sha256": "38065c01f1ac344903fc37019e2cec8f0492fa4f9768c7bd385f103482a7c4ef",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100629,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 33
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000006.pt",
+      "sha256": "4cef86654a196ef0102fbcd30e8da8c1ba0ad25f4a37fab000d6ee611e8f502f",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100630,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/sample_000007.pt",
+      "sha256": "c5ea762d69af43da242e36e20bce1f72b083521a2a93576cbfd0fde742072fd6",
+      "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "seed": 2026100631,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000000.pt",
+      "sha256": "325324f290f375ec687c38b82ea74f25067b8aa754e39af94ad101871f38878d",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100632,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000001.pt",
+      "sha256": "66726872e04f2cc15b8f44f49ac594ae4ecd04c9b26463bc50e38e2c8324b177",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100633,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000002.pt",
+      "sha256": "46edde6f78f3136f3abf7a7b4fd6b7e6a7a94115875f39fdd9803adccae6feab",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100634,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000003.pt",
+      "sha256": "7755b068ecbd840e79be2a26c860be658b8bdbf010df4cafe944f70c2d785e2c",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100635,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000004.pt",
+      "sha256": "e0c4f2b705ed3441f09e90466e934af83f0501de8c9de61d02d5ccd87225de7d",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100636,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 33
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000005.pt",
+      "sha256": "0dca1a9aad2c361c044e83297d51861a6bc1bf5845cf42a49a248442ac3c75ac",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100637,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000006.pt",
+      "sha256": "ed30805399531e6aa53f5153b5651e14432f1282f220bfc916fa3baa119cdc36",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100638,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/sample_000007.pt",
+      "sha256": "0d0278868ab0417b2a5e3f9b7d8d98228cf601b0910fc8987bc5af366dae0353",
+      "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "seed": 2026100639,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 45
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000000.pt",
+      "sha256": "3c2378e4d9de3ab21b22c92b543ead581b8a6b8d3f4e1d66c11770bcb437c6c2",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100640,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000001.pt",
+      "sha256": "e62b1201d3017c28a0ba64fa8152142c287ca46b5f44cd91ff7971384978d09a",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100641,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000002.pt",
+      "sha256": "3d1a42fb1cea24c467a30fd56e7f20174660106fffee70cbfd440600da048e22",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100642,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000003.pt",
+      "sha256": "fc114bc29f113cbcdd2ec0927a13c4042f7a50b848a793b4df7facf3c6b91cbf",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100643,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000004.pt",
+      "sha256": "2532264dad91fcb31e4b4ff374537f412a01ac2f825758f9121507706a54acef",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100644,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 29
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000005.pt",
+      "sha256": "f23c3bd5b3500eecfcb7b4580e04a0c69dbfb48e8093de08bf0575dc6e680851",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100645,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 33
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000006.pt",
+      "sha256": "94dc474b4811947356f673cd3e8cccddf45fe2487d827f5d63d9c491202f9dfb",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100646,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/sample_000007.pt",
+      "sha256": "5099a3335d356e0d690b29fde450e0bf38e4f5854c92136e2964f443fcb4fe00",
+      "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "seed": 2026100647,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000000.pt",
+      "sha256": "c4e06a31990ea037e6d9b1e6a26433306231dfd6149ee887780d5c657840340b",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100648,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000001.pt",
+      "sha256": "66eee0bf33626f72c4077b3a2d90ee5e067658f2ac2bd2c3395c3ad96daf75c0",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100649,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000002.pt",
+      "sha256": "9a05bbac7f6a444bf5b733edeb12951218c585447bb43607c50944413c446fae",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100650,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000003.pt",
+      "sha256": "4d255eb76541655cf2cb3b4a58fd837cb30fc4b008297ddaf7b1b4be0b1d1cb2",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100651,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000004.pt",
+      "sha256": "e28e3728ecc63c3ee7142f1b4139285bd0d25a1eebc3171b96d7bd6433b3b187",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100652,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 29
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000005.pt",
+      "sha256": "e8ad1bedc316f2460d4c6299ceb5a2e08bd683a22fc44affa91b752ebacf5826",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100653,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 33
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000006.pt",
+      "sha256": "eecd022945327503918a3805003661a44b98d64297ee4a4b537eb86f9a2637bc",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100654,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/sample_000007.pt",
+      "sha256": "632eb71a205397003cebd8e58a7a9121a55321ba9206350eead07b057fabebe3",
+      "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      "seed": 2026100655,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000000.pt",
+      "sha256": "b67f3f4c196b316a3209321bad926a2b684bcb911728ccb7cdcda6092d1fc476",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100656,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000001.pt",
+      "sha256": "1b159f414069e074ecf9dcdf93997ccd078a03084b2d8a94afb59428570627f8",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100657,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000002.pt",
+      "sha256": "7e531175b382a5bf8fbebcb0d80f447c762c515f62c8e10d50b2f04655d89a7b",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100658,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000003.pt",
+      "sha256": "bd9f7c398267f8197a22516644faef32ab5692be03f48114f0836e065fdc301b",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100659,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000004.pt",
+      "sha256": "352b25206e55b0dd05db006a394727434dc8417b78f4a7eef7730e98ada224fd",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100660,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 37
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000005.pt",
+      "sha256": "c0eef5df4b9ab3b381ee52e8ec86d7433ad27010c76e93557734640bf2054009",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100661,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000006.pt",
+      "sha256": "67eed515bd836cd091013098a9a4b3b098ebe98fa68568f761f22f445af6b3a2",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100662,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 45
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/sample_000007.pt",
+      "sha256": "15ab44b1e9d24266127baa326e344a7f9fd7ed3c6233e4ed82a039592bb5aa03",
+      "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      "seed": 2026100663,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 49
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000008.pt",
+      "sha256": "0a6cae04df9e5d67b371c7a7dd0aa011a5762fbcf9d696163331d7fca2c241a3",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100664,
+      "init_state_index": 22,
+      "episode_index": 2,
+      "server_call": 181
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000009.pt",
+      "sha256": "ee79524a075d6dfe8e17d810f306d94dc7864e27eb4316878047ad60f379de4e",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100665,
+      "init_state_index": 22,
+      "episode_index": 2,
+      "server_call": 185
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000010.pt",
+      "sha256": "a72af74868bad6c2fe95efcd2f4993d4b75deec7e9923968445daa30fbd499fa",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100666,
+      "init_state_index": 22,
+      "episode_index": 2,
+      "server_call": 189
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000011.pt",
+      "sha256": "b1c0704608756cbc079bee257f36068cb025e42658a7b2c27cdc77bca21aea0b",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100667,
+      "init_state_index": 22,
+      "episode_index": 2,
+      "server_call": 193
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000012.pt",
+      "sha256": "44a726ec88645f43d2a611c0b3d296fed521615b87a12ba16d10db74123c8fe4",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100668,
+      "init_state_index": 23,
+      "episode_index": 3,
+      "server_call": 241
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000013.pt",
+      "sha256": "7d39dbe2605c6900c682ef3aeefb81788b59e1a4961a59a74498a6ce28b1be80",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100669,
+      "init_state_index": 23,
+      "episode_index": 3,
+      "server_call": 245
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000014.pt",
+      "sha256": "364bd9e7b914eedc23063831237a650586d73297594c0a5f2cb4613a2073dbdb",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100670,
+      "init_state_index": 23,
+      "episode_index": 3,
+      "server_call": 249
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/sample_000015.pt",
+      "sha256": "d9e5051fa1aeb362edf01332d4c07e7cb3764ef96d5c76ee713f90a9c4a915c6",
+      "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      "seed": 2026100671,
+      "init_state_index": 23,
+      "episode_index": 3,
+      "server_call": 253
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000000.pt",
+      "sha256": "2f80193f6b2d6f1c96725b7d758aef70094680b20c755cb769a9657fb287d30e",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100672,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 1
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000001.pt",
+      "sha256": "578ab48a7669b9a84bc8c7603d5ecec92d3d3d452d8431c6feee45611603010d",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100673,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 5
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000002.pt",
+      "sha256": "dd505f923c864458e6f035143b1444c1cd367bc03c245edb1089dec1321f6b84",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100674,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 9
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000003.pt",
+      "sha256": "3f2978d252c917ef746342a0b9b48d23708f95c91746f531a6ccb99c0cb96c82",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100675,
+      "init_state_index": 20,
+      "episode_index": 0,
+      "server_call": 13
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000004.pt",
+      "sha256": "ffa0d07ebe37c28dca446491cf66326f4df36986baea642cb86ae1c57197e39c",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100676,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 41
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000005.pt",
+      "sha256": "54784df0d03ad25c42ed7050a56ce342841819032727b94b46361a342ca11f64",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100677,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 45
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000006.pt",
+      "sha256": "44806b7a8afa9a19610636e31c8847c5d7ceaa3fe049e58628bad29ad447fed6",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100678,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 49
+    },
+    {
+      "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/sample_000007.pt",
+      "sha256": "d88b2264077e0ac85e0176ec7b8fd8acb1cc5fe65eac2044ae76708d8f322c06",
+      "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+      "seed": 2026100679,
+      "init_state_index": 21,
+      "episode_index": 1,
+      "server_call": 53
+    }
+  ],
+  "implementation_sha256": "c9087e9b7fddcd9ea6478f0c53ac0bda4bbe19271b82275c702d1f469c19b02c"
+}

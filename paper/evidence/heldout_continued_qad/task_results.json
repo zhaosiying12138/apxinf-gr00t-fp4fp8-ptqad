@@ -7,7 +7,7 @@
       false,
       false,
       false,
-      true,
+      false,
       false,
       false,
       false,
@@ -18,9 +18,9 @@
       false,
       false
     ],
-    "successes": 2,
+    "successes": 1,
     "episodes": 16,
-    "success_rate": 0.125,
+    "success_rate": 0.0625,
     "resets": [
       {
         "event": "reset",
@@ -234,12 +234,15 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "52186ff8a7e6882fbc23b01f13bf98c4751e26477c14e3d4fb113a54d5f7b87b",
+    "log_sha256": "30d000c58feabcf9fdc65def05fcba3277adfed9b84534ebb66eb07efc1ac6a6",
     "returncode": 0,
     "seed": 970000
   },
   "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
     "results": [
+      true,
+      true,
+      false,
       false,
       true,
       false,
@@ -249,17 +252,14 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
+      true,
       false,
       false,
       true
     ],
-    "successes": 2,
+    "successes": 5,
     "episodes": 16,
-    "success_rate": 0.125,
+    "success_rate": 0.3125,
     "resets": [
       {
         "event": "reset",
@@ -473,14 +473,13 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "2978b47896094e93741983d4714361c03e75527a0ee74620e61e075fc7596338",
+    "log_sha256": "f42f1847d789f5aea301893f4ea660a02587c97bcfb4873a726c570911ba535e",
     "returncode": 0,
     "seed": 971000
   },
   "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
     "results": [
       true,
-      false,
       true,
       true,
       true,
@@ -491,14 +490,15 @@
       true,
       false,
       true,
-      false,
+      true,
+      true,
       true,
       true,
       true
     ],
-    "successes": 13,
+    "successes": 15,
     "episodes": 16,
-    "success_rate": 0.8125,
+    "success_rate": 0.9375,
     "resets": [
       {
         "event": "reset",
@@ -712,7 +712,7 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "d28ed26603b20d41f83a22425238519a092020694a5f9b90b8b04e61316d23ad",
+    "log_sha256": "5c5fce9a5014aab4592314c03f1ea6ed669c7e28dd158896ee88124aedb16767",
     "returncode": 0,
     "seed": 972000
   },
@@ -951,7 +951,7 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "4382379b7feed591a2ba82b461d09007402b3ade39c3f7310b9df3f4a9b5f660",
+    "log_sha256": "8c5386f32895808b87ecfa801389784cefd8abfcf2fe33f886b159c8c01bb9da",
     "returncode": 0,
     "seed": 973000
   },
@@ -967,16 +967,16 @@
       false,
       false,
       true,
+      false,
+      false,
       true,
       true,
       true,
-      true,
-      true,
-      true
+      false
     ],
-    "successes": 12,
+    "successes": 9,
     "episodes": 16,
-    "success_rate": 0.75,
+    "success_rate": 0.5625,
     "resets": [
       {
         "event": "reset",
@@ -1190,7 +1190,7 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "e713207fa0a3c97d21e39bec5f2f1981a6324fd2944540e5f6f4b0cace9ed227",
+    "log_sha256": "a89bf4f7a3f1df7b291ea3904cf3b2b39e44897ab42324ae267a6125205d1e51",
     "returncode": 0,
     "seed": 974000
   },
@@ -1202,20 +1202,20 @@
       true,
       true,
       true,
-      false,
       true,
       true,
       true,
       true,
       true,
-      false,
+      true,
+      true,
       true,
       true,
       true
     ],
-    "successes": 14,
+    "successes": 16,
     "episodes": 16,
-    "success_rate": 0.875,
+    "success_rate": 1.0,
     "resets": [
       {
         "event": "reset",
@@ -1429,7 +1429,7 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "55ddef31871adb33a5eb37f9250a9f2486dc0254e8123af4997566bb14bac9a9",
+    "log_sha256": "8d95c16c1e29eb53383a7bd3e7199969e3599aa8e9afef10038a778e4abb39f5",
     "returncode": 0,
     "seed": 975000
   },
@@ -1437,24 +1437,24 @@
     "results": [
       true,
       true,
-      false,
-      true,
-      false,
       true,
       true,
-      false,
-      false,
+      true,
       true,
       true,
       false,
       true,
+      false,
       true,
+      false,
+      true,
+      false,
       false,
       true
     ],
-    "successes": 10,
+    "successes": 11,
     "episodes": 16,
-    "success_rate": 0.625,
+    "success_rate": 0.6875,
     "resets": [
       {
         "event": "reset",
@@ -1668,13 +1668,16 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "5a35a5ac4e3a8f8eb05dec4d8707ef609bdf4829684c810a0a4cb21bce870536",
+    "log_sha256": "3441ed5b3ae3c28fc4c446783baeb60b54777188cf2f9c2660dfd20ec192dcf8",
     "returncode": 0,
     "seed": 976000
   },
   "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
     "results": [
       true,
+      false,
+      true,
+      true,
       true,
       true,
       true,
@@ -1682,18 +1685,15 @@
       true,
       true,
       false,
-      false,
       true,
-      true,
-      false,
       true,
       true,
       true,
       false
     ],
-    "successes": 12,
+    "successes": 13,
     "episodes": 16,
-    "success_rate": 0.75,
+    "success_rate": 0.8125,
     "resets": [
       {
         "event": "reset",
@@ -1907,13 +1907,13 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "9f4948e51af30820aca02c0593ef3b26f24cb9437403e40252cfb85518360ce0",
+    "log_sha256": "0ce0bdb760d0bee520b660494b03f8449871ca76899c6492da350e0339506f7c",
     "returncode": 0,
     "seed": 977000
   },
   "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
     "results": [
-      true,
+      false,
       true,
       true,
       false,
@@ -1921,18 +1921,18 @@
       true,
       true,
       true,
-      true,
+      false,
       true,
       true,
       false,
-      false,
       true,
       false,
-      true
+      true,
+      false
     ],
-    "successes": 12,
+    "successes": 10,
     "episodes": 16,
-    "success_rate": 0.75,
+    "success_rate": 0.625,
     "resets": [
       {
         "event": "reset",
@@ -2146,32 +2146,32 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "e9531cba0f2ffcb258c999bf245fb8f326ab97971d45ea24effcf9a1d797962d",
+    "log_sha256": "970b8160f7799a075fbc3925f09a1bf1b052ef45170c7c91c2fc5b12f035a930",
     "returncode": 0,
     "seed": 978000
   },
   "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
     "results": [
       true,
-      true,
       false,
       true,
       true,
       true,
-      true,
       false,
       true,
       false,
       true,
-      true,
+      false,
+      false,
+      false,
       false,
       true,
       true,
       false
     ],
-    "successes": 11,
+    "successes": 8,
     "episodes": 16,
-    "success_rate": 0.6875,
+    "success_rate": 0.5,
     "resets": [
       {
         "event": "reset",
@@ -2385,7 +2385,7 @@
     "raw_reset_count": 18,
     "scored_reset_count": 16,
     "ignored_auto_reset_count": 2,
-    "log_sha256": "c5def7a8b3d063e430d031eba8cbf2d143b3d381c612d1da38435c56b42b36cc",
+    "log_sha256": "f477a383120b1813ee52eb50c48b19e35a2a8a0bf91bbcf225aa5a5a0daeb514",
     "returncode": 0,
     "seed": 979000
   }

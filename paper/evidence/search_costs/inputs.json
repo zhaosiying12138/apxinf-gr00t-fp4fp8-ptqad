@@ -1,9 +1,9 @@
 {
-  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
   "run_manifest_locator": {
-    "path": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/run_manifest.json",
-    "bytes": 244884,
-    "sha256": "3c549d11941fc4f072f19eb0b370cecd80bb30fe20b1018c39c622d4572d51d3"
+    "path": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/run_manifest.json",
+    "bytes": 268341,
+    "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
   },
   "candidates": {
     "train_qad_lr_5e-05": {
@@ -29,6 +29,6 @@
   },
   "pressure_arms": [
     "bf16",
-    "all_nvfp4_gptq_category"
+    "rtn_w4a4_category"
   ]
 }

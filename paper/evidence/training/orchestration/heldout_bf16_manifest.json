@@ -1,10 +1,10 @@
 {
   "checkpoint": "/home/zhaosiying/codebase/fp4vla/weights/GR00T-N1.7-LIBERO/libero_10",
-  "out": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/heldout_bf16",
+  "out": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/heldout_round/heldout_bf16",
   "seed": 970000,
   "purpose": "heldout",
-  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v11_w4a4_category.json",
-  "collection_manifest": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/collection_qad/eval_manifest.json",
+  "protocol_file": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v12_rtn_w4a4.json",
+  "collection_manifest": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/collection_qad/eval_manifest.json",
   "episodes": 16,
   "init_state_indices": [
     9,
@@ -24,11 +24,11 @@
     27,
     28
   ],
-  "port": 6790,
+  "port": 6930,
   "gr00t": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T",
   "server_python": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/.venv/bin/python",
   "rollout_python": "/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T/gr00t/eval/sim/LIBERO/libero_uv/.venv/bin/python",
-  "timeout": 1800,
+  "timeout": 3600,
   "task_count": 10,
   "n_envs": 1,
   "task_seed_stride": 1000,
@@ -50,21 +50,23 @@
   "max_episode_steps": 720,
   "initial_state_protocol": "libero10_official_bank_v1",
   "settle_steps": 10,
+  "server_ready_timeout_s": 600,
   "ffmpeg_executable": "/home/zhaosiying/miniforge3/envs/media7/bin/ffmpeg",
   "media_library_dir": "/home/zhaosiying/miniforge3/envs/media7/lib",
-  "video_root": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/v11_recovery_r4/artifacts/heldout_round/heldout_bf16/videos",
+  "video_root": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/artifacts/heldout_round/heldout_bf16/videos",
   "paired_scope": "environment initial states; policy noise is seeded per task",
   "environment_summary": {
     "variables": {
       "FP4VLA_QUANT": "0",
       "FP4VLA_W4A4": "0",
       "FP4VLA_W4A4_ADAPTER": "0",
-      "FP4VLA_SATURATE_F16_ACTIVATIONS": "0"
+      "FP4VLA_SATURATE_F16_ACTIVATIONS": "0",
+      "PTQAD_ZMQ_TIMEOUT_MS": "120000"
     }
   },
   "recovery_contract": {
     "max_grad_norm": null,
     "f16_activation_saturation": false
   },
-  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb"
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521"
 }

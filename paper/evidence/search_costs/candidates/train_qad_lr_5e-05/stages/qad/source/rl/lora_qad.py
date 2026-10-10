@@ -58,6 +58,13 @@ STEPS = os.environ.get("QAD_STEPS", "1000")
 MICRO_BATCH, ACCUM_STEPS, GLOBAL_BATCH = resolve_batch(os.environ)
 MSE_W = float(os.environ.get("QAD_OPD_MSE_W", os.environ.get("QAD_OPD_KL_W", "0")))
 OUT = os.environ.get("QAD_OUT", "/mnt/c/fq_lora_out")
+_max_grad_norm_env = os.environ.get("QAD_MAX_GRAD_NORM")
+if _max_grad_norm_env is None:
+    MAX_GRAD_NORM = None
+else:
+    MAX_GRAD_NORM = float(_max_grad_norm_env)
+    if not (MAX_GRAD_NORM > 0 and torch.isfinite(torch.tensor(MAX_GRAD_NORM))):
+        raise ValueError("QAD_MAX_GRAD_NORM must be a finite positive value")
 PROTOCOL_FILE = Path(os.environ.get("PROTOCOL_FILE", os.environ.get(
     "PTQAD_PROTOCOL_FILE", PROJECT / "exp/recovery_protocol.json"))).resolve()
 if not PROTOCOL_FILE.is_file():
@@ -392,6 +399,20 @@ def install_trainer_hooks():
                     "execution_mode": "W4A4 numerical QDQ + BF16 LoRA residual" if W4A4 else "W4A16 weight-only",
                     "w4a4_enabled": W4A4,
                     "normalization": "frozen base statistics", "seed": self.args.seed,
+                    "max_grad_norm": float(self.args.max_grad_norm),
+                    "f16_activation_saturation": os.environ.get(
+                        "FP4VLA_SATURATE_F16_ACTIVATIONS", "0") == "1",
+                    # Keep a secret-free copy of all numerical environment
+                    # switches in the recovery receipt.  The orchestrator
+                    # request records the same summary before launch; this
+                    # second copy proves what Trainer actually observed.
+                    "environment_summary": {"variables": {
+                        key: os.environ.get(key) for key in (
+                            "FP4VLA_QUANT", "FP4VLA_W4A4", "FP4VLA_W4A4_ADAPTER",
+                            "FP4VLA_SATURATE_F16_ACTIVATIONS", "QAD_W4A4",
+                            "QAD_MAX_GRAD_NORM", "QAD_LORA_SCOPE", "QAD_LORA_R",
+                            "QAD_LORA_ALPHA", "QAD_LR", "QAD_STEPS", "QAD_OPD_MSE_W",
+                            "OPD_EVERY", "TRAIN_SEED", "QAD_ACTIVATION_CHECKPOINTING")}},
                     "train_seed": TRAIN_SEED,
                     "protocol_file": str(PROTOCOL_FILE),
                     "protocol_sha256": file_sha256(PROTOCOL_FILE),
@@ -448,6 +469,9 @@ if __name__ == "__main__":
 
     def _seeded_run(config):
         config.data.seed = TRAIN_SEED
+        if MAX_GRAD_NORM is not None:
+            config.training.max_grad_norm = MAX_GRAD_NORM
+            print(f"[lora-qad] max_grad_norm override={MAX_GRAD_NORM:g}", flush=True)
         # The recovery orchestrator controls checkpoint retention explicitly.
         # Respect it here so long W4A4 runs do not accumulate full-model shards
         # at every save interval and exhaust the experiment volume.

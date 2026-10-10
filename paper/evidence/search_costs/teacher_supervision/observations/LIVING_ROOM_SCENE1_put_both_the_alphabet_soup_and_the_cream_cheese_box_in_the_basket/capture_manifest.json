@@ -10,7 +10,7 @@
   "action_endpoint": "teacher_rollout normalized action_pred",
   "checkpoint_role": "teacher",
   "task_key": "sha256 of actual processed instruction text",
-  "reset_event_file": "/home/zhaosiying/codebase/fp4vla/results/ptqad_20261003/w4a4_teacher_supervision/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/reset_events.jsonl",
+  "reset_event_file": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/teacher_supervision_v12_clean/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/reset_events.jsonl",
   "reset_identity_fields": [
     "task_name",
     "episode_index",
@@ -67,7 +67,7 @@
   "purpose": "teacher_supervision",
   "seed": 957000,
   "init_state_indices": "20,21,22,23",
-  "protocol_sha256": "158acbd49fbabbd49e5af18079ab1d0c5e9b067e4e2f72f2c2b44060b6fb26cb",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
   "finalized": true,
   "finalized_purpose": "teacher_supervision",
   "episode_success_source": "run_recovery_eval.task_results",
