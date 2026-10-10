@@ -126,7 +126,7 @@ def result_tables(final: dict[str, Any]) -> tuple[str, str, str]:
     for label, key in ARMS:
         item = arm(final, key)
         macro = item.get("macro_success_rate", item["success_rate"])
-        rows.append(f"| {label} | {item['successes']}/{item['episodes']} | {macro * 100:.2f}% |")
+        rows.append(f"| {label} | {item['successes']}/{item['episodes']} | {macro * 100:.3f}% |")
     uncertainty = final.get("uncertainty", {}).get("contrasts", {})
     paired = ["| 比较 | 点差 / pp | 95% 配对 CI / pp | 不一致回合 | 精确 McNemar p | Holm p |",
               "|---|---:|---:|---:|---:|---:|"]
@@ -134,7 +134,7 @@ def result_tables(final: dict[str, Any]) -> tuple[str, str, str]:
         item = uncertainty.get(key)
         require(isinstance(item, dict), f"missing paired contrast {key}")
         lo, hi = item["pointwise_ci_pp"]
-        paired.append(f"| {label} | {item['difference_pp']:+.2f} | [{lo:+.2f}, {hi:+.2f}] | "
+        paired.append(f"| {label} | {item['difference_pp']:+.3f} | [{lo:+.3f}, {hi:+.3f}] | "
                       f"{item['discordant_episodes']} | {item['exact_mcnemar_two_sided_p']:.4g} | "
                       f"{item['holm_adjusted_p']:.4g} |")
     tasks = list(arm(final, "bf16")["per_task"])
@@ -244,6 +244,21 @@ def legacy_engine_section() -> str:
     return section.replace("## 独立执行基准", "### 完整独立 APXInf、GEMM 与图执行记录", 1)
 
 
+def review_package_link() -> str:
+    """Advertise a verified review download only while the article is a review."""
+    metadata = json.loads((PAPER / "meta.json").read_text(encoding="utf-8"))
+    if "审阅稿" not in metadata.get("status", ""):
+        return ""
+    archive = PAPER / "apxinf-gr00t-fp4fp8-ptqad-review.zip"
+    if not archive.is_file():
+        return ""
+    from package_review import verify_archive
+    verify_archive(archive)
+    return ("[下载科学结果审阅包（非最终发布包，7 张截图待补）]"
+            "(https://github.com/zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad/raw/refs/heads/main/"
+            "paper/apxinf-gr00t-fp4fp8-ptqad-review.zip)")
+
+
 def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[str, Any], protocol_sha: str) -> str:
     summary, paired, tasks = result_tables(final)
     details = readme_v12_metrics.render_all(ROOT, final, protocol, inventory)
@@ -263,22 +278,28 @@ def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[
     legacy_engine = legacy_engine_section()
     installation = (PAPER / "readme_v12_installation.md").read_text(encoding="utf-8").strip()
     from readme_v12_workflow import render_workflow
+    from update_v12_release import result_summary
+    conclusion_summary = result_summary(final)
     workflow = render_workflow(PAPER).rstrip("\n")
     return f'''# apxinf-gr00t-fp4fp8-ptqad
 
-APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
-本项目把 GR00T N1.7 视觉—语言—动作模型的可量化权重和激活压到四位，冻结 W4A4 基座，用成功演示训练低秩 QAD 修正，再在学生访问状态上加入 OPD 教师速度监督，并以 LIBERO-10 的逐回合闭环成功率验收。APXInf 原生 NVFP4/FP8 kernel 与图执行另列为独立算子基准；GR00T 闭环的主结果使用 Torch W4A4 QDQ 参考路径。
+APXInf × GR00T：**NVFP4 W4A4 主分支量化与 BF16 低秩行为恢复**。
+本项目把 GR00T N1.7 视觉—语言—动作模型的可量化权重和激活压到四位，冻结 W4A4 基座，用成功演示训练低秩 QAD 修正，再在学生访问状态上加入 OPD 教师速度监督，并以 LIBERO-10 的逐回合闭环成功率验收。APXInf 原生 NVFP4/FP8 kernel 与图执行另列为独立算子基准；GR00T 闭环的主结果使用 Torch W4A4 QDQ 主分支与 BF16 LoRA 旁路。
+
+{conclusion_summary}
+
+{review_package_link()}
 
 ## 项目意义与贡献
 
 量化 VLA 的难点是误差会经过动作反馈改变下一次观测。本文固定数值格式、舍入规则和配对初态，完整记录 **RTN W4A4 PTQ → QAD 演示恢复 → OPD 学生状态蒸馏 → 五臂闭环**，使压缩比例、恢复效果、训练预算和复现命令可以逐项核查。
 
 1. 全部 479 个 eligible 张量使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 使用 W4A4 激活 QDQ。
-2. QAD/OPD 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 LoRA；参数以 FP32 训练，前向使用 BF16，部署预算计入 BF16 残差。`continued-QAD` 以同一追加更新预算作为控制臂。
+2. QAD/OPD 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 LoRA；参数以 FP32 训练，前向使用 BF16，部署预算计入 BF16 残差。`continued-QAD` 以相同演示读取数与追加更新数作为控制臂；OPD 的教师标注和探针计算另计。
 3. BF16、PTQ、QAD、continued-QAD 和 QAD+OPD 使用同一 LIBERO-10 held-out 初态、任务顺序和 episode 种子；成功率、配对区间和检验只从最终 manifest 读取。
 4. APXInf 的 NVFP4/FP8 编译、缩放、padding、图重放、GEMM 和完整 π0.5 路径独立验收，不把独立 kernel 延迟冒充 GR00T 闭环速度。
 
-## v12 最终指标
+## 最终实验指标
 
 协议 `{protocol['id']}`（version {protocol['version']}，W4A4=true），SHA-256 `{protocol_sha}`。每臂 10 个任务 × 16 回合，共 160 回合。
 
@@ -288,7 +309,7 @@ APXInf × GR00T：**全 NVFP4 W4A4 RTN-PTQ + QAD/OPD 量化域恢复**。
 
 {paired}
 
-CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNemar 检验并做 Holm 校正。OPD 的独立作用由 `OPD − continued-QAD` 读取，同时报告 `OPD − QAD`，不把两者混成一个结论。
+CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNemar 检验并做 Holm 校正。`OPD − continued-QAD` 表示相同演示更新预算下加入教师监督的整体差异；`OPD − QAD` 表示完整追加阶段的差异。前者未匹配额外计算，也不单独识别学生状态分布或教师标签的作用。
 
 ### 配对 2×2 计数与不确定性参数
 
@@ -310,7 +331,7 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 
 {action_diagnostics}
 
-### 同覆盖的校准 GPTQ 参考
+### 校准 GPTQ 的范围说明
 
 {gptq_reference}
 
@@ -367,7 +388,7 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 
 ## Ubuntu 执行截图
 
-发布包保留 17 张真实 WSL Ubuntu 紫色终端截图，去除 taskbar 后均为 3840×2280。截图是命令执行凭证，最终数字仍以 JSON 和日志为准。
+发布包保留 17 张真实 WSL Ubuntu 紫色终端截图，去除 taskbar 后均为 3840×2280。其中七张展示对已完成实验原始日志与元数据的 CPU 只读核验，其余十张展示独立算子、环境与执行环节。最终数字以原始 JSON 和日志为准。
 
 以下为论文 17 图之外的编译补充图；命令、日志和哈希见 [`docs/evidence/ubuntu-compile/manifest.json`](docs/evidence/ubuntu-compile/manifest.json)。
 
@@ -377,7 +398,7 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 |---:|---|---|
 {shots}
 
-受 W4A4 实现影响的截图必须在 GPU 空闲时按 `setup/windows_capture/README.md` 的 managed wrapper 重拍；每张图同时登记 `.sh`、`.log`、sidecar、裁剪记录和 SHA-256。
+七张核验截图使用 `verify-completed` 命令与 `setup/windows_capture/README.md` 的 managed wrapper，不再训练、量化或重复评测。每张图登记 `.sh`、完整核验 `.log`、sidecar、裁剪记录和 SHA-256。
 
 ## 目录与复现边界
 
@@ -385,7 +406,7 @@ CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNe
 quant/       NVFP4 格式、校准、RTN/PTQ 配方与写盘
 rl/          QAD、学生状态、教师缓存、OPD 与 LoRA 导出
 eval/        GR00T 服务、LIBERO 配对闭环和逐回合日志
-exp/         v12 冻结协议、选择和恢复驱动
+exp/         冻结协议、选择和恢复驱动
 setup/       环境、权重、APXInf 构建和锁文件
 paper/       HTML、知乎 Markdown、图表、截图和证据包
 docs/        复现与原生引擎说明
@@ -402,8 +423,8 @@ docs/        复现与原生引擎说明
 def main() -> None:
     final, protocol, inventory, protocol_sha = verify()
     root = build_root(final, protocol, inventory, protocol_sha)
-    paper = "# v12 W4A4 论文与证据包\n\n"
-    paper += "这里保存离线论文 [`paper.html`](paper.html)、知乎稿 [`zhihu/article.md`](zhihu/article.md)、17 张 Ubuntu 执行截图、v12 RTN W4A4 协议和逐回合证据。工程安装、编译、PTQ、QAD、OPD、闭环评测和发布命令以仓库根目录 [`README.md`](../README.md) 为准。\n\n"
+    paper = "# W4A4 论文与证据包\n\n"
+    paper += "这里保存离线论文 [`paper.html`](paper.html)、知乎稿 [`zhihu/article.md`](zhihu/article.md)、17 张 Ubuntu 执行截图、RTN W4A4 协议和逐回合证据。工程安装、编译、PTQ、QAD、OPD、闭环评测和发布命令以仓库根目录 [`README.md`](../README.md) 为准。\n\n"
     paper += "| 配置 | 闭环成功率 |\n|---|---:|\n"
     for label, key in ARMS:
         item = arm(final, key)

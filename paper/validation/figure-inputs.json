@@ -1,43 +1,43 @@
 {
   "version": 1,
   "status": "passed",
-  "generated_utc": "2026-10-06T01:40:59.037730+00:00",
+  "generated_utc": "2026-10-10T22:51:57.650788+00:00",
   "scope": "All non-screenshot SVGs generated from the recorded current inputs in one successful run.",
   "generator": {
     "path": "paper/make_figs.py",
-    "sha256": "4475d5f0924b1eb25907bb4d3cc897f32fca2857eda53636cc36482f275d59e3",
-    "bytes": 46580
+    "sha256": "4bf360020efe9817d6b18927bc202dbe2917c153b091f5094d0bca5818298e6f",
+    "bytes": 46773
   },
   "inputs": [
     {
       "path": "paper/evidence/frontier_comparison.json",
-      "sha256": "5ed611d4300762d54b248739b15b88cbfcdb6aed199979ab6a8c30c59f01b121",
-      "bytes": 14920
+      "sha256": "dc5846ba9f9fdc2591a366e06218791d4afc33e288054cd1c554c3fbc85148e1",
+      "bytes": 14860
     },
     {
       "path": "paper/evidence/paired_comparison.json",
-      "sha256": "7461f5308e5523f4d5af991ca9a912c9c225b2fbd0ac0a4a71461a5bd40d53de",
-      "bytes": 494565
+      "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3",
+      "bytes": 494625
     },
     {
       "path": "paper/evidence/recipe_inventory.json",
-      "sha256": "45f7f5e34b83456965fcd1e110361f5982542e9b5a689e73b93deec16d8cd6b5",
-      "bytes": 6182
+      "sha256": "203d347947f174d70f927d2170f2ef99b099c70c72b3b8c632b6ff86d2fa7180",
+      "bytes": 6198
     },
     {
       "path": "paper/evidence/selected_recipe/category_bake_manifest.json",
-      "sha256": "97005d3685f4f34bb37b299038560ecdddce0d94c7225cc374beb3573a8d0912",
-      "bytes": 13219
+      "sha256": "f38bf9ce76f897f2ed18e857d7f080e8e5de98e593d231582d502454439c74d9",
+      "bytes": 13178
     },
     {
       "path": "paper/evidence/selected_recipe/category_memory.json",
-      "sha256": "249cb167542779658462e34212719ce5af2d6acd4459831a6ceb25606a1f3c23",
-      "bytes": 2931
+      "sha256": "8c45a02150d389d11581571014170e5fe96e117e0b887e0fc159b810ec6c4d9e",
+      "bytes": 2947
     },
     {
       "path": "paper/evidence/selected_recipe/category_ptq_recipe.json",
-      "sha256": "9d47780ea0beccaacb50edde750fda87a304e8dbe5d6b7439f1afe880c5bb122",
-      "bytes": 337442
+      "sha256": "4dfe0d34b8a42fe3b0af3cadc6cf84d23c2095237315899b401b128714da3b4d",
+      "bytes": 304029
     },
     {
       "path": "results/baselines/gr00t_pt_bf16_ptqad_20260929.json",
@@ -68,8 +68,8 @@
   "svgs": [
     {
       "path": "paper/figs/budget_ladder.svg",
-      "sha256": "0e92fa7dac3489346c64589ff56ce630d06562d6668ca4b1bf0225b6743a006b",
-      "bytes": 6599
+      "sha256": "2eda81762f245d67fc004d11e79d62db030919693a11381dec8aa6f6698c75bd",
+      "bytes": 6555
     },
     {
       "path": "paper/figs/e1_latency.svg",
@@ -78,18 +78,18 @@
     },
     {
       "path": "paper/figs/gptq_block.svg",
-      "sha256": "b76200e8d5f3018b454b672f8c2e8ffedf08ad302353bc2e9b1c3c80c70fae23",
-      "bytes": 8363
+      "sha256": "9fedbfebb3f50cb1c0879304c4016c67ad757414b056b73ec8459bb3c78ecd63",
+      "bytes": 6020
     },
     {
       "path": "paper/figs/ladder.svg",
-      "sha256": "8bdc5a04ec9809557d7548bcaef056e910fde95263dfd263148e6cd617f99772",
+      "sha256": "c7360a2cf61727663a6f72d6b0b19341c046780f59aac5d7ca808d6bd257ca5b",
       "bytes": 4568
     },
     {
       "path": "paper/figs/ptq_frontier.svg",
-      "sha256": "7c6ebef17639ba2cb651b901c75d998f9e76052f03940ce1e927bd9840797c77",
-      "bytes": 13501
+      "sha256": "9c583dc8e6a9e769eb6c6c8d28ee40ea54b7bdbefb89f2afba67ba26ae77299a",
+      "bytes": 13412
     },
     {
       "path": "paper/figs/recovery_protocol.svg",

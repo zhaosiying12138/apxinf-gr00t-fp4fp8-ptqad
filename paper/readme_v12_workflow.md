@@ -121,20 +121,28 @@ python3 paper/collect_search_costs.py --verify paper/evidence/search_costs
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
 ```
 
-安装器只迁移本轮科学证据和截图登记；上面的命令重新归档已完成的搜索成本。runtime、search_costs、action_diagnostics、GPTQ 未执行收据和 frontier_comparison 齐备后，再按下方补充证据步骤原子登记；缺项不会自动跳过。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
+安装器只迁移本轮科学证据和截图登记；上面的命令重新归档已完成的搜索成本。runtime、search_costs、action_diagnostics、GPTQ 未执行收据和 frontier_comparison 齐备后，再按下方补充证据步骤原子登记；缺项不会自动跳过。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：实际 GR00T 路径、服务与仿真解释器也从五臂清单读取并核对一致，避免把新安装环境误记为原实验环境。原解释器或检查点已不存在时，应保留发布包中的原收据，不能用另一套环境替换。
 
 ```bash
-"$PY" - "$RECOVERY" "$GR00T" "$PY" "$LIBERO_PY" <<'PY'
+python3 - "$RECOVERY" <<'PY'
 import json, pathlib, subprocess, sys
-run, groot, server_python, rollout_python = sys.argv[1:]
+run = sys.argv[1]
 final = json.loads((pathlib.Path(run) / "final_manifest.json").read_text())
 round_dir = pathlib.Path(final["heldout_round"])
-command = [sys.executable, "paper/capture_runtime.py", "--run-dir", run,
-           "--out", "paper/evidence/runtime", "--gr00t", groot,
-           "--server-python", server_python, "--rollout-python", rollout_python,
+records = {arm: json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
+           for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd")}
+reference = records["bf16"]
+for arm, record in records.items():
+    for key in ("gr00t", "server_python", "rollout_python"):
+        if record.get(key) != reference.get(key) or not reference.get(key):
+            raise SystemExit(f"Evaluation environment differs: {arm}/{key}")
+server_python = reference["server_python"]
+command = [server_python, "paper/capture_runtime.py", "--run-dir", run,
+           "--out", "paper/evidence/runtime", "--gr00t", reference["gr00t"],
+           "--server-python", server_python,
+           "--rollout-python", reference["rollout_python"],
            "--source-file", "exp/source_snapshots/9615ab64fd4a9cba46defe31ab1d0d58a4dd344a9d1dac1cc40f03497af9f00a/run_recovery_eval.py"]
-for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd"):
-    record = json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
+for arm, record in records.items():
     command += ["--checkpoint", f"{arm}={record['checkpoint']}"]
 subprocess.run(command, check=True)
 PY

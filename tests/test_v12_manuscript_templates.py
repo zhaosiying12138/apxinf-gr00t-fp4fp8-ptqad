@@ -68,10 +68,16 @@ class ManuscriptTemplates(unittest.TestCase):
             self.assertIn(label, experiment)
         self.assertIn("synthetic_task", experiment)
         self.assertIn("3.333×", experiment)  # Includes the residual, not 1000/250.
-        self.assertIn("-2.00", documents["05-讨论与结论.md"])
-        self.assertIn("尚不能确认", documents["05-讨论与结论.md"])
-        self.assertIn("OPD 完整追加阶段相对 QAD", documents["05-讨论与结论.md"])
-        self.assertIn("OPD 相对同演示预算续训", documents["05-讨论与结论.md"])
+        abstract = documents["01-摘要与引言.md"]
+        conclusion = documents["05-讨论与结论.md"]
+        self.assertIn("相对 QAD 为 -2.000 个百分点", abstract)
+        self.assertIn("OPD 相对同演示更新预算续训为 -2.000 个百分点", abstract)
+        self.assertIn("尚不能确认 OPD 优于 continued-QAD", conclusion)
+        self.assertIn("尚不能确认 OPD 优于 QAD", conclusion)
+        self.assertIn("尚不能确认 QAD 优于 PTQ", conclusion)
+        self.assertIn("3.333×", conclusion)
+        self.assertNotIn(publication.result_summary(data), conclusion)
+        self.assertNotIn("不能写成", conclusion)
         self.assertLess(experiment.index("ACTION DIAGNOSTIC"), experiment.index("GPTQ REFERENCE"))
         for text in documents.values():
             self.assertNotRegex(text, r"@@|xxx|审阅说明|尚未全部完成")

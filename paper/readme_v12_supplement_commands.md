@@ -9,19 +9,38 @@ python3 paper/gptq_reference_publication.py --record-not-performed
 python3 paper/gptq_reference_publication.py --verify
 ~~~
 
-动作诊断保留已授权的首次评测复现入口：主五臂全部结束、GPU 空闲后，对冻结的检查点按既定观测和噪声分别评测一次，不更新参数、不新建量化权重或搜索候选。已经冻结的 80 个观测清单可复用，不重新 rollout；已有输出禁止覆盖。执行顺序与来源核验保留如下。当前运行中的开发集与 held-out 评测享有优先权。
+以下动作诊断和证据归档命令针对第 4 节选定的作者正式运行，继续使用 `$PROJECT` 与 `$RECOVERY`，不会切换到另一个硬编码的项目目录。它们要求原检查点、观测和实际解释器仍在清单登记的位置；独立复现的新运行使用本地协议，不能通过这些冻结发布门禁覆盖本文的正式证据。只有公开轻量证据的机器可执行归档数据的 CPU 校验，不能重新生成模型输出。
+
+动作诊断保留已授权的首次评测入口：主五臂全部结束、GPU 空闲后，对冻结的检查点按既定观测和噪声分别评测一次，不更新参数、不新建量化权重或搜索候选。已经冻结的 80 个观测清单可复用，不重新 rollout；已有输出禁止覆盖。已完成的诊断只执行后面的 CPU 归档与校验。
 
 ~~~bash
 set -euo pipefail
-cd /home/zhaosiying/codebase/fp4vla
-PTQAD_ROOT="$PWD"
-PTQAD_GR00T=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
-PTQAD_PY="$PTQAD_GR00T/.venv/bin/python"
-PTQAD_RUN="$PTQAD_ROOT/results/reruns/rtn_w4a4_release_20261006_01"
+cd "$PROJECT"
+PTQAD_ROOT="$PROJECT"
+PTQAD_RUN="$(dirname "$RECOVERY")"
 PTQAD_DIAG="$PTQAD_ROOT/paper/_build/w4a4_action_diagnostics_v12"
+PTQAD_ENV_LINES="$(python3 - "$RECOVERY/final_manifest.json" <<'PY'
+import json, pathlib, sys
+final = json.loads(pathlib.Path(sys.argv[1]).read_text())
+round_dir = pathlib.Path(final["heldout_round"])
+records = {arm: json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
+           for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd")}
+reference = records["bf16"]
+for key in ("gr00t", "server_python", "rollout_python"):
+    value = reference.get(key)
+    if not isinstance(value, str) or not value or "\n" in value or "\r" in value:
+        raise SystemExit(f"Invalid recorded environment path: {key}")
+    if any(record.get(key) != value for record in records.values()):
+        raise SystemExit(f"Five-arm environment differs: {key}")
+    print(value)
+PY
+)"
+mapfile -t PTQAD_ENV_PATHS <<< "$PTQAD_ENV_LINES"
+PTQAD_GR00T="${PTQAD_ENV_PATHS[0]}"
+PTQAD_PY="${PTQAD_ENV_PATHS[1]}"
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
-test -s "$PTQAD_RUN/recovery_v12/final_manifest.json"
-python3 - "$PTQAD_RUN/recovery_v12/run_manifest.json" <<'PY'
+test -s "$RECOVERY/final_manifest.json"
+python3 - "$RECOVERY/run_manifest.json" <<'PY'
 import json, sys
 if json.load(open(sys.argv[1]))['status'] != 'complete':
     raise SystemExit('Main five-arm run has not completed')
@@ -40,7 +59,7 @@ for arm in bf16 ptq qad continued_qad qad_opd; do
   test ! -e "$PTQAD_DIAG/$arm.log"
   OMP_NUM_THREADS=1 "$PTQAD_PY" exp/action_chunk_diagnostics.py collect \
     --inputs "$PTQAD_DIAG/inputs.json" \
-    --final-manifest "$PTQAD_RUN/recovery_v12/final_manifest.json" \
+    --final-manifest "$RECOVERY/final_manifest.json" \
     --arm "$arm" --gr00t "$PTQAD_GR00T" --out "$PTQAD_DIAG/$arm" \
     > "$PTQAD_DIAG/$arm.log" 2>&1
 done
@@ -49,13 +68,13 @@ done
 诊断完成后，以下 CPU 命令只归档已有输出。发布动作误差结论仍要求五臂的完整有限数值张量、实际噪声身份和指标重算全部通过。如果源输出不存在，发布门禁继续失败，不能以 GPTQ 的未执行决定跳过动作证据检查。
 
 ~~~bash
-PTQAD_ROOT="$PWD"
-PTQAD_RUN="$PTQAD_ROOT/results/reruns/rtn_w4a4_release_20261006_01"
+PTQAD_ROOT="$PROJECT"
+PTQAD_RUN="$(dirname "$RECOVERY")"
 PTQAD_DIAG="$PTQAD_ROOT/paper/_build/w4a4_action_diagnostics_v12"
 uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
   python paper/collect_action_diagnostics.py collect \
   --source-root "$PTQAD_DIAG" \
-  --final-manifest "$PTQAD_RUN/recovery_v12/final_manifest.json" \
+  --final-manifest "$RECOVERY/final_manifest.json" \
   --out paper/evidence/action_diagnostics
 uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
   python paper/collect_action_diagnostics.py verify \

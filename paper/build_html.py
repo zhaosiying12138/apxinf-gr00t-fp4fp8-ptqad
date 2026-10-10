@@ -131,7 +131,7 @@ def main():
     kcss = (PAPER/'assets/katex/katex.min.css').read_text(encoding='utf-8')
     kcss = re.sub(r'src:[^;}]+', lambda m: 'src:url(' + data_uri(PAPER/'assets/katex'/re.search(r'url\(([^)]+\.woff2)\)', m[0])[1]) + ') format("woff2")', kcss)
     is_review = '审阅稿' in meta.get('status', '')
-    review_notice = ('<p class="meta" style="color:#b42318">审阅稿 · 正式实验进行中，红色 xxx 为待测值</p>'
+    review_notice = (f'<p class="meta" style="color:#b42318">{html.escape(meta["status"])}</p>'
                      if is_review else '')
     package_scope = ('图表与截图的收录范围见审阅包清单。' if is_review else
                      '完整源稿、运行证据、图像哈希及校验报告随发布包保存。')

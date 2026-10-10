@@ -18,7 +18,7 @@ SECTIONS = PAPER / "sections"
 ARMS = ("bf16", "ptq", "qad", "continued_qad", "qad_opd")
 LABELS = {
     "bf16": "BF16 基线",
-    "ptq": "全 NVFP4 W4A4 PTQ",
+    "ptq": "NVFP4 W4A4 主分支 PTQ",
     "qad": "PTQ + QAD",
     "continued_qad": "PTQ + continued-QAD",
     "qad_opd": "PTQ + QAD + OPD",
@@ -30,7 +30,7 @@ def load(name: str):
 
 
 def pct(value: float) -> str:
-    return f"{value * 100:.2f}%"
+    return f"{value * 100:.3f}".rstrip("0").rstrip(".") + "%"
 
 
 def arm_row(final: dict, name: str) -> dict:
@@ -55,11 +55,14 @@ def task_table(final: dict) -> str:
 def headline_table(final: dict) -> str:
     rows = ["| 配置 | 闭环成功率 | 相对 BF16 | 可量化权重的 NVFP4 覆盖率 |",
             "|---|---:|---:|---:|"]
-    bf = arm_row(final, "bf16")["success_rate"]
+    bf = arm_row(final, "bf16")
     for name in ARMS:
         row = arm_row(final, name)
         coverage = "0/479（0%）" if name == "bf16" else "479/479（100%）"
-        rows.append(f"| {LABELS[name]} | {row['successes']}/{row['episodes']}（{pct(row['success_rate'])}） | {(row['success_rate'] - bf) * 100:+.2f} pp | {coverage} |")
+        difference_pp = (100 * (row["successes"] * bf["episodes"] -
+                                bf["successes"] * row["episodes"]) /
+                         (row["episodes"] * bf["episodes"]))
+        rows.append(f"| {LABELS[name]} | {row['successes']}/{row['episodes']}（{pct(row['success_rate'])}） | {difference_pp:+.3f} pp | {coverage} |")
     return "\n".join(rows)
 
 
@@ -81,7 +84,7 @@ CONTRASTS = (
     ("opd_vs_continued_qad", "OPD − continued-QAD"),
 )
 TEMPLATES = PAPER / "templates" / "v12"
-TEMPLATE_NAMES = ("01-摘要与引言.md", "03-方法.md", "04-实验.md", "05-讨论与结论.md")
+TEMPLATE_NAMES = ("01-摘要与引言.md", "02-背景与相关工作.md", "03-方法.md", "04-实验.md", "05-讨论与结论.md")
 TOKEN = re.compile(r"@@([a-z_]+)@@")
 
 
@@ -120,19 +123,59 @@ def five_arm_table(final: dict) -> str:
     return "\n".join(rows)
 
 
-def result_conclusion(final: dict, compression: str) -> str:
+def result_summary(final: dict) -> str:
+    """Describe verified point estimates without confusing the two OPD contrasts."""
+    rows = {name: arm_row(final, name) for name in ARMS}
     contrasts = final["uncertainty"]["contrasts"]
-    descriptions = (
-        ("ptq_vs_bf16", "量化影响"),
-        ("qad_vs_ptq", "QAD 恢复"),
-        ("opd_vs_qad", "OPD 完整追加阶段相对 QAD"),
-        ("opd_vs_continued_qad", "OPD 相对同演示预算续训"),
-    )
-    lines = [f"{label}的配对差值为 {contrasts[key]['difference_pp']:+.2f} 个百分点，"
-             + contrast_assessment(contrasts[key]) + "。" for key, label in descriptions]
-    return ("".join(lines) + f"含 BF16 低秩旁路的净编码压缩比为 **{compression}**。"
-            "GPTQ 未执行范围说明和完整动作诊断分别见 §4.6 与 §4.5；本轮没有 GPTQ 比较结果，"
-            "不构成优于所有 PTQ 方法或实现原生 GR00T 加速的证据。")
+    score = lambda name: (f"{rows[name]['successes']}/{rows[name]['episodes']}"
+                          f"（{pct(rows[name]['success_rate'])}）")
+    positive = lambda item: item["pointwise_ci_pp"][0] > 0 and item["holm_adjusted_p"] < .05
+    same_point = rows["qad"]["success_rate"] == rows["bf16"]["success_rate"]
+    recovery = ("QAD 达到与 BF16 相同的成功率点估计" if same_point else
+                f"BF16 为 {score('bf16')}")
+    qad = contrasts["qad_vs_ptq"]
+    qop = contrasts["opd_vs_qad"]
+    control = contrasts["opd_vs_continued_qad"]
+    qad_evidence = ("配对区间与 Holm 校正支持这一提高" if positive(qad) else
+                    "这一恢复仅指点估计，配对统计尚不能确认 QAD 优于 PTQ")
+    control_evidence = ("配对区间与 Holm 校正支持这一优势" if positive(control) else
+                        "配对统计尚不能确认 OPD 优于 continued-QAD")
+    opd_position = ("配对统计支持 OPD 相对 QAD 的额外增益" if positive(qop) else
+                    "本实验未显示 OPD 超过 QAD 的额外成功率增益")
+    return (f"在 LIBERO-10 每臂 {rows['bf16']['episodes']} 个配对回合中，"
+            f"RTN W4A4 PTQ 为 {score('ptq')}，QAD 为 {score('qad')}；{recovery}。"
+            f"QAD 相对 PTQ 为 {qad['difference_pp']:+.3f} 个百分点。{qad_evidence}。\n\n"
+            f"QAD+OPD 为 {score('qad_opd')}，continued-QAD 为 {score('continued_qad')}。"
+            f"OPD 相对同演示更新预算续训为 {control['difference_pp']:+.3f} 个百分点，{control_evidence}；"
+            f"相对 QAD 为 {qop['difference_pp']:+.3f} 个百分点。{opd_position}。")
+
+
+def result_conclusion(final: dict, compression: str) -> str:
+    """Synthesize the verified findings without repeating the abstract scorecard."""
+    qad, bf16 = arm_row(final, "qad"), arm_row(final, "bf16")
+    same_point = qad["successes"] * bf16["episodes"] == bf16["successes"] * qad["episodes"]
+    point = ("QAD 达到与 BF16 相同的闭环成功率点估计" if same_point else
+             f"QAD 的闭环成功率点估计为 {pct(qad['success_rate'])}，BF16 为 {pct(bf16['success_rate'])}")
+    contrasts = final["uncertainty"]["contrasts"]
+
+    def finding(key: str, treatment: str, baseline: str) -> str:
+        item = contrasts[key]
+        lo, hi = item["pointwise_ci_pp"]
+        if item["holm_adjusted_p"] < .05 and lo > 0:
+            return f"配对区间与 Holm 校正支持 {treatment} 高于 {baseline}"
+        if item["holm_adjusted_p"] < .05 and hi < 0:
+            return f"配对区间与 Holm 校正支持 {treatment} 低于 {baseline}"
+        return f"配对统计尚不能确认 {treatment} 优于 {baseline}"
+
+    return ("在 GR00T 的可量化主分支统一采用 NVFP4 W4A4 后，"
+            f"{point}；{finding('qad_vs_ptq', 'QAD', 'PTQ')}。"
+            f"计入未量化参数与 BF16 低秩旁路后，完整目标编码的净压缩比为 **{compression}**。"
+            "这描述的是参数载荷，不代表当前 QDQ 文件体积或实测显存。\n\n"
+            "在相同演示更新预算的追加训练中，"
+            f"{finding('opd_vs_continued_qad', 'OPD', 'continued-QAD')}；"
+            f"{finding('opd_vs_qad', 'OPD', 'QAD')}。"
+            "这组对照衡量加入教师监督的整体作用。OPD 额外消耗探针计算，"
+            "现有设计尚不能分别识别学生状态分布、教师标签与额外计算的贡献。")
 
 
 def validate_inventory_name(final: dict, inventory: dict) -> None:
@@ -162,9 +205,9 @@ def training_budget_text() -> str:
         if not (isinstance(steps, int) and steps > 0 and isinstance(draws, int) and draws > 0):
             raise ValueError(f"Training receipt lacks verified budget for {name}")
         extra = item.get("scheduled_teacher_backward_passes")
-        suffix = f"，教师探针反向 {extra:,} 次" if isinstance(extra, int) and extra > 0 else ""
+        suffix = f"，学生针对缓存教师标签的探针反向 {extra:,} 次" if isinstance(extra, int) and extra > 0 else ""
         rows.append(f"{label} 完成 {steps:,} 次优化器更新，演示窗口读取 {draws:,} 次{suffix}")
-    return "本轮训练预算由收据逐阶段给出：" + "；".join(rows) + "。这些是实际加载器预算和完成步数，不是名义样本数。"
+    return "各训练阶段的实际预算如下：" + "；".join(rows) + "。这些是实际加载器预算和完成步数，不是名义样本数。"
 
 
 def render_main(final: dict, diagnostic_text: str, gptq_text: str, inventory: dict) -> dict[str, str]:
@@ -185,7 +228,7 @@ def render_main(final: dict, diagnostic_text: str, gptq_text: str, inventory: di
     values = {"headline_table": headline_table(final), "five_arm_table": five_arm_table(final),
               "task_table": task_table(final), "paired_table": paired_table(final),
               "paired_interpretation": paired_interpretation(final), "budget_table": budget_table,
-              "net_compression": compression,
+              "net_compression": compression, "result_summary": result_summary(final),
               "opd_delta_pp": f"{final['uncertainty']['contrasts']['opd_vs_continued_qad']['difference_pp']:+.2f}",
               "action_diagnostics": diagnostic_text, "gptq_reference": gptq_text,
               "training_budget": training_budget_text(),
@@ -256,17 +299,17 @@ def rewrite_other_sources() -> None:
                 text,
                 "### A.3.1",
                 "### A.3.2",
-                r'''### A.3.1 采集器接口与 v12 主路径
+                r'''### A.3.1 采集器接口与正式量化路径
 
-`quant/ptq/collector.py` 仍提供完整模型的输入统计接口，便于源码测试和后续实验定位真实执行的 Linear 层。它把输入展平为形状为 `[R,K]` 的矩阵，检查模块调用次数、输入行数和 checkpoint 身份，并把统计摘要写入 manifest。这个接口解释了工程如何确认模型结构，但 v12 的正式 `rtn_w4a4_category` 配方使用 `calibration-mode=none`，不会把 Hessian、裁剪搜索或校准样本用于 PTQ 决策。
+`quant/ptq/collector.py` 仍提供完整模型的输入统计接口，便于源码测试和后续实验定位真实执行的 Linear 层。它把输入展平为形状为 `[R,K]` 的矩阵，检查模块调用次数、输入行数和 checkpoint 身份，并把统计摘要写入 manifest。这个接口解释了工程如何确认模型结构，但本实验的正式 `rtn_w4a4_category` 配方使用 `calibration-mode=none`，不会把 Hessian、裁剪搜索或校准样本用于 PTQ 决策。
 
-因此 v12 的可复现依赖只有源 checkpoint、固定格式合同和 bake manifest：读者不需要重新采集统计，也不能用 held-out 成功率反向选择量化参数。若运行者调用 collector 进行诊断，产物必须与 RTN bake 分开登记，不能写入五臂主结果。共享词嵌入仍按 tied alias 规则只保留一个规范来源；非 Linear 目标和未执行 bank 也会在清单中显式标注。
+因此本实验的可复现依赖只有源 checkpoint、固定格式合同和 bake manifest：读者不需要重新采集统计，也不能用 held-out 成功率反向选择量化参数。若运行者调用 collector 进行诊断，产物必须与 RTN bake 分开登记，不能写入五臂主结果。共享词嵌入仍按 tied alias 规则只保留一个规范来源；非 Linear 目标和未执行 bank 也会在清单中显式标注。
 
 ''',
             )
-            rtn_section = r'''### A.3.2 v12 的无校准 RTN 舍入
+            rtn_section = r'''### A.3.2 无校准 RTN 舍入
 
-v12 的正式压力基座使用 `calibration-mode=none` 的 RTN（round-to-nearest）路径。它不读取 Hessian、激活统计或 held-out 成功率，因而量化结果可以从源 checkpoint、固定的 NVFP4 格式和协议直接重建。对每个二维权重张量，先按全张量最大幅值确定一次 FP32 二级尺度，再按连续 16 个输入元素计算 E4M3 块尺度，最后将块内值舍入到 E2M1 格点。激活沿同一输入轴执行 NVFP4 QDQ，形成真正的 W4A4 数值压力。
+本实验的正式压力基座使用 `calibration-mode=none` 的 RTN（round-to-nearest）路径。它不读取 Hessian、激活统计或 held-out 成功率，因而量化结果可以从源 checkpoint、固定的 NVFP4 格式和协议直接重建。对每个二维权重张量，先按全张量最大幅值确定一次 FP32 二级尺度，再按连续 16 个输入元素计算 E4M3 块尺度，最后将块内值舍入到 E2M1 格点。激活沿同一输入轴执行 NVFP4 QDQ，形成真正的 W4A4 数值压力。
 
 ```python
 tau = tensor_scale(original_weight)       # one frozen tensor scale
@@ -292,7 +335,7 @@ for block in blocks_of_16(original_weight):
                 "### A.3.4 精度配方、共享别名与完整索引",
                 r'''### A.3.3 可选尺度搜索接口
 
-源码还包含 AWQ 风格的输入尺度搜索与折叠规则，用于独立的算子研究。它要求逐个核对归一化、门控非线性和 GQA 共享通道，不能把局部代理误差直接当作闭环结论。v12 的正式压力基座不启用该搜索；所有层均按 A.3.2 的固定 RTN 规则写盘，避免读者把备用研究入口误认为第二套发布配方。
+源码还包含 AWQ 风格的输入尺度搜索与折叠规则，用于独立的算子研究。它要求逐个核对归一化、门控非线性和 GQA 共享通道，不能把局部代理误差直接当作闭环结论。本实验的正式压力基座不启用该搜索；所有层均按 A.3.2 的固定 RTN 规则写盘，避免读者把备用研究入口误认为第二套发布配方。
 
 ''',
             )
@@ -300,18 +343,18 @@ for block in blocks_of_16(original_weight):
                 text,
                 "`bake.py::alloc` 是显式模块规则",
                 "`category_fp4.py` 再沿真实输入轴处理 7 个类别权重。",
-                """`bake.py::alloc` 是显式模块规则，不根据 held-out 成功率事后修改层范围。v12 的唯一正式配方是 `rtn_w4a4_category`：472 个 ordinary recipe 张量与 7 个 CategorySpecificLinear 张量全部写入 NVFP4；运行时安装报告覆盖 469 个 ordinary Linear 与 7 个 category bank 的 W4A4 activation QDQ。请求方法、实际编码、padding、尺度和 tied alias 都写入 `ptq_recipe.json` 与 `category_ptq_recipe.json`，这些 manifest 是最终配方的唯一来源。\n\n""",
+                """`bake.py::alloc` 是显式模块规则，不根据 held-out 成功率事后修改层范围。本实验的唯一正式配方是 `rtn_w4a4_category`：472 个 ordinary recipe 张量与 7 个 CategorySpecificLinear 张量全部写入 NVFP4；运行时安装报告覆盖 469 个 ordinary Linear 与 7 个 category bank 的 W4A4 activation QDQ。请求方法、实际编码、padding、尺度和 tied alias 都写入 `ptq_recipe.json` 与 `category_ptq_recipe.json`，这些 manifest 是最终配方的唯一来源。\n\n""",
             )
             text = replace_between(
                 text,
                 "实际量化方法由模块规则、校准模式和张量类型共同决定。",
                 "共享权重必须先于逐键写盘处理。",
-                """v12 的实际编码由模块类型和固定 RTN 规则共同决定：ordinary 与 category 权重均使用 NVFP4，普通与类别 Linear 均安装 W4A4 activation QDQ；3 个 embedding/position 张量只做权重量化。每个二维层和每个类别 bank 的请求格式、实际编码、裁剪值、尺度、padding 与回退原因写入 `ptq_recipe.json` 或 `category_ptq_recipe.json`。这些记录用于验证实现是否兑现协议，不用于按结果改写层范围。\n\n""",
+                """本实验的实际编码由模块类型和固定 RTN 规则共同决定：ordinary 与 category 权重均使用 NVFP4，普通与类别 Linear 均安装 W4A4 activation QDQ；3 个 embedding/position 张量只做权重量化。每个二维层和每个类别 bank 的请求格式、实际编码、裁剪值、尺度、padding 与回退原因写入 `ptq_recipe.json` 或 `category_ptq_recipe.json`。这些记录用于验证实现是否兑现协议，不用于按结果改写层范围。\n\n""",
             )
-            text = text.replace("v11 的 category manifest", "v12 的 category manifest")
+            text = text.replace("v11 的 category manifest", "本实验的 category manifest")
             text = text.replace(
                 "v11 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；",
-                "v12 固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；",
+                "本实验固定 `all_ordinary_linear` 范围：468 个普通 Linear 注入 LoRA；",
             )
             text = replace_paragraph_starting(
                 text,
@@ -341,7 +384,7 @@ for block in blocks_of_16(original_weight):
             text = text.replace("校准和演示训练可能重复采样窗口", "演示训练可能重复采样窗口")
             text = replace_paragraph_starting(
                 text, "以每 4 次优化器更新添加一次为例",
-                "v12 的 `opd_every=1`，每次优化器更新都加入教师项。探针更新与缓存读取预算由 `paper/collect_training_costs.py` 结合 OPD 配置、完成步数和尾批规则推导，并核对训练日志；缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。",
+                "本实验的 `opd_every=1`，每次优化器更新都加入教师项。探针更新与缓存读取预算由 `paper/collect_training_costs.py` 结合 OPD 配置、完成步数和尾批规则推导，并核对训练日志；缓存索引仅在实际执行探针时递增。实现保留原 `compute_loss` 与 `return_outputs` 协议，采用单设备 HF Trainer 的梯度累积规则。",
             )
             text = text.replace("尾批的 $n=4$，不能使用配置上限 $G=16$ 代替。", "尾批使用实际微批数 $n$，不能使用配置上限 $G=16$ 代替。")
             text = text.replace("初始 QAD 训练与正式评测的开关差异见 §3.2。", "F16 转换与饱和开关由训练和评测 manifest 分别记录，具体合同见 §3.1。")
@@ -380,9 +423,9 @@ export PTQAD_ZMQ_TIMEOUT_MS=120000
                 "## B.4 在冻结 W4A4 基座上训练 QAD",
                 r'''## B.3 生成全覆盖 RTN W4A4 基座并完成 development 压力筛选
 
-v12 不把校准统计用于 PTQ 决策。运行 `rtn_w4a4_category` bake 入口时，472 个 ordinary recipe 张量与 7 个 CategorySpecificLinear 张量全部编码为 NVFP4；469 个普通 Linear 与 7 个 category bank 同时安装激活 QDQ。bake manifest、category manifest 和激活安装报告共同证明 W4A4 覆盖，不能用单独的文件大小或一次 smoke 成功率替代。
+本实验不把校准统计用于 PTQ 决策。运行 `rtn_w4a4_category` bake 入口时，472 个 ordinary recipe 张量与 7 个 CategorySpecificLinear 张量全部编码为 NVFP4；469 个普通 Linear 与 7 个 category bank 同时安装激活 QDQ。bake manifest、category manifest 和激活安装报告共同证明 W4A4 覆盖，不能用单独的文件大小或一次 smoke 成功率替代。
 
-development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合，只用于确认压力基座和恢复超参数。它不参与最终 held-out 成功率。每步实际产物如下；路径以本轮 `$V12_ROOT` 为根：
+development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合，只用于确认压力基座和恢复超参数。它不参与最终 held-out 成功率。每步实际产物如下；路径以 `$V12_ROOT` 为根：
 
 | 顺序 | 操作 | 必需产物 |
 |---|---|---|
@@ -412,11 +455,11 @@ development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合
             text = text.replace("`<V12_ROOT>/ptq_parent/run_parameters.json`", "`<PRESSURE_ROOT>/pure_rtn/bake_manifest.json`")
             text = text.replace("| 基座和校准是否一致 | `<RUN>/calibration/calib_meta.json` | 16/32/4 结构、权重/配置/统计散列、实际窗口和每层行数 |", "| 基座和数值格式是否一致 | `paper/evidence/selected_recipe/` 的普通与类别配方及 manifest | 源权重与配置身份、RTN none、NVFP4 覆盖、block/tensor scale、padding |")
             text = text.replace("requested/actual 方法、裁剪、H 覆盖、RTN 回退、tied alias 和未量化张量", "requested/actual 方法、固定 RTN 裁剪、尺度、tied alias 和未量化张量")
-            text = text.replace("BF16 成功轨迹形成十任务 148 个窗口；每 2,000 更新读取 29,600 次演示样本。OPD 另有 6,800 次探针前向/反传，教师采集和标注另计。", "十任务 BF16 成功轨迹形成演示窗口；实际样本数、每阶段读取数和 OPD 额外前向/反传由本轮 `paper/evidence/training/costs.json` 完整列出。")
-            text = text.replace("15 张为本轮已核验实拍，`shot_gr00t` 与 `shot_pi05` 为经批准保留的未受影响 BF16 图。", "7 张与 v12 量化及恢复相关的图绑定本轮产物，其余图展示独立数值、原生执行或环境环节。")
-            text = replace_paragraph_starting(text, "以下保留并展示全部 17 个截图环节", "以下保留并展示全部 17 个截图环节，按复现顺序排列。量化、教师演示采集、QAD、教师缓存、OPD、策略服务与学生采集七个环节使用本轮受控脚本重新实拍；其余环节沿用已核验来源。截图的命令、日志、裁剪链和图像 SHA-256 见 `paper/evidence/captures/`，定量结论来自完整结果日志。")
+            text = text.replace("BF16 成功轨迹形成十任务 148 个窗口；每 2,000 更新读取 29,600 次演示样本。OPD 另有 6,800 次探针前向/反传，教师采集和标注另计。", "十任务 BF16 成功轨迹形成演示窗口；实际样本数、每阶段读取数和 OPD 额外前向/反传由 `paper/evidence/training/costs.json` 完整列出。")
+            text = text.replace("15 张为本轮已核验实拍，`shot_gr00t` 与 `shot_pi05` 为经批准保留的未受影响 BF16 图。", "7 张与本文量化及恢复相关的图绑定正式实验产物，其余图展示独立数值、原生执行或环境环节。")
+            text = replace_paragraph_starting(text, "以下保留并展示全部 17 个截图环节", "以下保留并展示全部 17 个截图环节，按复现顺序排列。其中七张实拍 Ubuntu 终端对已完成量化、教师演示、QAD、学生采集、教师缓存、OPD 与正式评测服务记录的 CPU 只读核验，不重跑实验；其余环节沿用已核验来源。截图的命令、完整核验输出、裁剪链和图像 SHA-256 见 `paper/evidence/captures/`，定量结论来自原始结果日志。")
             text = text.replace("### 校准、量化与数值核对", "### 数据采集、量化与数值核对")
-            text = text.replace("先收集层输入统计，再生成量化基座并核对编码格点。packed 图展示原生引擎所需的四位数据与缩放载荷。", "教师采集图展示用于恢复的成功演示，量化图核对无校准 RTN 基座。packed 图展示原生引擎所需的四位数据与缩放载荷，数值图核对编码格点。")
+            text = text.replace("先收集层输入统计，再生成量化基座并核对编码格点。packed 图展示原生引擎所需的四位数据与缩放载荷。", "教师演示图只读核对已完成 QAD 使用的演示来源记录，量化图核对已归档的 RTN 配方与预算。packed 图展示原生引擎所需的四位数据与缩放载荷，数值图核对编码格点。")
 
         if path.name.startswith("15-附录C"):
             text = text.replace(
@@ -437,15 +480,15 @@ development 使用协议固定的初态 4–8、seed 940000、每任务 5 回合
     if isinstance(figures.get("gptq_block"), dict):
         figures["gptq_block"]["title"] = "图 1　NVFP4 RTN 的权重二级尺度与激活块尺度"
         figures["gptq_block"]["note"] = (
-            "展示 v12 无校准 RTN 的权重路径：每个矩阵共享动态 FP32 二级尺度，"
+            "展示无校准 RTN 的权重路径：每个矩阵共享动态 FP32 二级尺度，"
             "每 16 个权重元素共享 E4M3 块尺度；激活路径先转 F16，二级尺度固定为 1。"
             "配方无需校准输入，不绘制未经测量的收益曲线。"
         )
     if isinstance(figures.get("shot_collect"), dict):
-        figures["shot_collect"]["title"] = "运行截图 01　BF16 成功演示与教师回放核验"
+        figures["shot_collect"]["title"] = "运行截图 01　已完成教师演示来源核验"
         figures["shot_collect"]["note"] = (
-            "只读核验冻结的 BF16 教师演示归档、任务覆盖和样本哈希；"
-            "v12 RTN PTQ 不使用 Hessian 校准，截图不作为量化结果。"
+            "在 Ubuntu 终端只读核对正式 QAD 训练请求中的教师演示文件清单、样本数和来源哈希。"
+            "这里验证已归档的采集身份与训练绑定，不重新采集，也不重新读取未打包的私有观测张量。"
         )
     figures_path.write_text(json.dumps(figures, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -460,7 +503,8 @@ def main() -> None:
     documents = render_main(final, diagnostic_text, gptq_text, load_verified_inventory(final))
     meta_path = PAPER / "meta.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    meta["status"] = "v12 RTN W4A4 五臂证据已核验；GPTQ 补充未执行"
+    meta["title"] = "PTQAD：APXInf 生态下 GR00T 的 NVFP4 W4A4 主分支量化与低秩恢复"
+    meta["status"] = "LIBERO-10 五臂配对评测与完整证据"
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     rewrite_main(documents)
     rewrite_other_sources()

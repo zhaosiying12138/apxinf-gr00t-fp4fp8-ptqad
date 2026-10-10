@@ -38,25 +38,25 @@
     "shot_qad",
     "shot_rollout"
   ],
-  "meta_sha256": "0848bd09cdc2933dc19b31c0efe74a6e8bc750f7bcd8038c62a7b2de179664db",
-  "html_sha256": "f461fe01fef029bfc23eaa13a3beaa1d35370260766eb704194eb25995707868",
+  "meta_sha256": "93481e54e6915dfcef487d7238c7de8bb5f917efadac1a3dfbabcb204bd19455",
+  "html_sha256": "33c01e7be6000069ed90d4bc11a73411da27063c90eefa2099085a18afba4978",
   "qa_script_sha256": "d452250fd7528927fe309e236cc526615cf46f3592556e99190f4624834417d3",
-  "figures_manifest_sha256": "6fcf0a28db68dd7b27b42560c26fad7b2c2eef5624ffc93c007f2ba071117b0b",
+  "figures_manifest_sha256": "8093f170dbad1d457bf00026db35b965f30e9b8651379a22a3f3b4f867de1180",
   "svg_sha256": {
-    "budget_ladder": "e93391b7f05c9722856c2701e0eff1636c7db6a8bf532ca7352583fa9b52a958",
+    "budget_ladder": "2eda81762f245d67fc004d11e79d62db030919693a11381dec8aa6f6698c75bd",
     "e1_latency": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
     "gptq_block": "9fedbfebb3f50cb1c0879304c4016c67ad757414b056b73ec8459bb3c78ecd63",
-    "ladder": "37186724447ccc2b870fc536d00515caa2ab22751f6b5aa4c47de15b41b317b8",
-    "ptq_frontier": "06443743c5a39b6eda83e4c4b006addc1e6e2527b2d5f91cc1ede76d74bbb293",
+    "ladder": "c7360a2cf61727663a6f72d6b0b19341c046780f59aac5d7ca808d6bd257ca5b",
+    "ptq_frontier": "9c583dc8e6a9e769eb6c6c8d28ee40ea54b7bdbefb89f2afba67ba26ae77299a",
     "recovery_protocol": "1d0a1e46bd762745951d8321ad943f2399a16ff0f3acae7344060ee80c0b8f90",
     "swizzle_layout": "62da8e6496c030f0fa5e17486051d0fd3ccedbf125376c0e23666b2085c02ff9"
   },
   "png_sha256": {
-    "budget_ladder": "157257609a71070af81a8a809b5d0b5c27198c12c767bb2f4a7bd486b964e9fb",
+    "budget_ladder": "ccf99f705e94622902c94f9132f8ed52dbee81bd9fcc1b410eccb00453f9f931",
     "e1_latency": "fa164675b28844757083507a2c5f92742beb18b805c072f2c562ee8c6cfc6c20",
     "gptq_block": "d667e08eebce029dcfbb03c36ddc73c425b7cd6af31db553f02c12aef049c8a6",
-    "ladder": "fadb8174654a3792db4ee8092db9d388db55b4b00297b0753cd443c05ea07c2d",
-    "ptq_frontier": "acdbf4fcff6b0016293def60005eae534f5c459cd9be29d2697fd8fd5a204441",
+    "ladder": "e16d35d7f1bfafc6f15485ec52aa84e06d5c738a4b9d19d022a483e5913f0f37",
+    "ptq_frontier": "89c3df74383bde581bd552c930374311c50b2d5099e99872ab44639bbaf50317",
     "recovery_protocol": "950909be8dea50bd7d42c0f0834b55d79d4fc62f71c1e2b43516e330059acc1b",
     "shot_bake": "60abac3df423856939ae7e2fdde74645fa80328cca57beec4b497bfd930003d8",
     "shot_collect": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
@@ -117,7 +117,7 @@
       "shot_rollout"
     ],
     "diagramCount": 7,
-    "mathCount": 225,
+    "mathCount": 218,
     "mathErrors": 0,
     "svgOverflow": [],
     "decoded": [

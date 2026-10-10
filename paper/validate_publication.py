@@ -643,7 +643,7 @@ def check_gptq_reference(package_inputs):
         import re
         for path, heading, detailed in (
                 (P / 'sections/04-实验.md', r'^## 4\.6 [^\n]+\n', False),
-                (P.parent / 'README.md', r'^### 同覆盖的校准 GPTQ 参考\n', True)):
+                (P.parent / 'README.md', r'^### 校准 GPTQ 的范围说明\n', True)):
             text = path.read_text()
             match = re.search(heading + r'([\s\S]*?)(?=^#{1,3} |\Z)', text, re.M)
             require(match is not None and match.group(1).strip() == render(supplement, detailed=detailed),

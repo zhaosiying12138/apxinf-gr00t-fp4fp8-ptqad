@@ -226,8 +226,8 @@ def collection_search_costs(root: Path) -> str:
     teacher = costs.get("teacher_labeling", {})
     supervision = search_data.get("teacher_supervision", {})
     student = search_data.get("student_collection", {})
-    rows = ["| 成本项 | 次数/样本 | wall / s | allocated / reserved GiB |", "|---|---:|---:|---:|"]
-    rows.append(f"| 教师成功轨迹采集 | {supervision.get('successful_trajectories', '未记录')} 条 / {supervision.get('training_windows', '未记录')} 窗口 | {_fmt_seconds(supervision.get('wall_seconds'))} | 未记录（采集 wrapper） |")
+    rows = ["| 成本项 | 次数/样本 | 记录耗时 / s | allocated / reserved GiB |", "|---|---:|---:|---:|"]
+    rows.append(f"| 教师成功轨迹采集 | {supervision.get('episodes', '未记录')} 回合 / {supervision.get('successful_trajectories', '未记录')} 条成功轨迹 / {supervision.get('raw_captured_windows', '未记录')} 原始窗口 / {supervision.get('training_windows', '未记录')} 训练窗口 | {_fmt_seconds(supervision.get('wall_seconds'))} | 未记录（采集 wrapper） |")
     rows.append(f"| 学生 collection | {student.get('episodes', collection.get('episodes', '未记录'))} 回合 / {student.get('captured_observations', collection.get('captured_observations', '未记录'))} 观测 | {_fmt_seconds(student.get('wall_seconds', collection.get('wall_seconds')))} | 未记录（采集 wrapper） |")
     peak = teacher.get("cuda_peak_memory", [])
     alloc = max((x.get("max_memory_allocated_bytes", 0) for x in peak), default=0) / 2**30
@@ -235,16 +235,43 @@ def collection_search_costs(root: Path) -> str:
     forward = search_data.get('teacher_labeling', {}).get('forward_calls', teacher.get('actual_probes', '未记录'))
     backward = search_data.get('teacher_labeling', {}).get('backward_calls', '未记录')
     rows.append(f"| 教师标签 | {teacher.get('actual_probes', supervision.get('forward_calls', '未记录'))} probes（forward={forward}，backward={backward}） | {_fmt_seconds(teacher.get('elapsed_seconds', search_data.get('teacher_labeling', {}).get('elapsed_seconds')))} | {alloc:.2f} / {reserve:.2f} |")
+    pressure = search_data.get("pressure_development", {})
+    _require(isinstance(pressure, dict) and pressure, "pressure development costs are missing")
+    for name, item in pressure.items():
+        _number(item.get("wall_seconds"), f"pressure_development.{name}.wall_seconds", positive=True)
+        rows.append(f"| 压力筛选 development：`{name}` | {item.get('episodes', '未记录')} 回合 | {_fmt_seconds(item['wall_seconds'])} | 未记录（评测 wrapper） |")
     totals = search_data.get("completed_search_totals_by_timing_scope", {})
-    rows.append(f"| 搜索阶段合计（已完成） | {totals.get('optimizer_steps', '未记录')} updates / {totals.get('demonstration_window_draws', '未记录')} draws | {_fmt_seconds(totals.get('wall_seconds'))} | 未记录（搜索汇总） |")
-    candidates = ["\n\n**搜索候选明细**\n", "| 阶段 | 角色 | 学习率 | OPD 权重 | updates | wall / h | development / h | 是否入选 |", "|---|---|---:|---:|---:|---:|---:|---:|"]
+    selected = search_data.get("selected_qad_opd_training", {})
+    for label, item in (("全部已完成候选训练（含选定链和控制臂）", totals),
+                        ("选定 QAD → OPD 训练链（上行子集）", selected)):
+        _number(item.get("wall_seconds"), label + ".wall_seconds", positive=True)
+        rows.append(f"| {label} | {item.get('optimizer_steps', '未记录')} updates / {item.get('demonstration_window_draws', '未记录')} 演示读取 / {item.get('scheduled_teacher_backward_passes', '未记录')} 学生探针反向 | {_fmt_seconds(item['wall_seconds'])} | 见各阶段峰值 |")
+    _number(totals.get("development_wall_seconds"), "search development time", positive=True)
+    _number(totals.get("export_reported_seconds"), "search export time", positive=True)
+    rows.append(f"| 恢复候选 development 合计 | {totals.get('development_episodes', '未记录')} 回合 | {_fmt_seconds(totals['development_wall_seconds'])} | 未记录（评测 wrapper） |")
     candidate_data = search_data.get("candidates", {})
     _require(isinstance(candidate_data, dict) and candidate_data, "search cost candidates are missing")
+    rows.append(f"| 候选导出 reported elapsed 合计 | {len(candidate_data)} 次导出 | {_fmt_seconds(totals['export_reported_seconds'])} | 未记录（导出 producer） |")
+    ratio = _number(search_data.get("opd_over_continued_training_wall_ratio"), "OPD/continued training wall ratio", positive=True)
+    comparison_ratio = _number(costs.get("comparison", {}).get("continuation_wall_ratio_opd_over_continued"), "selected training wall ratio", positive=True)
+    _require(math.isclose(ratio, comparison_ratio, rel_tol=1e-12), "search and selected training wall ratios differ")
+    candidates = ["\n\n**搜索候选明细**\n", "| 阶段 | 角色 | 学习率 | OPD 权重 | updates | 训练 wall / h | development / h | 导出 reported / s | 导出张量 / B | 是否入选 |", "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for name, item in candidate_data.items():
         candidates.append(f"| `{name}` | {item.get('role', '未记录')} | {item.get('learning_rate', '未记录')} | {item.get('opd_weight', '未记录')} | "
                          f"{item.get('optimizer_steps', '未记录')} | {float(item.get('wall_seconds', 0))/3600:.3f} | "
-                         f"{float(item.get('development_wall_seconds', 0))/3600:.3f} | {'是' if item.get('selected') else '否'} |")
-    return "\n".join(rows + candidates)
+                         f"{float(item.get('development_wall_seconds', 0))/3600:.3f} | {_fmt_seconds(item.get('export_reported_seconds'))} | "
+                         f"{item.get('export_tensor_count', '未记录')} / {_fmt_bytes(item.get('export_tensor_bytes'))} | {'是' if item.get('selected') else '否'} |")
+    notes = (f"\n\nOPD 与 continued-QAD 追加训练的墙钟比为 **{ratio:.3f}×**；"
+             "两者匹配演示读取数和更新数，OPD 另有学生探针计算，因此并非等计算成本。"
+             "探针反向次数按已完成步数及尾批规则推导，指学生对缓存教师目标反向传播；教师标注本身没有反向传播。\n\n"
+             "计时范围分别保留原始收据定义：训练从脚本导入计到 checkpoint 保存完成；development 包含评测服务加载；"
+             "教师标签计时包含身份核验、输入读取、模型加载与标注，止于缓存序列化之前；导出耗时只采用 producer 的 reported elapsed。"
+             "选定 QAD → OPD 链已包含在候选训练合计中，不能重复相加。其余不同口径耗时也不能无条件相加为实测端到端时间。"
+             "搜索汇总不包含校准、PTQ bake、安装、smoke、失败重试、停机、截图或 held-out 评测；held-out 耗时另见运行收据。"
+             "未记录的采集/导出显存峰值、恢复功耗与能耗、独立 adapter 准备时间及端到端耗时均不补估。"
+             "完整明细见 [`paper/evidence/search_costs/summary.json`](paper/evidence/search_costs/summary.json) 与 "
+             "[`paper/evidence/training/costs.json`](paper/evidence/training/costs.json)。")
+    return "\n".join(rows + candidates) + notes
 
 
 def render_all(root: Path, final: dict[str, Any], protocol: dict[str, Any], inventory: dict[str, Any]) -> dict[str, str]:

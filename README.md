@@ -2,6 +2,8 @@
 
 **APXInf × GR00T：NVFP4 W4A4 训练后量化、QAD 演示恢复与 OPD 教师监督。**
 
+[下载科学结果审阅包（非最终发布包，7 张截图待补）](https://github.com/zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad/raw/refs/heads/main/paper/apxinf-gr00t-fp4fp8-ptqad-review.zip)
+
 视觉—语言—动作模型把相机图像、语言指令和机器人状态映射为动作。本项目研究 GR00T N1.7 在更广四位量化覆盖下，能否通过低秩恢复保持 LIBERO 闭环任务能力。`ptqad` 是 PTQ 与 QAD 的组合名称；当前主实验采用全 NVFP4 W4A4 RTN 基座；同覆盖校准 GPTQ 对照未执行，不据此主张超过先进 PTQ。仓库也提供 APXInf 的 NVFP4/FP8 算子、块尺度布局和原生执行基准。
 
 项目将量化、恢复与评测连成以下流程：
@@ -16,28 +18,221 @@ QAD 冻结量化基座，只用成功演示更新低秩旁路；OPD 在 QAD 学�
 
 ## 阅读入口与结果状态
 
-当前为**方法与结构审阅版**，正式实验正在进行。以下红色 `xxx` 均为待测值，未完成的评测不作为最终结果。
+**实验已完成且冻结；本页为数据完整的审阅版。七个发布截图环节待补，尚非最终发布包。** 以下数值来自本轮 v12 五臂完整评测与固定观测诊断。最终生成器因截图未补齐而拒绝生成正式交付；这里的审阅更新不表示最终发布校验已通过。
 
 - [中文论文 HTML](paper/paper.html)：离线阅读，含公式、图表、源码解读和复现附录。
-- [知乎 Markdown](paper/zhihu/article.md)与[审阅 ZIP](paper/apxinf-gr00t-fp4fp8-ptqad-review.zip)：共用同一正文。
-- [完整复现说明](docs/reproduce-ptqad.md)：与下方命令共用工作流模板。
-- [QVLA 对照审阅](docs/QVLA_GAP_REVIEW_20261006.md)：对照方法、证据缺口及适用范围。
+- [知乎 Markdown](paper/zhihu/article.md)：与 HTML 共用正文，保留待补截图标识。
+- [最终实验清单](paper/evidence/final_manifest.json)、[五臂结果与配对统计](paper/evidence/final_results.json)、[逐回合配对记录](paper/evidence/paired_comparison.json)。
+- [完整复现说明](docs/reproduce-ptqad.md)与[QVLA 对照审阅](docs/QVLA_GAP_REVIEW_20261006.md)。
 
-| 正式配置 | 闭环成功率（各 160 回合） |
+在 LIBERO-10 每臂 160 个配对回合中，RTN W4A4 PTQ 为 138/160（86.25%），QAD 为 145/160（90.625%）；QAD 达到与 BF16 相同的成功率点估计。QAD 相对 PTQ 为 +4.375 个百分点。这一恢复仅指点估计，配对统计尚不能确认 QAD 优于 PTQ。
+
+QAD+OPD 为 144/160（90%），continued-QAD 为 104/160（65%）。OPD 相对同演示更新预算续训为 +25.000 个百分点，配对区间与 Holm 校正支持这一优势；相对 QAD 为 -0.625 个百分点。本实验未显示 OPD 超过 QAD 的额外成功率增益。
+
+## 已完成的 v12 实验指标
+
+协议 `w4a4-recovery-v12-rtn`，SHA-256 `31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521`。五臂各为十任务 × 16 回合，合计 800 个正式回合；开发集用于选择，未混入下表。
+
+| 配置 | 成功回合 | macro_success_rate |
+|---|---:|---:|
+| BF16 | 145/160 | 90.625% |
+| W4A4 PTQ | 138/160 | 86.250% |
+| PTQ + QAD | 145/160 | 90.625% |
+| continued-QAD | 104/160 | 65.000% |
+| PTQ + QAD + OPD | 144/160 | 90.000% |
+
+### 配对差异与不确定性
+
+| 比较 | 点差 / pp | 95% 配对 CI / pp | 不一致回合 | 精确 McNemar p | Holm p |
+|---|---:|---:|---:|---:|---:|
+| PTQ − BF16 | -4.375 | [-9.375, +0.625] | 21 | 0.1892 | 0.5677 |
+| QAD − PTQ | +4.375 | [-1.875, +10.000] | 29 | 0.2649 | 0.5677 |
+| OPD − QAD | -0.625 | [-6.250, +5.000] | 25 | 1 | 1 |
+| OPD − continued-QAD | +25.000 | [+18.125, +31.875] | 54 | 2.292e-08 | 9.167e-08 |
+
+差值单位为百分点。前三项区间包含零，不能据此确认量化退化、QAD 改善或 OPD 超过 QAD，也不构成等价性证明；OPD 相对 continued-QAD 的优势得到本设置下的配对区间和校正检验支持。两臂匹配演示读取数与更新次数，OPD 另有教师标注和学生探针计算，因此不属于相同总计算预算。
+
+| 比较 | 两者成功 | 仅前者成功 | 仅后者成功 | 两者失败 | 不一致回合 |
+|---|---:|---:|---:|---:|---:|
+| PTQ − BF16 | 131 | 7 | 14 | 8 | 21 |
+| QAD − PTQ | 127 | 18 | 11 | 4 | 29 |
+| OPD − QAD | 132 | 12 | 13 | 3 | 25 |
+| OPD − continued-QAD | 97 | 47 | 7 | 9 | 54 |
+
+表中“前者/后者”沿用比较标题顺序；例如 OPD − continued-QAD 的“仅前者成功”指 OPD 成功、continued-QAD 失败。
+
+- 区间方法：`paired percentile bootstrap, resampling episodes within each fixed task`，置信度 95.0%，重复次数 20000，seed `20261002`，分位数规则 `linear interpolation, rank (B-1)*p`。
+- 检验方法：`exact two-sided McNemar on paired episode outcomes`；显著性水平 `0.05`；多重比较 `Holm correction across the four named contrasts`。
+
+### 正式回合运行收据
+
+| 臂 | 成功率（macro/micro） | wall / s | seed | purpose | 完成任务 |
+|---|---:|---:|---:|---|---:|
+| BF16 | 90.62% / 90.62% | 7,053.161 s | 970000 | `heldout` | 10/10 |
+| W4A4 PTQ | 86.25% / 86.25% | 16,424.459 s | 970000 | `heldout` | 10/10 |
+| PTQ + QAD | 90.62% / 90.62% | 16,584.657 s | 970000 | `heldout` | 10/10 |
+| continued-QAD | 65.00% / 65.00% | 20,889.620 s | 970000 | `heldout` | 10/10 |
+| PTQ + QAD + OPD | 90.00% / 90.00% | 14,571.280 s | 970000 | `heldout` | 10/10 |
+
+### 逐任务成功数
+
+| 任务 | BF16 | W4A4 PTQ | PTQ + QAD | continued-QAD | PTQ + QAD + OPD |
+|---|---:|---:|---:|---:|---:|
+| `LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket` | 15/16 | 16/16 | 16/16 | 1/16 | 13/16 |
+| `LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket` | 16/16 | 16/16 | 15/16 | 5/16 | 15/16 |
+| `KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it` | 15/16 | 16/16 | 15/16 | 15/16 | 15/16 |
+| `KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it` | 13/16 | 11/16 | 15/16 | 16/16 | 16/16 |
+| `LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate` | 15/16 | 13/16 | 15/16 | 9/16 | 16/16 |
+| `STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy` | 14/16 | 15/16 | 14/16 | 16/16 | 15/16 |
+| `LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate` | 16/16 | 13/16 | 12/16 | 11/16 | 15/16 |
+| `LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket` | 15/16 | 16/16 | 14/16 | 13/16 | 15/16 |
+| `KITCHEN_SCENE8_put_both_moka_pots_on_the_stove` | 12/16 | 8/16 | 16/16 | 10/16 | 14/16 |
+| `KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it` | 14/16 | 14/16 | 13/16 | 8/16 | 10/16 |
+
+QAD 相对 PTQ 的净增量为 7 次成功，其中双摩卡壶任务贡献 +8，其余任务合计 −1，不能写成各任务普遍恢复。OPD 相对 continued-QAD 的 40 次净增量中，两个入篮任务与双杯分盘合计贡献 29 次；十任务中七项增加、两项不变、一项减少。两个追加训练分支来自同一 QAD 起点，OPD 没有在已经下降的 continued-QAD 检查点上继续训练。
+
+### 固定观测上的完整动作诊断
+
+固定十个任务各八个观测，共 80 个窗口；五臂使用相同观测和经数值核验的初始噪声，各自完成四步积分，再比较有效的 16×7 动作。观测来自已用于 QAD 的教师成功轨迹，因此这项测量解释训练分布上的动作拟合，不衡量未见状态泛化。
+
+| 配置（相对 BF16） | 归一化动作 MSE | 平移控制量 MSE | 旋转控制量 MSE | 夹爪指令不一致 |
+|---|---:|---:|---:|---:|
+| W4A4 PTQ | 0.01111 | 0.00355734 | 0.000234355 | 0.78% |
+| QAD | 0.00883637 | 0.00268328 | 0.000154304 | 0.78% |
+| continued-QAD | 0.00915725 | 0.00257093 | 0.000158991 | 0.86% |
+| QAD + OPD | 0.0089183 | 0.00255769 | 0.000153754 | 0.78% |
+
+各项先在任务内平均，再对十个任务取宏平均。平移和旋转两列分别是反归一化后的 x/y/z 与 roll/pitch/yaw 三项 MSE 的均值，表示控制器输入差异，不是实测末端位姿误差。夹爪比较使用 LIBERO 的三值指令，保留中性点；指令不一致不等于抓取失败。这项固定观测诊断没有测量各策略独立 rollout 的累计偏差或首次失败阶段，也不替代闭环成功率。
+
+| 指标（任务宏平均） | W4A4 PTQ | QAD | continued-QAD | QAD + OPD |
+|---|---:|---:|---:|---:|
+| `normalized_mse` | 0.011109951 | 0.0088363732 | 0.0091572452 | 0.0089182975 |
+| `normalized_x_mse` | 0.0069344575 | 0.0044941543 | 0.004389103 | 0.0042195012 |
+| `normalized_y_mse` | 0.0054144779 | 0.0045512266 | 0.004261816 | 0.0042914191 |
+| `normalized_z_mse` | 0.005570443 | 0.0048081953 | 0.004655734 | 0.00469088 |
+| `normalized_roll_mse` | 0.0078256168 | 0.0039233354 | 0.0038300574 | 0.0035824522 |
+| `normalized_pitch_mse` | 0.0087894326 | 0.0049692819 | 0.0050643234 | 0.0049588985 |
+| `normalized_yaw_mse` | 0.0044802947 | 0.0037266604 | 0.0039226353 | 0.0037331364 |
+| `normalized_gripper_mse` | 0.038754935 | 0.035381758 | 0.037977047 | 0.036951795 |
+| `decoded_x_mse` | 0.003391656 | 0.0021369275 | 0.0021059255 | 0.0019908649 |
+| `decoded_y_mse` | 0.0033754995 | 0.0028310982 | 0.0026174856 | 0.0026341661 |
+| `decoded_z_mse` | 0.0039048561 | 0.003081825 | 0.0029893861 | 0.0030480519 |
+| `decoded_roll_mse` | 0.00010930031 | 5.3774424e-05 | 5.2501715e-05 | 4.9252297e-05 |
+| `decoded_pitch_mse` | 0.00020668306 | 0.00011690545 | 0.00011927351 | 0.00011654986 |
+| `decoded_yaw_mse` | 0.00038708179 | 0.00029223154 | 0.00030519658 | 0.00029545928 |
+| `decoded_gripper_mse` | 0.0079885112 | 0.0075541884 | 0.0081591417 | 0.0079152264 |
+| `libero_gripper_command_disagreement` | 0.0078125 | 0.0078125 | 0.00859375 | 0.0078125 |
+
+最后一行使用 0–1 比例；上方概览换算为百分比。
+
+| 任务（归一化动作 MSE） | W4A4 PTQ | QAD | continued-QAD | QAD + OPD |
+|---|---:|---:|---:|---:|
+| `LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket` | 0.0048734745 | 0.0057117951 | 0.0057284191 | 0.0051943958 |
+| `LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket` | 0.0072522298 | 0.0058048786 | 0.0050070896 | 0.0048704678 |
+| `KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it` | 0.016079654 | 0.0094904437 | 0.0094231362 | 0.0094320406 |
+| `KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it` | 0.0064706102 | 0.0089723623 | 0.0088454249 | 0.0087378869 |
+| `LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate` | 0.014604293 | 0.029228966 | 0.031296313 | 0.030081486 |
+| `STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy` | 0.0047842296 | 0.0045154926 | 0.0044537262 | 0.0044913719 |
+| `LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate` | 0.011392991 | 0.003906043 | 0.0039475888 | 0.0037308017 |
+| `LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket` | 0.0093176249 | 0.004637557 | 0.0050391521 | 0.0046822496 |
+| `KITCHEN_SCENE8_put_both_moka_pots_on_the_stove` | 0.023409685 | 0.0072045299 | 0.0094003182 | 0.0089938939 |
+| `KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it` | 0.012914719 | 0.0088916638 | 0.0084312838 | 0.0089683817 |
+
+逐任务、逐观测的全部指标与原始动作见 [`paper/evidence/action_diagnostics/summary.json`](paper/evidence/action_diagnostics/summary.json) 及该目录下的 `runs/`；`manifest.json` 记录来源、源码和逐文件哈希。
+
+### 编码预算与覆盖
+
+已知共享权重别名去重后，BF16 参数载荷为 **6,288,032,000 B**，四位主分支及未量化参数合计 **1,773,292,508 B**，独立 BF16 LoRA 为 **145,997,824 B**。恢复模型合计 **1,919,290,332 B**，净编码压缩 **3.276×**，参数载荷减少 **69.48%**。这是目标编码预算，不是当前 QDQ checkpoint 的文件体积、实测显存或推理速度。
+
+| 口径 | BF16 源权重 | W4A4 基座 | 基座压缩比 | LoRA 旁路 | 部署合计 | 净压缩比 |
+|---|---:|---:|---:|---:|---:|---:|
+| 物理 checkpoint 张量 | 6,910,361,856 B | 1,948,322,784 B | 3.547× | 145,997,824 B | 2,094,320,608 B | 3.300× |
+| 已知 tied alias 去重 | 6,288,032,000 B | 1,773,292,508 B | 3.546× | 145,997,824 B | 1,919,290,332 B | 3.276× |
+
+| 项目 | 数值 |
 |---|---:|
-| BF16 | <span style="color:#b42318">xxx%</span> |
-| RTN W4A4 PTQ | <span style="color:#b42318">xxx%</span> |
-| PTQ + QAD | <span style="color:#b42318">xxx%</span> |
-| PTQ + continued-QAD | <span style="color:#b42318">xxx%</span> |
-| PTQ + QAD + OPD | <span style="color:#b42318">xxx%</span> |
+| eligible 权重张量 | 479 |
+| ordinary 配方权重张量（含 embedding/position） | 472 |
+| ordinary Linear（激活 QDQ） | 469 |
+| CategorySpecificLinear | 7 |
+| 激活量化 Linear 总数 | 476 |
+| NVFP4 权重元素 | 3,452,239,872 |
+| FP8 权重元素 | 0 |
+| BF16 权重元素 | 0 |
+| 未量化张量 | 552 |
+| 物理口径 NVFP4 / eligible | 100.0000% |
+| 物理口径 NVFP4 / 全部元素 | 99.9149% |
+| alias 去重 NVFP4 / eligible | 100.0000% |
+| alias 去重 NVFP4 / 全部元素 | 99.9065% |
+| 物理口径量化编码（含缩放） | 1,942,440,672 B |
+| 未量化源权重 | 5,882,112 B |
+| alias 去重去掉的重复元素 | 311,164,928 |
+| category 全部权重元素 | 325,517,312 |
+| 每层 category banks | 32 |
+| LIBERO 激活 bank | 2 |
+| LIBERO 激活 bank 权重元素 | 10,172,416 |
+| category K-padding 元素 | 983,040 |
+| category 张量缩放数 | 224 |
+| category 编码字节 | 183,657,344 |
 
-含 BF16 低秩旁路的净编码压缩比为 <span style="color:#b42318">xxx</span>；逐任务分子分母、配对区间、动作误差、训练耗时与内存将在完整产物核验后回填。校准 GPTQ 对照未执行，不列待填成功率。最终生成器逐项校验当前协议和来源，不会把训练 loss 或开发集分数写成正式成功率。
+| LoRA 项目 | 数值 |
+|---|---:|
+| scope | all_ordinary_linear |
+| Linear 模块 | 468 |
+| rank | 32 |
+| alpha | 64 |
+| 可训练参数 | 72,998,912 |
+| dtype | bfloat16 |
+| 编码字节 | 145,997,824 B |
 
-运行记录可通过以下只读命令查看；未完成记录本身不证明进程仍在运行：
+完整来源见 [recipe_inventory.json](paper/evidence/recipe_inventory.json) 与 [runtime 清单](paper/evidence/runtime/manifest.json)。
 
-```bash
-python3 exp/high_fp4_status.py
-```
+### 恢复训练与数据成本
+
+| 阶段 | 更新数 | 演示窗口读取 | 探针学生反传 | 阶段耗时 / h | 显存峰值 / GiB |
+|---|---:|---:|---:|---:|---:|
+| QAD | 2000 | 29600 | 0 | 10.104 | 15.05 |
+| continued-QAD | 2000 | 29600 | 0 | 10.563 | 15.05 |
+| QAD + OPD | 2000 | 29600 | 29600 | 20.832 | 15.05 |
+
+训练墙钟包含脚本导入、模型准备、训练和 checkpoint 保存；显存为进程级 PyTorch allocator 峰值。成功率与这些成本分开记账。
+
+| 阶段 | 学习率 | OPD 权重 | seed | 更新数 | micro/accum/effective | dtype | 参数存储 | rank/alpha | grad clip | F16 饱和 | 可训练参数 | allocated / reserved GiB |
+|---|---:|---:|---:|---:|---|---|---|---:|---:|---|---:|---:|
+| QAD | 0.0001 | 0.0 | 20261006 | 2000 | 1/16/16 | bfloat16 | float32: 3,217,014,912 参数 / 12,868,059,648 B | 32/64.0 | 1.0 | False | 72,998,912 | 14.81 / 15.05 |
+| continued-QAD | 0.0001 | 0.0 | 20261006 | 2000 | 1/16/16 | bfloat16 | float32: 3,217,014,912 参数 / 12,868,059,648 B | 32/64.0 | 0.25 | True | 72,998,912 | 14.81 / 15.05 |
+| QAD + OPD | 0.0001 | 0.25 | 20261006 | 2000 | 1/16/16 | bfloat16 | float32: 3,217,014,912 参数 / 12,868,059,648 B | 32/64.0 | 0.25 | True | 72,998,912 | 14.81 / 15.05 |
+
+| 成本项 | 次数/样本 | 记录耗时 / s | allocated / reserved GiB |
+|---|---:|---:|---:|
+| 教师成功轨迹采集 | 40 回合 / 37 条成功轨迹 / 160 原始窗口 / 148 训练窗口 | 1,587.667 s | 未记录（采集 wrapper） |
+| 学生 collection | 40 回合 / 160 观测 | 4,135.665 s | 未记录（采集 wrapper） |
+| 教师标签 | 160 probes（forward=160，backward=0） | 66.575 s | 12.41 / 12.64 |
+| 压力筛选 development：`bf16` | 50 回合 | 1,956.550 s | 未记录（评测 wrapper） |
+| 压力筛选 development：`rtn_w4a4_category` | 50 回合 | 4,756.364 s | 未记录（评测 wrapper） |
+| 全部已完成候选训练（含选定链和控制臂） | 10000 updates / 148000 演示读取 / 59200 学生探针反向 | 272,851.781 s | 见各阶段峰值 |
+| 选定 QAD → OPD 训练链（上行子集） | 4000 updates / 59200 演示读取 / 29600 学生探针反向 | 111,369.905 s | 见各阶段峰值 |
+| 恢复候选 development 合计 | 250 回合 | 28,783.437 s | 未记录（评测 wrapper） |
+| 候选导出 reported elapsed 合计 | 5 次导出 | 476.594 s | 未记录（导出 producer） |
+
+
+**搜索候选明细**
+
+| 阶段 | 角色 | 学习率 | OPD 权重 | updates | 训练 wall / h | development / h | 导出 reported / s | 导出张量 / B | 是否入选 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `train_qad_lr_5e-05` | qad | 5e-05 | 0.0 | 2000 | 10.332 | 1.406 | 54.547 s | 1031 / 6,910,361,856 B | 否 |
+| `train_qad_lr_0.0001` | qad | 0.0001 | 0.0 | 2000 | 10.104 | 1.448 | 100.035 s | 1031 / 6,910,361,856 B | 是 |
+| `train_continued_qad` | continued_qad | 0.0001 | 0.0 | 2000 | 10.563 | 1.958 | 45.998 s | 1031 / 6,910,361,856 B | 是 |
+| `train_opd_025` | qad_opd | 0.0001 | 0.25 | 2000 | 20.832 | 1.594 | 181.498 s | 1031 / 6,910,361,856 B | 是 |
+| `train_opd_100` | qad_opd | 0.0001 | 1.0 | 2000 | 23.961 | 1.589 | 94.516 s | 1031 / 6,910,361,856 B | 否 |
+
+OPD 与 continued-QAD 追加训练的墙钟比为 **1.972×**；两者匹配演示读取数和更新数，OPD 另有学生探针计算，因此并非等计算成本。探针反向次数按已完成步数及尾批规则推导，指学生对缓存教师目标反向传播；教师标注本身没有反向传播。
+
+计时范围分别保留原始收据定义：训练从脚本导入计到 checkpoint 保存完成；development 包含评测服务加载；教师标签计时包含身份核验、输入读取、模型加载与标注，止于缓存序列化之前；导出耗时只采用 producer 的 reported elapsed。选定 QAD → OPD 链已包含在候选训练合计中，不能重复相加。其余不同口径耗时也不能无条件相加为实测端到端时间。搜索汇总不包含校准、PTQ bake、安装、smoke、失败重试、停机、截图或 held-out 评测；held-out 耗时另见运行收据。未记录的采集/导出显存峰值、恢复功耗与能耗、独立 adapter 准备时间及端到端耗时均不补估。完整明细见 [`paper/evidence/search_costs/summary.json`](paper/evidence/search_costs/summary.json) 与 [`paper/evidence/training/costs.json`](paper/evidence/training/costs.json)。
+
+### 校准 GPTQ 的范围说明
+
+主实验采用同一 RTN W4A4 基座，以比较 QAD 与 OPD 的恢复作用。本文未执行同覆盖校准 GPTQ 对照，因此不能据此判断恢复方法是否优于校准 PTQ。未执行范围及最终清单绑定见 [paper/publication_scope_v12.json](paper/publication_scope_v12.json) 和 [paper/evidence/gptq_reference/not_performed.json](paper/evidence/gptq_reference/not_performed.json)。
 
 ## 方法与实现范围
 
@@ -144,7 +339,6 @@ source setup/recovery-env.sh
 `setup/05_restore_all.sh --with-engine` 会克隆固定 revision 的 APXInf-robo 并调用引擎构建脚本；已有完整权重时可追加 `--skip-download`。不要把本机 Hugging Face snapshot 直接改名成不含 `nvidia/Cosmos-Reason2` 的路径，GR00T 工厂会用该字符串选择 backbone。
 
 该封装入口会依次调用 `setup/01_install_dev_tools.sh`、`setup/03_download_weights.sh`、`setup/06_install_recovery.sh`，并在 `--with-engine` 时调用 `setup/02_build_engine.sh` 和 `setup/00_env_report.sh`。`setup/06_install_recovery.sh` 会按锁文件创建训练环境与独立的 `.venv-libero`；因此本项目不再单独运行旧的 `setup/04_install_libero.sh`，避免把 LIBERO 依赖装入 APXInf/训练环境。
-
 
 ## 从编译到执行
 
@@ -269,20 +463,28 @@ python3 paper/collect_search_costs.py --verify paper/evidence/search_costs
 python3 paper/build_final_frontier.py --final-results paper/evidence/final_results.json --paired-comparison paper/evidence/paired_comparison.json --inventory paper/evidence/recipe_inventory.json --out paper/evidence/frontier_comparison.json
 ```
 
-安装器只迁移本轮科学证据和截图登记；上面的命令重新归档已完成的搜索成本。runtime、search_costs、action_diagnostics、GPTQ 未执行收据和 frontier_comparison 齐备后，再按下方补充证据步骤原子登记；缺项不会自动跳过。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：
+安装器只迁移本轮科学证据和截图登记；上面的命令重新归档已完成的搜索成本。runtime、search_costs、action_diagnostics、GPTQ 未执行收据和 frontier_comparison 齐备后，再按下方补充证据步骤原子登记；缺项不会自动跳过。随后从最终五臂的评测清单读取 checkpoint，记录环境、软件包和源码哈希：实际 GR00T 路径、服务与仿真解释器也从五臂清单读取并核对一致，避免把新安装环境误记为原实验环境。原解释器或检查点已不存在时，应保留发布包中的原收据，不能用另一套环境替换。
 
 ```bash
-"$PY" - "$RECOVERY" "$GR00T" "$PY" "$LIBERO_PY" <<'PY'
+python3 - "$RECOVERY" <<'PY'
 import json, pathlib, subprocess, sys
-run, groot, server_python, rollout_python = sys.argv[1:]
+run = sys.argv[1]
 final = json.loads((pathlib.Path(run) / "final_manifest.json").read_text())
 round_dir = pathlib.Path(final["heldout_round"])
-command = [sys.executable, "paper/capture_runtime.py", "--run-dir", run,
-           "--out", "paper/evidence/runtime", "--gr00t", groot,
-           "--server-python", server_python, "--rollout-python", rollout_python,
+records = {arm: json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
+           for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd")}
+reference = records["bf16"]
+for arm, record in records.items():
+    for key in ("gr00t", "server_python", "rollout_python"):
+        if record.get(key) != reference.get(key) or not reference.get(key):
+            raise SystemExit(f"Evaluation environment differs: {arm}/{key}")
+server_python = reference["server_python"]
+command = [server_python, "paper/capture_runtime.py", "--run-dir", run,
+           "--out", "paper/evidence/runtime", "--gr00t", reference["gr00t"],
+           "--server-python", server_python,
+           "--rollout-python", reference["rollout_python"],
            "--source-file", "exp/source_snapshots/9615ab64fd4a9cba46defe31ab1d0d58a4dd344a9d1dac1cc40f03497af9f00a/run_recovery_eval.py"]
-for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd"):
-    record = json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
+for arm, record in records.items():
     command += ["--checkpoint", f"{arm}={record['checkpoint']}"]
 subprocess.run(command, check=True)
 PY
@@ -299,19 +501,38 @@ python3 paper/gptq_reference_publication.py --record-not-performed
 python3 paper/gptq_reference_publication.py --verify
 ~~~
 
-动作诊断保留已授权的首次评测复现入口：主五臂全部结束、GPU 空闲后，对冻结的检查点按既定观测和噪声分别评测一次，不更新参数、不新建量化权重或搜索候选。已经冻结的 80 个观测清单可复用，不重新 rollout；已有输出禁止覆盖。执行顺序与来源核验保留如下。当前运行中的开发集与 held-out 评测享有优先权。
+以下动作诊断和证据归档命令针对第 4 节选定的作者正式运行，继续使用 `$PROJECT` 与 `$RECOVERY`，不会切换到另一个硬编码的项目目录。它们要求原检查点、观测和实际解释器仍在清单登记的位置；独立复现的新运行使用本地协议，不能通过这些冻结发布门禁覆盖本文的正式证据。只有公开轻量证据的机器可执行归档数据的 CPU 校验，不能重新生成模型输出。
+
+动作诊断保留已授权的首次评测入口：主五臂全部结束、GPU 空闲后，对冻结的检查点按既定观测和噪声分别评测一次，不更新参数、不新建量化权重或搜索候选。已经冻结的 80 个观测清单可复用，不重新 rollout；已有输出禁止覆盖。已完成的诊断只执行后面的 CPU 归档与校验。
 
 ~~~bash
 set -euo pipefail
-cd /home/zhaosiying/codebase/fp4vla
-PTQAD_ROOT="$PWD"
-PTQAD_GR00T=/home/zhaosiying/codebase/groot-fsdp2/Isaac-GR00T
-PTQAD_PY="$PTQAD_GR00T/.venv/bin/python"
-PTQAD_RUN="$PTQAD_ROOT/results/reruns/rtn_w4a4_release_20261006_01"
+cd "$PROJECT"
+PTQAD_ROOT="$PROJECT"
+PTQAD_RUN="$(dirname "$RECOVERY")"
 PTQAD_DIAG="$PTQAD_ROOT/paper/_build/w4a4_action_diagnostics_v12"
+PTQAD_ENV_LINES="$(python3 - "$RECOVERY/final_manifest.json" <<'PY'
+import json, pathlib, sys
+final = json.loads(pathlib.Path(sys.argv[1]).read_text())
+round_dir = pathlib.Path(final["heldout_round"])
+records = {arm: json.loads((round_dir / f"heldout_{arm}" / "eval_manifest.json").read_text())
+           for arm in ("bf16", "ptq", "qad", "continued_qad", "qad_opd")}
+reference = records["bf16"]
+for key in ("gr00t", "server_python", "rollout_python"):
+    value = reference.get(key)
+    if not isinstance(value, str) or not value or "\n" in value or "\r" in value:
+        raise SystemExit(f"Invalid recorded environment path: {key}")
+    if any(record.get(key) != value for record in records.values()):
+        raise SystemExit(f"Five-arm environment differs: {key}")
+    print(value)
+PY
+)"
+mapfile -t PTQAD_ENV_PATHS <<< "$PTQAD_ENV_LINES"
+PTQAD_GR00T="${PTQAD_ENV_PATHS[0]}"
+PTQAD_PY="${PTQAD_ENV_PATHS[1]}"
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
-test -s "$PTQAD_RUN/recovery_v12/final_manifest.json"
-python3 - "$PTQAD_RUN/recovery_v12/run_manifest.json" <<'PY'
+test -s "$RECOVERY/final_manifest.json"
+python3 - "$RECOVERY/run_manifest.json" <<'PY'
 import json, sys
 if json.load(open(sys.argv[1]))['status'] != 'complete':
     raise SystemExit('Main five-arm run has not completed')
@@ -330,7 +551,7 @@ for arm in bf16 ptq qad continued_qad qad_opd; do
   test ! -e "$PTQAD_DIAG/$arm.log"
   OMP_NUM_THREADS=1 "$PTQAD_PY" exp/action_chunk_diagnostics.py collect \
     --inputs "$PTQAD_DIAG/inputs.json" \
-    --final-manifest "$PTQAD_RUN/recovery_v12/final_manifest.json" \
+    --final-manifest "$RECOVERY/final_manifest.json" \
     --arm "$arm" --gr00t "$PTQAD_GR00T" --out "$PTQAD_DIAG/$arm" \
     > "$PTQAD_DIAG/$arm.log" 2>&1
 done
@@ -339,13 +560,13 @@ done
 诊断完成后，以下 CPU 命令只归档已有输出。发布动作误差结论仍要求五臂的完整有限数值张量、实际噪声身份和指标重算全部通过。如果源输出不存在，发布门禁继续失败，不能以 GPTQ 的未执行决定跳过动作证据检查。
 
 ~~~bash
-PTQAD_ROOT="$PWD"
-PTQAD_RUN="$PTQAD_ROOT/results/reruns/rtn_w4a4_release_20261006_01"
+PTQAD_ROOT="$PROJECT"
+PTQAD_RUN="$(dirname "$RECOVERY")"
 PTQAD_DIAG="$PTQAD_ROOT/paper/_build/w4a4_action_diagnostics_v12"
 uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
   python paper/collect_action_diagnostics.py collect \
   --source-root "$PTQAD_DIAG" \
-  --final-manifest "$PTQAD_RUN/recovery_v12/final_manifest.json" \
+  --final-manifest "$RECOVERY/final_manifest.json" \
   --out paper/evidence/action_diagnostics
 uv run --python 3.12 --with-requirements paper/requirements-evidence.txt \
   python paper/collect_action_diagnostics.py verify \
@@ -729,10 +950,9 @@ NVFP4 路径包含 F16 激活的在线编码与行主序 GEMM 适配，权重二
 
 </details>
 
-
 ## Ubuntu 执行截图
 
-保留论文全部 17 个截图环节：十张未受本轮恢复实验影响的实拍继续展示，七个待更新环节保留图位。最终证据齐备后，这七张图只实拍 CPU 核验命令，不重跑训练或评测。原始截图保存在工程内；下表不展示未更新的实验截图。完整定量指标由原始日志和 JSON 计算。
+保留论文全部 17 个截图环节：十张未受本轮恢复实验影响的实拍继续展示，七个待更新环节保留图位。五臂评测与固定观测诊断已完成；七张截图仍待补拍，届时只实拍 CPU 核验命令，不重跑训练或评测。原始截图保存在工程内；下表不展示未更新的实验截图。完整定量指标由原始日志和 JSON 计算。
 
 编译补充图及其[命令、日志和哈希](docs/evidence/ubuntu-compile/manifest.json)：
 
@@ -772,8 +992,10 @@ docs/     复现说明及设计审阅
 
 ## 总结与适用范围
 
-本项目用同一 W4A4 基座连接 PTQ、演示低秩恢复和学生状态教师监督，并把行为指标、编码预算与执行成本分开验证。最终收益须由完整配对实验回答；当前不声称超过 QVLA/PTQ SOTA、跨任务泛化或 GR00T 原生加速。
+全 NVFP4 W4A4 基座加 BF16 LoRA 的净编码压缩为 3.276×。QAD 的总成功率点估计回到 BF16；OPD 未超过 QAD，但相对同演示预算的继续训练保留了更多闭环能力。训练步数不足、过拟合或缓存分布偏移只能列为待验证解释，现有消融不能确定原因。
+
+结果限定于一个训练种子、LIBERO-10 的固定十任务与评测初态，不证明跨任务、跨种子或实机泛化，也不证明优于 QVLA/PTQ SOTA 或获得原生 GR00T 加速。全部实验和指标已冻结，后续交付只补齐七张真实核验截图与发布校验。
 
 ## 许可证与引用
 
-当前仓库没有项目自有 LICENSE 文件。代码、补丁、模型与数据遵循各自上游许可。引用时请保留模型与数据来源、[论文](paper/paper.html)和[实验协议](exp/recovery_protocol_v12_rtn_w4a4.json)；正式结果完成后同时提供对应证据清单。
+当前仓库没有项目自有 LICENSE 文件。代码、补丁、模型与数据遵循各自上游许可。引用时请保留模型与数据来源、[论文](paper/paper.html)和[实验协议](exp/recovery_protocol_v12_rtn_w4a4.json)；对应科学证据见 [最终清单](paper/evidence/final_manifest.json)，发布截图登记尚待补齐。
