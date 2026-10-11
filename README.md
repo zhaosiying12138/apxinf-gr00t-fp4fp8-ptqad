@@ -1,37 +1,28 @@
 # apxinf-gr00t-fp4fp8-ptqad
 
-**APXInf × GR00T：NVFP4 W4A4 训练后量化、QAD 演示恢复与 OPD 教师监督。**
-
-[下载科学结果审阅包（非最终发布包，7 张截图待补）](https://github.com/zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad/raw/refs/heads/main/paper/apxinf-gr00t-fp4fp8-ptqad-review.zip)
-
-视觉—语言—动作模型把相机图像、语言指令和机器人状态映射为动作。本项目研究 GR00T N1.7 在更广四位量化覆盖下，能否通过低秩恢复保持 LIBERO 闭环任务能力。`ptqad` 是 PTQ 与 QAD 的组合名称；当前主实验采用全 NVFP4 W4A4 RTN 基座；同覆盖校准 GPTQ 对照未执行，不据此主张超过先进 PTQ。仓库也提供 APXInf 的 NVFP4/FP8 算子、块尺度布局和原生执行基准。
-
-项目将量化、恢复与评测连成以下流程：
-
-```text
-BF16 GR00T → NVFP4 W4A4 PTQ → QAD
-                              ├─ continued-QAD：同演示预算续训
-                              └─ OPD：演示损失 + 学生状态教师监督
-```
-
-QAD 冻结量化基座，只用成功演示更新低秩旁路；OPD 在 QAD 学生访问的状态上加入 BF16 教师速度标签。正式评测用相同任务、初态、种子和回合预算比较五臂，分别衡量量化影响、演示恢复与教师监督收益。
-
-## 阅读入口与结果状态
-
-**实验已完成且冻结；本页为数据完整的审阅版。七个发布截图环节待补，尚非最终发布包。** 以下数值来自本轮 v12 五臂完整评测与固定观测诊断。最终生成器因截图未补齐而拒绝生成正式交付；这里的审阅更新不表示最终发布校验已通过。
-
-- [中文论文 HTML](paper/paper.html)：离线阅读，含公式、图表、源码解读和复现附录。
-- [知乎 Markdown](paper/zhihu/article.md)：与 HTML 共用正文，保留待补截图标识。
-- [最终实验清单](paper/evidence/final_manifest.json)、[五臂结果与配对统计](paper/evidence/final_results.json)、[逐回合配对记录](paper/evidence/paired_comparison.json)。
-- [完整复现说明](docs/reproduce-ptqad.md)与[QVLA 对照审阅](docs/QVLA_GAP_REVIEW_20261006.md)。
+APXInf × GR00T：**NVFP4 W4A4 主分支量化与 BF16 低秩行为恢复**。
+本项目把 GR00T N1.7 视觉—语言—动作模型的可量化权重和激活压到四位，冻结 W4A4 基座，用成功演示训练低秩 QAD 修正，再在学生访问状态上加入 OPD 教师速度监督，并以 LIBERO-10 的逐回合闭环成功率验收。APXInf 原生 NVFP4/FP8 kernel 与图执行另列为独立算子基准；GR00T 闭环的主结果使用 Torch W4A4 QDQ 主分支与 BF16 LoRA 旁路。
 
 在 LIBERO-10 每臂 160 个配对回合中，RTN W4A4 PTQ 为 138/160（86.25%），QAD 为 145/160（90.625%）；QAD 达到与 BF16 相同的成功率点估计。QAD 相对 PTQ 为 +4.375 个百分点。这一恢复仅指点估计，配对统计尚不能确认 QAD 优于 PTQ。
 
 QAD+OPD 为 144/160（90%），continued-QAD 为 104/160（65%）。OPD 相对同演示更新预算续训为 +25.000 个百分点，配对区间与 Holm 校正支持这一优势；相对 QAD 为 -0.625 个百分点。本实验未显示 OPD 超过 QAD 的额外成功率增益。
 
-## 已完成的 v12 实验指标
+[中文论文 HTML](paper/paper.html) · [知乎 Markdown](paper/zhihu/article.md)
 
-协议 `w4a4-recovery-v12-rtn`，SHA-256 `31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521`。五臂各为十任务 × 16 回合，合计 800 个正式回合；开发集用于选择，未混入下表。
+[下载完整发布包](https://github.com/zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad/raw/refs/heads/main/paper/apxinf-gr00t-fp4fp8-ptqad-publication.zip)
+
+## 项目意义与贡献
+
+量化 VLA 的难点是误差会经过动作反馈改变下一次观测。本文固定数值格式、舍入规则和配对初态，完整记录 **RTN W4A4 PTQ → QAD 演示恢复 → OPD 学生状态蒸馏 → 五臂闭环**，使压缩比例、恢复效果、训练预算和复现命令可以逐项核查。
+
+1. 全部 479 个 eligible 张量使用 NVFP4；469 个普通 Linear 与 7 个 CategorySpecificLinear 使用 W4A4 激活 QDQ。
+2. QAD/OPD 在 468 个 ordinary Linear 上训练 rank=32、alpha=64 的 LoRA；参数以 FP32 训练，前向使用 BF16，部署预算计入 BF16 残差。`continued-QAD` 以相同演示读取数与追加更新数作为控制臂；OPD 的教师标注和探针计算另计。
+3. BF16、PTQ、QAD、continued-QAD 和 QAD+OPD 使用同一 LIBERO-10 held-out 初态、任务顺序和 episode 种子；成功率、配对区间和检验只从最终 manifest 读取。
+4. APXInf 的 NVFP4/FP8 编译、缩放、padding、图重放、GEMM 和完整 π0.5 路径独立验收，不把独立 kernel 延迟冒充 GR00T 闭环速度。
+
+## 最终实验指标
+
+协议 `w4a4-recovery-v12-rtn`（version 12，W4A4=true），SHA-256 `31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521`。每臂 10 个任务 × 16 回合，共 160 回合。
 
 | 配置 | 成功回合 | macro_success_rate |
 |---|---:|---:|
@@ -41,7 +32,7 @@ QAD+OPD 为 144/160（90%），continued-QAD 为 104/160（65%）。OPD 相对�
 | continued-QAD | 104/160 | 65.000% |
 | PTQ + QAD + OPD | 144/160 | 90.000% |
 
-### 配对差异与不确定性
+### 配对统计
 
 | 比较 | 点差 / pp | 95% 配对 CI / pp | 不一致回合 | 精确 McNemar p | Holm p |
 |---|---:|---:|---:|---:|---:|
@@ -50,7 +41,9 @@ QAD+OPD 为 144/160（90%），continued-QAD 为 104/160（65%）。OPD 相对�
 | OPD − QAD | -0.625 | [-6.250, +5.000] | 25 | 1 | 1 |
 | OPD − continued-QAD | +25.000 | [+18.125, +31.875] | 54 | 2.292e-08 | 9.167e-08 |
 
-差值单位为百分点。前三项区间包含零，不能据此确认量化退化、QAD 改善或 OPD 超过 QAD，也不构成等价性证明；OPD 相对 continued-QAD 的优势得到本设置下的配对区间和校正检验支持。两臂匹配演示读取数与更新次数，OPD 另有教师标注和学生探针计算，因此不属于相同总计算预算。
+CI 是固定任务内的 95% 配对 bootstrap 区间；p 值为精确双侧 McNemar 检验并做 Holm 校正。`OPD − continued-QAD` 表示相同演示更新预算下加入教师监督的整体差异；`OPD − QAD` 表示完整追加阶段的差异。前者未匹配额外计算，也不单独识别学生状态分布或教师标签的作用。
+
+### 配对 2×2 计数与不确定性参数
 
 | 比较 | 两者成功 | 仅前者成功 | 仅后者成功 | 两者失败 | 不一致回合 |
 |---|---:|---:|---:|---:|---:|
@@ -59,12 +52,12 @@ QAD+OPD 为 144/160（90%），continued-QAD 为 104/160（65%）。OPD 相对�
 | OPD − QAD | 132 | 12 | 13 | 3 | 25 |
 | OPD − continued-QAD | 97 | 47 | 7 | 9 | 54 |
 
-表中“前者/后者”沿用比较标题顺序；例如 OPD − continued-QAD 的“仅前者成功”指 OPD 成功、continued-QAD 失败。
+表中“前者/后者”沿用比较标题顺序：例如 `OPD − continued-QAD` 的“仅前者成功”是 OPD 成功而 continued-QAD 失败。
 
 - 区间方法：`paired percentile bootstrap, resampling episodes within each fixed task`，置信度 95.0%，重复次数 20000，seed `20261002`，分位数规则 `linear interpolation, rank (B-1)*p`。
 - 检验方法：`exact two-sided McNemar on paired episode outcomes`；显著性水平 `0.05`；多重比较 `Holm correction across the four named contrasts`。
 
-### 正式回合运行收据
+### Held-out 运行收据
 
 | 臂 | 成功率（macro/micro） | wall / s | seed | purpose | 完成任务 |
 |---|---:|---:|---:|---|---:|
@@ -74,7 +67,7 @@ QAD+OPD 为 144/160（90%），continued-QAD 为 104/160（65%）。OPD 相对�
 | continued-QAD | 65.00% / 65.00% | 20,889.620 s | 970000 | `heldout` | 10/10 |
 | PTQ + QAD + OPD | 90.00% / 90.00% | 14,571.280 s | 970000 | `heldout` | 10/10 |
 
-### 逐任务成功数
+### 逐任务结果
 
 | 任务 | BF16 | W4A4 PTQ | PTQ + QAD | continued-QAD | PTQ + QAD + OPD |
 |---|---:|---:|---:|---:|---:|
@@ -88,8 +81,6 @@ QAD+OPD 为 144/160（90%），continued-QAD 为 104/160（65%）。OPD 相对�
 | `LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket` | 15/16 | 16/16 | 14/16 | 13/16 | 15/16 |
 | `KITCHEN_SCENE8_put_both_moka_pots_on_the_stove` | 12/16 | 8/16 | 16/16 | 10/16 | 14/16 |
 | `KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it` | 14/16 | 14/16 | 13/16 | 8/16 | 10/16 |
-
-QAD 相对 PTQ 的净增量为 7 次成功，其中双摩卡壶任务贡献 +8，其余任务合计 −1，不能写成各任务普遍恢复。OPD 相对 continued-QAD 的 40 次净增量中，两个入篮任务与双杯分盘合计贡献 29 次；十任务中七项增加、两项不变、一项减少。两个追加训练分支来自同一 QAD 起点，OPD 没有在已经下降的 continued-QAD 检查点上继续训练。
 
 ### 固定观测上的完整动作诊断
 
@@ -140,14 +131,22 @@ QAD 相对 PTQ 的净增量为 7 次成功，其中双摩卡壶任务贡献 +8�
 
 逐任务、逐观测的全部指标与原始动作见 [`paper/evidence/action_diagnostics/summary.json`](paper/evidence/action_diagnostics/summary.json) 及该目录下的 `runs/`；`manifest.json` 记录来源、源码和逐文件哈希。
 
-### 编码预算与覆盖
+### 校准 GPTQ 的范围说明
 
-已知共享权重别名去重后，BF16 参数载荷为 **6,288,032,000 B**，四位主分支及未量化参数合计 **1,773,292,508 B**，独立 BF16 LoRA 为 **145,997,824 B**。恢复模型合计 **1,919,290,332 B**，净编码压缩 **3.276×**，参数载荷减少 **69.48%**。这是目标编码预算，不是当前 QDQ checkpoint 的文件体积、实测显存或推理速度。
+主实验采用同一 RTN W4A4 基座，以比较 QAD 与 OPD 的恢复作用。本文未执行同覆盖校准 GPTQ 对照，因此不能据此判断恢复方法是否优于校准 PTQ。未执行范围及最终清单绑定见 [paper/publication_scope_v12.json](paper/publication_scope_v12.json) 和 [paper/evidence/gptq_reference/not_performed.json](paper/evidence/gptq_reference/not_performed.json)。
+
+### 编码预算
+
+目标编码账本覆盖 **479 个 eligible 张量，NVFP4 占 100.00%**。对已知共享权重别名去重后，源 BF16 权重为 **6,288,032,000 B**，NVFP4 主分支为 **1,773,292,508 B**，BF16 LoRA 恢复旁路为 **145,997,824 B**，部署合计 **1,919,290,332 B**，净压缩比 **3.276×**。这是 shape-derived 目标预算；checkpoint 文件本身仍可能以原始 dtype 保存。完整逐层账本见 [`paper/evidence/recipe_inventory.json`](paper/evidence/recipe_inventory.json)。
+
+#### 物理张量与 tied alias 去重口径
 
 | 口径 | BF16 源权重 | W4A4 基座 | 基座压缩比 | LoRA 旁路 | 部署合计 | 净压缩比 |
 |---|---:|---:|---:|---:|---:|---:|
 | 物理 checkpoint 张量 | 6,910,361,856 B | 1,948,322,784 B | 3.547× | 145,997,824 B | 2,094,320,608 B | 3.300× |
 | 已知 tied alias 去重 | 6,288,032,000 B | 1,773,292,508 B | 3.546× | 145,997,824 B | 1,919,290,332 B | 3.276× |
+
+#### 量化覆盖与 LoRA 旁路细账
 
 | 项目 | 数值 |
 |---|---:|
@@ -185,9 +184,7 @@ QAD 相对 PTQ 的净增量为 7 次成功，其中双摩卡壶任务贡献 +8�
 | dtype | bfloat16 |
 | 编码字节 | 145,997,824 B |
 
-完整来源见 [recipe_inventory.json](paper/evidence/recipe_inventory.json) 与 [runtime 清单](paper/evidence/runtime/manifest.json)。
-
-### 恢复训练与数据成本
+### 训练成本
 
 | 阶段 | 更新数 | 演示窗口读取 | 探针学生反传 | 阶段耗时 / h | 显存峰值 / GiB |
 |---|---:|---:|---:|---:|---:|
@@ -195,7 +192,9 @@ QAD 相对 PTQ 的净增量为 7 次成功，其中双摩卡壶任务贡献 +8�
 | continued-QAD | 2000 | 29600 | 0 | 10.563 | 15.05 |
 | QAD + OPD | 2000 | 29600 | 29600 | 20.832 | 15.05 |
 
-训练墙钟包含脚本导入、模型准备、训练和 checkpoint 保存；显存为进程级 PyTorch allocator 峰值。成功率与这些成本分开记账。
+训练计时包含模型准备和 checkpoint 序列化；显存为进程级 PyTorch allocator 峰值。训练成本与 held-out 成功率分开记账，完整来源见 [`paper/evidence/training/costs.json`](paper/evidence/training/costs.json)。
+
+#### 训练参数、显存与数据准备成本
 
 | 阶段 | 学习率 | OPD 权重 | seed | 更新数 | micro/accum/effective | dtype | 参数存储 | rank/alpha | grad clip | F16 饱和 | 可训练参数 | allocated / reserved GiB |
 |---|---:|---:|---:|---:|---|---|---|---:|---:|---|---:|---:|
@@ -230,29 +229,183 @@ OPD 与 continued-QAD 追加训练的墙钟比为 **1.972×**；两者匹配演�
 
 计时范围分别保留原始收据定义：训练从脚本导入计到 checkpoint 保存完成；development 包含评测服务加载；教师标签计时包含身份核验、输入读取、模型加载与标注，止于缓存序列化之前；导出耗时只采用 producer 的 reported elapsed。选定 QAD → OPD 链已包含在候选训练合计中，不能重复相加。其余不同口径耗时也不能无条件相加为实测端到端时间。搜索汇总不包含校准、PTQ bake、安装、smoke、失败重试、停机、截图或 held-out 评测；held-out 耗时另见运行收据。未记录的采集/导出显存峰值、恢复功耗与能耗、独立 adapter 准备时间及端到端耗时均不补估。完整明细见 [`paper/evidence/search_costs/summary.json`](paper/evidence/search_costs/summary.json) 与 [`paper/evidence/training/costs.json`](paper/evidence/training/costs.json)。
 
-### 校准 GPTQ 的范围说明
+## 独立 APXInf 执行基准
 
-主实验采用同一 RTN W4A4 基座，以比较 QAD 与 OPD 的恢复作用。本文未执行同覆盖校准 GPTQ 对照，因此不能据此判断恢复方法是否优于校准 PTQ。未执行范围及最终清单绑定见 [paper/publication_scope_v12.json](paper/publication_scope_v12.json) 和 [paper/evidence/gptq_reference/not_performed.json](paper/evidence/gptq_reference/not_performed.json)。
+下表只报告独立 APXInf 路径的策略前向延迟，不能替代 GR00T W4A4 的 LIBERO 闭环成功率。GR00T W4A4 当前闭环使用 Torch QDQ；GEMM、18 个实际层形状、数值验收和 graph replay 的完整 CSV/日志见 [`results/engine/`](results/engine/) 与 [`results/native_graph_20260929/`](results/native_graph_20260929/)。
 
-## 方法与实现范围
+| 路径 | model p50 / ms | total p50 / ms | p50 Hz | 原始记录 |
+|---|---:|---:|---:|---|
+| GR00T BF16（APXInf 独立路径） | 27.232 | 30.426 | 32.867 | [`results/engine/gr00t_bf16_ptqad_20260929.json`](results/engine/gr00t_bf16_ptqad_20260929.json) |
+| π0.5 BF16（APXInf） | 47.494 | 48.651 | 20.554 | [`results/engine/pi05_bf16_ptqad_20260929.json`](results/engine/pi05_bf16_ptqad_20260929.json) |
+| π0.5 NVFP4（APXInf） | 35.822 | 36.985 | 27.038 | [`results/engine/pi05_nvfp4_ptqad_20260929.json`](results/engine/pi05_nvfp4_ptqad_20260929.json) |
 
-- **479 个可量化权重张量全部 NVFP4。** 469 个普通 Linear 与 7 个 CategorySpecificLinear 同时量化输入；3 个 embedding/position 张量只量化权重。偏置与归一化参数另按实际精度计账。
-- **468 个参与动作前向的普通 Linear 使用 LoRA。** 旁路读取原始 BF16 输入；类别层保持量化冻结。部署参数预算计入完整 BF16 A/B，不能忽略恢复开销。
-- **当前 GR00T 闭环使用 Torch QDQ。** 主分支模拟四位数值后用浮点矩阵乘执行。原生 packed GR00T 加 LoRA 尚未接入，以下独立 APXInf 延迟不能换算成当前 GR00T 的闭环加速。
-- **公开可复算证据。** 完整产物包含逐回合日志、重置身份、协议、配方、训练成本及源码哈希；完成后的动作诊断可从轻量归档重新计算指标；未执行的校准 GPTQ 仅保留明确的范围收据。
+### 完整独立 APXInf、GEMM 与图执行记录
 
-## 环境与依赖
+以下数据来自 **2026-09-29、RTX 5090 Laptop（sm_120）** 的独立执行记录。它们回答 APXInf 原生路径和低精度算子的速度、数值与资源问题；GR00T W4A4 QAD/OPD 的闭环成功率仍以上面的五臂实验为准。全部形状、不可用项和遥测指标在下方展开，原始逐次延迟保留在链接的 JSON/CSV 中。
 
-目标平台为 x86_64 WSL2 Ubuntu，24 GB 以上显存的 Blackwell GPU。恢复训练、LIBERO 仿真和可选 APXInf 引擎分别使用独立环境。
+在输入与配置匹配的 APXInf π0.5 对照中，NVFP4＋BF16 路径的 Policy P50 从 **48.651 ms 降至 36.985 ms，降低 23.98%，比值 1.315×**。包含在线激活量化的 18 个单层形状中，17 个更快、1 个更慢；小矩阵收益须逐形状判断。
 
-| 用途 | 已使用的主要版本或要求 |
+<details>
+<summary>策略调用：完整延迟、加载、频率、功耗与显存</summary>
+
+各路径使用合成观测、batch 1、输入 seed 7；先做 1 次不计时推理，再预热 10 次。P50/P99 由逐次延迟线性插值计算，P99 是有限样本的经验分位数。下表全部输出通过有限性检查。APXInf 的模式在预热后及每次计时后均核验。
+
+| 模型 / 路径 | 实际模式 | 样本数 | Mean / ms | P50 / ms | P99 / ms | 调用频率 / Hz |
+|---|---|---:|---:|---:|---:|---:|
+| π0.5 / PyTorch BF16 主体 | eager | 30 | 244.277 | 243.162 | 260.586 | 4.094（1/Mean） |
+| GR00T / PyTorch BF16 | eager | 50 | 90.481 | 89.297 | 116.506 | 11.052（1/Mean） |
+| π0.5 / APXInf BF16 | graph | 30 | 48.923 | 48.651 | 51.636 | 20.554（1/P50） |
+| π0.5 / APXInf NVFP4＋BF16 | graph | 30 | 37.203 | 36.985 | 39.638 | 27.038（1/P50） |
+| GR00T / APXInf BF16 | cuda-graph | 30 | 30.497 | 30.426 | 31.383 | 32.867（1/P50） |
+
+PyTorch π0.5 的入口为 `predict_action_chunk`，视觉、归一化、投影与动作时间头等保留 FP32；计时排除 token 准备、初始输入搬运、环境状态归一化与动作反归一化。PyTorch GR00T 全模型参数为 BF16，入口 `policy.get_action` 包含 processor、模型、动作传回主机及解码。APXInf 表中数值为 `AutoPolicy.infer` 内部 Policy 时间，包含预处理、分词、模型与动作后处理。加载、合成输入生成、仿真和网络均不计入调用延迟。跨运行时的输入与处理范围不同，因此不计算 PyTorch/APXInf 的等价输入加速比；Hz 也不是机器人任务完成频率。
+
+APXInf 另保留两层计时：Model 覆盖阻塞原生调用至主机动作返回，含输入传输、GPU 工作、同步与 D2H；Wrapper 是外层 Python `policy.infer` 完整调用。两者均为墙钟时间。
+
+| APXInf 路径 | 计时层 | Mean / ms | P50 / ms | P99 / ms |
+|---|---|---:|---:|---:|
+| π0.5 BF16 | Model | 47.733 | 47.494 | 50.389 |
+| π0.5 BF16 | Wrapper | 48.931 | 48.660 | 51.643 |
+| π0.5 NVFP4＋BF16 | Model | 36.026 | 35.822 | 38.360 |
+| π0.5 NVFP4＋BF16 | Wrapper | 37.212 | 36.996 | 39.648 |
+| GR00T BF16 | Model | 27.293 | 27.232 | 27.775 |
+| GR00T BF16 | Wrapper | 30.540 | 30.509 | 31.434 |
+
+PyTorch 显存为预热后本进程 allocator 的峰值，单位 **GiB**（字节数除以 2³⁰）。未记录 PyTorch 功耗，不能补推。
+
+| PyTorch 路径 | 加载 / s | Allocated 峰值 / GiB | Reserved 峰值 / GiB | 动作输出形状 |
+|---|---:|---:|---:|---|
+| π0.5 | 68.233 | 8.838 | 9.137 | 1×50×7 |
+| GR00T | 13.753 | 5.946 | 6.041 | x/y/z/roll/pitch/yaw/gripper 各 1×16×1 |
+
+APXInf 资源指标由计时阶段的 `nvidia-smi` **整卡采样**取得，包含该阶段的输入准备以及可能存在的桌面/其他进程。采样间隔目标为 0.2 s，本组实际只有 4–5 个样本，表中的最大值仅为采样峰值。JSON 字段 `vram_mb_peak` 的实际单位为 **MiB**；它与 PyTorch allocator 统计范围不同。
+
+| APXInf 路径 | 加载 / s | 功耗均值 / W | 功耗采样峰值 / W | 整卡显存采样峰值 / MiB | GPU 利用率均值 / 峰值 | 遥测样本数 / 错误数 |
+|---|---:|---:|---:|---:|---:|---:|
+| π0.5 BF16 | 82.936 | 156.266 | 172.890 | 15,716 | 96.00% / 96% | 5 / 0 |
+| π0.5 NVFP4＋BF16 | 81.929 | 172.853 | 176.940 | 18,458 | 94.75% / 95% | 4 / 0 |
+| GR00T BF16 | 23.542 | 125.020 | 159.590 | 10,358 | 83.50% / 86% | 4 / 0 |
+
+π0.5 两个 APXInf 变体使用相同源权重、配置、处理器、输入 seed 7、模型 seed 0、10 个文本 token 和 50×7 动作输出；首个观测 SHA-256 为 `e2741420e9bc5850af7001d65e14d9ac39bb2183f9d8e5316d66a7138fe5e928`，导入扩展 SHA-256 同为 `6bcdfca6841fe5db885effb4ccca1a7850d03a1fe7e0a359723dfe606fc206b1`。GR00T APXInf 输出为 16×7。NVFP4 混合实现同时驻留 BF16 与 packed 权重，以上数据不支持实测显存节省的主张。
+
+原始记录：[PyTorch π0.5](results/baselines/pi05_pt_bf16_ptqad_20260929.json)、[PyTorch GR00T](results/baselines/gr00t_pt_bf16_ptqad_20260929.json)、[APXInf π0.5 BF16](results/engine/pi05_bf16_ptqad_20260929.json)、[APXInf π0.5 NVFP4](results/engine/pi05_nvfp4_ptqad_20260929.json)、[APXInf GR00T BF16](results/engine/gr00t_bf16_ptqad_20260929.json)。
+
+</details>
+
+<details>
+<summary>GEMM：全部 9 个形状、吞吐/有效带宽、不可用格式与数值验收</summary>
+
+硬件块缩放布局、列主序 FP32 输出；NVFP4 二级缩放为 1。表中计时为 50 次 CUDA event 迭代的均值，排除输入编码、尺度准备、上传与算法查找。每个可执行格式均返回 4 个算法，使用第一个。两列比值以 NVFP4 耗时为分母，低于 1 表示 NVFP4 较慢。
+
+| 形状标签 | M×N×K | BF16 / ms | FP8 / ms | NVFP4 / ms | BF16/NVFP4 | FP8/NVFP4 | MXFP4 |
+|---|---|---:|---:|---:|---:|---:|---|
+| prefill-s | 2048×2048×2048 | 0.1891 | 0.0635 | 0.0412 | 4.590× | 1.541× | 不可用 |
+| prefill-m | 4096×2048×2048 | 0.3734 | 0.1309 | 0.0774 | 4.824× | 1.691× | 不可用 |
+| prefill-l | 4096×8192×2048 | 1.3648 | 0.5125 | 0.2941 | 4.641× | 1.743× | 不可用 |
+| prefall-xl | 8192×2048×4096 | 1.5143 | 0.4988 | 0.2724 | 5.559× | 1.831× | 不可用 |
+| square-l | 4096×4096×4096 | 1.4583 | 0.4863 | 0.2707 | 5.387× | 1.796× | 不可用 |
+| b1-s | 1×4096×4096 | 0.0438 | 0.0134 | 0.0206 | 2.126× | 0.650× | 不可用 |
+| b1-l | 1×8192×2048 | 0.0431 | 0.0105 | 0.0154 | 2.799× | 0.682× | 不可用 |
+| b4-l | 4×8192×2048 | 0.0314 | 0.0103 | 0.0149 | 2.107× | 0.691× | 不可用 |
+| b16-l | 16×8192×2048 | 0.0159 | 0.0282 | 0.0131 | 1.214× | 2.153× | 不可用 |
+
+BF16、FP8、NVFP4 均为 9/9 可执行；MXFP4 为 0/9，状态均为 `heuristic: 7 algos=0`，原始 CSV 中的零是失败占位，不是耗时。NVFP4 在这九项中均快于 BF16，但 `b1-s`、`b1-l`、`b4-l` 慢于 FP8。
+
+以下每格依次为 **TFLOP/s / 有效 GB/s**，保留 CSV 精度。吞吐按 `2MNK / 时间` 计算；有效带宽按输入、权重、尺度和 FP32 输出的名义字节数除以时间计算，包含缓存复用影响，不能解释为实测 DRAM 带宽。
+
+| 形状标签 | BF16 | FP8 | NVFP4 |
+|---|---:|---:|---:|
+| prefill-s | 90.85 / 177.44 | 270.37 / 396.05 | 416.63 / 521.30 |
+| prefill-m | 92.03 / 157.28 | 262.46 / 352.43 | 444.13 / 525.21 |
+| prefill-l | 100.70 / 135.22 | 268.18 / 311.00 | 467.27 / 504.44 |
+| prefall-xl | 90.76 / 99.71 | 275.52 / 218.61 | 504.51 / 332.95 |
+| square-l | 94.25 / 92.04 | 282.62 / 207.00 | 507.66 / 317.60 |
+| b1-s | 0.77 / 766.37 | 2.51 / 1255.63 | 1.63 / 460.29 |
+| b1-l | 0.78 / 779.10 | 3.18 / 1595.72 | 2.17 / 614.34 |
+| b4-l | 4.28 / 1073.45 | 13.03 / 1642.05 | 9.04 / 645.57 |
+| b16-l | 33.66 / 2140.87 | 19.02 / 614.14 | 40.89 / 761.27 |
+
+独立 `--verify` 用例采用 M×N×K=128×256×256，以解码输入的 CPU FP64 矩阵乘积为参考，容差 `atol=rtol=1e-4`。它不等于对上表九个性能形状逐元素验收。
+
+| 格式 | 已检查输出数 | 失败数 | 日志 max_abs | 日志 max_rel | 状态 |
+|---|---:|---:|---:|---:|---|
+| BF16 | 32,768 | 0 | 0.000000 | 0.000016 | 通过 |
+| FP8 | 32,768 | 0 | 0.000000 | 0.000011 | 通过 |
+| NVFP4 | 32,768 | 0 | 0.000000 | 0.000000 | 通过 |
+| MXFP4 | — | — | — | — | 无可用算法，未获数值验证 |
+
+误差按日志显示精度报告，打印为零不代表逐位相等。另一个 FP8 描述符探针使用 512×2048×2048、完整确定性 A/B 输入，仅检查实际提交与同步返回状态：
+
+| 输入 → 输出 | heuristic 状态 / 算法数 | matmul / CUDA 提交与同步 |
+|---|---|---|
+| E4M3×E4M3 → FP32 | 0 / 4 | 0 / 无错误 |
+| E4M3×E4M3 → BF16 | 0 / 4 | 0 / 无错误 |
+| E4M3×E4M3 → F16 | 0 / 4 | 0 / 无错误 |
+| E4M3×E4M3 → E4M3 | 15 / 0 | 不可用 |
+| E4M3×E4M3 → E4M3＋Dscale | 15 / 0 | 不可用 |
+
+驱动/runtime 原始版本号均为 13030，cuBLASLt 为 130600。原始记录：[完整 CSV](results/spike/gemm_ptqad_20260929.csv)、[数值验收](results/spike/verify_ptqad_20260929.log)、[FP8 描述符](results/spike/fp8_probe_ptqad_20260929.log)、[环境](results/spike/env_ptqad_20260929.log)。
+
+</details>
+
+<details>
+<summary>单层管线：全部 18 个形状，含在线激活量化</summary>
+
+NVFP4 路径包含 F16 激活的在线编码与行主序 GEMM 适配，权重二级缩放为 0.25；这里的适配指矩阵布局接口，不是 LoRA。权重准备、上传和数值参考检查在计时外。BF16 对照使用预先准备的 GEMM。每项预热 10 次、测量 30 次，表中为 CUDA event 样本的真实中位数。NVFP4 输出 F16，BF16 对照输出 BF16。
+
+| 形状标签 | M×N×K | BF16 P50 / μs | NVFP4 P50 / μs | BF16/NVFP4 | 抽样 max_abs：BF16/FP4 |
+|---|---|---:|---:|---:|---:|
+| gemma-1152 | 522×1152×1152 | 23.344 | 38.096 | 0.613× | 0/0 |
+| gemma-1152 | 778×1152×1152 | 30.752 | 28.096 | 1.095× | 0/0 |
+| gemma-1152 | 2048×1152×1152 | 62.512 | 40.656 | 1.538× | 0/0 |
+| mlp-3072x1024 | 522×3072×1024 | 40.736 | 29.904 | 1.362× | 0/0 |
+| mlp-3072x1024 | 778×3072×1024 | 58.640 | 34.800 | 1.685× | 0/0 |
+| mlp-3072x1024 | 2048×3072×1024 | 140.864 | 54.912 | 2.565× | 0/0 |
+| mlp-4096x1024 | 522×4096×1024 | 59.152 | 31.904 | 1.854× | 0/0 |
+| mlp-4096x1024 | 778×4096×1024 | 87.296 | 35.424 | 2.464× | 0/0 |
+| mlp-4096x1024 | 2048×4096×1024 | 198.448 | 64.528 | 3.075× | 0/0 |
+| big-16384x2048 | 522×16384×2048 | 407.088 | 100.672 | 4.044× | 0/0 |
+| big-16384x2048 | 778×16384×2048 | 580.000 | 125.024 | 4.639× | 0/0 |
+| big-16384x2048 | 2048×16384×2048 | 1467.664 | 303.824 | 4.831× | 0/0 |
+| attn-2048x2048 | 522×2048×2048 | 56.240 | 42.288 | 1.330× | 0/0 |
+| attn-2048x2048 | 778×2048×2048 | 69.776 | 56.336 | 1.239× | 0/0 |
+| attn-2048x2048 | 2048×2048×2048 | 195.520 | 73.328 | 2.666× | 0/0 |
+| geglu-4304x1152 | 522×4304×1152 | 64.656 | 36.576 | 1.768× | 0/0 |
+| geglu-4304x1152 | 778×4304×1152 | 85.952 | 47.328 | 1.816× | 0/0 |
+| geglu-4304x1152 | 2048×4304×1152 | 223.632 | 70.464 | 3.174× | 0/0 |
+
+18/18 完成、0 项不可用；17/18 快于 BF16。唯一更慢的是 `gemma-1152, M=522`（0.613×），最大比值为 4.831×。每个形状核对全部激活编码/尺度字节，并抽查 21 个输出位置，共 378 个；FP4 容差 `atol=rtol=1e-3`，BF16 容差 `atol=rtol=1e-2`，参考各自舍入到输出精度。独立 `--verify-only` 也通过全部 18 个形状。抽样打印零误差不代表整个输出矩阵逐位相等，也不度量相对未量化模型的精度损失。
+
+原始记录：[完整 CSV](results/engine/fp4_opbench_ptqad_20260929.csv)、[计时日志](results/engine/fp4_opbench_ptqad_20260929.log)、[独立数值验收](results/engine/fp4_opbench_verify_ptqad_20260929.log)。
+
+</details>
+
+<details>
+<summary>原生执行：缩放、padding、图重放与完整模型验收</summary>
+
+| 验收 | 记录的覆盖范围 | 结果与原始日志 |
+|---|---|---|
+| 行主序与张量缩放 | 16×64×64、64×128×128；每种形状使用 0.03125 / 2.5 两种 scale，逐元素参考检查 | [1 项测试通过，4 个组合 max_abs=0](results/native_graph_20260929/fp4_contract_rowmajor_and_tensor_scale.log) |
+| Graph 捕获与重放 | 不同 scale 值及缓冲地址；改变 BF16 输入，4 次重放逐元素检查 | [1 项测试通过，2 种尺度](results/native_graph_20260929/fp4_graph_replay_bf16_and_distinct_scales.log) |
+| 激活尺度 padding | M=3、K=48，行/K 两向补齐；污染缓冲后重放 | [1 项测试通过，全部 512 字节、2 次污染重放](results/native_graph_20260929/fp4_activation_padding_zero_after_capture.log) |
+| π0.5 RequireGraph | 同一 NVFP4 完整模型的 2 组 eager 参考、噪声索引 0/1/0 的 3 次 graph 重放；每次 1,600 个输出 | [通过，3 次 max_abs=0，无隐式 plan 分配](results/native_graph_20260929/pi05_require_graph.log) |
+
+这些测试验证指定原生实现的数值和执行契约。完整模型验收比较同一 NVFP4 路径的 eager/graph 一致性；相对 BF16 的任务能力仍需闭环评测。实际安装扩展身份见 [installed_extension.json](results/native_graph_20260929/installed_extension.json)。
+
+</details>
+
+## 环境、依赖与安装
+
+目标平台是 WSL2 Ubuntu 22.04/24.04、支持 `sm_120` 的 NVIDIA 驱动和 24 GB 以上 Blackwell GPU。训练服务、LIBERO rollout 和 APXInf 原生引擎使用相互独立的 Python 环境；不要把它们混装。
+
+| 用途 | 主要依赖 |
 |---|---|
-| 恢复训练与 GR00T 服务 | Python 3.12、PyTorch 2.9.0+cu128、transformers 4.57.3、torchcodec 0.8.0、accelerate、peft、safetensors、pyzmq |
-| LIBERO | robosuite 1.4.0、MuJoCo 3.3.1、gym 0.25.2、EGL/OpenGL、FFmpeg |
-| APXInf 编译与原生基准（可选） | 支持 sm_120 的 CUDA toolkit/cuBLASLt、nvcc、Rust/Cargo、C++ |
-| 文稿与证据复算 | uv、Node.js ≥18、Playwright、CairoSVG、中文字体；动作复算使用独立 CPU PyTorch |
+| 训练与服务 | Python 3.12、PyTorch/CUDA、transformers、accelerate、peft、safetensors、numpy、msgpack、pyzmq、ffmpeg、GR00T |
+| LIBERO | 独立 Python 3.12、robosuite、MuJoCo、gym、EGL/OpenGL |
+| APXInf（可选） | CUDA toolkit/cuBLASLt、`nvcc`、Rust/Cargo、C++、Make |
+| 论文构建 | Python 3、uv、Node.js ≥18、Playwright、CairoSVG/Pillow、Noto Sans CJK |
 
-逐包依赖、上游 revision 与权重来源见 [环境锁文件](setup/locks/manifest.json)和[权重来源说明](docs/weight-provenance.md)。安装脚本准备环境和数据，不自动启动训练。以下保留从安装、编译到执行的完整命令；其在空白机器上的全流程安装尚未另做验证。
+恢复、仿真和媒体环境的精确依赖版本，以及源码 revision、权重来源和哈希，见 [`setup/locks/manifest.json`](setup/locks/manifest.json)。原生 APXInf 构建的部分 Python 工具未锁定版本，复现时需保留安装日志；本文不将其称为完全锁定的构建环境。
 
 ### 安装步骤
 
@@ -795,207 +948,50 @@ CUDA_VISIBLE_DEVICES= "$PI05_ENV/bin/python" -c \
 
 </details>
 
-## 独立执行基准
-
-以下数据来自 **2026-09-29、RTX 5090 Laptop（sm_120）** 的独立执行记录。它们回答 APXInf 原生路径和低精度算子的速度、数值与资源问题；GR00T W4A4 QAD/OPD 的闭环成功率仍以上面的五臂实验为准。全部形状、不可用项和遥测指标在下方展开，原始逐次延迟保留在链接的 JSON/CSV 中。
-
-在输入与配置匹配的 APXInf π0.5 对照中，NVFP4＋BF16 路径的 Policy P50 从 **48.651 ms 降至 36.985 ms，降低 23.98%，比值 1.315×**。包含在线激活量化的 18 个单层形状中，17 个更快、1 个更慢；小矩阵收益须逐形状判断。
-
-<details>
-<summary>策略调用：完整延迟、加载、频率、功耗与显存</summary>
-
-各路径使用合成观测、batch 1、输入 seed 7；先做 1 次不计时推理，再预热 10 次。P50/P99 由逐次延迟线性插值计算，P99 是有限样本的经验分位数。下表全部输出通过有限性检查。APXInf 的模式在预热后及每次计时后均核验。
-
-| 模型 / 路径 | 实际模式 | 样本数 | Mean / ms | P50 / ms | P99 / ms | 调用频率 / Hz |
-|---|---|---:|---:|---:|---:|---:|
-| π0.5 / PyTorch BF16 主体 | eager | 30 | 244.277 | 243.162 | 260.586 | 4.094（1/Mean） |
-| GR00T / PyTorch BF16 | eager | 50 | 90.481 | 89.297 | 116.506 | 11.052（1/Mean） |
-| π0.5 / APXInf BF16 | graph | 30 | 48.923 | 48.651 | 51.636 | 20.554（1/P50） |
-| π0.5 / APXInf NVFP4＋BF16 | graph | 30 | 37.203 | 36.985 | 39.638 | 27.038（1/P50） |
-| GR00T / APXInf BF16 | cuda-graph | 30 | 30.497 | 30.426 | 31.383 | 32.867（1/P50） |
-
-PyTorch π0.5 的入口为 `predict_action_chunk`，视觉、归一化、投影与动作时间头等保留 FP32；计时排除 token 准备、初始输入搬运、环境状态归一化与动作反归一化。PyTorch GR00T 全模型参数为 BF16，入口 `policy.get_action` 包含 processor、模型、动作传回主机及解码。APXInf 表中数值为 `AutoPolicy.infer` 内部 Policy 时间，包含预处理、分词、模型与动作后处理。加载、合成输入生成、仿真和网络均不计入调用延迟。跨运行时的输入与处理范围不同，因此不计算 PyTorch/APXInf 的等价输入加速比；Hz 也不是机器人任务完成频率。
-
-APXInf 另保留两层计时：Model 覆盖阻塞原生调用至主机动作返回，含输入传输、GPU 工作、同步与 D2H；Wrapper 是外层 Python `policy.infer` 完整调用。两者均为墙钟时间。
-
-| APXInf 路径 | 计时层 | Mean / ms | P50 / ms | P99 / ms |
-|---|---|---:|---:|---:|
-| π0.5 BF16 | Model | 47.733 | 47.494 | 50.389 |
-| π0.5 BF16 | Wrapper | 48.931 | 48.660 | 51.643 |
-| π0.5 NVFP4＋BF16 | Model | 36.026 | 35.822 | 38.360 |
-| π0.5 NVFP4＋BF16 | Wrapper | 37.212 | 36.996 | 39.648 |
-| GR00T BF16 | Model | 27.293 | 27.232 | 27.775 |
-| GR00T BF16 | Wrapper | 30.540 | 30.509 | 31.434 |
-
-PyTorch 显存为预热后本进程 allocator 的峰值，单位 **GiB**（字节数除以 2³⁰）。未记录 PyTorch 功耗，不能补推。
-
-| PyTorch 路径 | 加载 / s | Allocated 峰值 / GiB | Reserved 峰值 / GiB | 动作输出形状 |
-|---|---:|---:|---:|---|
-| π0.5 | 68.233 | 8.838 | 9.137 | 1×50×7 |
-| GR00T | 13.753 | 5.946 | 6.041 | x/y/z/roll/pitch/yaw/gripper 各 1×16×1 |
-
-APXInf 资源指标由计时阶段的 `nvidia-smi` **整卡采样**取得，包含该阶段的输入准备以及可能存在的桌面/其他进程。采样间隔目标为 0.2 s，本组实际只有 4–5 个样本，表中的最大值仅为采样峰值。JSON 字段 `vram_mb_peak` 的实际单位为 **MiB**；它与 PyTorch allocator 统计范围不同。
-
-| APXInf 路径 | 加载 / s | 功耗均值 / W | 功耗采样峰值 / W | 整卡显存采样峰值 / MiB | GPU 利用率均值 / 峰值 | 遥测样本数 / 错误数 |
-|---|---:|---:|---:|---:|---:|---:|
-| π0.5 BF16 | 82.936 | 156.266 | 172.890 | 15,716 | 96.00% / 96% | 5 / 0 |
-| π0.5 NVFP4＋BF16 | 81.929 | 172.853 | 176.940 | 18,458 | 94.75% / 95% | 4 / 0 |
-| GR00T BF16 | 23.542 | 125.020 | 159.590 | 10,358 | 83.50% / 86% | 4 / 0 |
-
-π0.5 两个 APXInf 变体使用相同源权重、配置、处理器、输入 seed 7、模型 seed 0、10 个文本 token 和 50×7 动作输出；首个观测 SHA-256 为 `e2741420e9bc5850af7001d65e14d9ac39bb2183f9d8e5316d66a7138fe5e928`，导入扩展 SHA-256 同为 `6bcdfca6841fe5db885effb4ccca1a7850d03a1fe7e0a359723dfe606fc206b1`。GR00T APXInf 输出为 16×7。NVFP4 混合实现同时驻留 BF16 与 packed 权重，以上数据不支持实测显存节省的主张。
-
-原始记录：[PyTorch π0.5](results/baselines/pi05_pt_bf16_ptqad_20260929.json)、[PyTorch GR00T](results/baselines/gr00t_pt_bf16_ptqad_20260929.json)、[APXInf π0.5 BF16](results/engine/pi05_bf16_ptqad_20260929.json)、[APXInf π0.5 NVFP4](results/engine/pi05_nvfp4_ptqad_20260929.json)、[APXInf GR00T BF16](results/engine/gr00t_bf16_ptqad_20260929.json)。
-
-</details>
-
-<details>
-<summary>GEMM：全部 9 个形状、吞吐/有效带宽、不可用格式与数值验收</summary>
-
-硬件块缩放布局、列主序 FP32 输出；NVFP4 二级缩放为 1。表中计时为 50 次 CUDA event 迭代的均值，排除输入编码、尺度准备、上传与算法查找。每个可执行格式均返回 4 个算法，使用第一个。两列比值以 NVFP4 耗时为分母，低于 1 表示 NVFP4 较慢。
-
-| 形状标签 | M×N×K | BF16 / ms | FP8 / ms | NVFP4 / ms | BF16/NVFP4 | FP8/NVFP4 | MXFP4 |
-|---|---|---:|---:|---:|---:|---:|---|
-| prefill-s | 2048×2048×2048 | 0.1891 | 0.0635 | 0.0412 | 4.590× | 1.541× | 不可用 |
-| prefill-m | 4096×2048×2048 | 0.3734 | 0.1309 | 0.0774 | 4.824× | 1.691× | 不可用 |
-| prefill-l | 4096×8192×2048 | 1.3648 | 0.5125 | 0.2941 | 4.641× | 1.743× | 不可用 |
-| prefall-xl | 8192×2048×4096 | 1.5143 | 0.4988 | 0.2724 | 5.559× | 1.831× | 不可用 |
-| square-l | 4096×4096×4096 | 1.4583 | 0.4863 | 0.2707 | 5.387× | 1.796× | 不可用 |
-| b1-s | 1×4096×4096 | 0.0438 | 0.0134 | 0.0206 | 2.126× | 0.650× | 不可用 |
-| b1-l | 1×8192×2048 | 0.0431 | 0.0105 | 0.0154 | 2.799× | 0.682× | 不可用 |
-| b4-l | 4×8192×2048 | 0.0314 | 0.0103 | 0.0149 | 2.107× | 0.691× | 不可用 |
-| b16-l | 16×8192×2048 | 0.0159 | 0.0282 | 0.0131 | 1.214× | 2.153× | 不可用 |
-
-BF16、FP8、NVFP4 均为 9/9 可执行；MXFP4 为 0/9，状态均为 `heuristic: 7 algos=0`，原始 CSV 中的零是失败占位，不是耗时。NVFP4 在这九项中均快于 BF16，但 `b1-s`、`b1-l`、`b4-l` 慢于 FP8。
-
-以下每格依次为 **TFLOP/s / 有效 GB/s**，保留 CSV 精度。吞吐按 `2MNK / 时间` 计算；有效带宽按输入、权重、尺度和 FP32 输出的名义字节数除以时间计算，包含缓存复用影响，不能解释为实测 DRAM 带宽。
-
-| 形状标签 | BF16 | FP8 | NVFP4 |
-|---|---:|---:|---:|
-| prefill-s | 90.85 / 177.44 | 270.37 / 396.05 | 416.63 / 521.30 |
-| prefill-m | 92.03 / 157.28 | 262.46 / 352.43 | 444.13 / 525.21 |
-| prefill-l | 100.70 / 135.22 | 268.18 / 311.00 | 467.27 / 504.44 |
-| prefall-xl | 90.76 / 99.71 | 275.52 / 218.61 | 504.51 / 332.95 |
-| square-l | 94.25 / 92.04 | 282.62 / 207.00 | 507.66 / 317.60 |
-| b1-s | 0.77 / 766.37 | 2.51 / 1255.63 | 1.63 / 460.29 |
-| b1-l | 0.78 / 779.10 | 3.18 / 1595.72 | 2.17 / 614.34 |
-| b4-l | 4.28 / 1073.45 | 13.03 / 1642.05 | 9.04 / 645.57 |
-| b16-l | 33.66 / 2140.87 | 19.02 / 614.14 | 40.89 / 761.27 |
-
-独立 `--verify` 用例采用 M×N×K=128×256×256，以解码输入的 CPU FP64 矩阵乘积为参考，容差 `atol=rtol=1e-4`。它不等于对上表九个性能形状逐元素验收。
-
-| 格式 | 已检查输出数 | 失败数 | 日志 max_abs | 日志 max_rel | 状态 |
-|---|---:|---:|---:|---:|---|
-| BF16 | 32,768 | 0 | 0.000000 | 0.000016 | 通过 |
-| FP8 | 32,768 | 0 | 0.000000 | 0.000011 | 通过 |
-| NVFP4 | 32,768 | 0 | 0.000000 | 0.000000 | 通过 |
-| MXFP4 | — | — | — | — | 无可用算法，未获数值验证 |
-
-误差按日志显示精度报告，打印为零不代表逐位相等。另一个 FP8 描述符探针使用 512×2048×2048、完整确定性 A/B 输入，仅检查实际提交与同步返回状态：
-
-| 输入 → 输出 | heuristic 状态 / 算法数 | matmul / CUDA 提交与同步 |
-|---|---|---|
-| E4M3×E4M3 → FP32 | 0 / 4 | 0 / 无错误 |
-| E4M3×E4M3 → BF16 | 0 / 4 | 0 / 无错误 |
-| E4M3×E4M3 → F16 | 0 / 4 | 0 / 无错误 |
-| E4M3×E4M3 → E4M3 | 15 / 0 | 不可用 |
-| E4M3×E4M3 → E4M3＋Dscale | 15 / 0 | 不可用 |
-
-驱动/runtime 原始版本号均为 13030，cuBLASLt 为 130600。原始记录：[完整 CSV](results/spike/gemm_ptqad_20260929.csv)、[数值验收](results/spike/verify_ptqad_20260929.log)、[FP8 描述符](results/spike/fp8_probe_ptqad_20260929.log)、[环境](results/spike/env_ptqad_20260929.log)。
-
-</details>
-
-<details>
-<summary>单层管线：全部 18 个形状，含在线激活量化</summary>
-
-NVFP4 路径包含 F16 激活的在线编码与行主序 GEMM 适配，权重二级缩放为 0.25；这里的适配指矩阵布局接口，不是 LoRA。权重准备、上传和数值参考检查在计时外。BF16 对照使用预先准备的 GEMM。每项预热 10 次、测量 30 次，表中为 CUDA event 样本的真实中位数。NVFP4 输出 F16，BF16 对照输出 BF16。
-
-| 形状标签 | M×N×K | BF16 P50 / μs | NVFP4 P50 / μs | BF16/NVFP4 | 抽样 max_abs：BF16/FP4 |
-|---|---|---:|---:|---:|---:|
-| gemma-1152 | 522×1152×1152 | 23.344 | 38.096 | 0.613× | 0/0 |
-| gemma-1152 | 778×1152×1152 | 30.752 | 28.096 | 1.095× | 0/0 |
-| gemma-1152 | 2048×1152×1152 | 62.512 | 40.656 | 1.538× | 0/0 |
-| mlp-3072x1024 | 522×3072×1024 | 40.736 | 29.904 | 1.362× | 0/0 |
-| mlp-3072x1024 | 778×3072×1024 | 58.640 | 34.800 | 1.685× | 0/0 |
-| mlp-3072x1024 | 2048×3072×1024 | 140.864 | 54.912 | 2.565× | 0/0 |
-| mlp-4096x1024 | 522×4096×1024 | 59.152 | 31.904 | 1.854× | 0/0 |
-| mlp-4096x1024 | 778×4096×1024 | 87.296 | 35.424 | 2.464× | 0/0 |
-| mlp-4096x1024 | 2048×4096×1024 | 198.448 | 64.528 | 3.075× | 0/0 |
-| big-16384x2048 | 522×16384×2048 | 407.088 | 100.672 | 4.044× | 0/0 |
-| big-16384x2048 | 778×16384×2048 | 580.000 | 125.024 | 4.639× | 0/0 |
-| big-16384x2048 | 2048×16384×2048 | 1467.664 | 303.824 | 4.831× | 0/0 |
-| attn-2048x2048 | 522×2048×2048 | 56.240 | 42.288 | 1.330× | 0/0 |
-| attn-2048x2048 | 778×2048×2048 | 69.776 | 56.336 | 1.239× | 0/0 |
-| attn-2048x2048 | 2048×2048×2048 | 195.520 | 73.328 | 2.666× | 0/0 |
-| geglu-4304x1152 | 522×4304×1152 | 64.656 | 36.576 | 1.768× | 0/0 |
-| geglu-4304x1152 | 778×4304×1152 | 85.952 | 47.328 | 1.816× | 0/0 |
-| geglu-4304x1152 | 2048×4304×1152 | 223.632 | 70.464 | 3.174× | 0/0 |
-
-18/18 完成、0 项不可用；17/18 快于 BF16。唯一更慢的是 `gemma-1152, M=522`（0.613×），最大比值为 4.831×。每个形状核对全部激活编码/尺度字节，并抽查 21 个输出位置，共 378 个；FP4 容差 `atol=rtol=1e-3`，BF16 容差 `atol=rtol=1e-2`，参考各自舍入到输出精度。独立 `--verify-only` 也通过全部 18 个形状。抽样打印零误差不代表整个输出矩阵逐位相等，也不度量相对未量化模型的精度损失。
-
-原始记录：[完整 CSV](results/engine/fp4_opbench_ptqad_20260929.csv)、[计时日志](results/engine/fp4_opbench_ptqad_20260929.log)、[独立数值验收](results/engine/fp4_opbench_verify_ptqad_20260929.log)。
-
-</details>
-
-<details>
-<summary>原生执行：缩放、padding、图重放与完整模型验收</summary>
-
-| 验收 | 记录的覆盖范围 | 结果与原始日志 |
-|---|---|---|
-| 行主序与张量缩放 | 16×64×64、64×128×128；每种形状使用 0.03125 / 2.5 两种 scale，逐元素参考检查 | [1 项测试通过，4 个组合 max_abs=0](results/native_graph_20260929/fp4_contract_rowmajor_and_tensor_scale.log) |
-| Graph 捕获与重放 | 不同 scale 值及缓冲地址；改变 BF16 输入，4 次重放逐元素检查 | [1 项测试通过，2 种尺度](results/native_graph_20260929/fp4_graph_replay_bf16_and_distinct_scales.log) |
-| 激活尺度 padding | M=3、K=48，行/K 两向补齐；污染缓冲后重放 | [1 项测试通过，全部 512 字节、2 次污染重放](results/native_graph_20260929/fp4_activation_padding_zero_after_capture.log) |
-| π0.5 RequireGraph | 同一 NVFP4 完整模型的 2 组 eager 参考、噪声索引 0/1/0 的 3 次 graph 重放；每次 1,600 个输出 | [通过，3 次 max_abs=0，无隐式 plan 分配](results/native_graph_20260929/pi05_require_graph.log) |
-
-这些测试验证指定原生实现的数值和执行契约。完整模型验收比较同一 NVFP4 路径的 eager/graph 一致性；相对 BF16 的任务能力仍需闭环评测。实际安装扩展身份见 [installed_extension.json](results/native_graph_20260929/installed_extension.json)。
-
-</details>
-
 ## Ubuntu 执行截图
 
-保留论文全部 17 个截图环节：十张未受本轮恢复实验影响的实拍继续展示，七个待更新环节保留图位。五臂评测与固定观测诊断已完成；七张截图仍待补拍，届时只实拍 CPU 核验命令，不重跑训练或评测。原始截图保存在工程内；下表不展示未更新的实验截图。完整定量指标由原始日志和 JSON 计算。
+发布包保留 17 张真实 WSL Ubuntu 紫色终端截图，去除 taskbar 后均为 3840×2280。其中七张展示对已完成实验原始日志与元数据的 CPU 只读核验，其余十张展示独立算子、环境与执行环节。最终数字以原始 JSON 和日志为准。
 
-编译补充图及其[命令、日志和哈希](docs/evidence/ubuntu-compile/manifest.json)：
+以下为论文 17 图之外的编译补充图；命令、日志和哈希见 [`docs/evidence/ubuntu-compile/manifest.json`](docs/evidence/ubuntu-compile/manifest.json)。
 
-![Ubuntu：CUDA 程序的真实编译输出](docs/images/ubuntu-compile.png)
+![Ubuntu：三个 CUDA 程序的真实编译输出](docs/images/ubuntu-compile.png)
 
-| 环节 | 执行截图或登记状态 |
-|---|---|
-| 运行截图 01　已完成教师演示来源核验 | 待补本轮真实运行截图 |
-| 运行截图 02　已完成 RTN 配方与编码预算核验 | 待补本轮真实运行截图 |
-| 运行截图 03　π0.5 单层 NVFP4 打包（CPU smoke） | ![运行截图 03　π0.5 单层 NVFP4 打包（CPU smoke）](paper/figs/shot_packed.png) |
-| 运行截图 04　教师探针、有效动作掩码与尾批梯度检查（CPU） | ![运行截图 04　教师探针、有效动作掩码与尾批梯度检查（CPU）](paper/figs/shot_probe.png) |
-| 运行截图 05　已完成 QAD 训练证据核验 | 待补本轮真实运行截图 |
-| 运行截图 06　已完成教师缓存证据核验 | 待补本轮真实运行截图 |
-| 运行截图 07　已完成 OPD 续训证据核验 | 待补本轮真实运行截图 |
-| 运行截图 08　恢复训练的激活重算与 LoRA 梯度检查（CPU 小模型） | ![运行截图 08　恢复训练的激活重算与 LoRA 梯度检查（CPU 小模型）](paper/figs/shot_qat.png) |
-| 运行截图 09　已完成正式评测服务日志核验 | 待补本轮真实运行截图 |
-| 运行截图 10　已完成学生闭环采集证据核验 | 待补本轮真实运行截图 |
-| 运行截图 11　量化格点与最小 checkpoint 导出测试（CPU smoke） | ![运行截图 11　量化格点与最小 checkpoint 导出测试（CPU smoke）](paper/figs/shot_verify.png) |
-| 运行截图 12　FP8 描述符可用性与同步返回状态（GPU 探针） | ![运行截图 12　FP8 描述符可用性与同步返回状态（GPU 探针）](paper/figs/shot_fp8probe.png) |
-| 运行截图 13　9 种矩阵形状的短 GEMM sweep（每项 5 次） | ![运行截图 13　9 种矩阵形状的短 GEMM sweep（每项 5 次）](paper/figs/shot_gemm.png) |
-| 运行截图 14　18 个实际层形状的短算子测量（预热 1、采样 3） | ![运行截图 14　18 个实际层形状的短算子测量（预热 1、采样 3）](paper/figs/shot_opbench.png) |
-| 运行截图 15　GR00T BF16 执行流程展示 | ![运行截图 15　GR00T BF16 执行流程展示](paper/figs/shot_gr00t.png) |
-| 运行截图 16　π0.5 BF16 执行流程展示 | ![运行截图 16　π0.5 BF16 执行流程展示](paper/figs/shot_pi05.png) |
-| 运行截图 17　π0.5 NVFP4 模型路径短测（预热 1、采样 2） | ![运行截图 17　π0.5 NVFP4 模型路径短测（预热 1、采样 2）](paper/figs/shot_nvfp4.png) |
+| 编号 | 环节 | 图片 |
+|---:|---|---|
+| 01 | 已完成 RTN 配方与编码预算核验 | ![已完成 RTN 配方与编码预算核验](paper/figs/shot_bake.png) |
+| 02 | 已完成教师演示来源核验 | ![已完成教师演示来源核验](paper/figs/shot_collect.png) |
+| 03 | 已完成正式评测服务日志核验 | ![已完成正式评测服务日志核验](paper/figs/shot_evalserver.png) |
+| 04 | FP8 描述符探针 | ![FP8 描述符探针](paper/figs/shot_fp8probe.png) |
+| 05 | 9 种 GEMM 形状 | ![9 种 GEMM 形状](paper/figs/shot_gemm.png) |
+| 06 | GR00T BF16 执行 | ![GR00T BF16 执行](paper/figs/shot_gr00t.png) |
+| 07 | π0.5 NVFP4 完整路径 | ![π0.5 NVFP4 完整路径](paper/figs/shot_nvfp4.png) |
+| 08 | 18 个实际层形状 | ![18 个实际层形状](paper/figs/shot_opbench.png) |
+| 09 | 已完成 OPD 续训证据核验 | ![已完成 OPD 续训证据核验](paper/figs/shot_opd.png) |
+| 10 | 已完成教师缓存证据核验 | ![已完成教师缓存证据核验](paper/figs/shot_opdcache.png) |
+| 11 | π0.5 NVFP4 打包 | ![π0.5 NVFP4 打包](paper/figs/shot_packed.png) |
+| 12 | π0.5 BF16 执行 | ![π0.5 BF16 执行](paper/figs/shot_pi05.png) |
+| 13 | 探针和尾批梯度 | ![探针和尾批梯度](paper/figs/shot_probe.png) |
+| 14 | 已完成 QAD 训练证据核验 | ![已完成 QAD 训练证据核验](paper/figs/shot_qad.png) |
+| 15 | 激活重算与 LoRA 梯度 | ![激活重算与 LoRA 梯度](paper/figs/shot_qat.png) |
+| 16 | 已完成学生闭环采集证据核验 | ![已完成学生闭环采集证据核验](paper/figs/shot_rollout.png) |
+| 17 | 量化格点和 checkpoint 校验 | ![量化格点和 checkpoint 校验](paper/figs/shot_verify.png) |
 
-## 项目结构
+七张核验截图使用 `verify-completed` 命令与 `setup/windows_capture/README.md` 的 managed wrapper，不再训练、量化或重复评测。每张图登记 `.sh`、完整核验 `.log`、sidecar、裁剪记录和 SHA-256。
+
+## 目录与复现边界
 
 ```text
-quant/    NVFP4 表示、校准、RTN/GPTQ 与权重写盘
-rl/       QAD、学生状态采集、教师缓存、OPD 与 LoRA 导出
-eval/     GR00T 服务、LIBERO 回合评测与配对比较
-exp/      实验协议、选择与恢复驱动
-setup/    环境、权重、APXInf 编译和锁文件
-paper/    论文、知乎稿、图表、截图与可复算证据
-docs/     复现说明及设计审阅
+quant/       NVFP4 格式、校准、RTN/PTQ 配方与写盘
+rl/          QAD、学生状态、教师缓存、OPD 与 LoRA 导出
+eval/        GR00T 服务、LIBERO 配对闭环和逐回合日志
+exp/         冻结协议、选择和恢复驱动
+setup/       环境、权重、APXInf 构建和锁文件
+paper/       HTML、知乎 Markdown、图表、截图和证据包
+docs/        复现与原生引擎说明
 ```
 
-## 总结与适用范围
-
-全 NVFP4 W4A4 基座加 BF16 LoRA 的净编码压缩为 3.276×。QAD 的总成功率点估计回到 BF16；OPD 未超过 QAD，但相对同演示预算的继续训练保留了更多闭环能力。训练步数不足、过拟合或缓存分布偏移只能列为待验证解释，现有消融不能确定原因。
-
-结果限定于一个训练种子、LIBERO-10 的固定十任务与评测初态，不证明跨任务、跨种子或实机泛化，也不证明优于 QVLA/PTQ SOTA 或获得原生 GR00T 加速。全部实验和指标已冻结，后续交付只补齐七张真实核验截图与发布校验。
+结果只针对固定 LIBERO-10 任务、官方初态 bank 和本协议训练 seed；不声称未见任务、多 seed 或实机泛化。QAD/OPD 的 BF16 LoRA 旁路已计入净压缩比。APXInf 原生延迟是独立工程基准，不能直接换算为 GR00T W4A4 闭环速度。
 
 ## 许可证与引用
 
-当前仓库没有项目自有 LICENSE 文件。代码、补丁、模型与数据遵循各自上游许可。引用时请保留模型与数据来源、[论文](paper/paper.html)和[实验协议](exp/recovery_protocol_v12_rtn_w4a4.json)；对应科学证据见 [最终清单](paper/evidence/final_manifest.json)，发布截图登记尚待补齐。
+本仓库当前没有项目自有 `LICENSE` 文件；代码、补丁、GR00T、APXInf、LIBERO、MuJoCo、模型权重和数据均遵循各自上游许可。引用时请同时保留 [`paper/paper.html`](paper/paper.html)、协议 [`exp/recovery_protocol_v12_rtn_w4a4.json`](exp/recovery_protocol_v12_rtn_w4a4.json) 和最终证据 [`paper/evidence/final_results.json`](paper/evidence/final_results.json)。

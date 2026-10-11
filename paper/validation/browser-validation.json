@@ -28,20 +28,12 @@
     "swizzle_layout"
   ],
   "screenshot_slots": 17,
-  "screenshots": 10,
-  "screenshot_refresh_pending": [
-    "shot_bake",
-    "shot_collect",
-    "shot_evalserver",
-    "shot_opd",
-    "shot_opdcache",
-    "shot_qad",
-    "shot_rollout"
-  ],
-  "meta_sha256": "93481e54e6915dfcef487d7238c7de8bb5f917efadac1a3dfbabcb204bd19455",
-  "html_sha256": "33c01e7be6000069ed90d4bc11a73411da27063c90eefa2099085a18afba4978",
+  "screenshots": 17,
+  "screenshot_refresh_pending": [],
+  "meta_sha256": "13bef877f6627f5f88cf1f78bbd905f5b980b734b8739990cdce0b26637dec51",
+  "html_sha256": "cfa71e5c538857c732befa9fc13c3a7cd553597ee4473a330b3e5e3635652664",
   "qa_script_sha256": "d452250fd7528927fe309e236cc526615cf46f3592556e99190f4624834417d3",
-  "figures_manifest_sha256": "8093f170dbad1d457bf00026db35b965f30e9b8651379a22a3f3b4f867de1180",
+  "figures_manifest_sha256": "9737b6c660b3fd531d919a8d21747c70d216654a00ea1319a2d89c7d9197ccce",
   "svg_sha256": {
     "budget_ladder": "2eda81762f245d67fc004d11e79d62db030919693a11381dec8aa6f6698c75bd",
     "e1_latency": "f70d506f9413f4a871beb413e54415e7427af401d85e093d55a235c4d90259c1",
@@ -58,22 +50,22 @@
     "ladder": "e16d35d7f1bfafc6f15485ec52aa84e06d5c738a4b9d19d022a483e5913f0f37",
     "ptq_frontier": "89c3df74383bde581bd552c930374311c50b2d5099e99872ab44639bbaf50317",
     "recovery_protocol": "950909be8dea50bd7d42c0f0834b55d79d4fc62f71c1e2b43516e330059acc1b",
-    "shot_bake": "60abac3df423856939ae7e2fdde74645fa80328cca57beec4b497bfd930003d8",
-    "shot_collect": "1a3bd5d8c36fbc1dc0dc3fceae72895a7005ca9d130aa2d6e2f4609d0ac27ede",
-    "shot_evalserver": "c7216f57759a356ee30ed664324582683e7e79cac4b99735f0d1761fd4b08eaa",
+    "shot_bake": "df724cebc7c9329a4dc76add8e521767d9ea4f5f06bfe4e758352fe7ba470267",
+    "shot_collect": "b1b156321b673096e5c5e63783b58f009822dee9bb5f7cd17202bd6149567bdb",
+    "shot_evalserver": "eb91c91c239ea0691da58574050a202d8c12c85cc1c037dfc6564b700dbcb5a7",
     "shot_fp8probe": "6527972fd7cc1b626d0722870bed22cde179cabc113ceaf23ebc25f76b497484",
     "shot_gemm": "5df98871bbc055b1cdcd0186ae4cf15d9d32a71f64d28f3a26d1c9ac8b998f08",
     "shot_gr00t": "41567c4c73bedf5d4b89068e60d38a10f3cbdaf61d5b3440e21d7bf7df44ce88",
     "shot_nvfp4": "0215b53e09317e03eed6d7b980cd5845ef89d16f54d6059f46e3ff44fbed0bd0",
     "shot_opbench": "c7db35ef39dd99022c6595b5f32a0730c84aea266f888f9084c9c96816be2f4d",
-    "shot_opd": "a85c70a35bc250baa0eda3cc936b0d2456c2108fc76fca349ff5a9aa6ed955d2",
-    "shot_opdcache": "f48495d60f6879e55eab34a304dcfe8e53c035c0e45bbd32db86e98776b5d9ee",
+    "shot_opd": "06fab348f88bfea79c234d24dc051452afad83337aabd74b860d19ec75fb61a6",
+    "shot_opdcache": "2cb43757170ec41fe83bdee7796fea3aa380a5d759cd2f71161ef3f09de8f9e2",
     "shot_packed": "f4a9c7865cd6ac27479e2df4347438821597961e2a4bcaa8762ade85def6645c",
     "shot_pi05": "3c256209b2220eaf6ff96b4d741a3f810dfefe147a21c7c7344436d1db01e1d1",
     "shot_probe": "4b322fc12e795ff9e28cb78dcc047745b1cd52c24d534c70d8bb585167b54bea",
-    "shot_qad": "79c31dc291179e59c21d7ffa136d818c75e3b529a5132a356f93446700f57cf5",
+    "shot_qad": "aed97002ab338d7c9f9b21c2c35a704bc95bb91f519cf0be01142e811358af39",
     "shot_qat": "aa990aa3ce8e9f2b6e6823ae9a88441163b9c2d44be3e58afd280bf0b5f5ef12",
-    "shot_rollout": "6cd772a693a525e0d33019c8ea866299f73f73d8b13ed7e80b718ba51c9cd6a8",
+    "shot_rollout": "338106bc6339387e4945a9239f100da636b33b3429a71009bd156af6ff0cd60b",
     "shot_verify": "937bd644fc7e07a7aea79b593ab307b89a15d800d63b0bdf74f89112573a30db",
     "swizzle_layout": "ac2909b72ce8c7e36e3bd69d909e5860f072111b6ace38163499f0181120be9e"
   },
@@ -107,20 +99,22 @@
       "shot_verify",
       "swizzle_layout"
     ],
-    "pendingNames": [
-      "shot_bake",
-      "shot_collect",
-      "shot_evalserver",
-      "shot_opd",
-      "shot_opdcache",
-      "shot_qad",
-      "shot_rollout"
-    ],
+    "pendingNames": [],
     "diagramCount": 7,
     "mathCount": 218,
     "mathErrors": 0,
     "svgOverflow": [],
     "decoded": [
+      {
+        "figure": "shot_collect",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_bake",
+        "width": 3840,
+        "height": 2280
+      },
       {
         "figure": "shot_packed",
         "width": 3840,
@@ -137,7 +131,32 @@
         "height": 2280
       },
       {
+        "figure": "shot_qad",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_opdcache",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_opd",
+        "width": 3840,
+        "height": 2280
+      },
+      {
         "figure": "shot_qat",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_evalserver",
+        "width": 3840,
+        "height": 2280
+      },
+      {
+        "figure": "shot_rollout",
         "width": 3840,
         "height": 2280
       },

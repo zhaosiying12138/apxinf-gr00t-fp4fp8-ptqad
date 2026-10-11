@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "passed",
-  "generated_utc": "2026-10-10T22:51:57.650788+00:00",
+  "generated_utc": "2026-10-11T00:58:21.186295+00:00",
   "scope": "All non-screenshot SVGs generated from the recorded current inputs in one successful run.",
   "generator": {
     "path": "paper/make_figs.py",

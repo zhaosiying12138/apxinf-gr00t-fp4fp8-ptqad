@@ -130,7 +130,9 @@ def render(report, *, detailed=False):
     if report.get("status") == "not_performed":
         _need(report.get("decision", {}).get("status") == "not_performed",
               "Missing explicit GPTQ non-performance decision")
-        return NOT_PERFORMED_TEXT
+        # The full table belongs to the root README. The short paragraph is
+        # emitted into paper/sections and exported at the same depth to zhihu.
+        return NOT_PERFORMED_TEXT if detailed else NOT_PERFORMED_TEXT.replace("](paper/", "](../")
     data = report['comparison']
     if (set(data['arms']) != set(ARMS) or set(data['contrasts']) != set(CONTRASTS)
             or any(row['episodes'] != 160 or len(row['per_task']) != 10 for row in data['arms'].values())):

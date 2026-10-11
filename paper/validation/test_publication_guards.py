@@ -143,7 +143,8 @@ class Gates(unittest.TestCase):
 
     def test_package_excludes_old_reports_and_keeps_cited_evidence_and_sources(self):
         with tempfile.TemporaryDirectory() as raw:
-            folder=Path(raw)
+            folder=Path(raw)/'paper';folder.mkdir()
+            (folder.parent/'README.md').write_text('[Article](paper/paper.html)')
             for name in ('paper.html','README.md','meta.json','requirements-build.txt','requirements-evidence.txt','analysis_plan_w4a4.json','publication_scope_v12.json') + package.DOCUMENT_TEMPLATES:
                 (folder/name).write_text('{}')
             (folder/'figures.json').write_text('{"shot_fixture": {}}')
@@ -167,10 +168,10 @@ class Gates(unittest.TestCase):
                 package.main()
             with zipfile.ZipFile(folder/package.DESTINATION) as archive:
                 names=set(archive.namelist())
-                self.assertTrue(all('validation/'+name not in names for name in old_reports))
-                self.assertTrue(all('validation/'+name in names for name in sources))
-                self.assertIn('analysis_plan_w4a4.json',names)
-                self.assertEqual(json.loads(archive.read('validation/publication-validation.json')),fresh)
+                self.assertTrue(all('paper/validation/'+name not in names for name in old_reports))
+                self.assertTrue(all('paper/validation/'+name in names for name in sources))
+                self.assertIn('paper/analysis_plan_w4a4.json',names)
+                self.assertEqual(json.loads(archive.read('paper/validation/publication-validation.json')),fresh)
                 manifest=json.loads(archive.read('PACKAGE-MANIFEST.json'))
                 for name,row in manifest.items():
                     payload=archive.read(name)

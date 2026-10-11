@@ -128,7 +128,8 @@ class FrozenGptqScope(unittest.TestCase):
             article.parent.mkdir()
             article.write_text("## 4.6 同覆盖校准 GPTQ 参考\n\n" + prose + "\n\n## 4.7 成本\n")
             readme = paper.parent / "README.md"
-            readme.write_text("### 校准 GPTQ 的范围说明\n\n" + prose + "\n\n### 编码预算\n")
+            readme_prose = publication.render(publication.load_verified(paper), detailed=True)
+            readme.write_text("### 校准 GPTQ 的范围说明\n\n" + readme_prose + "\n\n### 编码预算\n")
             with mock.patch.object(validation, "P", paper):
                 validation.check_gptq_reference(set())
                 article.write_text(article.read_text().replace(prose, prose + "\n\nGPTQ 160/160。"))

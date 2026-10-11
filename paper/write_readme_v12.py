@@ -259,6 +259,19 @@ def review_package_link() -> str:
             "paper/apxinf-gr00t-fp4fp8-ptqad-review.zip)")
 
 
+def publication_links() -> str:
+    """Keep reading and download entries aligned with the publication state."""
+    links = "[中文论文 HTML](paper/paper.html) · [知乎 Markdown](paper/zhihu/article.md)"
+    metadata = json.loads((PAPER / "meta.json").read_text(encoding="utf-8"))
+    if "审阅稿" in metadata.get("status", ""):
+        archive_link = review_package_link()
+    else:
+        archive_link = ("[下载完整发布包]"
+                        "(https://github.com/zhaosiying12138/apxinf-gr00t-fp4fp8-ptqad/raw/refs/heads/main/"
+                        "paper/apxinf-gr00t-fp4fp8-ptqad-publication.zip)")
+    return links + ("\n\n" + archive_link if archive_link else "")
+
+
 def build_root(final: dict[str, Any], protocol: dict[str, Any], inventory: dict[str, Any], protocol_sha: str) -> str:
     summary, paired, tasks = result_tables(final)
     details = readme_v12_metrics.render_all(ROOT, final, protocol, inventory)
@@ -288,7 +301,7 @@ APXInf × GR00T：**NVFP4 W4A4 主分支量化与 BF16 低秩行为恢复**。
 
 {conclusion_summary}
 
-{review_package_link()}
+{publication_links()}
 
 ## 项目意义与贡献
 

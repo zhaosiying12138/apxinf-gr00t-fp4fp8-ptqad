@@ -4,6 +4,8 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
+from urllib.parse import unquote, urlsplit
 import zipfile
 
 from publication_guard import file_record, require
@@ -72,6 +74,109 @@ def publication_files():
     return sorted(set(files))
 
 
+def checked_asset(path):
+    """Only regular, lightweight files inside the repository enter the ZIP."""
+    root = P.parent.resolve()
+    path = Path(path).absolute()
+    require(path.resolve().is_relative_to(root), f'External package dependency: {path}')
+    require(not any(part.is_symlink() for part in (path, *path.parents) if part.is_relative_to(root)),
+            f'Symlink package dependency: {path}')
+    require(path.is_file(), f'Missing package dependency: {path}')
+    require(path.suffix.lower() not in {'.safetensors', '.pt', '.pth', '.npy', '.npz', '.zip', '.tmp'}
+            and '__pycache__' not in path.parts,
+            f'Weights, cache, nested archives or temporary files must not enter publication: {path}')
+    require(path.stat().st_size < 128 * 1024 * 1024, f'Unexpectedly large publication asset: {path}')
+    return path.resolve()
+
+
+def add_markdown_dependencies(paths):
+    """Keep README-linked documents and assets at their original repo paths.
+
+    Linked Markdown is inspected recursively. Source includes sometimes use
+    repository-root paths; those are resolved only when the document-relative
+    target does not exist. Original document bytes are never rewritten.
+    """
+    root = P.parent.resolve()
+    queue = [root / 'README.md', P / 'README.md']
+    inspected, directories = set(), set()
+    while queue:
+        document = checked_asset(queue.pop())
+        paths.add(document)
+        if document in inspected:
+            continue
+        inspected.add(document)
+        source = re.sub(r'^```[^\n]*\n[\s\S]*?^```[^\n]*$', '',
+                        document.read_text(encoding='utf-8'), flags=re.M)
+        for link in re.findall(r'\]\(([^\s)]+)(?:\s+"[^"]*")?\)', source):
+            parsed = urlsplit(link.strip('<>'))
+            if parsed.scheme or parsed.netloc or not parsed.path:
+                continue
+            relative = unquote(parsed.path)
+            target = document.parent / relative
+            require(target.resolve().is_relative_to(root), 'Document link escapes repository: ' + link)
+            if not target.exists() and (root / relative).exists():
+                target = root / relative
+            require(target.exists(), f'Broken document link: {document} -> {link}')
+            require(not any(part.is_symlink() for part in (target, *target.parents)
+                            if part.absolute().is_relative_to(root)),
+                    f'Symlink document dependency: {target}')
+            target = target.resolve()
+            if target.is_dir():
+                directories.add(target)
+                continue
+            paths.add(checked_asset(target))
+            if target.suffix == '.md':
+                queue.append(target)
+    # The supplementary compile screenshot cites a manifest rather than every
+    # source file separately. Include exactly its hash-verified provenance.
+    compile_manifest = root / 'docs/evidence/ubuntu-compile/manifest.json'
+    if compile_manifest in paths:
+        for record in json.loads(compile_manifest.read_text(encoding='utf-8'))['files']:
+            target = checked_asset(root / record['path'])
+            require(file_record(target, root) == record,
+                    f'Compile screenshot provenance changed: {target}')
+            paths.add(target)
+    for directory in directories:
+        require(any(path.is_relative_to(directory) for path in paths),
+                f'Unbundled document directory: {directory}')
+
+
+def publication_entries(files, records):
+    """Preserve repository-relative paths, including both README entrypoints."""
+    root = P.parent.resolve()
+    paths = set(files)
+    links = {}
+    for record in records:
+        source = checked_asset(root / record['path'])
+        require(file_record(source, root) == record, f'Validated evidence changed: {source}')
+        if source.resolve().is_relative_to(P):
+            require(source in paths,
+                    f'Validated internal input is absent from the publication allowlist: {source}')
+        else:
+            paths.add(source)
+            links[record['path']] = record['path']
+    add_markdown_dependencies(paths)
+    entries = {checked_asset(path).relative_to(root).as_posix(): path for path in sorted(paths)}
+    return entries, links
+
+
+def package_readme():
+    return """# 论文发布包阅读说明
+
+本包保留仓库相对目录，不需要移动文件即可阅读：
+
+- [README.md](README.md)：项目介绍、完整指标、安装与执行命令。
+- [paper/paper.html](paper/paper.html)：包含公式、图表和 17 张 Ubuntu 截图的离线文章。
+- [paper/zhihu/article.md](paper/zhihu/article.md)：知乎 Markdown 稿及其 `images/` 图片。
+- [paper/README.md](paper/README.md)：论文与证据入口。
+- [paper/evidence/](paper/evidence/)：原始回合记录、统计、动作诊断与截图来源。
+
+`PROJECT-INPUTS.json` 将原仓库路径映射到本包相同路径，`PACKAGE-MANIFEST.json` 记录包内文件的字节数与 SHA-256。正文代码与部分源码说明中的 `paper/...`、`docs/...` 路径以本包根目录为基准；文章内跳转不改变命令的工作目录。
+
+这是便于阅读和核查的轻量证据包，包含 README 引用的本地文档、图像和编译截图来源；模型权重、观测张量与教师缓存保留记录的身份哈希，不携带原始大文件。安装依赖、下载模型与数据仍按 README 访问相应上游，受上游许可与网络条件约束。本包不承诺完整离线安装或完整离线重跑训练与评测；仅凭哈希也不能恢复原始权重。
+""".encode('utf-8')
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true', help='Validate and inventory only; never write a ZIP')
@@ -83,25 +188,17 @@ def main():
     require(report.get('passed') is True,'Fresh publication validation did not pass')
     require(files==publication_files() and before=={str(path.relative_to(P)):file_record(path,P) for path in files},
             'Publication changed during validation; rebuild and retry')
-    entries={str(path.relative_to(P)):path for path in files}
-    links={}
-    for record in report['package_inputs']:
-        source=P.parent/record['path']
-        require(file_record(source,P.parent)==record, f'Validated evidence changed: {source}')
-        if not source.resolve().is_relative_to(P):
-            target='project-inputs/'+record['path']
-            require(target not in entries,'Duplicate bundled project input')
-            entries[target]=source
-            links[record['path']]=target
-        else:
-            require(str(source.resolve().relative_to(P)) in entries,
-                    f'Validated internal input is absent from the publication allowlist: {source}')
-    # Store the current report even if the standalone validation file was absent/stale.
-    generated={'validation/publication-validation.json':(json.dumps(report,ensure_ascii=False,indent=2)+'\n').encode(),
-               'PROJECT-INPUTS.json':(json.dumps({'scope':'Original repository-relative paths mapped to bundled evidence; model weights are represented only by their recorded hashes.',
-                                                'files':links},ensure_ascii=False,indent=2)+'\n').encode()}
+    entries, links = publication_entries(files, report['package_inputs'])
+    # Store the current report at its repository-relative path, even if the
+    # standalone receipt was absent or stale. Other source bytes stay intact.
+    generated={'paper/validation/publication-validation.json':(json.dumps(report,ensure_ascii=False,indent=2)+'\n').encode(),
+               'PROJECT-INPUTS.json':(json.dumps({'scope':'Repository-relative paths preserved in this lightweight publication archive; model weights are represented only by their recorded hashes.',
+                                                'files':links},ensure_ascii=False,indent=2)+'\n').encode(),
+               'PUBLICATION-PACKAGE.md':package_readme()}
     manifest={name:{'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()} for name,path in entries.items()}
     manifest.update({name:{'bytes':len(payload),'sha256':hashlib.sha256(payload).hexdigest()} for name,payload in generated.items()})
+    require((entries, links) == publication_entries(files, report['package_inputs']),
+            'Document dependencies changed while preparing publication')
     if args.check:
         print(f'Publication passed fresh validation: {len(manifest)} files; ZIP not written')
         return

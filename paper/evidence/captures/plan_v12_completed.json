@@ -1,0 +1,643 @@
+{
+  "version": 4,
+  "scope": "v12_w4a4_capture_preparation",
+  "capture_mode": "verify-completed",
+  "gpu_executed": false,
+  "final_manifest": "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/recovery_v12/final_manifest.json",
+  "final_manifest_sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8",
+  "protocol": "/home/zhaosiying/codebase/fp4vla/exp/recovery_protocol_v12_rtn_w4a4.json",
+  "evidence_root": "/home/zhaosiying/codebase/fp4vla/paper/evidence",
+  "evidence_files": {
+    "shot_bake": {
+      "final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "final_results.json": {
+        "bytes": 15347,
+        "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+      },
+      "paired_comparison.json": {
+        "bytes": 494625,
+        "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3"
+      },
+      "recipe_inventory.json": {
+        "bytes": 6198,
+        "sha256": "203d347947f174d70f927d2170f2ef99b099c70c72b3b8c632b6ff86d2fa7180"
+      },
+      "selected_recipe/category_bake_manifest.json": {
+        "bytes": 13178,
+        "sha256": "f38bf9ce76f897f2ed18e857d7f080e8e5de98e593d231582d502454439c74d9"
+      },
+      "selected_recipe/category_ptq_recipe.json": {
+        "bytes": 304029,
+        "sha256": "4dfe0d34b8a42fe3b0af3cadc6cf84d23c2095237315899b401b128714da3b4d"
+      },
+      "training/costs.json": {
+        "bytes": 36340,
+        "sha256": "4761905b370c34c8d1c8d0fc35880733855d0cfd031c9994bb994d4255606d3b"
+      },
+      "training/orchestration/final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "training/orchestration/run_manifest.json": {
+        "bytes": 268341,
+        "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
+      }
+    },
+    "shot_collect": {
+      "final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "final_results.json": {
+        "bytes": 15347,
+        "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+      },
+      "paired_comparison.json": {
+        "bytes": 494625,
+        "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3"
+      },
+      "training/costs.json": {
+        "bytes": 36340,
+        "sha256": "4761905b370c34c8d1c8d0fc35880733855d0cfd031c9994bb994d4255606d3b"
+      },
+      "training/orchestration/final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "training/orchestration/run_manifest.json": {
+        "bytes": 268341,
+        "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
+      },
+      "training/stages/qad/orchestrator_training_request.json": {
+        "bytes": 109599,
+        "sha256": "4d2d683d30aa6caac3576f3ba153445e88f8207e8344059fadb60ff86656a96d"
+      },
+      "training/stages/qad/recovery_manifest.json": {
+        "bytes": 3801,
+        "sha256": "c6ad74de21920d72380227f11faf6b270447b00c268e439bdca8f12bc60fa574"
+      }
+    },
+    "shot_qad": {
+      "final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "final_results.json": {
+        "bytes": 15347,
+        "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+      },
+      "paired_comparison.json": {
+        "bytes": 494625,
+        "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3"
+      },
+      "training/costs.json": {
+        "bytes": 36340,
+        "sha256": "4761905b370c34c8d1c8d0fc35880733855d0cfd031c9994bb994d4255606d3b"
+      },
+      "training/orchestration/final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "training/orchestration/run_manifest.json": {
+        "bytes": 268341,
+        "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
+      },
+      "training/stages/qad/checkpoint/trainer_state.json": {
+        "bytes": 28549,
+        "sha256": "e0044d5ad4a253c3a2373b7f704800a3920695ad6ed3e034ac6b1e0f871ca382"
+      },
+      "training/stages/qad/recovery_manifest.json": {
+        "bytes": 3801,
+        "sha256": "c6ad74de21920d72380227f11faf6b270447b00c268e439bdca8f12bc60fa574"
+      },
+      "training/stages/qad/runtime_metrics.json": {
+        "bytes": 1025,
+        "sha256": "de1527ca2982c813c331448baa38f8f3b3e9af861e708627df616752353ac163"
+      },
+      "training/stages/qad/train.log": {
+        "bytes": 248525,
+        "sha256": "cb1151501cf4eac36b1b4de340fb62c283262d5a0cb9b989e37718add9203dc8"
+      }
+    },
+    "shot_rollout": {
+      "final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "final_results.json": {
+        "bytes": 15347,
+        "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+      },
+      "paired_comparison.json": {
+        "bytes": 494625,
+        "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3"
+      },
+      "training/collection/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.log": {
+        "bytes": 7405,
+        "sha256": "6225fe0de7e8a56ab0c8e0f166358d0ed8e3773338b155993fe0b9d992207d9c"
+      },
+      "training/collection/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.log": {
+        "bytes": 7614,
+        "sha256": "7250fddf1fa6858b91432264048f8e8f84482c71d7a487ba3445357849393c69"
+      },
+      "training/collection/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.log": {
+        "bytes": 7536,
+        "sha256": "e27e12f88390910c597792520dbcc3e1f66bef71ae32dc50dc7537ac1328175c"
+      },
+      "training/collection/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.log": {
+        "bytes": 7294,
+        "sha256": "1852ac70baa1196a2e57cbc95936921c3b59fb79d5c1cf92972e2db4ca3ce5a2"
+      },
+      "training/collection/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.log": {
+        "bytes": 7638,
+        "sha256": "714ee72cc881ea6f9fe5fa2e44ba4056fc457f5b1d8d4129a0ddbfd0b2ea76ff"
+      },
+      "training/collection/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.log": {
+        "bytes": 7596,
+        "sha256": "95935e53d3fa02570f4ad856bced7b43b3903e5e23e38e90c3631e627b2cfb0a"
+      },
+      "training/collection/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.log": {
+        "bytes": 7568,
+        "sha256": "2291d8533da5537353346ed70374bf1713197db901a145ce518f638d5bd0584e"
+      },
+      "training/collection/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.log": {
+        "bytes": 7834,
+        "sha256": "8ad6362e1f71fd9eac3fa75870d2aa388ec19d262ad0aa133351ada3cdc0118f"
+      },
+      "training/collection/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.log": {
+        "bytes": 7827,
+        "sha256": "2c5a04fadaed34183e65d02d746171a9197ecb67826626687901681a8de88146"
+      },
+      "training/collection/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.log": {
+        "bytes": 7586,
+        "sha256": "cb8d67688c77babdb16c1e8bc66825c646f220b85c83c35bb37ef6e48e3d2a41"
+      },
+      "training/collection/eval_manifest.json": {
+        "bytes": 2754,
+        "sha256": "30d65cfc2295588c1be142abfa692960032c43ff21b148611cf1fbfb4d1d82fd"
+      },
+      "training/collection/observations/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it/capture_manifest.json": {
+        "bytes": 2368,
+        "sha256": "cbf74dd99c26efdc16e278487a0668b18129f10a8354dafd877aba8e66114bac"
+      },
+      "training/collection/observations/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it/capture_manifest.json": {
+        "bytes": 2414,
+        "sha256": "41c2be945b167ad178944380b04dc56688c4aeb85a7bc51ddea6ffbd85e7966d"
+      },
+      "training/collection/observations/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it/capture_manifest.json": {
+        "bytes": 2396,
+        "sha256": "dcc1134396a7346639d1b5e026b7f536792ec3eb07a2bfff1bfa541f45b1b367"
+      },
+      "training/collection/observations/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove/capture_manifest.json": {
+        "bytes": 2342,
+        "sha256": "a9da0df7eda7b23813f108ae38ed48db37a89ed3c26068342279fe16a9160ed8"
+      },
+      "training/collection/observations/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket/capture_manifest.json": {
+        "bytes": 2411,
+        "sha256": "28f3f117265f3026361fa208cfc449e3fc2a2d388603266aefe7a9d77678a09d"
+      },
+      "training/collection/observations/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket/capture_manifest.json": {
+        "bytes": 2410,
+        "sha256": "3b3d5e4b6be8611e175d3e8c5300eec97062c0ab6fbcb74ac9bb10f93671b92c"
+      },
+      "training/collection/observations/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket/capture_manifest.json": {
+        "bytes": 2404,
+        "sha256": "11929012de4ab2e171a86915b72c76dff8fd53f120140ef3c1d72abd517604f3"
+      },
+      "training/collection/observations/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate/capture_manifest.json": {
+        "bytes": 2455,
+        "sha256": "56e72df8f8156b1578c70685028743b27032eef0be6af31acbad462f82dd9db7"
+      },
+      "training/collection/observations/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate/capture_manifest.json": {
+        "bytes": 2445,
+        "sha256": "485eb8d5d7b434361a34d41e682accd92c3063561480ebb1384c91f9377e484e"
+      },
+      "training/collection/observations/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/capture_manifest.json": {
+        "bytes": 2408,
+        "sha256": "366b01ca27245b001297be8bc9ba4819f6a43fa492424c7b46755b5aa499388b"
+      },
+      "training/costs.json": {
+        "bytes": 36340,
+        "sha256": "4761905b370c34c8d1c8d0fc35880733855d0cfd031c9994bb994d4255606d3b"
+      },
+      "training/orchestration/final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "training/orchestration/run_manifest.json": {
+        "bytes": 268341,
+        "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
+      }
+    },
+    "shot_opdcache": {
+      "final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "final_results.json": {
+        "bytes": 15347,
+        "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+      },
+      "paired_comparison.json": {
+        "bytes": 494625,
+        "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3"
+      },
+      "training/costs.json": {
+        "bytes": 36340,
+        "sha256": "4761905b370c34c8d1c8d0fc35880733855d0cfd031c9994bb994d4255606d3b"
+      },
+      "training/orchestration/final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "training/orchestration/run_manifest.json": {
+        "bytes": 268341,
+        "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
+      },
+      "training/stages/qad_opd/recovery_manifest.json": {
+        "bytes": 4717,
+        "sha256": "c06861d902202e7b7f2863ac810232c223fde0e6fd6e2c086cd58a06429c25fe"
+      },
+      "training/teacher/teacher_probes.json": {
+        "bytes": 61161,
+        "sha256": "d56ac1f432a94bab49fc59535a0687ccf696e151bf99c6c584f1f90b68cdaef2"
+      }
+    },
+    "shot_opd": {
+      "final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "final_results.json": {
+        "bytes": 15347,
+        "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+      },
+      "paired_comparison.json": {
+        "bytes": 494625,
+        "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3"
+      },
+      "training/costs.json": {
+        "bytes": 36340,
+        "sha256": "4761905b370c34c8d1c8d0fc35880733855d0cfd031c9994bb994d4255606d3b"
+      },
+      "training/orchestration/final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "training/orchestration/run_manifest.json": {
+        "bytes": 268341,
+        "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
+      },
+      "training/stages/continued_qad/checkpoint/trainer_state.json": {
+        "bytes": 28415,
+        "sha256": "d0084aa4418dbbbfca56b991567958500316f26e53c67f3c0a89bb3973e9e282"
+      },
+      "training/stages/continued_qad/recovery_manifest.json": {
+        "bytes": 3936,
+        "sha256": "c83ed36467a1975b5bf1bbcad3cac1f5ed5e2e98c162659e7259fa9c4aa5fd14"
+      },
+      "training/stages/continued_qad/runtime_metrics.json": {
+        "bytes": 1024,
+        "sha256": "d3b3f33c9048fd3800adbe4abdf250690a5168491138d93066195b091333c319"
+      },
+      "training/stages/continued_qad/train.log": {
+        "bytes": 248898,
+        "sha256": "ef739ee2922e5589289255603aa24a89b90d9a69907f03b5dcfc2adc4e78769d"
+      },
+      "training/stages/qad_opd/checkpoint/trainer_state.json": {
+        "bytes": 28403,
+        "sha256": "32051404e88d28fd834156b93b79a8c75424f796b2ced85547ba8931bafdf14c"
+      },
+      "training/stages/qad_opd/recovery_manifest.json": {
+        "bytes": 4717,
+        "sha256": "c06861d902202e7b7f2863ac810232c223fde0e6fd6e2c086cd58a06429c25fe"
+      },
+      "training/stages/qad_opd/runtime_metrics.json": {
+        "bytes": 1024,
+        "sha256": "cbded3856137d1855f130dec04ad068419627b6d0fbb8cf34b288b3b8e4fdd6b"
+      },
+      "training/stages/qad_opd/train.log": {
+        "bytes": 353026,
+        "sha256": "a84fd88b885fc28f2d54ba8a4dd43cc30f2bcb1b1f28a0e1ad5e2e593a64359a"
+      }
+    },
+    "shot_evalserver": {
+      "final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "final_results.json": {
+        "bytes": 15347,
+        "sha256": "4d63224e7ff50fd1a7949ce16441b4bb246d9fc0aea4518d755401e9b47293b1"
+      },
+      "heldout_bf16/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+        "bytes": 1520,
+        "sha256": "b7a16816be01487d5ae5da7fa3603182b320b1a458dd5e60baf850ef1ffb8123"
+      },
+      "heldout_bf16/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+        "bytes": 1520,
+        "sha256": "ae7eab2ef9bc058bb7e7c48345484c62f7a67f909400402b10ce3709d6ca62e8"
+      },
+      "heldout_bf16/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+        "bytes": 1520,
+        "sha256": "38c7d351ca37486e52b58040bbd3f0bd035f3e01eba19a096abda7da020a9d30"
+      },
+      "heldout_bf16/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+        "bytes": 1520,
+        "sha256": "274b526dc8cdb746aeaf5fdd4f1be31f600308dec36ca856d4ef860d18082a8e"
+      },
+      "heldout_bf16/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+        "bytes": 1520,
+        "sha256": "a1af0f88fbc2790c65755bdda6d346209c3172542d162b9fd765e68597df95e5"
+      },
+      "heldout_bf16/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+        "bytes": 1520,
+        "sha256": "e7cbcdfc339d727669c25ba9490c782ce373726ce2d09c97b166ebdf80d602d9"
+      },
+      "heldout_bf16/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+        "bytes": 1520,
+        "sha256": "32c4971158328a84fcca67300b04d2931f051da1ef17516ec39a4bc24ca93691"
+      },
+      "heldout_bf16/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+        "bytes": 1520,
+        "sha256": "d4cbdb5f084381e7c0ceaf7f398413ab200340c1ee080c39a4d08ca2da3ab611"
+      },
+      "heldout_bf16/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+        "bytes": 1520,
+        "sha256": "6dda1736a3cc9b9e5fe268f89a5636403115cba607971995babd73e682d8a6fd"
+      },
+      "heldout_bf16/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+        "bytes": 1520,
+        "sha256": "4899ea8dcf525b782daebd799317533320b6fbe3f9447a83dbf571f5afbadafd"
+      },
+      "heldout_bf16/eval_manifest.json": {
+        "bytes": 2985,
+        "sha256": "3f4f3458d197f656c2980f9ce508ba651ccadad51444250db39a5ca53306bfc4"
+      },
+      "heldout_continued_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+        "bytes": 51748,
+        "sha256": "d5cef7f7f501fa7cd5cf8925712ae03f1630ab4a44009c7762fbf48b08d35b0d"
+      },
+      "heldout_continued_qad/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+        "bytes": 51748,
+        "sha256": "ff0cac527763e954b93a49f6952db192fffcde0776a0dd2d61ee42a5905c5f2a"
+      },
+      "heldout_continued_qad/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+        "bytes": 51748,
+        "sha256": "c079137eb061107cc7a9b0a2ee8720a1eedd023fa7fe17b7f07883aa1927ed7e"
+      },
+      "heldout_continued_qad/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+        "bytes": 51748,
+        "sha256": "fbe6f05e486a90bc8931966d5eec296583493f115c4f9508f8c1766959a8d4aa"
+      },
+      "heldout_continued_qad/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+        "bytes": 51748,
+        "sha256": "50361fe9ea5d6cd54ca038736a0e53809b7c2699193fbcd226eb062557b637f4"
+      },
+      "heldout_continued_qad/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+        "bytes": 51748,
+        "sha256": "c8b263ed2f44f4317554c6eafe63fc5b857bc787b80318f2d0b9af612f5f146b"
+      },
+      "heldout_continued_qad/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+        "bytes": 51748,
+        "sha256": "616c1c084170dd15312e882e2e628a77d62148c564565e1cd4a069e39fcdd770"
+      },
+      "heldout_continued_qad/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+        "bytes": 51748,
+        "sha256": "1161327797c15292d5e35a73757e0cb0811315357a105672999062c87f6cac1a"
+      },
+      "heldout_continued_qad/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+        "bytes": 51748,
+        "sha256": "6a07d72a66d39f5ca7f3719397c2413040bf4d7e2671cc7e90b78eb024d8b3e9"
+      },
+      "heldout_continued_qad/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+        "bytes": 51748,
+        "sha256": "3cd68ce3abfb45fa8b657e6d72b68e382db540d9267dc597b72cbed1b71f1dc6"
+      },
+      "heldout_continued_qad/eval_manifest.json": {
+        "bytes": 3053,
+        "sha256": "38cc4742f366107851ca257ca736c6a28877432392724824f20c30e0484cfa5f"
+      },
+      "heldout_ptq/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+        "bytes": 51306,
+        "sha256": "e7b3e57471441b6e45b3e3dca7760751174fb10b77a2fe7264595d074b7b32a5"
+      },
+      "heldout_ptq/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+        "bytes": 51306,
+        "sha256": "c4428d63abc464ae647142bb1e68b452aed6bd80801605a2df14866f114e4a8b"
+      },
+      "heldout_ptq/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+        "bytes": 51306,
+        "sha256": "311c0cdf2aaeb9ff2986218b14ca9cb11c05a6811f0a2caf883f27b9e4d7cfd9"
+      },
+      "heldout_ptq/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+        "bytes": 51306,
+        "sha256": "9d279ac226a467fe8c0dc8dc19f8503bd7d0dc082487a5f94ba7a21b4ac22a60"
+      },
+      "heldout_ptq/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+        "bytes": 51306,
+        "sha256": "f8a0453dab8f85da49546e247464d0e4264e581bc96be20c48af47679517c4ed"
+      },
+      "heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+        "bytes": 51306,
+        "sha256": "db54196a8f456e468821f3c88cfbe3976e04ac9db0e5055b08ff297f8b1a2db6"
+      },
+      "heldout_ptq/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+        "bytes": 51306,
+        "sha256": "d013ac3d6a2420b2657ec3f477cf9e7eefcac3c3a37b6121a03bf8dfa3e43d21"
+      },
+      "heldout_ptq/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+        "bytes": 51306,
+        "sha256": "f09dbb7215d95c7170eb287fa0002370864d082f21e114d8c33265fc336d355b"
+      },
+      "heldout_ptq/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+        "bytes": 51306,
+        "sha256": "8eb1c9de13eb25485a0c65d1e3bb2c88c86317a233370b09e4a58a3f1782ceda"
+      },
+      "heldout_ptq/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+        "bytes": 51306,
+        "sha256": "25c8d17484136b1539716e4d296c5cbbdbcbc7b079e42efd0e9331ddcb959b99"
+      },
+      "heldout_ptq/eval_manifest.json": {
+        "bytes": 3005,
+        "sha256": "b08b404dc9980c0f91999ee1078628294054c0d354639f13ee9e02d9dbe285b3"
+      },
+      "heldout_qad/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+        "bytes": 51580,
+        "sha256": "ab9c1af11f968c885eb80bf92d10baea905542b34b4cc3b0210fbc14e93187ee"
+      },
+      "heldout_qad/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+        "bytes": 51580,
+        "sha256": "f2fac207f533c94e2ad8d1022160a8333d59e4539b2b9743bc275ab190c08999"
+      },
+      "heldout_qad/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+        "bytes": 51580,
+        "sha256": "7726d7d875751aeae953a8780aea017f5938f0cfc136affd8afe5edecabe4d20"
+      },
+      "heldout_qad/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+        "bytes": 51580,
+        "sha256": "e0c5c5daf660a032884a8577c82f719da2875e15f17bedaea872c2828c5388bb"
+      },
+      "heldout_qad/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+        "bytes": 51580,
+        "sha256": "989b78329050e6d7942a7a91db44d6bc0484e78482613ee12bba3abc44d7f89a"
+      },
+      "heldout_qad/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+        "bytes": 51580,
+        "sha256": "0407eb5adb16164035cb14b4df60075f4c42a846091c19d7e89c4984595b379f"
+      },
+      "heldout_qad/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+        "bytes": 51580,
+        "sha256": "15def26838f36e4c619433c215a7f71012e01fc808c6da69c0877155e70b7298"
+      },
+      "heldout_qad/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+        "bytes": 51580,
+        "sha256": "dbe30139d77bbe8e4b5db5345000796511012e374f5de70a5031f2f2c0c7cac8"
+      },
+      "heldout_qad/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+        "bytes": 51580,
+        "sha256": "a5fe2df85ac7f8a5e64ec7fb43eb4e6ce68b0435a402437ec9fd2f02845be215"
+      },
+      "heldout_qad/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+        "bytes": 51580,
+        "sha256": "95d98a67dca468d7e04a9298607502aa782c50b783e4188a81d0a8a00de8c0b0"
+      },
+      "heldout_qad/eval_manifest.json": {
+        "bytes": 3033,
+        "sha256": "30a234863bd2ccab8dcd66d58b7fd3589d70e92e36804d6bc1cf9236b22b55f0"
+      },
+      "heldout_qad_opd/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.server.log": {
+        "bytes": 51736,
+        "sha256": "99679474c703829e2172816b1011f57d9a54763ac9558ab36a439406a22ca77a"
+      },
+      "heldout_qad_opd/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.server.log": {
+        "bytes": 51736,
+        "sha256": "9bf88472b56b67d82a9f7f48d96acd466d7c4738c0a78de1aeec1e91d623f854"
+      },
+      "heldout_qad_opd/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.server.log": {
+        "bytes": 51736,
+        "sha256": "164fe23576c3d6934971fc3982040e98f733a53476f9386633dea7b9352f3df6"
+      },
+      "heldout_qad_opd/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.server.log": {
+        "bytes": 51736,
+        "sha256": "3da0b7e071d54097192ac1517e4e996c02a49081871e37b244244b49f3ecd0a2"
+      },
+      "heldout_qad_opd/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.server.log": {
+        "bytes": 51736,
+        "sha256": "fee7f02b8575366d9b5ebc6ca4308c67e196aeb63c0adde2a0b5e2c5d5a7c6e4"
+      },
+      "heldout_qad_opd/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.server.log": {
+        "bytes": 51736,
+        "sha256": "22dc59c85a8d5640670037b9084492564a2ee7813c8766802d76f48b85f18be2"
+      },
+      "heldout_qad_opd/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.server.log": {
+        "bytes": 51736,
+        "sha256": "f36f1125a84977ae466e03179d1c375c8ee2f961979c6ef63bacfebc9372b3bc"
+      },
+      "heldout_qad_opd/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.server.log": {
+        "bytes": 51736,
+        "sha256": "fc7a9c183490f3b2e7f20f1aaab20a35f9e5ce98b1b1797daf0f4353d05ef3bf"
+      },
+      "heldout_qad_opd/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.server.log": {
+        "bytes": 51736,
+        "sha256": "03211d7f6efafe249011e924e6f9b986bc8d0695334a7c5e6313937bfa8e83be"
+      },
+      "heldout_qad_opd/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.server.log": {
+        "bytes": 51736,
+        "sha256": "d474d6d071190edf96bf86d8d9ae295bdc2c076453ad6e1b4cf134ad8f627778"
+      },
+      "heldout_qad_opd/eval_manifest.json": {
+        "bytes": 3035,
+        "sha256": "6b67e6812da65b5071e882599af946dd561483e53ff8ea95e8b0aaf5838c7690"
+      },
+      "heldout_raw_logs.json": {
+        "bytes": 23104,
+        "sha256": "00a804afb9d2360b50a252505b7ccecb0c381c54282ab4f18c30e1b188a2b5bd"
+      },
+      "paired_comparison.json": {
+        "bytes": 494625,
+        "sha256": "fc3e052cbcd92d3ebb7df62efb28fe9208f52bef3c015fe932eb9abef8309de3"
+      },
+      "training/costs.json": {
+        "bytes": 36340,
+        "sha256": "4761905b370c34c8d1c8d0fc35880733855d0cfd031c9994bb994d4255606d3b"
+      },
+      "training/orchestration/final_manifest.json": {
+        "bytes": 98445,
+        "sha256": "b33445dd687a68e58a7cb829f4cdbb150ad53ee25d6489288dc19e8b034b5fc8"
+      },
+      "training/orchestration/run_manifest.json": {
+        "bytes": 268341,
+        "sha256": "0e84d12f0bce311246f6884a16eb399477f330a89b4605e231d1371ef1c03388"
+      }
+    }
+  },
+  "evidence_manifest_sha256": "d9c73aea1deb1f8b24eb0d4886ef0d4b1a4df30582e76a97095d104b3d1b6a7e",
+  "protocol_sha256": "31addae911f92db65dda3c1c3145e8b798dca46c49a5ae12bbe10d232b5a4521",
+  "execution_order": [
+    "shot_bake",
+    "shot_collect",
+    "shot_qad",
+    "shot_rollout",
+    "shot_opdcache",
+    "shot_opd",
+    "shot_evalserver"
+  ],
+  "stages": {
+    "shot_bake": "已完成 RTN 配方与编码预算核验",
+    "shot_collect": "已完成教师演示来源核验",
+    "shot_qad": "已完成 QAD 训练证据核验",
+    "shot_rollout": "已完成学生闭环采集证据核验",
+    "shot_opdcache": "已完成教师缓存证据核验",
+    "shot_opd": "已完成 OPD 续训证据核验",
+    "shot_evalserver": "已完成正式评测服务日志核验"
+  },
+  "script_dependencies": {
+    "all_entrypoints": [
+      "common_v12.sh",
+      "verify_completed_capture.py"
+    ]
+  },
+  "note": "Real CPU verification of completed original evidence; no live experiment replay. All 17 publication screenshot slots remain required.",
+  "script_files": {
+    "common_v12.sh": {
+      "bytes": 200,
+      "sha256": "eab673156df751d0dcbd14cbabc750af18914f98ddb503b35c30de45318558cb"
+    },
+    "shot_bake.sh": {
+      "bytes": 199,
+      "sha256": "0c4f246380c438acdfd98ce686aa01f295f5e86674e3b477ab11da897399c530"
+    },
+    "shot_collect.sh": {
+      "bytes": 202,
+      "sha256": "b708a052519df977e1e3204abfe2836d51a04cb58f8723ec5301b700ac2e4149"
+    },
+    "shot_evalserver.sh": {
+      "bytes": 205,
+      "sha256": "3329a049a1ad009deeace3b9a7204118d7dc811b663f475cec6d09725173a773"
+    },
+    "shot_opd.sh": {
+      "bytes": 198,
+      "sha256": "e019484db33349ba18c6eae8dd80de3ff40d117c40a853506421f7e7709dffe2"
+    },
+    "shot_opdcache.sh": {
+      "bytes": 203,
+      "sha256": "efd0b0b818f2828de65b586d043223d8a523ca4a40e17c8fcfffd9b16e00c1af"
+    },
+    "shot_qad.sh": {
+      "bytes": 198,
+      "sha256": "914424e1240297675597757712f47092a58cf90866d2d5a59d3841758963073c"
+    },
+    "shot_rollout.sh": {
+      "bytes": 202,
+      "sha256": "55629b2d7558b072e141d737eee628d92912b1d01bb65b60f1dab913573f0b29"
+    },
+    "verify_completed_capture.py": {
+      "bytes": 15896,
+      "sha256": "a5e65949ada218a610c82c4319907f047d470b4eda7f82a5a09682b2f9561b6d"
+    }
+  }
+}

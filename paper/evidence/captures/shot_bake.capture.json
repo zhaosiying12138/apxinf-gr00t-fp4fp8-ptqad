@@ -1,9 +1,9 @@
 {
     "capture_status":  "accepted_not_black",
-    "captured_at":  "2026-10-04T07:29:12.4776001Z",
-    "script":  "/home/zhaosiying/codebase/fp4vla/paper/_build/capture_v11_20261004/shot_bake.sh",
-    "image":  "C:\\Users\\Admin1\\shot\\ptqad_v11_20261004\\shot_bake.png",
-    "raw_log":  "C:\\Users\\Admin1\\shot\\ptqad_v11_20261004\\shot_bake.log",
+    "captured_at":  "2026-10-11T00:50:36.5732525Z",
+    "script":  "/home/zhaosiying/codebase/fp4vla/results/reruns/rtn_w4a4_release_20261006_01/captures/w4a4_final/shot_bake.sh",
+    "image":  "C:\\Users\\Admin1\\shot\\ptqad_v12_final_take2\\shot_bake_v12.png",
+    "raw_log":  "C:\\Users\\Admin1\\shot\\ptqad_v12_final_take2\\shot_bake_v12.log",
     "exit_status":  0,
     "image_quality":  {
                           "validator":  "near_black_grid_v1",
@@ -14,11 +14,11 @@
                           "near_black_rgb_max":  12,
                           "rejection_fraction_threshold":  0.98,
                           "near_black_fraction":  0.00033920417482061319,
-                          "mean_luminance":  38.444717184605615,
+                          "mean_luminance":  35.607212227010727,
                           "maximum_luminance":  254.99999999999997,
                           "accepted_not_black":  true,
                           "limitation":  "Pixel visibility gate only; human review must check terminal content, theme, popups and command identity."
                       },
-    "sha256_before_taskbar_crop":  "ee1c1152bdce0dd169c059ad1d2c55bc4caab40a7e7b872d7500c0bb91a466ff",
+    "sha256_before_taskbar_crop":  "059a8f156b4568209422f072dc0d3cb8fe376a9f226c42dfe3724efc3a5945d6",
     "review_required":  "Inspect real terminal content, theme, popups and command identity before publication."
 }

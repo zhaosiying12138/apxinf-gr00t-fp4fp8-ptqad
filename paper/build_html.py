@@ -5,9 +5,12 @@ import base64
 import html
 import json
 import pathlib
+import os
+import posixpath
 import re
 import struct
 import subprocess
+from urllib.parse import urlsplit, urlunsplit
 from markdown_it import MarkdownIt
 from publication_guard import file_record, html_build_inputs, require
 
@@ -72,6 +75,36 @@ def math_and_code(md):
                               text=True, encoding='utf-8', capture_output=True, check=True)
     return md, json.loads(rendered.stdout), maths
 
+def render_markdown(md, *, source_dir, output_dir):
+    """Rebase Markdown link tokens when the HTML lives above its sources.
+
+    Token attributes isolate real links from fenced/inline code, protected
+    mathematics, and raw HTML. Schemed URLs, root URLs and anchors retain
+    their exact original spelling.
+    """
+    parser = MarkdownIt('commonmark', {'html': True, 'typographer': False}).enable('table')
+    environment = {}
+    tokens = parser.parse(md, environment)
+    prefix = os.path.relpath(source_dir, output_dir).replace(os.sep, '/')
+
+    def relocate(items):
+        for token in items:
+            if token.type == 'link_open':
+                href = token.attrGet('href')
+                if href:
+                    target = urlsplit(href)
+                    if not (target.scheme or target.netloc or not target.path or target.path.startswith('/')):
+                        path = posixpath.normpath(posixpath.join(prefix, target.path))
+                        if target.path.endswith('/') and not path.endswith('/'):
+                            path += '/'
+                        token.attrSet('href', urlunsplit(('', '', path, target.query, target.fragment)))
+            if token.children:
+                relocate(token.children)
+
+    relocate(tokens)
+    return parser.renderer.render(tokens, parser.options, environment)
+
+
 def main():
     meta = json.loads((PAPER/'meta.json').read_text(encoding='utf-8'))
     figures = json.loads((PAPER/'figures.json').read_text(encoding='utf-8'))
@@ -88,8 +121,7 @@ def main():
     # status markers (for example the red ``xxx`` placeholders in a review
     # draft).  Passing HTML through keeps those markers semantic and styled;
     # all prose and code still goes through MarkdownIt's normal escaping.
-    parser = MarkdownIt('commonmark', {'html': True, 'typographer': False}).enable('table')
-    doc = parser.render(md)
+    doc = render_markdown(md, source_dir=PAPER/'sections', output_dir=PAPER)
     for i, result in enumerate(maths):
         token = f'FPVMATHTOKEN{i}END'
         if math_sources[i]['display']:
